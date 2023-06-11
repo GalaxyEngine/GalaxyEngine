@@ -29,6 +29,7 @@ end
 target("GalaxyEngine")
     set_kind("binary")
     set_pcxxheader("include/pch.h")
+    set_symbols("debug")
 
     -- set include dirs
     add_includedirs("include")
@@ -36,6 +37,8 @@ target("GalaxyEngine")
     includeDir("")
     includeDir("Wrapper")
     includeDir("Core")
+    includeDir("Debug")
+    includeDir("Resource")
 
     add_packages("glfw")
     add_packages("imgui")

@@ -1,13 +1,40 @@
+#pragma region includes
 #include "Core\Application.h"
 
 #include <GL/glew.h>
 
 #include <Wrapper/GUI.h>
 #include <Wrapper/Window.h>
+#include <Resource/IResource.h>
+#pragma endregion
+
+#pragma region static
 Core::Application Core::Application::m_instance;
+#pragma endregion
 
 Core::Application::~Application()
 {
+}
+
+void Core::Application::Initalize()
+{
+	// Initalize Window Lib
+	if (!Wrapper::Window::Initialize())
+		PrintError("Failed to initalize window API");
+
+	// Create Window
+	m_window = std::make_unique<Wrapper::Window>();
+	Wrapper::WindowConfig windowConfig;
+	windowConfig.width = 800;
+	windowConfig.height = 600;
+	windowConfig.name = "Galaxy Engine";
+	m_window->Create(windowConfig);
+	m_window->SetVSync(true);
+
+	// Initalize GUI Lib
+	Wrapper::GUI::Initalize(m_window, "#version 130");
+
+	std::shared_ptr<Resource::IResource> resourceTest = std::make_shared<Resource::IResource>("Test/Assets/Test/Test.png");
 }
 
 void Core::Application::Update()
@@ -45,29 +72,13 @@ void Core::Application::Update()
 void Core::Application::Destroy()
 {
 	// Cleanup:
+
 	// GUI
 	Wrapper::GUI::UnInitalize();
 
 	// Window
 	m_window->Destroy();
 	Wrapper::Window::UnInitialize();
-}
 
-void Core::Application::Initalize()
-{
-	// Initalize Window Lib
-	Wrapper::Window::Initialize();
-
-	// Create Window
-	m_window = std::make_unique<Wrapper::Window>();
-	Wrapper::WindowConfig windowConfig;
-	windowConfig.width = 800;
-	windowConfig.height = 600;
-	windowConfig.name = "Test Window";
-	m_window->Create(windowConfig);
-	m_window->SetVSync(true);
-
-	// Initalize GUI Lib
-	Wrapper::GUI::Initalize(m_window, "#version 130");
-
+	PrintLog("Application clean-up completed.");
 }

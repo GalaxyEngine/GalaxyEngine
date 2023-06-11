@@ -1,7 +1,7 @@
 #pragma once
 #include <GalaxyAPI.h>
 
-namespace GALX::Wrapper
+namespace GALAXY::Wrapper
 {
 	struct WindowConfig
 	{

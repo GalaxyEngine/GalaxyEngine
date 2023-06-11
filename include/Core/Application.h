@@ -1,7 +1,7 @@
 #pragma once
 #include <GalaxyAPI.h>
 
-namespace GALX
+namespace GALAXY
 {
 	namespace Wrapper 
 	{

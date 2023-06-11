@@ -1,7 +1,7 @@
 #pragma once
 #include <GalaxyAPI.h>
 
-namespace GALX::Wrapper
+namespace GALAXY::Wrapper
 {
 	class Window;
 	namespace GUI 

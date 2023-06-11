@@ -1,5 +1,3 @@
 #pragma once
-namespace GALX
-{
-}
-using namespace GALX;
+namespace GALAXY {}
+using namespace GALAXY;

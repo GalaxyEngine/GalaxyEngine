@@ -8,13 +8,15 @@ Wrapper::Window::~Window()
 
 static void glfw_error_callback(int error, const char* description)
 {
-	fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+	PrintError("GLFW Error %d: %s", error, description);
 }
 
 bool Wrapper::Window::Initialize()
 {
-	if (!glfwInit())
+	if (!glfwInit()) {
+		PrintError("Failed to initalize GLFW");
 		return false;
+	}
 	glfwSetErrorCallback(glfw_error_callback);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
@@ -46,7 +48,7 @@ void Wrapper::Window::MakeContextCurrent(void* window)
 void Wrapper::Window::Create(const WindowConfig& config)
 {
 	if (m_window = glfwCreateWindow(config.width, config.height, config.name, nullptr, nullptr); !m_window)
-		throw "failed to Create Window";
+		PrintError("Failed to create window");
 	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 	glfwMakeContextCurrent(glfwWindow);
 }
