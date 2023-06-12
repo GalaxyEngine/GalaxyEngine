@@ -10,7 +10,7 @@ namespace GALAXY::Resource {
 		Mesh,
 	};
 
-	class IResource
+	class GALAXY_API IResource
 	{
 	public:
 		IResource(const std::string& fullPath);
@@ -24,15 +24,20 @@ namespace GALAXY::Resource {
 		static std::string ExtractRelativePathFromPath(const std::string& path);
 		static std::string ExtractExtensionFromPath(const std::string& path);
 
+		virtual void Load() {}
+		virtual void Send() {}
+
 	private:
+		friend class ResourceManager;
+
 		ResourceType m_type;
 		std::string m_fullPath;
 		std::string m_relativepath;
 		std::string m_name;
 
-		std::atomic_bool m_loaded;
-		std::atomic_bool m_shouldBeLoaded;
-		std::atomic_bool m_hasBeenSent;
+		std::atomic_bool m_loaded = false;
+		std::atomic_bool m_shouldBeLoaded = false;
+		std::atomic_bool m_hasBeenSent = false;
 
 	};
 }

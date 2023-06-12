@@ -1,3 +1,4 @@
+#include "pch.h"
 #pragma region includes
 #include "Core\Application.h"
 

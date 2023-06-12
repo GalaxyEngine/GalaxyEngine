@@ -1,6 +1,6 @@
-#include "pch.h"
 #include <Core/Application.h>
 
+using namespace GALAXY;
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
 

@@ -1,5 +1,6 @@
 #pragma once
 #include <GalaxyAPI.h>
+#include <memory>
 
 namespace GALAXY
 {
@@ -8,7 +9,7 @@ namespace GALAXY
 		class Window;
 	}
 	namespace Core {
-		class Application
+		class GALAXY_API Application
 		{
 		public:
 			~Application();
