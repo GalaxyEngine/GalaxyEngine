@@ -4,11 +4,10 @@
 
 namespace GALAXY
 {
-	namespace Wrapper 
+	namespace Resource	{ class ResourceManager; }
+	namespace Wrapper	{ class Window; }
+	namespace Core 
 	{
-		class Window;
-	}
-	namespace Core {
 		class GALAXY_API Application
 		{
 		public:
@@ -22,6 +21,7 @@ namespace GALAXY
 
 		private:
 			static Application m_instance;
+			Resource::ResourceManager* m_resourceManager = nullptr;
 			std::unique_ptr<Wrapper::Window> m_window;
 		};
 	}

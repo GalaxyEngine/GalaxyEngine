@@ -2,11 +2,11 @@ add_rules("mode.release", "mode.debug")
 add_rules("plugin.vsxmake.autoupdate")
 
 add_requires("imgui v1.89.6-docking", { configs = { glfw_opengl3 = true } })
-add_requires("glew")
+add_requires("glad")
 add_requires("stb")
 
 set_languages("c++20")
-
+set_rundir("GalaxyCore")
 
 if is_plat("windows") then
     set_runtimes(is_mode("debug") and "MDd" or "MD")
@@ -53,7 +53,7 @@ target("GalaxyEngine")
 
     add_packages("glfw")
     add_packages("imgui")
-    add_packages("glew")
+    add_packages("glad")
     add_packages("stb")
 target_end()
 

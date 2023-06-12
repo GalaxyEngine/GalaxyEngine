@@ -1,13 +1,14 @@
+
 #include "pch.h"
-#pragma region includes
+
+#include <glad/glad.h>
+
 #include "Core\Application.h"
-
-#include <GL/glew.h>
-
-#include <Wrapper/GUI.h>
-#include <Wrapper/Window.h>
-#include <Resource/IResource.h>
-#pragma endregion
+#include "Wrapper/GUI.h"
+#include "Wrapper/Window.h"
+#include "Wrapper/Renderer.h"
+#include "Resource/ResourceManager.h"
+#include "Resource/Texture.h"
 
 #pragma region static
 Core::Application Core::Application::m_instance;
@@ -35,12 +36,17 @@ void Core::Application::Initalize()
 	// Initalize GUI Lib
 	Wrapper::GUI::Initalize(m_window, "#version 130");
 
-	std::shared_ptr<Resource::IResource> resourceTest = std::make_shared<Resource::IResource>("Test/Assets/Test/Test.png");
+	// Initalize Render API
+	Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
+
+	m_resourceManager = Resource::ResourceManager::GetInstance();
+	m_resourceManager->ImportAllFilesInFolder("Assets");
 }
 
 void Core::Application::Update()
 {
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	std::weak_ptr<Resource::Texture> texture = m_resourceManager->GetOrLoad<Resource::Texture>("Assets/debug_texture.png");
 
 	while (!m_window->ShouldClose())
 	{
@@ -51,6 +57,8 @@ void Core::Application::Update()
 		if (ImGui::Begin("Window"))
 		{
 			ImGui::Text("%f", 1.f / ImGui::GetIO().DeltaTime);
+			void* id = reinterpret_cast<void*>(static_cast<uintptr_t>(texture.lock()->GetID()));
+			ImGui::Image(id, ImVec2(128, 128));
 		}
 		ImGui::End();
 		//ENDDRAW

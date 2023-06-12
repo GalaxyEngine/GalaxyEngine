@@ -2,6 +2,11 @@
 #include "Resource/Texture.h"
 #include "Wrapper/ImageLoader.h"
 
+Resource::Texture::~Texture()
+{
+	Wrapper::Renderer::GetInstance()->DestroyTexture(this);
+}
+
 void Resource::Texture::Load()
 {
 	p_shouldBeLoaded = true;
@@ -10,9 +15,12 @@ void Resource::Texture::Load()
 		p_loaded = true;
 	else
 		PrintError("Failed to load Image %s", p_fullPath.c_str());
+	Send();
 }
 
 void Resource::Texture::Send()
 {
-	//TODO	
+	Wrapper::Renderer::GetInstance()->CreateTexture(this);
+	Wrapper::ImageLoader::ImageFree(this->m_bytes);
+	p_hasBeenSent = true;
 }

@@ -1,3 +1,4 @@
+#pragma once
 #include "GalaxyAPI.h"
 #include <string>
 namespace GALAXY::Resource {
@@ -10,7 +11,7 @@ namespace GALAXY::Resource {
 		Mesh,
 	};
 
-	class GALAXY_API IResource
+	class IResource
 	{
 	public:
 		IResource(const std::string& fullPath);

@@ -9,6 +9,7 @@
 // Galaxy Headers
 #include <Debug/Log.h>
 #include <Maths/Maths.h>
+#include <Wrapper/Renderer.h>
 
 // Libs Headers
 #include <imgui.h>

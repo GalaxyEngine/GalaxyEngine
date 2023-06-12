@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Resource/IResource.h"
+#include "Resource/ResourceManager.h"
+#define RESOURCE_FOLDER_NAME "assets"
 
 Resource::IResource::IResource(const std::string& fullPath)
 {
-	p_type = IResource::GetTypeFromExtension(IResource::ExtractExtensionFromPath(fullPath));
-	p_fullPath = fullPath;
-	p_relativepath = IResource::ExtractRelativePathFromPath(fullPath);
-	p_name = IResource::ExtractNameFromPath(fullPath);
+	p_fullPath = ResourceManager::StringToPath(fullPath);
+	p_type = IResource::GetTypeFromExtension(IResource::ExtractExtensionFromPath(p_fullPath));
+	p_relativepath = IResource::ExtractRelativePathFromPath(p_fullPath);
+	p_name = IResource::ExtractNameFromPath(p_fullPath);
 }
 
 Resource::ResourceType Resource::IResource::GetTypeFromExtension(const std::string_view& ext)
@@ -36,12 +38,12 @@ std::string GALAXY::Resource::IResource::ExtractNameFromPath(std::string path, b
 
 std::string GALAXY::Resource::IResource::ExtractRelativePathFromPath(const std::string& path)
 {
-	size_t pos = path.find("Assets");
+	size_t pos = path.find(RESOURCE_FOLDER_NAME);
 	if (pos < path.size()) {
 		return path.substr(pos);
 	}
 	else {
-		PrintWarning("'Assets' not found in Resource %s", path.c_str());
+		PrintWarning("%s not found in Resource %s", RESOURCE_FOLDER_NAME, path.c_str());
 		return "";
 	}
 }

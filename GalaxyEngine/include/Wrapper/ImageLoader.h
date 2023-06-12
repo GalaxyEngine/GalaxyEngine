@@ -1,5 +1,4 @@
 #include "GalaxyAPI.h"
-#include <stb/stb_image.h>
 namespace GALAXY::Wrapper::ImageLoader {
 
 	void FlipVerticalOnLoad(bool flagTrueIfShouldFlip);

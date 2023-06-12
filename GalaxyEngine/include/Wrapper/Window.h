@@ -21,6 +21,7 @@ namespace GALAXY::Wrapper
 		static void PollEvent();
 		static void* GetCurrentContext();
 		static void MakeContextCurrent(void* window);
+		static void* GetProcAddress(const char* procname);
 
 		void Create(const WindowConfig& config);
 		void Destroy();

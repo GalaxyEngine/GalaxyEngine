@@ -12,6 +12,7 @@ mkdir "%filepath%\.."
 set "filepath=include\%filename%"
 mkdir "%filepath%\.."
 (  
+  echo #pragma once
   echo #include "GalaxyAPI.h"
   echo namespace GALAXY {
   echo }

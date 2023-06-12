@@ -101,3 +101,8 @@ void Wrapper::Window::SetSize(const Vec2i& size)
 	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 	glfwSetWindowSize(glfwWindow, size.x, size.y);
 }
+
+void* GALAXY::Wrapper::Window::GetProcAddress(const char* procname)
+{
+	return glfwGetProcAddress(procname);
+}
