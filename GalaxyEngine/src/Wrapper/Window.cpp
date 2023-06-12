@@ -71,6 +71,14 @@ void Wrapper::Window::GetSize(int* width, int* height)
 	glfwGetWindowSize(glfwWindow, width, height);
 }
 
+Vec2i Wrapper::Window::GetSize()
+{
+	Vec2i size;
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	glfwGetWindowSize(glfwWindow, &size.x, &size.y);
+	return size;
+}
+
 void Wrapper::Window::SetVSync(bool enable)
 {
 	glfwSwapInterval(enable); // Enable vsync
@@ -80,4 +88,16 @@ bool Wrapper::Window::ShouldClose()
 {
 	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 	return glfwWindowShouldClose(glfwWindow);
+}
+
+void Wrapper::Window::SetSize(int width, int height)
+{
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	glfwSetWindowSize(glfwWindow, width, height);
+}
+
+void Wrapper::Window::SetSize(const Vec2i& size)
+{
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	glfwSetWindowSize(glfwWindow, size.x, size.y);
 }

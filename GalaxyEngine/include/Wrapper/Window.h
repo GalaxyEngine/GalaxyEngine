@@ -1,5 +1,6 @@
 #pragma once
 #include <GalaxyAPI.h>
+#include <Maths/Maths.h>
 
 namespace GALAXY::Wrapper
 {
@@ -28,9 +29,12 @@ namespace GALAXY::Wrapper
 
 		// --- Getters --- //
 		void GetSize(int* width, int* height);
+		Vec2i GetSize();
 
 		// --- Setters --- //
 		void SetVSync(bool enable);
+		void SetSize(int width, int height);
+		void SetSize(const Vec2i& size);
 
 		bool ShouldClose();
 

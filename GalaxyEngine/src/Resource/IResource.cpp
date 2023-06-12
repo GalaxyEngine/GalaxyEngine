@@ -3,10 +3,10 @@
 
 Resource::IResource::IResource(const std::string& fullPath)
 {
-	m_type = IResource::GetTypeFromExtension(IResource::ExtractExtensionFromPath(fullPath));
-	m_fullPath = fullPath;
-	m_relativepath = IResource::ExtractRelativePathFromPath(fullPath);
-	m_name = IResource::ExtractNameFromPath(fullPath);
+	p_type = IResource::GetTypeFromExtension(IResource::ExtractExtensionFromPath(fullPath));
+	p_fullPath = fullPath;
+	p_relativepath = IResource::ExtractRelativePathFromPath(fullPath);
+	p_name = IResource::ExtractNameFromPath(fullPath);
 }
 
 Resource::ResourceType Resource::IResource::GetTypeFromExtension(const std::string_view& ext)

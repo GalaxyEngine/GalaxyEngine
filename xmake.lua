@@ -3,6 +3,7 @@ add_rules("plugin.vsxmake.autoupdate")
 
 add_requires("imgui v1.89.6-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glew")
+add_requires("stb")
 
 set_languages("c++20")
 
@@ -19,8 +20,18 @@ elseif is_plat("macosx") then
     add_frameworks("OpenGL")
 end
 
+function fileExists(path)
+    local file = io.open(path, "r")
+    if file then
+        io.close(file)
+        return true
+    end
+    return false
+end
+
 function includeDir(path)
     add_headerfiles("GalaxyEngine/include/" .. path .. "/*.h")
+    add_headerfiles("GalaxyEngine/include/" .. path .. "/*.inl")
     add_files("GalaxyEngine/src/" .. path .. "/*.cpp")
 end
 
@@ -38,10 +49,12 @@ target("GalaxyEngine")
     includeDir("Core")
     includeDir("Debug")
     includeDir("Resource")
+    includeDir("Math")
 
     add_packages("glfw")
     add_packages("imgui")
     add_packages("glew")
+    add_packages("stb")
 target_end()
 
 target("GalaxyCore")

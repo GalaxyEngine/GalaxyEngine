@@ -4,9 +4,11 @@
 // C++ Headers
 #include <memory>
 #include <stdio.h>
+#include <filesystem>
 
 // Galaxy Headers
 #include <Debug/Log.h>
+#include <Maths/Maths.h>
 
 // Libs Headers
 #include <imgui.h>

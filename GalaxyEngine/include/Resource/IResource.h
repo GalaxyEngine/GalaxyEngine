@@ -27,17 +27,17 @@ namespace GALAXY::Resource {
 		virtual void Load() {}
 		virtual void Send() {}
 
-	private:
+	protected:
 		friend class ResourceManager;
 
-		ResourceType m_type;
-		std::string m_fullPath;
-		std::string m_relativepath;
-		std::string m_name;
+		ResourceType p_type;
+		std::string p_fullPath;
+		std::string p_relativepath;
+		std::string p_name;
 
-		std::atomic_bool m_loaded = false;
-		std::atomic_bool m_shouldBeLoaded = false;
-		std::atomic_bool m_hasBeenSent = false;
+		std::atomic_bool p_loaded = false;
+		std::atomic_bool p_shouldBeLoaded = false;
+		std::atomic_bool p_hasBeenSent = false;
 
 	};
 }

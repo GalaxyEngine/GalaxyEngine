@@ -2,6 +2,7 @@
 #include "Resource/IResource.h"
 
 #include <unordered_map>
+#include <filesystem>
 
 
 namespace GALAXY::Resource {
@@ -14,7 +15,7 @@ namespace GALAXY::Resource {
 
 		inline void AddResource(IResource* resource)
 		{
-			m_resources[resource->m_relativepath] = std::shared_ptr<IResource>(resource);
+			m_resources[resource->p_relativepath] = std::shared_ptr<IResource>(resource);
 		}
 
 		inline std::weak_ptr<IResource> GetOrLoad(const std::string& relativePath)
@@ -22,13 +23,15 @@ namespace GALAXY::Resource {
 			return std::weak_ptr<IResource>{};
 		}
 
-
 		[[nodiscard]] inline std::weak_ptr<IResource> GetResource(const std::string& relativePath)
 		{
 			if (m_resources.count(relativePath))
 				return m_resources.at(relativePath);
 			return std::weak_ptr<IResource>{};
 		}
+
+		void ImportAllFilesInFolder(const std::filesystem::path& folder);
+		void ImportResource(const std::filesystem::path& resourcePath);
 
 	private:
 		static ResourceManager m_instance;
