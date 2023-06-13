@@ -51,6 +51,7 @@ target("GalaxyEngine")
     includeDir("Resource")
     includeDir("Math")
     includeDir("Utils")
+    includeDir("Component")
 
     add_packages("glfw")
     add_packages("imgui")

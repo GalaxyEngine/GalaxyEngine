@@ -26,11 +26,15 @@ namespace GALAXY
 
 			void AddResourceToSend(const std::string& fullPath);
 
+			void UpdateResources();
+
 		private:
 			static Application m_instance;
+
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
 			class ThreadManager* m_threadManager = nullptr;
+			class Scene* m_scene = nullptr;;
 
 			std::unique_ptr<Wrapper::Window> m_window;
 

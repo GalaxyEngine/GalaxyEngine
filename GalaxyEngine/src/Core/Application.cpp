@@ -5,6 +5,7 @@
 
 #include "Core/Application.h"
 #include "Core/ThreadManager.h"
+#include "Core/Scene.h"
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
@@ -16,7 +17,7 @@
 Core::Application Core::Application::m_instance;
 #pragma endregion
 
-Core::Application::~Application(){}
+Core::Application::~Application() {}
 
 void Core::Application::Initalize()
 {
@@ -40,11 +41,36 @@ void Core::Application::Initalize()
 	Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
 	m_renderer = Wrapper::Renderer::GetInstance();
 
+	// Initalize Thread Manager
 	m_threadManager = Core::ThreadManager::GetInstance();
 	m_threadManager->Initalize();
 
+	// Initalize Resource Manager
 	m_resourceManager = Resource::ResourceManager::GetInstance();
 	m_resourceManager->ImportAllFilesInFolder("Assets");
+	
+	// Initialize Scene
+	m_scene = Core::Scene::GetInstance();
+}
+
+void GALAXY::Core::Application::UpdateResources()
+{
+	if (!m_resourceToSend.empty())
+	{
+		auto resourcePath = m_resourceToSend.front();
+		std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
+		if (resource.expired())
+		{
+			m_resourceToSend.pop_front();
+		}
+		else
+		{
+			resource.lock()->Send();
+			m_resourceToSend.pop_front();
+			if (!resource.lock()->HasBeenSent())
+				m_resourceToSend.push_back(resourcePath);
+		}
+	}
 }
 
 void Core::Application::Update()
@@ -62,25 +88,11 @@ void Core::Application::Update()
 			m_window->ToggleFullscreen();
 		}
 
-		//TEMP
-		if (!m_resourceToSend.empty())
-		{
-			auto resourcePath = m_resourceToSend.front();
-			std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
-			if (resource.expired()) 
-			{
-				m_resourceToSend.pop_front();
-			}
-			else
-			{
-				resource.lock()->Send();
-				m_resourceToSend.pop_front();
-				if (!resource.lock()->HasBeenSent())
-					m_resourceToSend.push_back(resourcePath);
-			}
-		}
+		UpdateResources();
 
 		//BEGINDRAW
+		m_scene->Update();
+
 		if (ImGui::Begin("Window"))
 		{
 			int i = 0;
