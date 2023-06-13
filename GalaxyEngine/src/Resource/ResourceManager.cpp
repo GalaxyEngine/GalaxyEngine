@@ -11,7 +11,6 @@ Resource::ResourceManager::~ResourceManager()
 
 void Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::path& folder)
 {
-	std::cout << std::filesystem::current_path() << std::endl;
 	if (!std::filesystem::exists(folder))
 		return;
 	auto dirIt = std::filesystem::directory_iterator(folder);
@@ -37,7 +36,7 @@ void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
 		PrintError("Cannot Import resource with this extension : %s", extension.c_str());
 		break;
 	case GALAXY::Resource::ResourceType::Texture:
-		AddResource(new Texture(resourcePath));
+		GetOrLoad<Texture>(resourcePath);
 		break;
 	case GALAXY::Resource::ResourceType::Shader:
 		AddResource(new Shader(resourcePath));

@@ -20,7 +20,6 @@ void Resource::Texture::Load()
 		PrintError("Failed to load Image %s", p_fullPath.c_str());
 		return;
 	}
-
 	SendRequest();
 }
 

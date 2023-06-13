@@ -68,6 +68,20 @@ namespace GALAXY::Resource {
 			return std::weak_ptr<T>{};
 		}
 
+		template <typename T>
+		[[nodiscard]] inline std::vector<std::weak_ptr<T>> GetAllResources()
+		{
+			std::vector<std::weak_ptr<T>> m_resourcesOfType;
+			for (auto&& resource : m_resources)
+			{
+				if (resource.second->GetType() == T::GetResourceType())
+				{
+					m_resourcesOfType.push_back(std::dynamic_pointer_cast<T>(resource.second));
+				}
+			}
+			return m_resourcesOfType;
+		}
+
 		static std::string StringToRelativePath(const std::string& value);
 		static std::string StringToPath(const std::string& value);
 

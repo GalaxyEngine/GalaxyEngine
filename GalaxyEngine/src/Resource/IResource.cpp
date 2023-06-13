@@ -71,5 +71,7 @@ std::string GALAXY::Resource::IResource::ExtractExtensionFromPath(const std::str
 
 void GALAXY::Resource::IResource::SendRequest()
 {
+	Core::ThreadManager::GetInstance()->Lock();
 	Core::Application::GetInstance().AddResourceToSend(p_fullPath);
+	Core::ThreadManager::GetInstance()->Unlock();
 }

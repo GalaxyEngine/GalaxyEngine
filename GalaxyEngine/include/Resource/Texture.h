@@ -39,6 +39,9 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
+			// Get the enum with the class
+			static ResourceType GetResourceType() { return ResourceType::Texture; }
+
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;

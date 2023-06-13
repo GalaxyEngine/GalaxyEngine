@@ -3,6 +3,10 @@
 
 std::unique_ptr<Core::ThreadManager> Core::ThreadManager::m_instance;
 
+Core::ThreadManager::~ThreadManager()
+{
+}
+
 void Core::ThreadManager::Initalize()
 {
 	m_threadList.resize(std::thread::hardware_concurrency());
@@ -20,17 +24,11 @@ void Core::ThreadManager::ThreadLoop()
 		{
 			Lock();
 			if (!m_tasks.empty()) {
-				if (m_tasks.front() != nullptr) {
-					auto task = m_tasks.front();
-					m_tasks.pop();
-					Unlock();
-					if (task != nullptr)
-						task();
-				}
-				else {
-					m_tasks.pop();
-					Unlock();
-				}
+				auto task = m_tasks.front();
+				m_tasks.pop();
+				Unlock();
+				if (task != nullptr)
+					task();
 				break;
 			}
 			Unlock();
@@ -62,4 +60,11 @@ Core::ThreadManager* Core::ThreadManager::GetInstance()
 		m_instance = std::make_unique<ThreadManager>();
 	}
 	return m_instance.get();
+}
+
+void Core::ThreadManager::Destroy()
+{
+	Terminate();
+	for (int i = 0; i < m_threadList.size(); i++)
+		m_threadList[i].join();
 }

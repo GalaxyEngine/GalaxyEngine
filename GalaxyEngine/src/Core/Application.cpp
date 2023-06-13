@@ -50,7 +50,6 @@ void Core::Application::Initalize()
 void Core::Application::Update()
 {
 	Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
-	std::weak_ptr<Resource::Texture> texture = m_resourceManager->GetOrLoad<Resource::Texture>("Assets/debug_texture.png");
 	std::weak_ptr<Resource::Shader> unlitShader = m_resourceManager->GetOrLoad<Resource::Shader>("Assets/unlit.shader");
 
 	while (!m_window->ShouldClose())
@@ -84,9 +83,16 @@ void Core::Application::Update()
 		//BEGINDRAW
 		if (ImGui::Begin("Window"))
 		{
+			int i = 0;
+			for (std::weak_ptr<Resource::Texture> texture : m_resourceManager->GetAllResources<Resource::Texture>())
+			{
+				i++;
+				void* id = reinterpret_cast<void*>(static_cast<uintptr_t>(texture.lock()->GetID()));
+				ImGui::ImageButton(id, Vec2f(128, 128));
+				if (i % 3 != 0)
+					ImGui::SameLine();
+			}
 			ImGui::Text("%f", 1.f / ImGui::GetIO().DeltaTime);
-			void* id = reinterpret_cast<void*>(static_cast<uintptr_t>(texture.lock()->GetID()));
-			ImGui::Image(id, Vec2f(128, 128));
 		}
 		ImGui::End();
 		//ENDDRAW
@@ -103,6 +109,8 @@ void Core::Application::Update()
 void Core::Application::Destroy()
 {
 	// Cleanup:
+	// Thread Manager
+	m_threadManager->Destroy();
 
 	// GUI
 	Wrapper::GUI::UnInitalize();

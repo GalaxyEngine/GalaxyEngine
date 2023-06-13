@@ -10,9 +10,10 @@ namespace GALAXY::Core {
 	class ThreadManager
 	{
 	public:
-		~ThreadManager() {}
+		~ThreadManager();
 
 		void Initalize();
+		void Destroy();
 
 		void ThreadLoop();
 
@@ -24,6 +25,7 @@ namespace GALAXY::Core {
 				std::apply(task, args);
 			};
 			if (task_function) {
+				std::lock_guard<std::mutex> lock(m_mutex);
 				m_tasks.push(task_function);
 			}
 		}

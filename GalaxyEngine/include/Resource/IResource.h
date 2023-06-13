@@ -39,6 +39,8 @@ namespace GALAXY::Resource {
 		bool HasBeenSent() const { return p_hasBeenSent.load(); }
 
 		void SendRequest();
+
+		ResourceType GetType() const { return p_type; }
 	protected:
 		friend class ResourceManager;
 

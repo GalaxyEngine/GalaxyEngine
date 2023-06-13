@@ -20,6 +20,8 @@ void Wrapper::GUI::Initalize(const std::unique_ptr<Wrapper::Window>& window, con
 	GLFWwindow* windowPtr = static_cast<GLFWwindow*>(window->GetWindow());
 	ImGui_ImplGlfw_InitForOpenGL(windowPtr, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
+	
+	PrintLog("Initalized ImGui %s", IMGUI_VERSION);
 }
 
 void Wrapper::GUI::UnInitalize()
