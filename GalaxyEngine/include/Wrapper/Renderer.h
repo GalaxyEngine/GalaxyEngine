@@ -28,7 +28,12 @@ namespace GALAXY
 			static void CreateInstance(RenderAPI renderAPI);
 			static Renderer* GetInstance() { return m_instance.get(); }
 
+
 			virtual void Initalize() {}
+			bool IsInitalized() { return p_initalized; }
+
+			virtual void Viewport(const Vec2i& pos, const Vec2i& size) {}
+			virtual void ClearColorAndBuffer(const Vec4f& color) {}
 
 			// Texture
 			virtual void CreateTexture(Resource::Texture* texture) {}
@@ -36,7 +41,8 @@ namespace GALAXY
 
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
 			virtual uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) { return -1; }
-
+		protected:
+			bool p_initalized = false;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};
@@ -52,9 +58,12 @@ namespace GALAXY
 
 			void Initalize() override;
 
+			void Viewport(const Vec2i& pos, const Vec2i& size) override;
+			void ClearColorAndBuffer(const Vec4f& color) override;
+
 			// Texture
-			void CreateTexture(Resource::Texture* texture);
-			void DestroyTexture(Resource::Texture* texture);
+			void CreateTexture(Resource::Texture* texture) override;
+			void DestroyTexture(Resource::Texture* texture) override;
 
 			uint32_t TextureFormatToAPI(Resource::TextureFormat format) override;
 			uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) override;

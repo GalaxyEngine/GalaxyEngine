@@ -36,6 +36,18 @@ void GALAXY::Wrapper::OpenGLRenderer::Initalize()
 		PrintError("Failed to initialize GLAD");
 		return;
 	}
+	p_initalized = true;
+}
+
+void GALAXY::Wrapper::OpenGLRenderer::Viewport(const Vec2i& pos, const Vec2i& size)
+{
+	glViewport(pos.x, pos.y, size.x, size.y);
+}
+
+void GALAXY::Wrapper::OpenGLRenderer::ClearColorAndBuffer(const Vec4f& color)
+{
+	glClearColor(color.x, color.y, color.z, color.w);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void Wrapper::OpenGLRenderer::CreateTexture(Resource::Texture* texture)

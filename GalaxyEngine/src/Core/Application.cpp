@@ -14,9 +14,7 @@
 Core::Application Core::Application::m_instance;
 #pragma endregion
 
-Core::Application::~Application()
-{
-}
+Core::Application::~Application(){}
 
 void Core::Application::Initalize()
 {
@@ -38,6 +36,7 @@ void Core::Application::Initalize()
 
 	// Initalize Render API
 	Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
+	m_renderer = Wrapper::Renderer::GetInstance();
 
 	m_resourceManager = Resource::ResourceManager::GetInstance();
 	m_resourceManager->ImportAllFilesInFolder("Assets");
@@ -45,7 +44,7 @@ void Core::Application::Initalize()
 
 void Core::Application::Update()
 {
-	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 	std::weak_ptr<Resource::Texture> texture = m_resourceManager->GetOrLoad<Resource::Texture>("Assets/debug_texture.png");
 
 	while (!m_window->ShouldClose())
@@ -58,24 +57,18 @@ void Core::Application::Update()
 		{
 			ImGui::Text("%f", 1.f / ImGui::GetIO().DeltaTime);
 			void* id = reinterpret_cast<void*>(static_cast<uintptr_t>(texture.lock()->GetID()));
-			ImGui::Image(id, ImVec2(128, 128));
+			ImGui::Image(id, Vec2f(128, 128));
 		}
 		ImGui::End();
 		//ENDDRAW
 
 		// Rendering
-		int display_w, display_h;
-		m_window->GetSize(&display_w, &display_h);
-
-		glViewport(0, 0, display_w, display_h);
-		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
+		m_renderer->ClearColorAndBuffer(clear_color);
 
 		Wrapper::GUI::EndFrame(m_window);
 
 		m_window->SwapBuffers();
 	}
-
 }
 
 void Core::Application::Destroy()

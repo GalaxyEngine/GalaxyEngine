@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <string>
+#include <atomic>
 namespace GALAXY::Resource {
 	enum class ResourceType
 	{

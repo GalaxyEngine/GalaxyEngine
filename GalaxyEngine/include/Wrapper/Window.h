@@ -23,6 +23,9 @@ namespace GALAXY::Wrapper
 		static void MakeContextCurrent(void* window);
 		static void* GetProcAddress(const char* procname);
 
+		// --- Callbacks --- //
+		static void ResizeCallback(GLFWwindow* window, int width, int height);
+
 		void Create(const WindowConfig& config);
 		void Destroy();
 

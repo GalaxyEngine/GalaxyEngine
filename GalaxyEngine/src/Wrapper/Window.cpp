@@ -51,6 +51,7 @@ void Wrapper::Window::Create(const WindowConfig& config)
 		PrintError("Failed to create window");
 	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 	glfwMakeContextCurrent(glfwWindow);
+	glfwSetFramebufferSizeCallback(glfwWindow, &ResizeCallback);
 }
 
 void Wrapper::Window::Destroy()
@@ -105,4 +106,13 @@ void Wrapper::Window::SetSize(const Vec2i& size)
 void* GALAXY::Wrapper::Window::GetProcAddress(const char* procname)
 {
 	return glfwGetProcAddress(procname);
+}
+
+void Wrapper::Window::ResizeCallback(GLFWwindow* window, int width, int height)
+{
+	Renderer* renderer = Wrapper::Renderer::GetInstance();
+	if (renderer && renderer->IsInitalized())
+	{
+		renderer->Viewport({ 0, 0 }, { width, height });
+	}
 }
