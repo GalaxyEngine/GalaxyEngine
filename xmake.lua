@@ -52,6 +52,7 @@ target("GalaxyEngine")
     includeDir("Math")
     includeDir("Utils")
     includeDir("Component")
+    includeDir("EditorUI")
 
     add_packages("glfw")
     add_packages("imgui")

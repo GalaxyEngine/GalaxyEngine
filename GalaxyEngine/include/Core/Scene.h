@@ -12,6 +12,8 @@ namespace GALAXY::Core {
 
 		static Scene* GetInstance();
 
+		std::weak_ptr<class GameObject> GetRootGameObject() const { return m_root; }
+
 		void Update();
 	private:
 

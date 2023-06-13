@@ -12,6 +12,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
+#include "EditorUI/EditorUIManager.h"
 
 #pragma region static
 Core::Application Core::Application::m_instance;
@@ -51,6 +52,10 @@ void Core::Application::Initalize()
 	
 	// Initialize Scene
 	m_scene = Core::Scene::GetInstance();
+
+	// Initalize EditorUI
+	m_editorUI = EditorUI::EditorUIManager::GetInstance();
+	m_editorUI->Initalize();
 }
 
 void GALAXY::Core::Application::UpdateResources()

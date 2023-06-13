@@ -11,6 +11,7 @@ namespace GALAXY
 {
 	namespace Resource	{ class ResourceManager; }
 	namespace Wrapper { class Window; class Renderer; }
+	namespace EditorUI { class EditorUIManager; }
 	namespace Core 
 	{
 		class GALAXY_API Application
@@ -34,7 +35,8 @@ namespace GALAXY
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
 			class ThreadManager* m_threadManager = nullptr;
-			class Scene* m_scene = nullptr;;
+			class Scene* m_scene = nullptr;
+			EditorUI::EditorUIManager* m_editorUI = nullptr;
 
 			std::unique_ptr<Wrapper::Window> m_window;
 
