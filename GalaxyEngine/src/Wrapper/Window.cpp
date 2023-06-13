@@ -20,7 +20,6 @@ bool Wrapper::Window::Initialize()
 	glfwSetErrorCallback(glfw_error_callback);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
 	return true;
 }
 
@@ -66,6 +65,12 @@ void Wrapper::Window::SwapBuffers()
 	glfwSwapBuffers(glfwWindow);
 }
 
+bool Wrapper::Window::GetVSyncEnable()
+{
+	return m_vsync;
+}
+
+
 void Wrapper::Window::GetSize(int* width, int* height)
 {
 	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
@@ -82,6 +87,7 @@ Vec2i Wrapper::Window::GetSize()
 
 void Wrapper::Window::SetVSync(bool enable)
 {
+	m_vsync = enable;
 	glfwSwapInterval(enable); // Enable vsync
 }
 
@@ -103,9 +109,37 @@ void Wrapper::Window::SetSize(const Vec2i& size)
 	glfwSetWindowSize(glfwWindow, size.x, size.y);
 }
 
-void* GALAXY::Wrapper::Window::GetProcAddress(const char* procname)
+void* Wrapper::Window::GetProcAddress(const char* procname)
 {
 	return glfwGetProcAddress(procname);
+}
+
+void Wrapper::Window::ToggleFullscreen()
+{
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	SetFullscreen(glfwGetWindowMonitor(glfwWindow) == nullptr);
+}
+
+void Wrapper::Window::SetFullscreen(bool enable)
+{
+	static Vec2i prevSize;
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	if (enable) {
+		prevSize = GetSize();
+		GLFWmonitor* primary = glfwGetPrimaryMonitor();
+
+		const GLFWvidmode* mode = glfwGetVideoMode(primary);
+
+		glfwSetWindowMonitor(glfwWindow, primary, 0, 0, mode->width, mode->height, mode->refreshRate);
+		SetVSync(m_vsync);
+	}
+	else
+	{
+		GLFWmonitor* primary = glfwGetPrimaryMonitor();
+		const GLFWvidmode* mode = glfwGetVideoMode(primary);
+		glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, (int)prevSize.x, (int)prevSize.y, 0);
+		glfwSetWindowPos(glfwWindow, 100, 100);
+	}
 }
 
 void Wrapper::Window::ResizeCallback(GLFWwindow* window, int width, int height)

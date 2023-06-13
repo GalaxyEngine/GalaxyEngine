@@ -2,6 +2,7 @@
 #include <GalaxyAPI.h>
 #include <Maths/Maths.h>
 
+struct GLFWwindow;
 namespace GALAXY::Wrapper
 {
 	struct WindowConfig
@@ -9,7 +10,6 @@ namespace GALAXY::Wrapper
 		const char* name;
 		int width, height;
 	};
-
 	class Window
 	{
 	public:
@@ -32,11 +32,14 @@ namespace GALAXY::Wrapper
 		void SwapBuffers();
 
 		// --- Getters --- //
+		bool GetVSyncEnable();
 		void GetSize(int* width, int* height);
 		Vec2i GetSize();
 
 		// --- Setters --- //
 		void SetVSync(bool enable);
+		void SetFullscreen(bool enable);
+		void ToggleFullscreen();
 		void SetSize(int width, int height);
 		void SetSize(const Vec2i& size);
 
@@ -46,6 +49,7 @@ namespace GALAXY::Wrapper
 
 	private:
 		void* m_window;
+		bool m_vsync = true;
 
 	};
 }

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
+#include "Core/Application.h"
 #define RESOURCE_FOLDER_NAME "assets"
 
 Resource::IResource::IResource(const std::string& fullPath)
@@ -17,6 +18,14 @@ Resource::ResourceType Resource::IResource::GetTypeFromExtension(const std::stri
 		return ResourceType::Texture;
 	else if (ext == ".obj" || ext == ".fbx")
 		return ResourceType::Model;
+	else if (ext == ".shader")
+		return ResourceType::Shader;
+	else if (ext == ".vert" || ext == "vs" || ext == "vsh" || ext == "glslv")
+		return ResourceType::VertexShader;
+	else if (ext == ".geom" || ext == "gs" || ext == "gsh" || ext == "glslg")
+		return ResourceType::GeometryShader;
+	else if (ext == ".frag" || ext == "fs" || ext == "fsh" || ext == "glslf")
+		return ResourceType::FragmentShader;
 	else
 		return ResourceType::None;
 }
@@ -58,4 +67,9 @@ std::string GALAXY::Resource::IResource::ExtractExtensionFromPath(const std::str
 		PrintError("No extension found in Resource %s", path.c_str());
 		return "";
 	}
+}
+
+void GALAXY::Resource::IResource::SendRequest()
+{
+	Core::Application::GetInstance().AddResourceToSend(p_fullPath);
 }

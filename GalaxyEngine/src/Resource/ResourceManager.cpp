@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
+#include "Resource/Shader.h"
 
 std::unique_ptr<Resource::ResourceManager> Resource::ResourceManager::m_instance = nullptr;
 
@@ -8,7 +9,7 @@ Resource::ResourceManager::~ResourceManager()
 {
 }
 
-void GALAXY::Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::path& folder)
+void Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::path& folder)
 {
 	std::cout << std::filesystem::current_path() << std::endl;
 	if (!std::filesystem::exists(folder))
@@ -26,7 +27,7 @@ void GALAXY::Resource::ResourceManager::ImportAllFilesInFolder(const std::filesy
 	}
 }
 
-void GALAXY::Resource::ResourceManager::ImportResource(const std::string& resourcePath)
+void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
 {
 	std::string extension = IResource::ExtractExtensionFromPath(resourcePath);
 	ResourceType type = IResource::GetTypeFromExtension(extension);
@@ -39,6 +40,13 @@ void GALAXY::Resource::ResourceManager::ImportResource(const std::string& resour
 		AddResource(new Texture(resourcePath));
 		break;
 	case GALAXY::Resource::ResourceType::Shader:
+		AddResource(new Shader(resourcePath));
+		break;
+	case GALAXY::Resource::ResourceType::VertexShader:
+		AddResource(new VertexShader(resourcePath));
+		break;
+	case GALAXY::Resource::ResourceType::FragmentShader:
+		AddResource(new FragmentShader(resourcePath));
 		break;
 	case GALAXY::Resource::ResourceType::Model:
 		break;
@@ -49,12 +57,20 @@ void GALAXY::Resource::ResourceManager::ImportResource(const std::string& resour
 	}
 }
 
-Resource::ResourceManager* GALAXY::Resource::ResourceManager::GetInstance()
+Resource::ResourceManager* Resource::ResourceManager::GetInstance()
 {
 	if (m_instance == nullptr) {
 		m_instance = std::make_unique<ResourceManager>();
 	}
 	return m_instance.get();
+}
+
+std::string Resource::ResourceManager::StringToRelativePath(const std::string& value)
+{
+	std::string result = StringToPath(value);
+	result = IResource::ExtractRelativePathFromPath(result);
+
+	return result;
 }
 
 std::string GALAXY::Resource::ResourceManager::StringToPath(const std::string& value)
@@ -69,4 +85,3 @@ std::string GALAXY::Resource::ResourceManager::StringToPath(const std::string& v
 
 	return result;
 }
-

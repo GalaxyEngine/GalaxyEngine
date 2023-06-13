@@ -185,6 +185,12 @@ namespace GALAXY::Math {
 		return oss.str();
 	}
 
+	template<typename T>
+	T* Vec2<T>::Data() const
+	{
+		return const_cast<T*>(reinterpret_cast<const T*>(this));
+	}
+
 #pragma endregion
 
 #pragma region Vec3
@@ -409,7 +415,11 @@ namespace GALAXY::Math {
 		return result;
 	}
 
-
+	template<typename T>
+	T* Vec3<T>::Data() const
+	{
+		return const_cast<T*>(reinterpret_cast<const T*>(this));
+	}
 
 #pragma endregion
 
@@ -585,6 +595,12 @@ namespace GALAXY::Math {
 		oss << std::fixed << std::setprecision(precision);
 		oss << x << ", " << y << ", " << z << ", " << w;
 		return oss.str();
+	}
+
+	template<typename T>
+	T* Vec4<T>::Data() const
+	{
+		return const_cast<T*>(reinterpret_cast<const T*>(this));
 	}
 
 #pragma endregion
@@ -939,6 +955,11 @@ namespace GALAXY::Math {
 		res.y = content[1][0] * vector.x + content[1][1] * vector.y + content[1][2] * vector.z;
 		res.z = content[2][0] * vector.x + content[2][1] * vector.y + content[2][2] * vector.z;
 		return res;
+	}
+
+	inline float* Mat4::Data() const
+	{
+		return const_cast<float*>(reinterpret_cast<const float*>(this));
 	}
 
 	inline void Mat4::Print() const

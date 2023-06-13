@@ -2,12 +2,17 @@
 #include "GalaxyAPI.h"
 #include <string>
 #include <atomic>
+#include <memory>
+#include <vector>
 namespace GALAXY::Resource {
 	enum class ResourceType
 	{
 		None,
 		Texture,
 		Shader,
+		VertexShader,
+		GeometryShader,
+		FragmentShader,
 		Model,
 		Mesh,
 	};
@@ -29,6 +34,11 @@ namespace GALAXY::Resource {
 		virtual void Load() {}
 		virtual void Send() {}
 
+		bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
+		bool IsLoaded() const { return p_loaded.load(); }
+		bool HasBeenSent() const { return p_hasBeenSent.load(); }
+
+		void SendRequest();
 	protected:
 		friend class ResourceManager;
 
@@ -37,8 +47,8 @@ namespace GALAXY::Resource {
 		std::string p_relativepath;
 		std::string p_name;
 
-		std::atomic_bool p_loaded = false;
 		std::atomic_bool p_shouldBeLoaded = false;
+		std::atomic_bool p_loaded = false;
 		std::atomic_bool p_hasBeenSent = false;
 
 	};

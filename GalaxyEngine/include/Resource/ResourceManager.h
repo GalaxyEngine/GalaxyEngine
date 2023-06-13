@@ -1,6 +1,7 @@
 #include "GalaxyAPI.h"
 #include "Resource/IResource.h"
 #include "Resource/Texture.h"
+#include "Core/ThreadManager.h"
 
 #include <unordered_map>
 #include <filesystem>
@@ -23,22 +24,28 @@ namespace GALAXY::Resource {
 		// Get and load the resources if not loaded yet, 
 		// import the resource if not inside the resource Manager
 		template <typename T>
-		inline std::weak_ptr<T> GetOrLoad(const std::string& relativePath)
+		inline std::weak_ptr<T> GetOrLoad(const std::string& fullPath)
 		{
-			std::string path = StringToPath(relativePath);
-			auto resource = m_resources.find(path);
+			std::string relativePath = StringToRelativePath(fullPath);
+			auto resource = m_resources.find(relativePath);
 			if (resource == m_resources.end())
 			{
 				// if resource is not imported
-				ImportResource(path);
-				resource = m_resources.find(path);
+				AddResource(new T(fullPath));
+				resource = m_resources.find(relativePath);
 			}
 			if (resource != m_resources.end())
 			{
 				// Load the resource if not loaded.
-				if (!resource->second->p_shouldBeLoaded) {
-					resource->second->Load();
-					return std::dynamic_pointer_cast<T>(resource->second);
+				if (!resource->second->p_shouldBeLoaded) 
+				{
+#ifdef ENABLE_MULTITHREAD
+					Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
+#else
+					resource->second->Load()
+#endif // ENABLE_MULTITHREAD
+
+						return std::dynamic_pointer_cast<T>(resource->second);
 				}
 				else
 				{
@@ -49,17 +56,19 @@ namespace GALAXY::Resource {
 			return std::weak_ptr<T>{};
 		}
 
+		// Get The Resource, return null if the type is wrong
 		template <typename T>
-		[[nodiscard]] inline std::weak_ptr<T> GetResource(const std::string& relativePath)
+		[[nodiscard]] inline std::weak_ptr<T> GetResource(const std::string& fullPath)
 		{
-			std::string path = StringToPath(relativePath);
-			if (m_resources.count(path))
+			std::string relativePath = StringToRelativePath(fullPath);
+			if (m_resources.count(relativePath))
 			{
-				return std::dynamic_pointer_cast<T>(m_resources.at(path));
+				return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
 			}
 			return std::weak_ptr<T>{};
 		}
 
+		static std::string StringToRelativePath(const std::string& value);
 		static std::string StringToPath(const std::string& value);
 
 		void ImportAllFilesInFolder(const std::filesystem::path& folder);

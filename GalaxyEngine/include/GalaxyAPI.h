@@ -7,3 +7,5 @@ using namespace GALAXY;
 #else
 #define GALAXY_API __declspec(dllimport)
 #endif
+
+#define ENABLE_MULTITHREAD

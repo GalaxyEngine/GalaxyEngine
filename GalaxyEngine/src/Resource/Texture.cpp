@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Resource/Texture.h"
 #include "Wrapper/ImageLoader.h"
+#include "Core/Application.h"
 
 Resource::Texture::~Texture()
 {
@@ -9,17 +10,24 @@ Resource::Texture::~Texture()
 
 void Resource::Texture::Load()
 {
+	if (p_shouldBeLoaded)
+		return;
 	p_shouldBeLoaded = true;
 	int numColCh;
 	if (m_bytes = Wrapper::ImageLoader::Load(p_fullPath.c_str(), &m_size.x, &m_size.y, &numColCh, 4))
 		p_loaded = true;
-	else
+	else {
 		PrintError("Failed to load Image %s", p_fullPath.c_str());
-	Send();
+		return;
+	}
+
+	SendRequest();
 }
 
 void Resource::Texture::Send()
 {
+	if (p_hasBeenSent)
+		return;
 	Wrapper::Renderer::GetInstance()->CreateTexture(this);
 	Wrapper::ImageLoader::ImageFree(this->m_bytes);
 	p_hasBeenSent = true;

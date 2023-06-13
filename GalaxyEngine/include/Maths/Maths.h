@@ -76,6 +76,8 @@ namespace GALAXY::Math
 		inline void Print(int precision = 6) const;
 
 		inline std::string ToString(int precision = 6) const;
+
+		inline T* Data() const;
 	};
 
 	typedef Vec2<float> Vec2f;
@@ -158,6 +160,8 @@ namespace GALAXY::Math
 		inline std::string ToString(int precision = 6) const;
 
 		inline Quat ToQuaternion() const;
+
+		inline T* Data() const;
 	};
 
 	typedef Vec3<float> Vec3f;
@@ -240,6 +244,8 @@ namespace GALAXY::Math
 		inline Vec3<T> ToVector3() const;
 
 		inline std::string ToString(int precision = 6) const;
+
+		T* Data() const;
 	};
 
 
@@ -335,6 +341,8 @@ namespace GALAXY::Math
 		// Transforms a direction by this matrix.
 		template<typename U>
 		inline Vec3<U> MultiplyVector(Vec3<U> vector);		
+
+		inline float* Data() const;
 	};
 
 	class Quat
@@ -413,7 +421,6 @@ namespace GALAXY::Math
 using namespace GALAXY::Math;
 #define IMGUI_IMPLEMENTATION
 #ifdef IMGUI_IMPLEMENTATION
-#include <imconfig.h>
 #define IM_VEC2_CLASS_EXTRA                                                     \
         constexpr ImVec2(const Math::Vec2f& f) : x(f.x), y(f.y) {}                   \
         operator Math::Vec2f() const { return Math::Vec2f(x,y); }
