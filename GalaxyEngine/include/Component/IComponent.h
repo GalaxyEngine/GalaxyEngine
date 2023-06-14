@@ -4,15 +4,17 @@ namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
 
-		template <typename Derived>
-		class IComponent
+		class BaseComponent
 		{
 		public:
-			IComponent() {}
-			IComponent& operator=(const IComponent& other) = default;
-			IComponent(const IComponent&) = default;
-			IComponent(IComponent&&) noexcept = default;
-			virtual ~IComponent() {}
+			std::weak_ptr<Core::GameObject> gameObject;
+
+		public:
+			BaseComponent() {}
+			BaseComponent& operator=(const BaseComponent& other) = default;
+			BaseComponent(const BaseComponent&) = default;
+			BaseComponent(BaseComponent&&) noexcept = default;
+			virtual ~BaseComponent() {}
 
 			virtual std::string GetComponentName() = 0;
 
@@ -26,12 +28,26 @@ namespace GALAXY {
 
 			virtual void OnDestroy() {}
 
+		protected:
+			bool p_enable = true;
+
+		};
+
+		template <typename Derived>
+		class IComponent : public BaseComponent
+		{
+		public:
+			IComponent() {}
+			IComponent& operator=(const IComponent& other) = default;
+			IComponent(const IComponent&) = default;
+			IComponent(IComponent&&) noexcept = default;
+			virtual ~IComponent() {}
+
+			virtual std::string GetComponentName() override = 0;
+
 			virtual Derived* Clone() const {
 				return new Derived(static_cast<Derived const&>(*this));
 			}
-
-			std::weak_ptr<Core::GameObject> gameObject;
-
 		private:
 
 		};

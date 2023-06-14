@@ -12,6 +12,7 @@
 #include <Debug/Log.h>
 #include <Maths/Maths.h>
 #include <Wrapper/Renderer.h>
+#include <Wrapper/GUI.h>
 #include <Utils/FileSystem.h>
 
 // Libs Headers
@@ -19,3 +20,4 @@
 #include <imgui_internal.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <misc/cpp/imgui_stdlib.h>

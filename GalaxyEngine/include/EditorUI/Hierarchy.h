@@ -12,8 +12,16 @@ namespace GALAXY {
 
 			void Draw() override;
 
-			void DisplayGameObject(Core::GameObject* gameobject, uint32_t index = 0);
+			void DisplayGameObject(std::weak_ptr<Core::GameObject> weakGO, uint32_t index = 0);
+
+			void RightClickPopup();
+
 		private:
+			bool m_openRightClick = false;
+			Core::GameObject* m_rightClicked = nullptr;
+
+			bool m_openRename = false;
+			Core::GameObject* m_renameObject = nullptr;
 
 		};
 	}

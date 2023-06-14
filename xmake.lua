@@ -9,7 +9,7 @@ set_languages("c++20")
 set_rundir("GalaxyCore")
 
 if is_plat("windows") then
-    set_runtimes(is_mode("debug") and "MDd" or "MD")
+    -- set_runtimes(is_mode("debug") and "MDd" or "MD")
 end
 
 if is_plat("windows") then

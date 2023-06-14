@@ -5,7 +5,7 @@
 
 #include "Core/Application.h"
 #include "Core/ThreadManager.h"
-#include "Core/Scene.h"
+#include "Core/SceneHolder.h"
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
@@ -51,7 +51,7 @@ void Core::Application::Initalize()
 	m_resourceManager->ImportAllFilesInFolder("Assets");
 	
 	// Initialize Scene
-	m_scene = Core::Scene::GetInstance();
+	m_sceneHolder = Core::SceneHolder::GetInstance();
 
 	// Initalize EditorUI
 	m_editorUI = EditorUI::EditorUIManager::GetInstance();
@@ -96,7 +96,7 @@ void Core::Application::Update()
 		UpdateResources();
 
 		//BEGINDRAW
-		m_scene->Update();
+		m_sceneHolder->Update();
 
 		if (ImGui::Begin("Window"))
 		{
