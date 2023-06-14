@@ -64,10 +64,12 @@ namespace GALAXY {
 
 			// Hierarchy Parameters
 			friend EditorUI::Hierarchy;
-			friend EditorUI::Inspector;
 
 			bool m_open = false;
 			bool m_selected = false;
+
+			friend EditorUI::Inspector;
+			bool m_active = true;
 		};
 	}
 }

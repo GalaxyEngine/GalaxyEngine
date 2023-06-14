@@ -8,10 +8,44 @@ void EditorUI::Inspector::Draw()
 		return;
 	if (ImGui::Begin("Inspector"))
 	{
-
+		if (m_selectedGameObject.size() == 1)
+		{
+			if (!m_selectedGameObject[0].expired())
+				ShowGameObject(m_selectedGameObject[0].lock().get());
+		}
 	}
 	ImGui::End();
 }
+
+void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
+{
+	if (!object->GetParent().lock())
+		return;
+	ImGui::PushID((int)object->m_id);
+
+	//TODO: Add tag & layer
+	static std::string name;
+	name = object->m_name;
+	ImGui::Checkbox("##", &object->m_active);
+	ImGui::SameLine();
+	ImGui::InputText("##InputName", &name);
+
+	ImGui::Separator();
+
+	// Transform
+	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		object->m_transform->ShowInInspector();
+	}
+	ImGui::NewLine();
+	ImGui::Separator();
+
+	// Other Components
+	//TODO:
+
+	ImGui::PopID();
+}
+
 
 void EditorUI::Inspector::AddSelected(std::weak_ptr<Core::GameObject> gameObject)
 {

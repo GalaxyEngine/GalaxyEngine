@@ -10,6 +10,8 @@ namespace GALAXY::Wrapper
 		void NewFrame();
 		void EndFrame(const std::unique_ptr<Wrapper::Window>& window);
 
+		bool DrawVec3Control(const std::string& label, float* values, float resetValue = 0.0f, bool lockButton = false, float columnWidth = 100.0f);
+
 		float DeltaTime();
 
 	}

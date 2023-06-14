@@ -12,6 +12,10 @@ namespace GALAXY {
 
 			void Draw() override;
 
+			void ShowGameObject(Core::GameObject* object);
+
+			void ShowGameObjects();
+
 			void AddSelected(std::weak_ptr<Core::GameObject> gameObject);
 
 			void SetSelected(std::weak_ptr<Core::GameObject> gameObject);

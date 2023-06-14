@@ -18,6 +18,8 @@ namespace GALAXY {
 
 			virtual std::string GetComponentName() = 0;
 
+			virtual void ShowInInspector() {}
+
 			virtual void OnCreate() {}
 
 			virtual void OnStart() {}
