@@ -6,7 +6,11 @@
 #include <string>
 
 namespace GALAXY {
-	namespace EditorUI { class Hierarchy; }
+	namespace EditorUI 
+	{ 
+		class Hierarchy; 
+		class Inspector; 
+	}
 	namespace Core {
 		class GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -46,6 +50,7 @@ namespace GALAXY {
 			std::weak_ptr<GameObject> GetParent();
 
 			bool IsAParent(GameObject* object);
+			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
 
 		private:
 			friend class Scene;
@@ -59,6 +64,7 @@ namespace GALAXY {
 
 			// Hierarchy Parameters
 			friend EditorUI::Hierarchy;
+			friend EditorUI::Inspector;
 
 			bool m_open = false;
 			bool m_selected = false;

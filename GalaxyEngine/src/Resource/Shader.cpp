@@ -48,7 +48,7 @@ void Resource::Shader::Send()
 // === Base Shader === //
 void Resource::BaseShader::AddShader(std::weak_ptr<Shader> shader)
 {
-	int count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const std::weak_ptr<Shader>& wp) {
+	uint64_t count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const std::weak_ptr<Shader>& wp) {
 		return !wp.expired() && !wp.owner_before(shader) && !shader.owner_before(wp);
 		});
 	if (count == 0)

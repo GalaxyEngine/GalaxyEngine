@@ -16,12 +16,15 @@ namespace GALAXY {
 
 			void RightClickPopup();
 
+			void SetRename(Core::GameObject* gameObject);
+
 		private:
 			bool m_openRightClick = false;
-			Core::GameObject* m_rightClicked = nullptr;
 
 			bool m_openRename = false;
 			Core::GameObject* m_renameObject = nullptr;
+
+			class Inspector* m_inspector = nullptr;
 
 		};
 	}

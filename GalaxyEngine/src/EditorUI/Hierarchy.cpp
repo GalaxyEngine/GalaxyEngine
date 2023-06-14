@@ -1,5 +1,7 @@
 #include "pch.h"
+#include "EditorUI/EditorUIManager.h"
 #include "EditorUI/Hierarchy.h"
+#include "EditorUI/Inspector.h"
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
@@ -7,6 +9,8 @@
 using namespace Core;
 void EditorUI::Hierarchy::Draw()
 {
+	if (!m_inspector)
+		m_inspector = EditorUI::EditorUIManager::GetInstance()->GetInspector();
 	if (!p_open)
 		return;
 	if (ImGui::Begin("Hierarchy"))
@@ -74,34 +78,92 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 	// Selectable Field
 	else if (ImGui::Selectable(gameobject->m_name.c_str(), gameobject->m_selected, ImGuiSelectableFlags_SelectOnNav))
 	{
-		gameobject->m_selected = true;
-		//TODO
+		// Multi Select
+		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+			m_inspector->AddSelected(weakGO);
+		// already selected and not in muti select -> rename
+		else if (gameobject->m_selected && m_inspector->GetSelected().size() == 1)
+		{
+			SetRename(gameobject);
+		}
+		// clear all selected and set selected
+		else
+			m_inspector->SetSelected(weakGO);
 	}
+
 	// Right Click
 	if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && gameobject->GetParent().lock())
 	{
 		m_openRightClick = true;
-		m_rightClicked = gameobject;
+		// Do not reselect when is already selected.
+		if (!gameobject->m_selected) {
+			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				m_inspector->AddSelected(weakGO);
+			else
+				m_inspector->SetSelected(weakGO);
+		}
 	}
-	else if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+	else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !gameobject->GetParent().lock())
 	{
 		m_openRightClick = true;
+		m_inspector->ClearSelected();
+	}
+	else if (!ImGui::IsAnyItemHovered() && ImGui::IsWindowHovered())
+	{
+		// Clear when none is clicked
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+			m_inspector->ClearSelected();
+		// clear and open right click popup when no one is right clicked
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		{
+			m_openRightClick = true;
+			m_inspector->ClearSelected();
+		}
+	}
+	if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete))
+	{
+		for (auto& object : m_inspector->GetSelected())
+		{
+			SceneHolder::GetInstance()->GetCurrentScene()->RemoveObject(object.lock().get());
+		}
 	}
 
-	// Drag And Drop
+	// === Drag And Drop === //
 	if (gameobject->m_parent.lock() && ImGui::BeginDragDropSource()) {
-		ImGui::SetDragDropPayload("GAMEOBJECT", &gameobject->m_id, sizeof(uint64_t));
-		ImGui::Text(gameobject->m_name.c_str());
+
+		std::vector<uint64_t> indices;
+		if (gameobject->m_selected) {
+			std::vector<std::weak_ptr<Core::GameObject>> selected = m_inspector->GetSelected();
+			for (size_t i = 0; i < selected.size(); i++)
+			{
+				indices.push_back(selected[i].lock()->m_id);
+			}
+		}
+		else {
+			indices.push_back(gameobject->m_id);
+		}
+
+		ImGui::SetDragDropPayload("GAMEOBJECTS", indices.data(), indices.size() * sizeof(uint64_t));
+		ImGui::Text("Size : %d", indices.size());
 		ImGui::EndDragDropSource();
 	}
 	if (ImGui::BeginDragDropTarget()) {
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECT")) {
-			uint64_t PayloadIndex = *(uint64_t*)payload->Data;
-			std::weak_ptr<GameObject> payloadGameObject = SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(PayloadIndex);
-			if (payloadGameObject.lock() && payloadGameObject.lock()->m_parent.lock() && !gameobject->IsAParent(payloadGameObject.lock().get()))
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+			// Check if the payload data type matches
+			std::vector<uint64_t> indices;
+			if (payload->DataSize % sizeof(uint64_t) == 0)
 			{
-				payloadGameObject.lock()->SetParent(weakGO);
-				gameobject->m_open = true;
+				uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+				uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+				indices.assign(payloadData, payloadData + payloadSize);
+			}
+			for (size_t i = 0; i < indices.size(); i++) {
+				std::weak_ptr<GameObject> payloadGameObject = SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
+				if (payloadGameObject.lock() && payloadGameObject.lock()->m_parent.lock() && !gameobject->IsAParent(payloadGameObject.lock().get()))
+				{
+					payloadGameObject.lock()->SetParent(weakGO);
+					gameobject->m_open = true;
+				}
 			}
 		}
 		ImGui::EndDragDropTarget();
@@ -126,47 +188,81 @@ void EditorUI::Hierarchy::RightClickPopup()
 {
 	if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
 	{
+		auto selected = m_inspector->GetSelected();
 		Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 		if (ImGui::Button("Create GameObject", buttonSize))
 		{
-			auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
-			if (m_rightClicked) {
-				m_rightClicked->AddChild(gameObject);
-				m_rightClicked->m_open = true;
+			if (selected.empty())
+			{
+				auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
+				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->AddChild(gameObject);
 			}
 			else
 			{
-				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->AddChild(gameObject);
+				for (int i = 0; i < selected.size(); i++)
+				{
+					auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
+					if (selected[i].lock()) {
+						selected[i].lock()->AddChild(gameObject);
+						selected[i].lock()->m_open = true;
+					}
+				}
 			}
 			ImGui::CloseCurrentPopup();
-		}			
-		ImGui::BeginDisabled(!m_rightClicked);
-		if (ImGui::Button("Create Parent", buttonSize))
-		{
-			auto parent = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
+		}
 
-			uint32_t childIndex = m_rightClicked->GetParent().lock()->GetChildIndex(m_rightClicked);
-			m_rightClicked->GetParent().lock()->AddChild(parent, childIndex);
-			m_rightClicked->SetParent(parent);
-			parent.lock()->m_open = true;
-			ImGui::CloseCurrentPopup();
-		}
-		if (ImGui::Button("Rename", buttonSize))
+		// === At least one selected === //
+		ImGui::BeginDisabled(selected.empty());
 		{
-			m_openRename = true;
-			m_renameObject = m_rightClicked;
-			ImGui::CloseCurrentPopup();
-		}
-		if (ImGui::Button("Delete", buttonSize))
-		{
-			Core::SceneHolder::GetInstance()->GetCurrentScene()->RemoveObject(m_rightClicked);
-			ImGui::CloseCurrentPopup();
+			// === if selected are simbling === //
+			if (!selected.empty()) {
+				ImGui::BeginDisabled(!selected[0].lock()->IsSibling(selected));
+			}
+			{
+				if (ImGui::Button("Create Parent", buttonSize)) // "Create Parent" button, clickable if at least one item is selected
+				{
+					auto parent = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
+					uint32_t childIndex = selected[0].lock()->GetParent().lock()->GetChildIndex(selected[0].lock().get());
+					selected[0].lock()->GetParent().lock()->AddChild(parent, childIndex);
+
+					for (int i = 0; i < selected.size(); i++)
+					{
+						selected[i].lock()->SetParent(parent);
+					}
+					parent.lock()->m_open = true;
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			if (!selected.empty()) {
+				ImGui::EndDisabled();
+			}
+			// === if only one selected === //
+			ImGui::BeginDisabled(selected.size() > 1);
+			{
+				if (ImGui::Button("Rename", buttonSize))
+				{
+					SetRename(selected[0].lock().get());
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::EndDisabled();
+
+			if (ImGui::Button("Delete", buttonSize))
+			{
+				for (int i = 0; i < selected.size(); i++)
+				{
+					Core::SceneHolder::GetInstance()->GetCurrentScene()->RemoveObject(selected[i].lock().get());
+					ImGui::CloseCurrentPopup();
+				}
+			}
 		}
 		ImGui::EndDisabled();
 		ImGui::EndPopup();
 	}
-	else if (m_rightClicked)
-	{
-		m_rightClicked = nullptr;
-	}
+}
+
+void EditorUI::Hierarchy::SetRename(Core::GameObject* gameObject)
+{
+	m_renameObject = gameObject;
+	m_openRename = true;
 }

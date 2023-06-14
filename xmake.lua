@@ -11,6 +11,10 @@ set_rundir("GalaxyCore")
 if is_plat("windows") then
     -- set_runtimes(is_mode("debug") and "MDd" or "MD")
 end
+-- diable warnings
+add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
+add_defines("_CRT_SECURE_NO_WARNINGS")
+add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
 if is_plat("windows") then
     add_links("opengl32")

@@ -118,3 +118,13 @@ uint32_t GameObject::GetChildIndex(GameObject* child)
 	return -1;
 }
 
+bool GameObject::IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings)
+{
+	for (size_t i = 0; i < siblings.size(); i++)
+	{
+		if (siblings[i].lock()->GetParent().lock() != this->GetParent().lock())
+			return false;
+	}
+	return true;
+}
+
