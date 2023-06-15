@@ -16,9 +16,9 @@ namespace GALAXY {
 			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent() {}
 
-			virtual std::string GetComponentName() = 0;
+			virtual std::string GetComponentName() { return "Empty"; };
 
-			virtual void ShowInInspector() {}
+			virtual void ShowInInspector();
 
 			virtual void OnCreate() {}
 
@@ -29,6 +29,8 @@ namespace GALAXY {
 			virtual void OnDraw() {}
 
 			virtual void OnDestroy() {}
+
+			bool IsEnable() { return p_enable; }
 
 		protected:
 			bool p_enable = true;
@@ -53,5 +55,6 @@ namespace GALAXY {
 		private:
 
 		};
+
 	}
 }

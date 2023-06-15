@@ -3,7 +3,6 @@
 #include "Component/IComponent.h"
 #include "Maths/Maths.h"
 
-
 namespace GALAXY::Component {
 	class Transform : public IComponent<Transform>
 	{
@@ -20,24 +19,24 @@ namespace GALAXY::Component {
 		void ShowInInspector() override;
 
 		// === Setters === //
-		void SetWorldPosition (const Vec3f& worldPosition);
-		void SetWorldRotation (const Quat&  worldRotation);
-		void SetWorldScale	  (const Vec3f& worldScale   );
+		void SetWorldPosition(const Vec3f& worldPosition);
+		void SetWorldRotation(const Quat& worldRotation);
+		void SetWorldScale(const Vec3f& worldScale);
 
-		void SetLocalPosition (const Vec3f& localPosition);
-		void SetLocalRotation (const Quat&  localRotation);
-		void SetLocalScale	  (const Vec3f& localScale   );
+		void SetLocalPosition(const Vec3f& localPosition);
+		void SetLocalRotation(const Quat& localRotation);
+		void SetLocalScale(const Vec3f& localScale);
 
 		// === Getters === //
 		Vec3f GetWorldPosition() const;
 		Quat  GetWorldRotation() const;
-		Vec3f GetWorldScale   () const;
-		Mat4  GetModelMatrix  () const;
+		Vec3f GetWorldScale() const;
+		Mat4  GetModelMatrix() const;
 
 		Vec3f GetLocalPosition() const;
 		Quat  GetLocalRotation() const;
-		Vec3f GetLocalScale   () const;
-		Mat4  GetLocalMatrix  () const;
+		Vec3f GetLocalScale() const;
+		Mat4  GetLocalMatrix() const;
 
 	private:
 		Math::Mat4     m_modelMatrix = Math::Mat4(1);
@@ -47,5 +46,6 @@ namespace GALAXY::Component {
 		Math::Vec3f    m_localScale = Math::Vec3f(1);
 		bool m_dirty = true;
 
+		REFLECTION_FRIEND
 	};
 }

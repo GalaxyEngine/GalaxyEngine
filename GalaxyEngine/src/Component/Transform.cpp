@@ -45,3 +45,8 @@ void Component::Transform::ShowInInspector()
 		SetLocalScale(scale);
 	}
 }
+
+Vec3f Component::Transform::GetLocalPosition() const
+{
+	return m_localPosition;
+}

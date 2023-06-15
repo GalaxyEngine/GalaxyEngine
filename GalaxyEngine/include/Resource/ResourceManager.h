@@ -42,7 +42,7 @@ namespace GALAXY::Resource {
 #ifdef ENABLE_MULTITHREAD
 					Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
 #else
-					resource->second->Load()
+					resource->second->Load();
 #endif // ENABLE_MULTITHREAD
 
 						return std::dynamic_pointer_cast<T>(resource->second);

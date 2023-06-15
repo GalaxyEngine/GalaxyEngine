@@ -37,6 +37,19 @@ namespace GALAXY {
 			// Set the parent to the given GameObject
 			void SetParent(std::weak_ptr<GameObject> parent);
 
+			template<typename T>
+			std::weak_ptr<T> AddComponent()
+			{
+				if (!std::is_base_of<BaseComponent, T>::value) {
+					PrintError("Incorrect Type for component");
+					return;
+				}
+
+				std::shared_ptr<T> component = std::make_shared<T>();
+				component->gameObject = weak_from_this();
+				m_components.push_back(component);
+			}
+
 			// === Getters === //
 
 			Component::Transform* GetTransform() { return m_transform.get(); }

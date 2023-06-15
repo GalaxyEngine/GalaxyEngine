@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "EditorUI/Inspector.h"
 #include "Core/GameObject.h"
+#include "Wrapper/Reflection.h"
 
 void EditorUI::Inspector::Draw()
 {

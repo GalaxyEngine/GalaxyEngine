@@ -8,4 +8,11 @@ using namespace GALAXY;
 #define GALAXY_API __declspec(dllimport)
 #endif
 
-#define ENABLE_MULTITHREAD
+#ifdef GALAXY_EXPORTS
+	#ifdef ENABLE_REFLECTION
+		#include <rttr/registration_friend.h>
+		#define REFLECTION_FRIEND RTTR_REGISTRATION_FRIEND
+	#else
+		#define REFLECTION_FRIEND
+	#endif
+#endif
