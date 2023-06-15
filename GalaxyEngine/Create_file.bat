@@ -1,37 +1,44 @@
 @echo off
+
 set /p "filename=Enter the file name: "
-
 set "filepath=src\%filename%"
-mkdir "%filepath%\.."
-(  
-  echo #include "pch.h"
-  echo #include "%filename%.h"
-) >> "%filepath%".cpp
+set "cppfile=%filepath%.cpp"
 
+mkdir "%filepath%\.."
+if not exist "%cppfile%" (
+  (  
+    echo #include "pch.h"
+    echo #include "%filename%.h"
+  ) >> "%cppfile%"
+)
 
 set "filepath=include\%filename%"
-mkdir "%filepath%\.."
-(  
-  echo #pragma once
-  echo #include "GalaxyAPI.h"
-  echo namespace GALAXY 
-  echo {
-  echo }
-) >> "%filepath%".h
+set "hfile=%filepath%.h"
 
-set /p "create_inl=Do you want to create the .inl file? (Y/N): "
-if /i "%create_inl%"=="Y" (
-  mkdir "%filepath%\.."
+mkdir "%filepath%\.."
+if not exist "%hfile%" (
   (  
     echo #pragma once
-    echo #include "%filename%.h"
+    echo #include "GalaxyAPI.h"
     echo namespace GALAXY 
     echo {
     echo }
-  ) >> "%filepath%".inl
-
-  echo #include "%filename%.inl" >> "%filepath%".h
+  ) >> "%hfile%"
 )
 
+set /p "create_inl=Do you want to create the .inl file? (Y/N): "
+if /i "%create_inl%"=="Y" (
+  if not exist "include/%filename%.inl" (
+    (  
+      echo #pragma once
+      echo #include "%filename%.h"
+      echo namespace GALAXY 
+      echo {
+      echo }
+    ) >> "include/%filename%.inl"
+	echo #include "%filename%.inl" >> "%hfile%"
+  )
+)
 
+pause
 echo File "%filename%" created successfully.
