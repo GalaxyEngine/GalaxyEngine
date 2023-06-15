@@ -30,6 +30,7 @@ namespace GALAXY {
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);
 
+			void RemoveComponent(Component::BaseComponent* component);
 			// === Setters === //
 
 			void AddChild(std::weak_ptr<GameObject> child, uint32_t index = -1);
@@ -40,12 +41,22 @@ namespace GALAXY {
 			template<typename T>
 			std::weak_ptr<T> AddComponent()
 			{
-				if (!std::is_base_of<BaseComponent, T>::value) {
+				if (!std::is_base_of<Component::BaseComponent, T>::value) {
 					PrintError("Incorrect Type for component");
 					return;
 				}
 
 				std::shared_ptr<T> component = std::make_shared<T>();
+				AddComponent(component);
+			}
+
+			template<typename T>
+			void AddComponent(std::shared_ptr<T> component)
+			{
+				if (!std::is_base_of<Component::BaseComponent, T>::value) {
+					PrintError("Incorrect Type for component");
+					return;
+				}
 				component->gameObject = weak_from_this();
 				m_components.push_back(component);
 			}

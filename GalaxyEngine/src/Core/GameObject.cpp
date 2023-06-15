@@ -128,3 +128,15 @@ bool GameObject::IsSibling(const std::vector<std::weak_ptr<GameObject>>& sibling
 	return true;
 }
 
+void GameObject::RemoveComponent(Component::BaseComponent* component)
+{
+	for (size_t i = 0; i < m_components.size(); i++)
+	{
+		if (component == m_components[i].get())
+		{
+			m_components.erase(m_components.begin() + i);
+			return;
+		}
+	}
+}
+

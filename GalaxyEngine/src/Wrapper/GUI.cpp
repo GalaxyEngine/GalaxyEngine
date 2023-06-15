@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
+#include "Component/ComponentHolder.h"
+#include "Component/IComponent.h"
 
 void Wrapper::GUI::Initalize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
 {
@@ -199,4 +201,25 @@ bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, floa
 
 	ImGui::PopID();
 	return stillEditing;
+}
+
+std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
+{
+	if (ImGui::BeginPopup("ComponentPopup"))
+	{
+		for (auto& component : Component::ComponentHolder::GetList())
+		{
+			static ImGuiTextFilter filter;
+			filter.Draw();
+			if (filter.PassFilter(component->GetComponentName().c_str()))
+			{
+				Vec2f ButtonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+				if (ImGui::Button(component->GetComponentName().c_str(), ButtonSize))
+					return component->Clone();
+				
+			}
+		}
+		ImGui::EndPopup();
+	}
+	return nullptr;
 }

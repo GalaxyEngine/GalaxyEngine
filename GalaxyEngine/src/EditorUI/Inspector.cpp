@@ -38,11 +38,45 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 	{
 		object->m_transform->ShowInInspector();
 	}
-	ImGui::NewLine();
-	ImGui::Separator();
 
 	// Other Components
-	//TODO:
+	for (size_t i = 0; i < object->m_components.size(); i++) {
+		ImGui::PushID(i);
+
+		bool enable = object->m_components[i]->IsEnable();
+		if (ImGui::Checkbox("##", &enable))
+		{
+			object->m_components[i]->SetEnable(enable);
+		}
+		ImGui::SameLine();
+
+		bool destroy = true;
+		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName().c_str(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		if (open) {
+			ImGui::BeginDisabled(!enable);
+			ImGui::TreePush(object->m_components[i]->GetComponentName().c_str());
+			object->m_components[i]->ShowInInspector();
+			ImGui::TreePop();
+			ImGui::EndDisabled();
+		}
+		ImGui::NewLine();
+		ImGui::Separator();
+		ImGui::PopID();
+		if (!destroy) {
+			object->m_components[i]->RemoveFromGameObject();
+			i--;
+		}
+	}
+	ImGui::NewLine();
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 100);
+	if (ImGui::Button("New Component", Math::Vec2f(200, 0)))
+	{
+		ImGui::OpenPopup("ComponentPopup");
+	}
+	if (std::shared_ptr<Component::BaseComponent> component = Wrapper::GUI::ComponentPopup())
+	{
+		object->AddComponent(component);
+	}
 
 	ImGui::PopID();
 }
