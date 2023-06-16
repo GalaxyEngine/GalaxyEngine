@@ -64,6 +64,12 @@ void GALAXY::Wrapper::Reflection::ShowInspectorClass(T* object)
 				property.set_value(*object, value); // Set the updated value back to the original object
 			}
 		}
+		else if (propertyType == rttr::type::get<std::string>()) {
+			std::string value = property.get_value(*object).get_value<std::string>();
+			if (ImGui::InputText(property.get_name().to_string().c_str(), &value)) {
+				property.set_value(*object, value); // Set the updated value back to the original object
+			}
+		}
 	}
 }
 

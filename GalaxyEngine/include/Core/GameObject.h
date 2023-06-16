@@ -30,6 +30,8 @@ namespace GALAXY {
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);
 
+			void RemoveComponent(Component::BaseComponent* component);
+
 			// === Setters === //
 
 			void AddChild(std::weak_ptr<GameObject> child, uint32_t index = -1);
@@ -38,30 +40,28 @@ namespace GALAXY {
 			void SetParent(std::weak_ptr<GameObject> parent);
 
 			template<typename T>
-			std::weak_ptr<T> AddComponent()
-			{
-				if (!std::is_base_of<BaseComponent, T>::value) {
-					PrintError("Incorrect Type for component");
-					return;
-				}
+			inline std::weak_ptr<T> AddComponent();
 
-				std::shared_ptr<T> component = std::make_shared<T>();
-				component->gameObject = weak_from_this();
-				m_components.push_back(component);
-			}
+			template<typename T>
+			inline void AddComponent(std::shared_ptr<T> component);
+
+			void ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex);
 
 			// === Getters === //
 
 			Component::Transform* GetTransform() { return m_transform.get(); }
+			std::weak_ptr<GameObject> GetParent();
 
 			std::vector<std::weak_ptr<GameObject>> GetChildren();
 			std::weak_ptr<GameObject> GetChild(uint32_t index);
 
 			// Return the child index in the list of child
 			uint32_t GetChildIndex(GameObject* child);
+			// Return the Component index in the list of components
+			uint32_t GetComponentIndex(Component::BaseComponent* component);
 
-			std::weak_ptr<GameObject> GetParent();
 
+			// Check if the object givent is a parent of the this
 			bool IsAParent(GameObject* object);
 			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
 
@@ -86,3 +86,4 @@ namespace GALAXY {
 		};
 	}
 }
+#include "Core/GameObject.inl" 

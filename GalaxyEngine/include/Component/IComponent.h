@@ -1,10 +1,12 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <Wrapper/Reflection.h>
+
 namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
 
-		class BaseComponent
+		class BaseComponent : public std::enable_shared_from_this<BaseComponent>
 		{
 		public:
 			std::weak_ptr<Core::GameObject> gameObject;
@@ -16,9 +18,9 @@ namespace GALAXY {
 			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent() {}
 
-			virtual std::string GetComponentName() { return "Empty"; };
+			virtual std::string GetComponentName() const { return "Empty"; }
 
-			virtual void ShowInInspector();
+			virtual void ShowInInspector() {}
 
 			virtual void OnCreate() {}
 
@@ -30,13 +32,24 @@ namespace GALAXY {
 
 			virtual void OnDestroy() {}
 
-			bool IsEnable() { return p_enable; }
+			void RemoveFromGameObject();
+
+			// === Getters === //
+
+			bool IsEnable() const { return p_enable; }
+
+			// === Setters === //
+
+			void SetEnable(bool enable) { p_enable = enable; }
+
+			virtual std::shared_ptr<BaseComponent> Clone() {
+				return std::make_shared<BaseComponent>(*shared_from_this());
+			}
 
 		protected:
 			bool p_enable = true;
 
 		};
-
 		template <typename Derived>
 		class IComponent : public BaseComponent
 		{
@@ -47,10 +60,13 @@ namespace GALAXY {
 			IComponent(IComponent&&) noexcept = default;
 			virtual ~IComponent() {}
 
-			virtual std::string GetComponentName() override = 0;
+			virtual std::shared_ptr<BaseComponent> Clone() override {
+				return std::make_shared<Derived>(*dynamic_cast<Derived*>(this));
+			}
 
-			virtual Derived* Clone() const {
-				return new Derived(static_cast<Derived const&>(*this));
+			virtual void ShowInInspector() override
+			{
+				Wrapper::Reflection::ShowInspectorClass(dynamic_cast<Derived*>(this));
 			}
 		private:
 

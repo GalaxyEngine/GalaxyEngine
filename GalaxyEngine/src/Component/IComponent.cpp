@@ -1,7 +1,11 @@
 #include "pch.h"
 #include "Component/IComponent.h"
+#include "Core/GameObject.h"
 
-void GALAXY::Component::BaseComponent::ShowInInspector()
+void Component::BaseComponent::RemoveFromGameObject()
 {
-	Wrapper::Reflection::ShowInspectorClass(this);
+	if (gameObject.lock())
+	{
+		gameObject.lock()->RemoveComponent(this);
+	}
 }

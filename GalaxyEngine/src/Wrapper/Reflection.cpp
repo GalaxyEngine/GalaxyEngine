@@ -3,6 +3,7 @@
 
 //Classes Include
 #include "Component/Transform.h"
+#include "Component/MeshComponent.h"
 
 #ifdef ENABLE_REFLECTION
 #define PROPRETY_HIDDEN (metadata("Hidden", true))
@@ -10,11 +11,15 @@
 
 RTTR_REGISTRATION
 {
-	rttr::registration::class_<Component::Transform>("Transform")
+	registration::class_<Component::Transform>("Transform")
 		.property("LocalPosition", &Component::Transform::m_localPosition)
 		.property("LocalRotation", &Component::Transform::m_localRotation) PROPRETY_HIDDEN
 		.property("LocalEulerRotation", &Component::Transform::m_localEulerRotation)
 		.property("LocalScale", &Component::Transform::m_localScale);
+
+	registration::class_<Component::MeshComponent>("MeshComponent")
+		.property("testVariable", &Component::MeshComponent::testVariable)
+		.property("variableString", &Component::MeshComponent::variableString);
 
 
 	registration::class_<Vec3i>("Vec3i")

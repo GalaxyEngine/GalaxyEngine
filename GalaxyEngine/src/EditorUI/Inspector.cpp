@@ -22,7 +22,6 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 {
 	if (!object->GetParent().lock())
 		return;
-	ImGui::PushID((int)object->m_id);
 
 	//TODO: Add tag & layer
 	static std::string name;
@@ -38,13 +37,76 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 	{
 		object->m_transform->ShowInInspector();
 	}
-	ImGui::NewLine();
-	ImGui::Separator();
 
 	// Other Components
-	//TODO:
+	bool openPopup = false;
+	for (size_t i = 0; i < object->m_components.size(); i++) {
+		if (!object->m_components[i].get())
+			continue;
+		ImGui::PushID(i);
 
-	ImGui::PopID();
+		bool enable = object->m_components[i]->IsEnable();
+		if (ImGui::Checkbox("##", &enable))
+		{
+			object->m_components[i]->SetEnable(enable);
+		}
+		ImGui::SameLine();
+
+		bool destroy = true;
+		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName().c_str(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		{
+			openPopup = true;
+			m_rightClicked = object->m_components[i];
+		}
+
+		if (ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("COMPONENT", &i, sizeof(uint32_t));
+			ImGui::TextUnformatted(object->m_components[i]->GetComponentName().c_str());
+			ImGui::EndDragDropSource();
+		}
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMPONENT")) 
+			{
+				uint32_t payloadData = *static_cast<uint32_t*>(payload->Data);
+				object->ChangeComponentIndex(payloadData, i);
+			}
+		}
+		// Content of the Collapsing Header
+		if (open) {
+			ImGui::BeginDisabled(!enable);
+			ImGui::TreePush(object->m_components[i]->GetComponentName().c_str());
+			object->m_components[i]->ShowInInspector();
+			ImGui::TreePop();
+			ImGui::EndDisabled();
+		}
+
+		ImGui::NewLine();
+		ImGui::Separator();
+		if (!destroy) {
+			object->m_components[i]->RemoveFromGameObject();
+			i--;
+		}
+		ImGui::PopID();
+	}
+	if (openPopup)
+	{
+		ImGui::OpenPopup("RightClickPopup");
+	}
+	RightClickPopup();
+	// Add Component Button
+	ImGui::NewLine();
+	ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 100);
+	if (ImGui::Button("Add Component", Math::Vec2f(200, 0)))
+	{
+		ImGui::OpenPopup("ComponentPopup");
+	}
+	if (std::shared_ptr<Component::BaseComponent> component = Wrapper::GUI::ComponentPopup())
+	{
+		object->AddComponent(component);
+	}
 }
 
 
@@ -89,4 +151,43 @@ std::vector<std::weak_ptr<Core::GameObject>> EditorUI::Inspector::GetSelected()
 		}
 	}
 	return m_selectedGameObject;
+}
+
+void EditorUI::Inspector::RightClickPopup()
+{
+	if (m_rightClicked.lock() && ImGui::BeginPopup("RightClickPopup"))
+	{
+		Vec2f buttonSize(ImGui::GetWindowContentRegionWidth(), 0);
+		if (ImGui::Button("Destroy", buttonSize))
+		{
+			m_rightClicked.lock()->RemoveFromGameObject();
+			m_rightClicked.reset();
+			ImGui::CloseCurrentPopup();
+		}
+		else if (ImGui::Button("Move Up", buttonSize))
+		{
+			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
+			uint32_t index = owner->GetComponentIndex(m_rightClicked.lock().get());
+
+			owner->ChangeComponentIndex(index, index - 1);
+
+			m_rightClicked.reset();
+			ImGui::CloseCurrentPopup();
+		}
+		else if (ImGui::Button("Move Down", buttonSize))
+		{
+			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
+			uint32_t index = owner->GetComponentIndex(m_rightClicked.lock().get());
+
+			owner->ChangeComponentIndex(index, index + 1);
+
+			m_rightClicked.reset();
+			ImGui::CloseCurrentPopup();
+		}
+		else if (ImGui::Button("Reset", buttonSize))
+		{
+
+		}
+		ImGui::EndPopup();
+	}
 }

@@ -14,7 +14,7 @@ namespace GALAXY::Component {
 		Transform(Transform&&) noexcept = default;
 		virtual ~Transform() {}
 
-		std::string GetComponentName() override { return "Transform"; }
+		std::string GetComponentName() const override { return "Transform"; }
 
 		void ShowInInspector() override;
 

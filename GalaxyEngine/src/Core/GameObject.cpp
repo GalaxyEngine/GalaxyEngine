@@ -128,3 +128,36 @@ bool GameObject::IsSibling(const std::vector<std::weak_ptr<GameObject>>& sibling
 	return true;
 }
 
+void GameObject::RemoveComponent(Component::BaseComponent* component)
+{
+	for (size_t i = 0; i < m_components.size(); i++)
+	{
+		if (component == m_components[i].get())
+		{
+			m_components.erase(m_components.begin() + i);
+			return;
+		}
+	}
+}
+
+uint32_t GameObject::GetComponentIndex(Component::BaseComponent* component)
+{
+	for (uint32_t i = 0; i < m_components.size(); i++)
+	{
+		if (m_components[i].get() == component)
+			return i;
+	}
+	// Not found
+	return -1;
+}
+
+void GameObject::ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex)
+{
+	if (prevIndex < m_components.size() && newIndex < m_components.size())
+	{
+		auto elementToMove = std::move(m_components[prevIndex]);
+		m_components.erase(m_components.begin() + prevIndex);
+		m_components.insert(m_components.begin() + newIndex, std::move(elementToMove));
+	}
+}
+

@@ -21,10 +21,14 @@ namespace GALAXY {
 			void SetSelected(std::weak_ptr<Core::GameObject> gameObject);
 
 			void ClearSelected();
+
+			void RightClickPopup();
 			
 			std::vector<std::weak_ptr<Core::GameObject>> GetSelected();
 		private:
 			std::vector<std::weak_ptr<Core::GameObject>> m_selectedGameObject;
+
+			std::weak_ptr<Component::BaseComponent> m_rightClicked;
 
 		};
 	}
