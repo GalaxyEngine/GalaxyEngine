@@ -55,7 +55,9 @@ target("GalaxyEngine")
 
     add_defines("GALAXY_EXPORTS")
     
-    add_cxflags("/permissive")
+    if (is_plat("windows", "msvc")) then 
+        add_cxflags("/permissive")
+    end
 
     -- Includes --
     includeDir("")
@@ -67,6 +69,7 @@ target("GalaxyEngine")
     includeDir("Utils")
     includeDir("Component")
     includeDir("EditorUI")
+    includeDir("Render")
 
     -- Packages --
     add_packages("glfw")

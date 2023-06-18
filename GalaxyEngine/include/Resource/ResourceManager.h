@@ -21,6 +21,11 @@ namespace GALAXY::Resource {
 			m_resources[resource->p_relativepath] = std::shared_ptr<IResource>(resource);
 		}
 
+		inline void AddResource(const std::shared_ptr<IResource>& resource)
+		{
+			m_resources[resource->p_relativepath] = resource;
+		}
+
 		// Get and load the resources if not loaded yet, 
 		// import the resource if not inside the resource Manager
 		template <typename T>
@@ -84,6 +89,8 @@ namespace GALAXY::Resource {
 
 		static std::string StringToRelativePath(const std::string& value);
 		static std::string StringToPath(const std::string& value);
+
+		std::weak_ptr<Resource::Shader> GetDefaultShader();
 
 		void ImportAllFilesInFolder(const std::filesystem::path& folder);
 		void ImportResource(const std::string& resourcePath);

@@ -120,8 +120,6 @@ void Core::Application::Update()
 		//ENDDRAW
 
 		// Rendering
-		m_renderer->ClearColorAndBuffer(clear_color);
-
 		Wrapper::GUI::EndFrame(m_window);
 
 		m_window->SwapBuffers();

@@ -34,6 +34,8 @@ namespace GALAXY {
 
 			void RemoveFromGameObject();
 
+			virtual void Reset() {}
+
 			// === Getters === //
 
 			bool IsEnable() const { return p_enable; }
@@ -41,6 +43,7 @@ namespace GALAXY {
 			// === Setters === //
 
 			void SetEnable(bool enable) { p_enable = enable; }
+
 
 			virtual std::shared_ptr<BaseComponent> Clone() {
 				return std::make_shared<BaseComponent>(*shared_from_this());
@@ -62,6 +65,12 @@ namespace GALAXY {
 
 			virtual std::shared_ptr<BaseComponent> Clone() override {
 				return std::make_shared<Derived>(*dynamic_cast<Derived*>(this));
+			}
+
+			// Reset All the value of the component.
+			void Reset() override
+			{
+				*static_cast<Derived*>(this) = Derived();
 			}
 
 			virtual void ShowInInspector() override

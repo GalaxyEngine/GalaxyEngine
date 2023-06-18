@@ -2,6 +2,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
+#include "Resource/Model.h"
 
 std::unique_ptr<Resource::ResourceManager> Resource::ResourceManager::m_instance = nullptr;
 
@@ -36,6 +37,7 @@ void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
 		PrintError("Cannot Import resource with this extension : %s", extension.c_str());
 		break;
 	case GALAXY::Resource::ResourceType::Texture:
+		// Default load all textures.
 		GetOrLoad<Texture>(resourcePath);
 		break;
 	case GALAXY::Resource::ResourceType::Shader:
@@ -48,6 +50,7 @@ void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
 		AddResource(new FragmentShader(resourcePath));
 		break;
 	case GALAXY::Resource::ResourceType::Model:
+		GetOrLoad<Model>(resourcePath);
 		break;
 	case GALAXY::Resource::ResourceType::Mesh:
 		break;
@@ -83,4 +86,9 @@ std::string GALAXY::Resource::ResourceManager::StringToPath(const std::string& v
 	std::replace(result.begin(), result.end(), '/', '\\');
 
 	return result;
+}
+
+std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+{
+	return std::dynamic_pointer_cast<Resource::Shader>(m_resources.at("assets\\unlit.shader"));
 }

@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include <glad/glad.h>
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Window.h"
@@ -34,7 +34,7 @@ Wrapper::OpenGLRenderer::~OpenGLRenderer() {}
 
 void Wrapper::OpenGLRenderer::Initalize()
 {
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(GetProcAddress))) {
 		PrintError("Failed to initialize GLAD");
 		return;
 	}
@@ -298,4 +298,93 @@ void Wrapper::OpenGLRenderer::ShaderSendVec4i(uint32_t location, const Vec4i& va
 void Wrapper::OpenGLRenderer::ShaderSendMat4(uint32_t location, const Mat4& value)
 {
 	glUniformMatrix4fv(location, 1, GL_FALSE, value.Data());
+}
+
+void Wrapper::OpenGLRenderer::CreateVertexArray(uint32_t& vao)
+{
+	glGenVertexArrays(1, &vao);
+}
+
+void Wrapper::OpenGLRenderer::BindVertexArray(uint32_t vao)
+{
+	glBindVertexArray(vao);
+}
+
+void Wrapper::OpenGLRenderer::CreateAndFillVertexBuffer(uint32_t& vbo
+	, const std::vector<Vec3f>& positions
+	, const std::vector<Vec2f>& textureUVs
+	, const std::vector<Vec3f>& normals)
+{
+	// Vertex buffer initialization
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(Vec3f), positions.data()->Data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(0);
+
+	uint32_t m_textureUVs;
+	// Texture coordinate buffer initialization
+	glGenBuffers(1, &m_textureUVs);
+	glBindBuffer(GL_ARRAY_BUFFER, m_textureUVs);
+	glBufferData(GL_ARRAY_BUFFER, textureUVs.size() * sizeof(Vec2f), textureUVs.data()->Data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(1);
+
+	// Normal buffer initialization
+	uint32_t m_normals;
+	glGenBuffers(1, &m_normals);
+	glBindBuffer(GL_ARRAY_BUFFER, m_normals);
+	glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3f), normals.data()->Data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(2);
+}
+
+void Wrapper::OpenGLRenderer::CreateVertexBuffer(uint32_t& vbo, const void* data, size_t dataSize)
+{
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, dataSize, data, GL_STATIC_DRAW);
+}
+
+void Wrapper::OpenGLRenderer::BindVertexBuffer(uint32_t vbo)
+{
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+}
+
+void Wrapper::OpenGLRenderer::CreateIndexBuffer(uint32_t& ebo, const void* data, size_t dataSize)
+{
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, data, GL_STATIC_DRAW);
+}
+
+void Wrapper::OpenGLRenderer::BindIndexBuffer(uint32_t ebo)
+{
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+}
+
+void Wrapper::OpenGLRenderer::VertexAttribPointer(uint32_t index, int size, int stride, const void* pointer)
+{
+	glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, pointer);
+	glEnableVertexAttribArray(index);
+}
+
+void Wrapper::OpenGLRenderer::DrawElement(size_t count)
+{
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
+}
+
+void Wrapper::OpenGLRenderer::UnbindVertexArray()
+{
+	glBindVertexArray(0);
+}
+
+void Wrapper::OpenGLRenderer::UnbindVertexBuffer()
+{
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
+void Wrapper::OpenGLRenderer::DrawArrays(size_t start, size_t count)
+{
+	glDrawArrays(GL_TRIANGLES, 0, count);
 }

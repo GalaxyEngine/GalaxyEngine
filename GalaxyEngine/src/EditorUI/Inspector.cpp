@@ -186,7 +186,7 @@ void EditorUI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Reset", buttonSize))
 		{
-
+			m_rightClicked.lock()->Reset();
 		}
 		ImGui::EndPopup();
 	}

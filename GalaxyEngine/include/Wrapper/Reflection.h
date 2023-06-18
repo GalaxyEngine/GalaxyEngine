@@ -1,6 +1,10 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <rttr/registration>
+#include <rttr/variant.h>
+#include <rttr/type>
+#include <imgui.h>
+#include <misc/cpp/imgui_stdlib.h>
 
 using namespace rttr;
 namespace GALAXY::Wrapper::Reflection
@@ -16,6 +20,7 @@ namespace GALAXY::Wrapper::Reflection
 template<typename T>
 void GALAXY::Wrapper::Reflection::ShowInspectorClass(T* object)
 {
+	/*
 	if (!object)
 		return;
 
@@ -71,6 +76,7 @@ void GALAXY::Wrapper::Reflection::ShowInspectorClass(T* object)
 			}
 		}
 	}
+	*/
 }
 
 

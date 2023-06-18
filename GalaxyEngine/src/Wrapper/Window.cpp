@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Wrapper/Window.h"
-#include <glfw/glfw3.h>
+#include <GLFW/glfw3.h>
 
 Wrapper::Window::~Window()
 {
@@ -112,7 +112,7 @@ void Wrapper::Window::SetSize(const Vec2i& size)
 
 void* Wrapper::Window::GetProcAddress(const char* procname)
 {
-	return glfwGetProcAddress(procname);
+	return reinterpret_cast<void*>(glfwGetProcAddress(procname));
 }
 
 void Wrapper::Window::ToggleFullscreen()

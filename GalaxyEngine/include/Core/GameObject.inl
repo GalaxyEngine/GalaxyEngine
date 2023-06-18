@@ -6,11 +6,12 @@ inline std::weak_ptr<T> Core::GameObject::AddComponent()
 {
 	if (!std::is_base_of<Component::BaseComponent, T>::value) {
 		PrintError("Incorrect Type for component");
-		return;
+		return std::weak_ptr<T>();
 	}
 
 	std::shared_ptr<T> component = std::make_shared<T>();
 	AddComponent(component);
+	return component;
 }
 
 template<typename T>

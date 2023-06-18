@@ -1,7 +1,13 @@
 #include "pch.h"
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
+
 #include "EditorUI/EditorUIManager.h"
+
+#include "Resource/ResourceManager.h"
+
+//TEMP
+#include "Resource/Mesh.h"
 
 using namespace Core;
 Scene::Scene()
@@ -17,10 +23,18 @@ Scene::~Scene()
 
 void Scene::Update()
 {
+	const Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
+	auto m_renderer = Wrapper::Renderer::GetInstance();
+	m_renderer->ClearColorAndBuffer(clear_color);
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
 	m_root->UpdateSelfAndChild();
 
+	auto mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
+	if (mesh.lock())
+	{
+		mesh.lock()->Render();
+	}
 }
 
 std::weak_ptr<GameObject> Scene::GetRootGameObject() const
