@@ -26,6 +26,7 @@ namespace GALAXY {
 			void Initialize();
 
 			void UpdateSelfAndChild();
+			void DrawSelfAndChild();
 
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);

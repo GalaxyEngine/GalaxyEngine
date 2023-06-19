@@ -18,6 +18,7 @@ namespace GALAXY {
 			void Send() override;
 
 			void Use();
+			int GetLocation(const std::string& locationName);
 
 			// Get the enum with the class
 			ResourceType GetResourceType() const { return ResourceType::Shader; }
@@ -26,6 +27,7 @@ namespace GALAXY {
 			friend Wrapper::OpenGLRenderer;
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> m_subShaders = {};
+			std::unordered_map<std::string, int> m_locations;
 			uint32_t m_id = -1;
 		};
 

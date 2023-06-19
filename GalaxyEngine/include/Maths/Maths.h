@@ -7,6 +7,7 @@
 #define VECTOR2
 namespace GALAXY::Math
 {
+	inline bool Approximately(float a, float b, float diff);
 
 	template<typename T>
 	class Vec3;

@@ -63,7 +63,7 @@ void Core::Application::Initalize()
 	
 }
 
-void GALAXY::Core::Application::UpdateResources()
+void Core::Application::UpdateResources()
 {
 	if (!m_resourceToSend.empty())
 	{
@@ -102,21 +102,6 @@ void Core::Application::Update()
 
 		//BEGINDRAW
 		m_sceneHolder->Update();
-
-		if (ImGui::Begin("Window"))
-		{
-			int i = 0;
-			for (std::weak_ptr<Resource::Texture> texture : m_resourceManager->GetAllResources<Resource::Texture>())
-			{
-				i++;
-				void* id = reinterpret_cast<void*>(static_cast<uintptr_t>(texture.lock()->GetID()));
-				ImGui::ImageButton(id, Vec2f(128, 128));
-				if (i % 3 != 0)
-					ImGui::SameLine();
-			}
-			ImGui::Text("%f", 1.f / ImGui::GetIO().DeltaTime);
-		}
-		ImGui::End();
 		//ENDDRAW
 
 		// Rendering

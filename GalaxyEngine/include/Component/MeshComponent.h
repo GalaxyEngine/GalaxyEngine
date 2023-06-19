@@ -2,21 +2,25 @@
 #include "GalaxyAPI.h"
 #include "IComponent.h"
 
-namespace GALAXY::Component
-{
-	class MeshComponent : public IComponent<MeshComponent>
+namespace GALAXY {
+	namespace Resource { class Mesh; }
+	namespace Component
 	{
-	public:
-		MeshComponent() {}
-		~MeshComponent() {}
+		class MeshComponent : public IComponent<MeshComponent>
+		{
+		public:
+			MeshComponent() {}
+			~MeshComponent() {}
 
-		std::string GetComponentName() const override { return "Mesh Component"; }
-		
+			std::string GetComponentName() const override { return "Mesh Component"; }
 
-	private:
-		bool testVariable;
-		std::string variableString;
+			void OnDraw() override;
 
-		REFLECTION_FRIEND
-	};
+			void SetMesh(const std::weak_ptr<Resource::Mesh>& mesh);
+		private:
+			std::weak_ptr<Resource::Mesh> m_mesh;
+
+			REFLECTION_FRIEND
+		};
+	}
 }

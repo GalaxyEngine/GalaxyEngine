@@ -84,6 +84,12 @@ void GameObject::Initialize()
 
 void GameObject::UpdateSelfAndChild()
 {
+	m_transform->OnUpdate();
+	for (uint32_t i = 0; i < m_components.size(); i++)
+	{
+		m_components[i]->OnUpdate();
+	}
+
 	for (uint32_t i = 0; i < m_childs.size(); i++)
 	{
 		if (m_childs[i].expired())
@@ -97,6 +103,29 @@ void GameObject::UpdateSelfAndChild()
 		}
 	}
 }
+
+void GameObject::DrawSelfAndChild()
+{
+	for (uint32_t i = 0; i < m_components.size(); i++)
+	{
+		m_components[i]->OnDraw();
+	}
+
+	for (uint32_t i = 0; i < m_childs.size(); i++)
+	{
+		if (m_childs[i].expired())
+		{
+			m_childs.erase(m_childs.begin() + i);
+			i--;
+		}
+		else
+		{
+			m_childs[i].lock()->DrawSelfAndChild();
+		}
+	}
+}
+
+
 
 bool GameObject::IsAParent(GameObject* object)
 {
@@ -160,4 +189,3 @@ void GameObject::ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex)
 		m_components.insert(m_components.begin() + newIndex, std::move(elementToMove));
 	}
 }
-

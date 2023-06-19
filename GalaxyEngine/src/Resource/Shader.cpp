@@ -88,3 +88,13 @@ void Resource::Shader::Use()
 {
 	Wrapper::Renderer::GetInstance()->UseShader(this);
 }
+
+int Resource::Shader::GetLocation(const std::string& locationName)
+{
+	if (m_locations.count(locationName))
+	{
+		return m_locations.at(locationName);
+	}
+	else
+		return m_locations[locationName] = Wrapper::Renderer::GetInstance()->GetShaderLocation(m_id, locationName);
+}

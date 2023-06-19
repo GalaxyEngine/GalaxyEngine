@@ -17,7 +17,7 @@ namespace GALAXY
 
 			void Send() override;
 
-			void Render();
+			void Render(const Mat4& modelMatrix);
 
 		private:
 			friend Wrapper::OBJLoader;

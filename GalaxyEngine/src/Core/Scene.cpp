@@ -6,6 +6,10 @@
 
 #include "Resource/ResourceManager.h"
 
+#include "Render/Camera.h"
+
+#include "Component/MeshComponent.h"
+
 //TEMP
 #include "Resource/Mesh.h"
 
@@ -13,7 +17,12 @@ using namespace Core;
 Scene::Scene()
 {
 	m_root = std::make_shared<GameObject>("Scene");
-	m_root->AddChild(CreateObject("Child 0"));
+	m_editorCamera = std::make_unique<Render::Camera>();
+	auto child = CreateObject("Child 0");
+	auto component = child.lock()->AddComponent<Component::MeshComponent>();
+	auto mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
+	component.lock()->SetMesh(mesh);
+	m_root->AddChild(child);
 	m_root->AddChild(CreateObject("Child 1"));
 }
 
@@ -24,17 +33,15 @@ Scene::~Scene()
 void Scene::Update()
 {
 	const Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
-	auto m_renderer = Wrapper::Renderer::GetInstance();
-	m_renderer->ClearColorAndBuffer(clear_color);
+	Wrapper::Renderer::GetInstance()->ClearColorAndBuffer(clear_color);
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
+
+	SetCurrentCamera(m_editorCamera);
+	m_editorCamera->Update();
 
 	m_root->UpdateSelfAndChild();
 
-	auto mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
-	if (mesh.lock())
-	{
-		mesh.lock()->Render();
-	}
+	m_root->DrawSelfAndChild();
 }
 
 std::weak_ptr<GameObject> Scene::GetRootGameObject() const
@@ -68,4 +75,10 @@ std::weak_ptr<GameObject> Scene::GetWithIndex(uint64_t index)
 		return m_objectList.at(index);
 	}
 	return std::weak_ptr<GameObject>();
+}
+
+void Scene::SetCurrentCamera(const std::weak_ptr<Render::Camera>& camera)
+{
+	m_currentCamera = camera;
+	m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
 }

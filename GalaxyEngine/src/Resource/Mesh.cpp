@@ -3,15 +3,9 @@
 #include "Wrapper/Renderer.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
 
-#include <glad/glad.h>
-
-GLuint positionVBO;
-GLuint normalVBO;
-GLuint uvVBO;
-GLuint vbo;
-GLuint ebo;
-GLuint vao;
 void Resource::Mesh::Send()
 {
 	Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
@@ -33,15 +27,16 @@ void Resource::Mesh::Send()
 	p_hasBeenSent = true;
 }
 
-void Resource::Mesh::Render()
+void Resource::Mesh::Render(const Mat4& modelMatrix)
 {
-	auto shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
-	if (!p_hasBeenSent || !shader.lock() || !shader.lock()->HasBeenSent())
+	auto shader = Resource::ResourceManager::GetInstance()->GetDefaultShader().lock();
+	if (!p_hasBeenSent || !shader || !shader->HasBeenSent())
 		return;
 	Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
-	shader.lock()->Use();
-
+	shader->Use();
 	renderer->BindVertexArray(m_vertexArrayIndex);
+
+	renderer->ShaderSendMat4(shader->GetLocation("MVP"), modelMatrix.GetTranspose() * Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP());
 	renderer->DrawArrays(0, m_indices.size() * 3);
 	renderer->UnbindVertexArray();
 }

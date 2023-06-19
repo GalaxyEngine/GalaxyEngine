@@ -23,7 +23,7 @@ void Wrapper::Renderer::CreateInstance(RenderAPI renderAPI)
 		break;
 	}
 	m_instance->Initalize();
-	m_instance->EnableDebugOutput();
+	//m_instance->EnableDebugOutput();
 }
 
 // OpenGL Renderer
@@ -34,7 +34,7 @@ Wrapper::OpenGLRenderer::~OpenGLRenderer() {}
 
 void Wrapper::OpenGLRenderer::Initalize()
 {
-	if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(GetProcAddress))) {
+	if (!gladLoadGLLoader((GLADloadproc)(Window::GetProcAddress))) {
 		PrintError("Failed to initialize GLAD");
 		return;
 	}
@@ -90,6 +90,7 @@ void Wrapper::OpenGLRenderer::EnableDebugOutput()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(DebugCallback, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
 }
 
 void Wrapper::OpenGLRenderer::UseShader(Resource::Shader* shader)
@@ -250,54 +251,79 @@ uint32_t Wrapper::OpenGLRenderer::TextureFormatToAPI(Resource::TextureFormat for
 	}
 }
 
+int Wrapper::OpenGLRenderer::GetShaderLocation(uint32_t id, const std::string& locationName)
+{
+	return glGetUniformLocation(id, locationName.c_str());
+}
+
 void Wrapper::OpenGLRenderer::ShaderSendInt(uint32_t location, int value)
 {
+	if (location == -1)
+		return;
 	glUniform1i(location, value);
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendFloat(uint32_t location, float value)
 {
+	if (location == -1)
+		return;
 	glUniform1f(location, value);
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendDouble(uint32_t location, double value)
 {
+	if (location == -1)
+		return;
 	glUniform1d(location, value);
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec2f(uint32_t location, const Vec2f& value)
 {
+	if (location == -1)
+		return;
 	glUniform2fv(location, 1, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec3f(uint32_t location, const Vec3f& value)
 {
+	if (location == -1)
+		return;
 	glUniform3fv(location, 1, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec4f(uint32_t location, const Vec4f& value)
 {
+	if (location == -1)
+		return;
 	glUniform4fv(location, 1, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec2i(uint32_t location, const Vec2i& value)
 {
+	if (location == -1)
+		return;
 	glUniform2iv(location, 1, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec3i(uint32_t location, const Vec3i& value)
 {
+	if (location == -1)
+		return;
 	glUniform3iv(location, 1, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::ShaderSendVec4i(uint32_t location, const Vec4i& value)
 {
+	if (location == -1)
+		return;
 	glUniform4iv(location, 1, value.Data());
 }
 
-void Wrapper::OpenGLRenderer::ShaderSendMat4(uint32_t location, const Mat4& value)
+void Wrapper::OpenGLRenderer::ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose)
 {
-	glUniformMatrix4fv(location, 1, GL_FALSE, value.Data());
+	if (location == -1)
+		return;
+	glUniformMatrix4fv(location, 1, transpose, value.Data());
 }
 
 void Wrapper::OpenGLRenderer::CreateVertexArray(uint32_t& vao)

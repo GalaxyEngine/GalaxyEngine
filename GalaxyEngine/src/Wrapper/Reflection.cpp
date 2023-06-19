@@ -17,9 +17,7 @@ RTTR_REGISTRATION
 		.property("LocalEulerRotation", &Component::Transform::m_localEulerRotation)
 		.property("LocalScale", &Component::Transform::m_localScale);
 
-	registration::class_<Component::MeshComponent>("MeshComponent")
-		.property("testVariable", &Component::MeshComponent::testVariable)
-		.property("variableString", &Component::MeshComponent::variableString);
+	//registration::class_<Component::MeshComponent>("Mesh Component");
 
 
 	registration::class_<Vec3i>("Vec3i")

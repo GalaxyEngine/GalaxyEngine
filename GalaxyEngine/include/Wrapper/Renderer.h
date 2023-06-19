@@ -56,6 +56,8 @@ namespace GALAXY
 
 			virtual void UseShader(Resource::Shader* shader) {}
 
+			virtual int GetShaderLocation(uint32_t id, const std::string& locationName) { return -1; }
+
 			virtual void ShaderSendInt(uint32_t location, int value) {}
 			virtual void ShaderSendFloat(uint32_t location, float value) {}
 			virtual void ShaderSendDouble(uint32_t location, double value) {}
@@ -65,7 +67,7 @@ namespace GALAXY
 			virtual void ShaderSendVec2i(uint32_t location, const Vec2i& value) {}
 			virtual void ShaderSendVec3i(uint32_t location, const Vec3i& value) {}
 			virtual void ShaderSendVec4i(uint32_t location, const Vec4i& value) {}
-			virtual void ShaderSendMat4(uint32_t location, const Mat4& value) {}
+			virtual void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) {}
 
 			// === Buffers === //
 			virtual void CreateVertexArray(uint32_t& vao) {}
@@ -118,6 +120,8 @@ namespace GALAXY
 
 			void UseShader(Resource::Shader* shader) override;
 
+			int GetShaderLocation(uint32_t id, const std::string& locationName) override;
+
 			void ShaderSendInt(uint32_t location, int value) override;
 			void ShaderSendFloat(uint32_t location, float value) override;
 			void ShaderSendDouble(uint32_t location, double value) override;
@@ -127,7 +131,7 @@ namespace GALAXY
 			void ShaderSendVec2i(uint32_t location, const Vec2i& value) override;
 			void ShaderSendVec3i(uint32_t location, const Vec3i& value) override;
 			void ShaderSendVec4i(uint32_t location, const Vec4i& value) override;
-			void ShaderSendMat4(uint32_t location, const Mat4& value) override;
+			void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) override;
 
 			// === Buffers === //
 			void CreateVertexArray(uint32_t& vao) override;

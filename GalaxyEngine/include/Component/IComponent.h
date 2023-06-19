@@ -9,7 +9,7 @@ namespace GALAXY {
 		class BaseComponent : public std::enable_shared_from_this<BaseComponent>
 		{
 		public:
-			std::weak_ptr<Core::GameObject> gameObject;
+			std::weak_ptr<Core::GameObject> gameObject = std::weak_ptr<Core::GameObject>();
 
 		public:
 			BaseComponent() {}

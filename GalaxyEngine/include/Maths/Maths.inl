@@ -7,6 +7,12 @@
 #include "Math.h"
 
 namespace GALAXY::Math {
+#pragma region Math Functions
+	inline bool Approximately(float a, float b, float diff) {
+		float absoluteDiff = std::abs(a - b);
+		return absoluteDiff <= diff;
+	}
+#pragma endregion
 
 #pragma region Vec2
 
