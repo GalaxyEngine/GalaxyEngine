@@ -151,3 +151,45 @@ void Wrapper::Window::ResizeCallback(GLFWwindow* window, int width, int height)
 		renderer->Viewport({ 0, 0 }, { width, height });
 	}
 }
+
+void Wrapper::Window::SetMousePosition(const Vec2i& pos, bool physicalPos /*= false*/)
+{
+	if (!physicalPos)
+		glfwSetCursorPos(static_cast<GLFWwindow*>(m_window), pos.x, pos.y);
+	else
+	{
+		Vec2i windowPos;
+		glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &windowPos.x, &windowPos.y);
+		glfwSetCursorPos(static_cast<GLFWwindow*>(m_window), (double)(pos.x - windowPos.x), (double)(pos.y - windowPos.y));
+	}
+}
+
+int Wrapper::Window::CursorModeToAPI(CursorMode mode)
+{
+	switch (mode)
+	{
+	case Wrapper::CursorMode::Normal:
+		return GLFW_CURSOR_NORMAL;
+	case Wrapper::CursorMode::Hidden:
+		return GLFW_CURSOR_HIDDEN;
+	case Wrapper::CursorMode::Disabled:
+		return GLFW_CURSOR_DISABLED;
+	default:
+		PrintError("Cursor Mode not supported");
+		return GLFW_CURSOR_NORMAL;
+	}
+}
+
+void Wrapper::Window::SetCursorMode(CursorMode mode)
+{
+	GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+	int modeValue = CursorModeToAPI(mode);
+	glfwSetInputMode(glfwWindow, GLFW_CURSOR, modeValue);
+}
+
+Math::Vec2i Wrapper::Window::GetPosition()
+{
+	Vec2i windowPos;
+	glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &windowPos.x, &windowPos.y);
+	return windowPos;
+}

@@ -21,6 +21,7 @@ Scene::Scene()
 	auto child = CreateObject("Child 0");
 	auto component = child.lock()->AddComponent<Component::MeshComponent>();
 	auto mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
+	while (!mesh.lock()) { mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube"); }
 	component.lock()->SetMesh(mesh);
 	m_root->AddChild(child);
 	m_root->AddChild(CreateObject("Child 1"));

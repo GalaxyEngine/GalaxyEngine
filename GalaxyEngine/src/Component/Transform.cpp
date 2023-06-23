@@ -127,7 +127,7 @@ void Component::Transform::ForceUpdate()
 
 void Component::Transform::ComputeModelMatrix(const Mat4& parentMatrix)
 {
-	m_modelMatrix = parentMatrix * GetLocalMatrix();
+	m_modelMatrix = GetLocalMatrix() * parentMatrix;
 	m_dirty = false;
 }
 
@@ -188,6 +188,14 @@ void Component::Transform::ShowInInspector()
 	}
 }
 
+void Component::Transform::Rotate(Vec3f axis, float angle, Space relativeTo /*= Space::Local*/)
+{
+	if (relativeTo == Space::Local)
+		RotateAround(TransformDirection(axis), angle);
+	else
+		RotateAround(axis, angle);
+}
+
 void Component::Transform::RotateAround(Vec3f point, Vec3f axis, float angle)
 {
 	Quat q = Quat::AngleAxis(angle, axis);
@@ -213,17 +221,25 @@ void Component::Transform::RotateAround(Vec3f axis, float angle)
 
 	// Update the object's rotation
 	Quat worldRotation = GetWorldRotation();
-	SetWorldRotation(worldRotation * worldRotation.GetInverse() * rotation * worldRotation);
+	Quat rot = worldRotation * worldRotation.GetInverse() * rotation * worldRotation;
+	SetWorldRotation(rot);
+}
+
+Vec3f Component::Transform::TransformDirection(Vec3f direction)
+{
+	return GetWorldRotation() * direction;
 }
 
 void Component::Transform::SetWorldPosition(const Vec3f& worldPosition)
 {
-
+	//TEMP
+	SetLocalPosition(worldPosition);
 }
 
 void Component::Transform::SetWorldRotation(const Quat& worldRotation)
 {
-
+	//TEMP
+	SetLocalRotation(worldRotation);
 }
 
 void Component::Transform::SetWorldRotation(const Vec3f& worldRotation)

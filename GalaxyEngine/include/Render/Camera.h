@@ -22,6 +22,9 @@ namespace GALAXY
 			Mat4 GetViewMatrix();
 			Mat4 GetProjectionMatrix();
 			Mat4 GetViewProjectionMatrix();
+		private:
+			void StartLooking();
+			void StopLooking();
 		protected:
 			float p_fov = 45.f;
 			float p_far = 0.3f;
@@ -29,13 +32,13 @@ namespace GALAXY
 			float p_aspectRatio = 4.f / 3.f;
 
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
-			
+
 		private:
 			float m_movementSpeed = 10.f;
 			float m_fastMovementSpeed = 100.f;
 			float m_freeLookSensitivity = 3.f;
-			float m_zoomSensitivity = 10.f;
-			float m_fastZoomSensitivity = 50.f;
+			float m_zoomSensitivity = 1.f;
+			float m_fastZoomSensitivity = 5.f;
 
 			bool m_looking = false;
 

@@ -36,7 +36,7 @@ void Resource::Mesh::Render(const Mat4& modelMatrix)
 	shader->Use();
 	renderer->BindVertexArray(m_vertexArrayIndex);
 
-	renderer->ShaderSendMat4(shader->GetLocation("MVP"), modelMatrix.GetTranspose() * Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP());
+	renderer->ShaderSendMat4(shader->GetLocation("MVP"), modelMatrix * Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP());
 	renderer->DrawArrays(0, m_indices.size() * 3);
 	renderer->UnbindVertexArray();
 }

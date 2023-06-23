@@ -673,10 +673,10 @@ namespace GALAXY::Math {
 	{
 		Vec3<U> res;
 		float w;
-		res.x = content[0][0] * point.x + content[0][1] * point.y + content[0][2] * point.z + content[0][3];
-		res.y = content[1][0] * point.x + content[1][1] * point.y + content[1][2] * point.z + content[1][3];
-		res.z = content[2][0] * point.x + content[2][1] * point.y + content[2][2] * point.z + content[2][3];
-		w = content[3][0] * point.x + content[3][1] * point.y + content[3][2] * point.z + content[3][3];
+		res.x = content[0][0] * point.x + content[1][0] * point.y + content[2][0] * point.z + content[3][0];
+		res.y = content[0][1] * point.x + content[1][1] * point.y + content[2][1] * point.z + content[3][1];
+		res.z = content[0][2] * point.x + content[1][2] * point.y + content[2][2] * point.z + content[3][2];
+		w = content[0][3] * point.x + content[1][3] * point.y + content[2][3] * point.z + content[3][3];
 
 		w = 1.f / w;
 		res.x *= w;
@@ -707,7 +707,7 @@ namespace GALAXY::Math {
 	{
 		Mat4 out(1);
 		for (size_t i = 0; i < 3; i++)
-			out[i][3] = translation[i];
+			out[3][i] = translation[i];
 		return out;
 	}
 
@@ -735,7 +735,7 @@ namespace GALAXY::Math {
 	template<typename U>
 	inline Mat4 Mat4::CreateTransformMatrix(const Vec3<U>& position, const Quat& rotation, const Vec3<U>& scale)
 	{
-		return CreateTranslationMatrix(position) * rotation.ToRotationMatrix() * CreateScaleMatrix(scale);
+		return CreateScaleMatrix(scale) * rotation.ToRotationMatrix() * CreateTranslationMatrix(position);
 	}
 
 	inline Mat4 Mat4::CreatePerspectiveProjectionMatrix(float Near, float Far, float fov)
@@ -763,7 +763,7 @@ namespace GALAXY::Math {
 	template<typename U>
 	inline Vec3<U> Mat4::GetPosition() const
 	{
-		return { content[0][3], content[1][3], content[2][3] };
+		return { content[3][0], content[3][1], content[3][2] };
 	}
 
 	template<typename U>
@@ -779,7 +779,7 @@ namespace GALAXY::Math {
 	template<typename U>
 	inline Vec3<U> Mat4::GetEulerRotation() const
 	{
-		float sy = sqrt(content[0][0] * content[0][0] + content[1][0] * content[1][0]);
+		float sy = sqrt(content[0][0] * content[0][0] + content[0][1] * content[0][1]);
 
 		bool singular = sy < 1e-6;
 
@@ -787,14 +787,14 @@ namespace GALAXY::Math {
 
 		if (!singular)
 		{
-			x = atan2(content[2][1], content[2][2]);
-			y = atan2(-content[2][0], sy);
-			z = atan2(content[1][0], content[0][0]);
+			x = atan2( content[1][2], content[2][2]);
+			y = atan2(-content[0][2], sy);
+			z = atan2(content[0][1], content[0][0]);
 		}
 		else
 		{
-			x = atan2(-content[1][2], content[1][1]);
-			y = atan2(-content[2][0], sy);
+			x = atan2(-content[2][1], content[1][1]);
+			y = atan2(-content[0][2], sy);
 			z = 0;
 		}
 
@@ -1007,35 +1007,35 @@ namespace GALAXY::Math {
 		{
 			float s = 0.5f / std::sqrt(trace + 1.0f);
 			float w = 0.25f / s;
-			float x = (content[2][1] - content[1][2]) * s;
-			float y = (content[0][2] - content[2][0]) * s;
-			float z = (content[1][0] - content[0][1]) * s;
+			float x = (content[1][2] - content[2][1]) * s;
+			float y = (content[2][0] - content[0][2]) * s;
+			float z = (content[0][1] - content[1][0]) * s;
 			return Quat(x, y, z, w);
 		}
 		else if (content[0][0] > content[1][1] && content[0][0] > content[2][2])
 		{
 			float s = 2.0f * std::sqrt(1.0f + content[0][0] - content[1][1] - content[2][2]);
-			float w = (content[2][1] - content[1][2]) / s;
 			float x = 0.25f * s;
-			float y = (content[0][1] + content[1][0]) / s;
-			float z = (content[0][2] + content[2][0]) / s;
+			float w = (content[1][2] - content[2][1]) / s;
+			float y = (content[1][0] + content[0][1]) / s;
+			float z = (content[2][0] + content[0][2]) / s;
 			return Quat(x, y, z, w);
 		}
 		else if (content[1][1] > content[2][2])
 		{
 			float s = 2.0f * std::sqrt(1.0f + content[1][1] - content[0][0] - content[2][2]);
-			float w = (content[0][2] - content[2][0]) / s;
-			float x = (content[0][1] + content[1][0]) / s;
 			float y = 0.25f * s;
-			float z = (content[1][2] + content[2][1]) / s;
+			float w = (content[2][0] - content[0][2]) / s;
+			float x = (content[1][0] + content[0][1]) / s;
+			float z = (content[2][1] + content[1][2]) / s;
 			return Quat(x, y, z, w);
 		}
 		else
 		{
 			float s = 2.0f * std::sqrt(1.0f + content[2][2] - content[0][0] - content[1][1]);
-			float w = (content[1][0] - content[0][1]) / s;
-			float x = (content[0][2] + content[2][0]) / s;
-			float y = (content[1][2] + content[2][1]) / s;
+			float w = (content[0][1] - content[1][0]) / s;
+			float x = (content[2][0] + content[0][2]) / s;
+			float y = (content[2][1] + content[1][2]) / s;
 			float z = 0.25f * s;
 			return Quat(x, y, z, w);
 		}
@@ -1315,26 +1315,6 @@ namespace GALAXY::Math {
 
 	inline Mat4 Quat::ToRotationMatrix() const
 	{
-		/*
-		Mat4 m = Mat4::Identity();
-		auto q0 = w;
-		auto q1 = x;
-		auto q2 = y;
-		auto q3 = z;
-
-		m[0][0] = 2 * (q0 * q0 + q1 * q1) - 1;
-		m[1][0] = 2 * (q1 * q2 - q0 * q3);
-		m[2][0] = 2 * (q1 * q3 + q0 * q2);
-
-		m[0][1] = 2 * (q1 * q2 + q0 * q3);
-		m[1][1] = 2 * (q0 * q0 + q2 * q2) - 1;
-		m[2][1] = 2 * (q2 * q3 - q0 * q1);
-
-		m[0][2] = 2 * (q1 * q3 - q0 * q2);
-		m[1][2] = 2 * (q2 * q3 + q0 * q1);
-		m[2][2] = 2 * (q0 * q0 + q3 * q3) - 1;
-		return m;
-		*/
 		// Precalculate coordinate products
 		float _x = x * 2.0F;
 		float _y = y * 2.0F;
@@ -1351,10 +1331,26 @@ namespace GALAXY::Math {
 
 		// Calculate 3x3 matrix from orthonormal basis
 		Mat4 m;
-		m[0][0] = 1.0f - (yy + zz); m[1][0] = xy + wz; m[2][0] = xz - wy; m[3][0] = 0.0F;
-		m[0][1] = xy - wz; m[1][1] = 1.0f - (xx + zz); m[2][1] = yz + wx; m[3][1] = 0.0F;
-		m[0][2] = xz + wy; m[1][2] = yz - wx; m[2][2] = 1.0f - (xx + yy); m[3][2] = 0.0F;
-		m[0][3] = 0.0F; m[1][3] = 0.0F; m[2][3] = 0.0F; m[3][3] = 1.0F;
+		m[0][0] = 1.0f - (yy + zz);
+		m[0][1] = xy + wz;
+		m[0][2] = xz - wy;
+		m[0][3] = 0.0F;
+
+		m[1][0] = xy - wz;
+		m[1][1] = 1.0f - (xx + zz);
+		m[1][2] = yz + wx;
+		m[1][3] = 0.0F;
+
+		m[2][0] = xz + wy;
+		m[2][1] = yz - wx;
+		m[2][2] = 1.0f - (xx + yy);
+		m[2][3] = 0.0F;
+
+		m[3][0] = 0.0F;
+		m[3][1] = 0.0F;
+		m[3][2] = 0.0F;
+		m[3][3] = 1.0F;
+
 		return m;
 	}
 

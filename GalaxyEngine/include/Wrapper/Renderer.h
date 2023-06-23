@@ -149,6 +149,9 @@ namespace GALAXY
 
 			void DrawElement(size_t count) override;
 			void DrawArrays(size_t start, size_t count) override;
+
+			// Debug
+			//void DrawLine();
 		private:
 
 		};

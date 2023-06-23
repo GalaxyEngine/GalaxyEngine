@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Render/Camera.h"
+#include "Core/Application.h"
 
 Render::Camera::Camera()
 {
@@ -9,12 +10,12 @@ Render::Camera::Camera()
 Render::Camera::~Camera()
 {
 }
-
+Vec2f prevMousePos;
 void Render::Camera::Update()
 {
 	/*TODO:
 	 * change input with input class
-	 * change delta time with Time class 
+	 * change delta time with Time class
 	*/
 	bool fastMode = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
 	bool movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
@@ -33,7 +34,6 @@ void Render::Camera::Update()
 	{
 		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
-	m_transform->GetLocalPosition().Print();
 
 	if (ImGui::IsKeyDown(ImGuiKey_S) || ImGui::IsKeyDown(ImGuiKey_DownArrow))
 	{
@@ -62,15 +62,19 @@ void Render::Camera::Update()
 
 	if (m_looking)
 	{
-		float mouseX = ImGui::GetIO().MouseDelta.x * m_freeLookSensitivity;
-		float mouseY = ImGui::GetIO().MouseDelta.y * m_freeLookSensitivity;
+		float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * 0.1f;
+		float mouseY = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).y * m_freeLookSensitivity * 0.1f;
+
+		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		window->SetMousePosition(prevMousePos);
 
 		if (Approximately(m_transform->GetLocalPosition().z, 180.f, 0.1f))
 		{
 			mouseX *= -1;
 		}
-		//transform.Rotate(Vector3.up, mouseX, Space.World);
-		//transform.Rotate(Vector3.right, -mouseY, Space.Self);
+
+		m_transform->Rotate(Vec3f::Up(), mouseX, Space::World);
+		m_transform->Rotate(Vec3f::Right(), mouseY, Space::Local);
 	}
 
 	float axis = ImGui::GetIO().MouseWheel;
@@ -80,13 +84,13 @@ void Render::Camera::Update()
 		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
 	}
 
-	if (ImGui::IsMouseDown(ImGuiMouseButton_Right))
+	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 	{
-		//StartLooking();
+		StartLooking();
 	}
 	else if (ImGui::IsMouseReleased(ImGuiMouseButton_Right))
 	{
-		//StopLooking();
+		StopLooking();
 	}
 }
 
@@ -115,7 +119,7 @@ Component::Transform* Render::Camera::GetTransform()
 
 Mat4 Render::Camera::GetProjectionMatrix()
 {
-	float s = 1.0f / ((p_aspectRatio) * std::atan((p_fov / 2.0f) * DegToRad));
+	float s = 1.0f / ((p_aspectRatio)*std::atan((p_fov / 2.0f) * DegToRad));
 	float s2 = 1.0f / std::atan((p_fov / 2.0f) * DegToRad);
 	float param1 = -(p_far + p_near) / (p_far - p_near);
 	float param2 = -(2 * p_near * p_far) / (p_far - p_near);
@@ -131,4 +135,20 @@ Mat4 Render::Camera::GetProjectionMatrix()
 Mat4 Render::Camera::GetViewProjectionMatrix()
 {
 	return GetViewMatrix() * GetProjectionMatrix();
+}
+
+void Render::Camera::StartLooking()
+{
+	m_looking = true;
+	Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+	prevMousePos = (Vec2f)ImGui::GetMousePos() - window->GetPosition();
+	window->SetCursorMode(Wrapper::CursorMode::Hidden);
+}
+
+void Render::Camera::StopLooking()
+{
+	m_looking = false;
+	Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+	window->SetMousePosition(prevMousePos);
+	window->SetCursorMode(Wrapper::CursorMode::Normal);
 }

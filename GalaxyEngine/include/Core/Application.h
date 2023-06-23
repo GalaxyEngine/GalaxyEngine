@@ -29,6 +29,8 @@ namespace GALAXY
 
 			void UpdateResources();
 
+			Wrapper::Window* GetWindow() { return m_window.get(); }
+
 		private:
 			static Application m_instance;
 

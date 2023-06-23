@@ -10,6 +10,23 @@ namespace GALAXY::Wrapper
 		const char* name;
 		int width, height;
 	};
+	enum class CursorType
+	{
+		Arrow,
+		IBeam,
+		CrossHair,
+		Hand,
+		HResize,
+		WResize
+	};
+
+	enum class CursorMode
+	{
+		Normal,
+		Hidden,
+		Disabled
+	};
+
 	class Window
 	{
 	public:
@@ -35,6 +52,7 @@ namespace GALAXY::Wrapper
 		bool GetVSyncEnable();
 		void GetSize(int* width, int* height);
 		Vec2i GetSize();
+		Vec2i GetPosition();
 
 		// --- Setters --- //
 		void SetVSync(bool enable);
@@ -42,12 +60,16 @@ namespace GALAXY::Wrapper
 		void ToggleFullscreen();
 		void SetSize(int width, int height);
 		void SetSize(const Vec2i& size);
+		void SetMousePosition(const Vec2i& pos, bool physicalPos = false);
+		void SetCursorMode(CursorMode mode);
 
 		bool ShouldClose();
 
 		[[nodiscard]] void* GetWindow() { return m_window; }
 
 	private:
+		int CursorModeToAPI(CursorMode mode);
+
 		void* m_window;
 		bool m_vsync = true;
 
