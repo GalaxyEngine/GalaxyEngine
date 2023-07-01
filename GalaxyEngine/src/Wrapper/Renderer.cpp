@@ -5,6 +5,11 @@
 
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Window.h"
+
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
+
+#include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
 
@@ -90,6 +95,12 @@ void Wrapper::OpenGLRenderer::EnableDebugOutput()
 	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 	glDebugMessageCallback(DebugCallback, nullptr);
 	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glCullFace(GL_BACK);
 
 }
 
@@ -413,4 +424,60 @@ void Wrapper::OpenGLRenderer::UnbindVertexBuffer()
 void Wrapper::OpenGLRenderer::DrawArrays(size_t start, size_t count)
 {
 	glDrawArrays(GL_TRIANGLES, 0, count);
+}
+
+void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 5.f*/)
+{
+	static bool initalized = false;
+	static std::weak_ptr<Resource::Shader> unlitShader;
+	static uint32_t VAO;
+	static uint32_t VBO;
+	if (!initalized)
+	{
+		unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
+		glGenVertexArrays(1, &VAO);
+		glGenBuffers(1, &VBO);
+		glBindVertexArray(VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) + 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
+		glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
+
+		// position attribute
+		glVertexAttribPointer(0U, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0U);
+		initalized = true;
+	}
+	if (!unlitShader.lock() || !unlitShader.lock()->HasBeenSent())
+	{
+		unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
+		return;
+	}
+
+	// Bind Position
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
+	glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
+
+	//glDepthRange(0, 0.01);
+	float defaultWidth;
+	glGetFloatv(GL_LINE_WIDTH, &defaultWidth);
+	glLineWidth(lineWidth);
+	auto shader = unlitShader.lock();
+
+	shader->Use();
+
+	const auto& VP = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP();
+
+	ShaderSendMat4(shader->GetLocation("MVP"), VP);
+	ShaderSendVec4f(shader->GetLocation("Color"), color);
+	//glUniform1i(shader->GetLocation("enableTexture"), false);
+
+	// Draw vertices
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_LINES, 0, 6);
+	glBindVertexArray(0);
+
+	glLineWidth(defaultWidth);
 }

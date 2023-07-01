@@ -3,6 +3,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
+#include "Resource/Material.h"
 #include "Core/Application.h"
 
 void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outputModel)
@@ -16,12 +17,13 @@ void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outp
 		const std::string& meshFullPath = fullPath + ":" + model.m_meshes[i].name;
 		auto mesh = std::make_shared<Resource::Mesh>(meshFullPath);
 		mesh->p_name = model.m_meshes[i].name;
+		mesh->p_type = Resource::ResourceType::Mesh;
 		mesh->m_positions = model.m_meshes[i].positions;
 		mesh->m_textureUVs = model.m_meshes[i].textureUVs;
 		mesh->m_normals = model.m_meshes[i].normals;
 		mesh->m_indices = model.m_meshes[i].indices;
 		mesh->m_finalVertices = model.m_meshes[i].finalVertices;
-		
+
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
 		Resource::ResourceManager::GetInstance()->AddResource(mesh);
@@ -34,7 +36,7 @@ void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outp
 
 bool Wrapper::OBJLoader::Parse()
 {
-	//TODO support :
+	// TODO support :
 	// quad
 	// color
 	// mtl
@@ -44,7 +46,7 @@ bool Wrapper::OBJLoader::Parse()
 		PrintError("Failed to open OBJ file %s", m_path.c_str());
 		return false;
 	}
-	
+
 	bool quadOBJ = false;
 	OBJMesh currentMesh;
 	std::string line;
@@ -52,7 +54,7 @@ bool Wrapper::OBJLoader::Parse()
 		std::istringstream iss(line);
 		std::string token;
 		iss >> token;
-		
+
 		if (token == "o" || token == "g")
 		{
 			if (!currentMesh.name.empty()) {
@@ -61,7 +63,14 @@ bool Wrapper::OBJLoader::Parse()
 			currentMesh = OBJMesh();
 			iss >> currentMesh.name;
 		}
-		if (token == "v") 
+		if (token == "mtllib")
+		{
+			std::string mtlPath;
+			iss >> mtlPath;
+			mtlPath = m_path.substr(0, m_path.find_last_of('\\')) + '\\' + mtlPath;
+			ReadMtl(mtlPath);
+		}
+		if (token == "v")
 		{
 			Vec3f position;
 			iss >> position.x >> position.y >> position.z;
@@ -207,4 +216,67 @@ void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIn
 		triangleIndices.push_back(quadIndices[quadOffset + 2]);
 		triangleIndices.push_back(quadIndices[quadOffset + 3]);
 	}
+}
+
+bool Wrapper::OBJLoader::ReadMtl(const std::string& mtlPath)
+{
+	std::ifstream file(mtlPath);
+	if (!file.is_open()) {
+		PrintError("Failed to open MTL file %s", mtlPath.c_str());
+		return false;
+	}
+
+	std::string line;
+	std::shared_ptr<Resource::Material> currentMaterial;
+	while (std::getline(file, line)) {
+		std::istringstream iss(line);
+		std::string token;
+		iss >> token;
+		// Ambient
+		if (token == "newmtl")
+		{
+			std::string name;
+			iss >> name;
+			const std::string& matFullPath = mtlPath.substr(0, mtlPath.find_last_of('\\') + 1) + name + ".mat";
+			currentMaterial = std::make_shared<Resource::Material>(matFullPath);
+			Resource::ResourceManager::GetInstance()->AddResource(currentMaterial);
+		}
+		if (token == "Ka")
+		{
+			Vec3f ambient;
+			iss >> ambient.x >> ambient.y >> ambient.z;
+			currentMaterial->m_ambient = ambient;
+		}
+		// Diffuse
+		else if (token == "Kd")
+		{
+			Vec3f diffuse;
+			iss >> diffuse.x >> diffuse.y >> diffuse.z;
+			currentMaterial->m_diffuse = diffuse;
+		}
+		// Specular
+		else if (token == "Ks")
+		{
+			Vec3f specular;
+			iss >> specular.x >> specular.y >> specular.z;
+			currentMaterial->m_specular = specular;
+		}
+		// Emissive
+		else if (token == "d")
+		{
+			float transparency;
+			iss >> transparency;
+			currentMaterial->m_ambient.w = transparency;
+			currentMaterial->m_diffuse.w = transparency;
+			currentMaterial->m_specular.w = transparency;
+		}
+		else if (token == "map_Kd")
+		{
+			std::string texPath;
+			iss >> texPath;
+			texPath = mtlPath.substr(0, mtlPath.find_last_of('\\') + 1) + texPath;
+			currentMaterial->m_albedo = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(texPath);
+		}
+	}
+	return true;
 }

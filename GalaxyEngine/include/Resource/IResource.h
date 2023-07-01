@@ -15,6 +15,7 @@ namespace GALAXY::Resource {
 		FragmentShader,
 		Model,
 		Mesh,
+		Material,
 	};
 
 	class IResource
@@ -33,6 +34,7 @@ namespace GALAXY::Resource {
 
 		virtual void Load() {}
 		virtual void Send() {}
+		virtual void ShowInInspector() {}
 
 		bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
 		bool IsLoaded() const { return p_loaded.load(); }
@@ -41,12 +43,15 @@ namespace GALAXY::Resource {
 		void SendRequest();
 
 		ResourceType GetType() const { return p_type; }
+		std::string GetName() const { return p_name; }
+		std::string GetRelativePath() const { return p_relativePath; }
+		std::string GetFullPath() const { return p_fullPath; }
 	protected:
 		friend class ResourceManager;
 
 		ResourceType p_type;
 		std::string p_fullPath;
-		std::string p_relativepath;
+		std::string p_relativePath;
 		std::string p_name;
 
 		std::atomic_bool p_shouldBeLoaded = false;

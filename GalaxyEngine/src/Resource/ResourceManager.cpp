@@ -50,6 +50,7 @@ void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
 		AddResource(new FragmentShader(resourcePath));
 		break;
 	case GALAXY::Resource::ResourceType::Model:
+		//AddResource(new Model(resourcePath));
 		GetOrLoad<Model>(resourcePath);
 		break;
 	case GALAXY::Resource::ResourceType::Mesh:
@@ -75,7 +76,7 @@ std::string Resource::ResourceManager::StringToRelativePath(const std::string& v
 	return result;
 }
 
-std::string GALAXY::Resource::ResourceManager::StringToPath(const std::string& value)
+std::string Resource::ResourceManager::StringToPath(const std::string& value)
 {
 	std::string result = value;
 
@@ -88,7 +89,12 @@ std::string GALAXY::Resource::ResourceManager::StringToPath(const std::string& v
 	return result;
 }
 
-std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 {
 	return std::dynamic_pointer_cast<Resource::Shader>(m_resources.at("assets\\unlit.shader"));
+}
+
+std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+{
+	return GetUnlitShader();
 }

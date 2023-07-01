@@ -87,7 +87,8 @@ void GameObject::UpdateSelfAndChild()
 	m_transform->OnUpdate();
 	for (uint32_t i = 0; i < m_components.size(); i++)
 	{
-		m_components[i]->OnUpdate();
+		if (m_components[i]->IsEnable())
+			m_components[i]->OnUpdate();
 	}
 
 	for (uint32_t i = 0; i < m_childs.size(); i++)
@@ -108,7 +109,8 @@ void GameObject::DrawSelfAndChild()
 {
 	for (uint32_t i = 0; i < m_components.size(); i++)
 	{
-		m_components[i]->OnDraw();
+		if (m_components[i]->IsEnable())
+			m_components[i]->OnDraw();
 	}
 
 	for (uint32_t i = 0; i < m_childs.size(); i++)

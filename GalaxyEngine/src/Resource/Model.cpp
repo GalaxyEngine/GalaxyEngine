@@ -4,7 +4,7 @@
 
 void Resource::Model::Load()
 {
-	auto extension = p_relativepath.substr(p_relativepath.find_last_of('.'));
+	auto extension = GetRelativePath().substr(GetRelativePath().find_last_of('.'));
 	if (extension == ".fbx")
 	{
 		m_modelType = Resource::ModelExtension::FBX;
@@ -14,6 +14,4 @@ void Resource::Model::Load()
 		m_modelType = Resource::ModelExtension::OBJ;
 		Wrapper::OBJLoader::Load(p_fullPath, this);
 	}
-
-
 }

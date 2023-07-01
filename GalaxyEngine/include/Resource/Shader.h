@@ -21,7 +21,7 @@ namespace GALAXY {
 			int GetLocation(const std::string& locationName);
 
 			// Get the enum with the class
-			ResourceType GetResourceType() const { return ResourceType::Shader; }
+			static ResourceType GetResourceType() { return ResourceType::Shader; }
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
@@ -53,7 +53,7 @@ namespace GALAXY {
 			void Send() override;
 
 			// Get the enum with the class
-			ResourceType GetResourceType() const { return ResourceType::VertexShader; }
+			static ResourceType GetResourceType() { return ResourceType::VertexShader; }
 		protected:
 
 		private:
@@ -67,7 +67,7 @@ namespace GALAXY {
 			GeometryShader(const std::string& fullPath) : BaseShader(fullPath) {}
 
 			// Get the enum with the class
-			ResourceType GetResourceType() const { return ResourceType::GeometryShader; }
+			static ResourceType GetResourceType() { return ResourceType::GeometryShader; }
 		protected:
 
 		private:
@@ -83,7 +83,7 @@ namespace GALAXY {
 			void Send() override;
 
 			// Get the enum with the class
-			ResourceType GetResourceType() const { return ResourceType::FragmentShader; }
+			static ResourceType GetResourceType() { return ResourceType::FragmentShader; }
 		protected:
 
 		private:

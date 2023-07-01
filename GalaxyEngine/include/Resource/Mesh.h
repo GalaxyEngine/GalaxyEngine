@@ -19,6 +19,8 @@ namespace GALAXY
 
 			void Render(const Mat4& modelMatrix);
 
+			static ResourceType GetResourceType() { return ResourceType::Mesh; }
+
 		private:
 			friend Wrapper::OBJLoader;
 			friend class Model;

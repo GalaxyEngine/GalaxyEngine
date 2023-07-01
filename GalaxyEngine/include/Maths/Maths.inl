@@ -645,11 +645,8 @@ namespace GALAXY::Math {
 		{
 			for (size_t i = 0; i < 4; i++)
 			{
-				float res = 0;
 				for (size_t k = 0; k < 4; k++)
-					res += content[j][k] * a.content[k][i];
-
-				out.content[j][i] = res;
+					out.content[j][i] += content[j][k] * a.content[k][i];
 			}
 		}
 		return out;

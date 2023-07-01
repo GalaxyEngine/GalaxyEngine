@@ -35,6 +35,8 @@ namespace GALAXY
 			void ComputeVertices(OBJMesh& mesh);
 
 			void ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices);
+
+			bool ReadMtl(const std::string& mtlPath);
 		};
 	}
 }

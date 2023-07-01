@@ -4,6 +4,8 @@
 #include "Component/ComponentHolder.h"
 #include "Component/IComponent.h"
 
+#include "Resource/Texture.h"
+
 void Wrapper::GUI::Initalize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
 {
 	// Setup Dear ImGui context
@@ -207,10 +209,10 @@ std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
 {
 	if (ImGui::BeginPopup("ComponentPopup"))
 	{
+		static ImGuiTextFilter filter;
+		filter.Draw();
 		for (auto& component : Component::ComponentHolder::GetList())
 		{
-			static ImGuiTextFilter filter;
-			filter.Draw();
 			if (filter.PassFilter(component->GetComponentName().c_str()))
 			{
 				Vec2f ButtonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
@@ -224,4 +226,9 @@ std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
 		ImGui::EndPopup();
 	}
 	return nullptr;
+}
+
+bool Wrapper::GUI::TextureButton(Resource::Texture* texture, Vec2f size)
+{
+	return ImGui::ImageButton(reinterpret_cast<ImTextureID>(texture->GetID()), size);
 }

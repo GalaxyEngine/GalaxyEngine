@@ -8,7 +8,7 @@ Resource::IResource::IResource(const std::string& fullPath)
 {
 	p_fullPath = ResourceManager::StringToPath(fullPath);
 	p_type = IResource::GetTypeFromExtension(IResource::ExtractExtensionFromPath(p_fullPath));
-	p_relativepath = IResource::ExtractRelativePathFromPath(p_fullPath);
+	p_relativePath = IResource::ExtractRelativePathFromPath(p_fullPath);
 	p_name = IResource::ExtractNameFromPath(p_fullPath);
 }
 
@@ -26,6 +26,8 @@ Resource::ResourceType Resource::IResource::GetTypeFromExtension(const std::stri
 		return ResourceType::GeometryShader;
 	else if (ext == ".frag" || ext == "fs" || ext == "fsh" || ext == "glslf")
 		return ResourceType::FragmentShader;
+	else if (ext == ".mat")
+		return ResourceType::Material;
 	else
 		return ResourceType::None;
 }

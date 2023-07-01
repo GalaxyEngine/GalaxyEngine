@@ -26,8 +26,8 @@ namespace GALAXY
 			void StartLooking();
 			void StopLooking();
 		protected:
-			float p_fov = 45.f;
-			float p_far = 0.3f;
+			float p_fov = 70.f;
+			float p_far = 0.1f;
 			float p_near = 1000.f;
 			float p_aspectRatio = 4.f / 3.f;
 

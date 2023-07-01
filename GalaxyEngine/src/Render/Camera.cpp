@@ -22,12 +22,12 @@ void Render::Camera::Update()
 
 	if (ImGui::IsKeyDown(ImGuiKey_A) || ImGui::IsKeyDown(ImGuiKey_LeftArrow))
 	{
-		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
+		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
 	if (ImGui::IsKeyDown(ImGuiKey_D) || ImGui::IsKeyDown(ImGuiKey_RightArrow))
 	{
-		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
+		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
 	if (ImGui::IsKeyDown(ImGuiKey_W) || ImGui::IsKeyDown(ImGuiKey_UpArrow))
@@ -60,6 +60,8 @@ void Render::Camera::Update()
 		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
+	//m_transform->GetLocalPosition().Print();
+
 	if (m_looking)
 	{
 		float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * 0.1f;
@@ -68,12 +70,12 @@ void Render::Camera::Update()
 		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		window->SetMousePosition(prevMousePos);
 
-		if (Approximately(m_transform->GetLocalPosition().z, 180.f, 0.1f))
+		if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
 		{
 			mouseX *= -1;
 		}
 
-		m_transform->Rotate(Vec3f::Up(), mouseX, Space::World);
+		m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
 		m_transform->Rotate(Vec3f::Right(), mouseY, Space::Local);
 	}
 
@@ -97,10 +99,12 @@ void Render::Camera::Update()
 Mat4 Render::Camera::GetViewMatrix()
 {
 	Mat4 temp;
-	const auto z = -GetTransform()->GetForward();
-	const Vec3f x = GetTransform()->GetRight();
+	const Vec3f z = -GetTransform()->GetForward();
+	const Vec3f x = -GetTransform()->GetRight();
 	const Vec3f y = GetTransform()->GetUp();
-	const Vec3f delta = Vec3f(-x.Dot(this->GetTransform()->GetWorldPosition() - z), -y.Dot(this->GetTransform()->GetWorldPosition() - z), -z.Dot(this->GetTransform()->GetWorldPosition() - z));
+	const Vec3f delta = Vec3f(-x.Dot(GetTransform()->GetWorldPosition() - z),
+							  -y.Dot(GetTransform()->GetWorldPosition() - z),
+							  -z.Dot(GetTransform()->GetWorldPosition() - z));
 	for (int i = 0; i < 3; i++)
 	{
 		temp[i][0] = x[i];

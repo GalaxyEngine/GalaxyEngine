@@ -85,6 +85,9 @@ namespace GALAXY
 
 			virtual void DrawElement(size_t count) {}
 			virtual void DrawArrays(size_t start, size_t count) {}
+
+			// Debug
+			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) {}
 		protected:
 			bool p_initalized = false;
 		private:
@@ -151,7 +154,7 @@ namespace GALAXY
 			void DrawArrays(size_t start, size_t count) override;
 
 			// Debug
-			//void DrawLine();
+			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) override;
 		private:
 
 		};
