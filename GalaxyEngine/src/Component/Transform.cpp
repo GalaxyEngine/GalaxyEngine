@@ -66,7 +66,7 @@ Vec3f Component::Transform::GetWorldPosition() const
 {
 	if (gameObject.lock() && gameObject.lock()->GetParent().lock())
 	{
-		return gameObject.lock()->GetParent().lock()->GetTransform()->GetModelMatrix() * m_localPosition;
+		return gameObject.lock()->GetParent().lock()->Transform()->GetModelMatrix() * m_localPosition;
 	}
 	else
 	{
@@ -111,7 +111,7 @@ void Component::Transform::OnUpdate()
 void Component::Transform::ForceUpdate()
 {
 	if (gameObject.lock() && gameObject.lock()->GetParent().lock())
-		ComputeModelMatrix(gameObject.lock()->GetParent().lock()->GetTransform()->GetModelMatrix());
+		ComputeModelMatrix(gameObject.lock()->GetParent().lock()->Transform()->GetModelMatrix());
 	else
 		ComputeModelMatrix();
 
@@ -120,7 +120,7 @@ void Component::Transform::ForceUpdate()
 	{
 		for (auto& child : gameObject.lock()->GetChildren())
 		{
-			child.lock()->GetTransform()->ForceUpdate();
+			child.lock()->Transform()->ForceUpdate();
 		}
 	}
 }
@@ -178,7 +178,7 @@ void Component::Transform::ShowInInspector()
 	Wrapper::GUI::DrawVec3Control("Scale", &scale.x, 1.f, true);
 
 	ImGui::Text("World Position %s", GetWorldPosition().ToString().c_str());
-	ImGui::Text("World Rotation %s", GetWorldEulerRotation().ToString().c_str());
+	ImGui::Text("World Rotation %s", GetWorldRotation().ToEuler().ToString().c_str());
 	ImGui::Text("World Scale %s", GetWorldScale().ToString().c_str());
 
 	if (position != m_localPosition || rotation != m_localEulerRotation || scale != m_localScale) {

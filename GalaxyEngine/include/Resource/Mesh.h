@@ -17,7 +17,7 @@ namespace GALAXY
 
 			void Send() override;
 
-			void Render(const Mat4& modelMatrix);
+			void Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials);
 
 			static ResourceType GetResourceType() { return ResourceType::Mesh; }
 

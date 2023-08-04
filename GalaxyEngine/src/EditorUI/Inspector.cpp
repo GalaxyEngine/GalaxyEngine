@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "EditorUI/Inspector.h"
+
 #include "Core/GameObject.h"
+#include "Core/SceneHolder.h"
+
+#include "Render/Camera.h"
+
 #include "Wrapper/Reflection.h"
 
 void EditorUI::Inspector::Draw()
@@ -21,7 +26,15 @@ void EditorUI::Inspector::Draw()
 void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 {
 	if (!object->GetParent().lock())
+	{
+		Render::Camera::GetEditorCamera()->Transform()->ShowInInspector();
+		if (ImGui::Button("Print Camera Datas")) {
+			Render::Camera::GetEditorCamera()->GetViewMatrix().Print();
+			Render::Camera::GetEditorCamera()->GetProjectionMatrix().Print();
+			Render::Camera::GetEditorCamera()->GetViewProjectionMatrix().Print();
+		}
 		return;
+	}
 
 	//TODO: Add tag & layer
 	static std::string name;

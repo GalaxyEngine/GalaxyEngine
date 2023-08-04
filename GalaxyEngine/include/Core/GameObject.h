@@ -50,7 +50,7 @@ namespace GALAXY {
 
 			// === Getters === //
 
-			Component::Transform* GetTransform() { return m_transform.get(); }
+			Component::Transform* Transform() { return m_transform.get(); }
 			std::weak_ptr<GameObject> GetParent();
 
 			std::vector<std::weak_ptr<GameObject>> GetChildren();

@@ -86,6 +86,7 @@ bool Wrapper::OBJLoader::Parse()
 		{
 			Vec3f normal;
 			iss >> normal.x >> normal.y >> normal.z;
+			
 			currentMesh.normals.push_back(normal);
 		}
 		else if (token == "f")

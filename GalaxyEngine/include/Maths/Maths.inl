@@ -699,12 +699,28 @@ namespace GALAXY::Math {
 	{
 		return content[a];
 	}
+
+	inline Mat4 Mat4::CreateProjectionMatrix(float _fov, float _aspect, float _near, float _far)
+	{
+		float tanHalfFov = std::tanf(_fov * DegToRad * 0.5f);
+
+		Mat4 projectionMatrix = Mat4(1);
+		projectionMatrix[0][0] = 1.0f / (_aspect * tanHalfFov);
+		projectionMatrix[1][1] = 1.0f / tanHalfFov;
+		projectionMatrix[2][2] = -(_far + _near) / (_far - _near);
+		projectionMatrix[3][2] = -1.0f;
+		projectionMatrix[2][3] = -(2.0f * _far * _near) / (_far - _near);
+		projectionMatrix[3][3] = 0.0f;
+
+		return projectionMatrix;
+	}
+
 	template<typename U>
 	inline Mat4 Mat4::CreateTranslationMatrix(const Vec3<U>& translation)
 	{
 		Mat4 out(1);
 		for (size_t i = 0; i < 3; i++)
-			out[3][i] = translation[i];
+			out[i][3] = translation[i];
 		return out;
 	}
 
@@ -732,7 +748,7 @@ namespace GALAXY::Math {
 	template<typename U>
 	inline Mat4 Mat4::CreateTransformMatrix(const Vec3<U>& position, const Quat& rotation, const Vec3<U>& scale)
 	{
-		return CreateScaleMatrix(scale) * rotation.ToRotationMatrix() * CreateTranslationMatrix(position);
+		return CreateTranslationMatrix(position) * rotation.ToRotationMatrix() * CreateScaleMatrix(scale);
 	}
 
 	inline Mat4 Mat4::CreatePerspectiveProjectionMatrix(float Near, float Far, float fov)
@@ -744,8 +760,8 @@ namespace GALAXY::Math {
 		out[0][0] = s;
 		out[1][1] = s;
 		out[2][2] = param1;
-		out[2][3] = -1;
-		out[3][2] = param2;
+		out[3][2] = -1;
+		out[2][3] = param2;
 		return out;
 	}
 	/*
@@ -795,7 +811,7 @@ namespace GALAXY::Math {
 			z = 0;
 		}
 
-		return Vec3<U>(x, y, z) * RadToDeg;
+		return -Vec3<U>(x, y, z) * RadToDeg;
 	}
 
 	inline Mat4 Mat4::CreateInverseMatrix() const
@@ -1007,7 +1023,7 @@ namespace GALAXY::Math {
 			float x = (content[1][2] - content[2][1]) * s;
 			float y = (content[2][0] - content[0][2]) * s;
 			float z = (content[0][1] - content[1][0]) * s;
-			return Quat(x, y, z, w);
+			return Quat(x, y, z, w).GetInverse();
 		}
 		else if (content[0][0] > content[1][1] && content[0][0] > content[2][2])
 		{
@@ -1016,7 +1032,7 @@ namespace GALAXY::Math {
 			float w = (content[1][2] - content[2][1]) / s;
 			float y = (content[1][0] + content[0][1]) / s;
 			float z = (content[2][0] + content[0][2]) / s;
-			return Quat(x, y, z, w);
+			return Quat(x, y, z, w).GetInverse();
 		}
 		else if (content[1][1] > content[2][2])
 		{
@@ -1025,7 +1041,7 @@ namespace GALAXY::Math {
 			float w = (content[2][0] - content[0][2]) / s;
 			float x = (content[1][0] + content[0][1]) / s;
 			float z = (content[2][1] + content[1][2]) / s;
-			return Quat(x, y, z, w);
+			return Quat(x, y, z, w).GetInverse();
 		}
 		else
 		{
@@ -1034,7 +1050,7 @@ namespace GALAXY::Math {
 			float x = (content[2][0] + content[0][2]) / s;
 			float y = (content[2][1] + content[1][2]) / s;
 			float z = 0.25f * s;
-			return Quat(x, y, z, w);
+			return Quat(x, y, z, w).GetInverse();
 		}
 	}
 #pragma  endregion
@@ -1329,23 +1345,23 @@ namespace GALAXY::Math {
 		// Calculate 3x3 matrix from orthonormal basis
 		Mat4 m;
 		m[0][0] = 1.0f - (yy + zz);
-		m[0][1] = xy + wz;
-		m[0][2] = xz - wy;
-		m[0][3] = 0.0F;
-
-		m[1][0] = xy - wz;
-		m[1][1] = 1.0f - (xx + zz);
-		m[1][2] = yz + wx;
-		m[1][3] = 0.0F;
-
-		m[2][0] = xz + wy;
-		m[2][1] = yz - wx;
-		m[2][2] = 1.0f - (xx + yy);
-		m[2][3] = 0.0F;
-
+		m[1][0] = xy + wz;
+		m[2][0] = xz - wy;
 		m[3][0] = 0.0F;
+
+		m[0][1] = xy - wz;
+		m[1][1] = 1.0f - (xx + zz);
+		m[2][1] = yz + wx;
 		m[3][1] = 0.0F;
+
+		m[0][2] = xz + wy;
+		m[1][2] = yz - wx;
+		m[2][2] = 1.0f - (xx + yy);
 		m[3][2] = 0.0F;
+
+		m[0][3] = 0.0F;
+		m[1][3] = 0.0F;
+		m[2][3] = 0.0F;
 		m[3][3] = 1.0F;
 
 		return m;

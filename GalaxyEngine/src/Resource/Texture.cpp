@@ -31,3 +31,13 @@ void Resource::Texture::Send()
 	Wrapper::ImageLoader::ImageFree(this->m_bytes);
 	p_hasBeenSent = true;
 }
+
+void Resource::Texture::Bind(uint32_t index)
+{
+	Wrapper::Renderer::GetInstance()->BindTexture(this, index);
+}
+
+void Resource::Texture::UnBind()
+{
+	Wrapper::Renderer::GetInstance()->UnbindTexture();
+}

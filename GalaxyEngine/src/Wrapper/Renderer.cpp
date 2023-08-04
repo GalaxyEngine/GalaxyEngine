@@ -28,14 +28,13 @@ void Wrapper::Renderer::CreateInstance(RenderAPI renderAPI)
 		break;
 	}
 	m_instance->Initalize();
-	//m_instance->EnableDebugOutput();
+	m_instance->EnableDebugOutput();
 }
 
 // OpenGL Renderer
 Wrapper::OpenGLRenderer::OpenGLRenderer() {}
 
 Wrapper::OpenGLRenderer::~OpenGLRenderer() {}
-
 
 void Wrapper::OpenGLRenderer::Initalize()
 {
@@ -90,18 +89,16 @@ void Wrapper::OpenGLRenderer::EnableDebugOutput()
 {
 	GLint flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-
-	glEnable(GL_DEBUG_OUTPUT);
-	glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-	glDebugMessageCallback(DebugCallback, nullptr);
-	glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(DebugCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glCullFace(GL_BACK);
-
+	glCullFace(GL_FRONT);
 }
 
 void Wrapper::OpenGLRenderer::UseShader(Resource::Shader* shader)
@@ -117,9 +114,8 @@ void Wrapper::OpenGLRenderer::Viewport(const Vec2i& pos, const Vec2i& size)
 void Wrapper::OpenGLRenderer::ClearColorAndBuffer(const Vec4f& color)
 {
 	glClearColor(color.x, color.y, color.z, color.w);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
-
 
 bool Wrapper::OpenGLRenderer::LinkShaders(Resource::Shader* shader)
 {
@@ -470,9 +466,9 @@ void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= V
 
 	const auto& VP = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP();
 
-	ShaderSendMat4(shader->GetLocation("MVP"), VP);
-	ShaderSendVec4f(shader->GetLocation("Color"), color);
-	//glUniform1i(shader->GetLocation("enableTexture"), false);
+	ShaderSendMat4(shader->GetLocation("MVP"), VP, true);
+	ShaderSendVec4f(shader->GetLocation("Diffuse"), color);
+	ShaderSendInt(shader->GetLocation("EnableTexture"), false);
 
 	// Draw vertices
 	glBindVertexArray(VAO);
@@ -480,4 +476,16 @@ void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= V
 	glBindVertexArray(0);
 
 	glLineWidth(defaultWidth);
+}
+
+void Wrapper::OpenGLRenderer::BindTexture(Resource::Texture* texture, uint32_t id)
+{
+	glActiveTexture(GL_TEXTURE0 + id);
+	glBindTexture(GL_TEXTURE_2D, texture->GetID());
+}
+
+void Wrapper::OpenGLRenderer::UnbindTexture()
+{
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

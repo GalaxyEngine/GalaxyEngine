@@ -1,10 +1,13 @@
 #include "pch.h"
 #include "Render/Camera.h"
 #include "Core/Application.h"
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
 
 Render::Camera::Camera()
 {
 	m_transform = std::make_unique<Component::Transform>();
+	GetViewMatrix().Print();
 }
 
 Render::Camera::~Camera()
@@ -22,12 +25,12 @@ void Render::Camera::Update()
 
 	if (ImGui::IsKeyDown(ImGuiKey_A) || ImGui::IsKeyDown(ImGuiKey_LeftArrow))
 	{
-		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
+		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
 	if (ImGui::IsKeyDown(ImGuiKey_D) || ImGui::IsKeyDown(ImGuiKey_RightArrow))
 	{
-		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
+		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
 	if (ImGui::IsKeyDown(ImGuiKey_W) || ImGui::IsKeyDown(ImGuiKey_UpArrow))
@@ -60,8 +63,6 @@ void Render::Camera::Update()
 		m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
 	}
 
-	//m_transform->GetLocalPosition().Print();
-
 	if (m_looking)
 	{
 		float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * 0.1f;
@@ -75,7 +76,7 @@ void Render::Camera::Update()
 			mouseX *= -1;
 		}
 
-		m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
+		m_transform->Rotate(Vec3f::Up(), mouseX, Space::World);
 		m_transform->Rotate(Vec3f::Right(), mouseY, Space::Local);
 	}
 
@@ -98,47 +99,26 @@ void Render::Camera::Update()
 
 Mat4 Render::Camera::GetViewMatrix()
 {
-	Mat4 temp;
-	const Vec3f z = -GetTransform()->GetForward();
-	const Vec3f x = -GetTransform()->GetRight();
-	const Vec3f y = GetTransform()->GetUp();
-	const Vec3f delta = Vec3f(-x.Dot(GetTransform()->GetWorldPosition() - z),
-							  -y.Dot(GetTransform()->GetWorldPosition() - z),
-							  -z.Dot(GetTransform()->GetWorldPosition() - z));
-	for (int i = 0; i < 3; i++)
-	{
-		temp[i][0] = x[i];
-		temp[i][1] = y[i];
-		temp[i][2] = z[i];
-		temp[3][i] = delta[i];
-	}
-	temp[3][3] = 1;
-	return temp;
+	Mat4 out = Mat4::CreateTransformMatrix(m_transform->GetWorldPosition(), m_transform->GetWorldRotation(), Vec3f(1, 1, -1));
+	out = out.CreateInverseMatrix();
+	return out;
 }
 
-Component::Transform* Render::Camera::GetTransform()
+Component::Transform* Render::Camera::Transform()
 {
 	return m_transform.get();
 }
 
 Mat4 Render::Camera::GetProjectionMatrix()
 {
-	float s = 1.0f / ((p_aspectRatio)*std::atan((p_fov / 2.0f) * DegToRad));
-	float s2 = 1.0f / std::atan((p_fov / 2.0f) * DegToRad);
-	float param1 = -(p_far + p_near) / (p_far - p_near);
-	float param2 = -(2 * p_near * p_far) / (p_far - p_near);
-	Mat4 out;
-	out[0][0] = s;
-	out[1][1] = s2;
-	out[2][2] = param1;
-	out[2][3] = -1;
-	out[3][2] = param2;
-	return out;
+	//return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
+	//return Mat4::CreatePerspectiveProjectionMatrix(p_near, p_far, p_fov);
+	return  Mat4::CreateProjectionMatrix(60.f, 4.f / 3.f, 0.3, 1000);
 }
 
 Mat4 Render::Camera::GetViewProjectionMatrix()
 {
-	return GetViewMatrix() * GetProjectionMatrix();
+	return GetProjectionMatrix() * GetViewMatrix();
 }
 
 void Render::Camera::StartLooking()
@@ -155,4 +135,9 @@ void Render::Camera::StopLooking()
 	Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 	window->SetMousePosition(prevMousePos);
 	window->SetCursorMode(Wrapper::CursorMode::Normal);
+}
+
+std::shared_ptr<Render::Camera> Render::Camera::GetEditorCamera()
+{
+	return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 }

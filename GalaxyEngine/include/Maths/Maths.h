@@ -293,6 +293,8 @@ namespace GALAXY::Math
 
 		static Mat4 Identity() { return { 1.f }; }
 
+		static inline Mat4 CreateProjectionMatrix(float _fov, float _aspect, float _near, float _far);
+
 		template<typename U>
 		static inline Mat4 CreateTranslationMatrix(const Vec3<U>& translation);
 

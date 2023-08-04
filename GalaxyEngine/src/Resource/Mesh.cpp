@@ -1,8 +1,11 @@
 #include "pch.h"
 #include "Resource/Mesh.h"
 #include "Wrapper/Renderer.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
+#include "Resource/Material.h"
+
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
@@ -25,18 +28,23 @@ void Resource::Mesh::Send()
 	renderer->UnbindVertexBuffer();
 	
 	p_hasBeenSent = true;
+	PrintLog("Sended resource %s", GetFullPath().c_str());
 }
 
-void Resource::Mesh::Render(const Mat4& modelMatrix)
+void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<Resource::Material>>& materials)
 {
-	auto shader = Resource::ResourceManager::GetInstance()->GetDefaultShader().lock();
-	if (!p_hasBeenSent || !shader || !shader->HasBeenSent())
+	if (!HasBeenSent() || !IsLoaded())
 		return;
 	Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
-	shader->Use();
 	renderer->BindVertexArray(m_vertexArrayIndex);
 
-	renderer->ShaderSendMat4(shader->GetLocation("MVP"), modelMatrix * Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP());
-	renderer->DrawArrays(0, m_indices.size() * 3);
+	for (size_t i = 0; i < materials.size(); i++) {
+		if (!materials[i].lock())
+			continue;
+		materials[i].lock()->SendValues();
+
+		renderer->ShaderSendMat4(materials[i].lock()->GetShader().lock()->GetLocation("MVP"), Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
+		renderer->DrawArrays(0, m_indices.size() * 3);
+	}
 	renderer->UnbindVertexArray();
 }

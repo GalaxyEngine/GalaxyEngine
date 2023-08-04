@@ -17,6 +17,8 @@ namespace GALAXY::Resource {
 
 		static Resource::ResourceManager* GetInstance();
 
+		static void Release();
+
 		// Add or Replace the Resource to the resource Manager
 		inline void AddResource(IResource* resource);
 

@@ -39,6 +39,7 @@ namespace GALAXY {
 			void SetCurrentCamera(const std::weak_ptr<Render::Camera>& camera);
 
 			Mat4& GetVP() { return m_VP; }
+			std::shared_ptr<GALAXY::Render::Camera> GetEditorCamera() const { return m_editorCamera; }
 		private:
 			std::shared_ptr<Render::Camera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;

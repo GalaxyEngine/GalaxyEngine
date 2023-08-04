@@ -1,9 +1,17 @@
 #version 330 core
 out vec4 FragColor;
 
-uniform vec4 Color;
+in vec2 uv;
+in vec3 normal;
+
+uniform vec4 Diffuse;
+uniform bool EnableTexture;
+uniform sampler2D Texture;
 
 void main()
 {
-    FragColor = vec4(Color.x, Color.y, Color.z, Color.w);
+    if (EnableTexture)
+        FragColor = texture(Texture, uv);
+    else
+        FragColor = vec4(Diffuse.x, Diffuse.y, Diffuse.z, Diffuse.w);
 } 

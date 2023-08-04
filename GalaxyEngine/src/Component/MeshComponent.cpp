@@ -11,7 +11,7 @@ namespace GALAXY {
 	{
 		if (!m_mesh.lock())
 			return;
-		m_mesh.lock()->Render(gameObject.lock()->GetTransform()->GetModelMatrix());
+		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials);
 	}
 
 	void Component::MeshComponent::SetMesh(const std::weak_ptr<Resource::Mesh>& mesh)
@@ -101,6 +101,11 @@ namespace GALAXY {
 			if (!m_materials[i].lock())
 				continue;
 			m_materials[i].lock()->ShowInInspector();
+		}
+
+		if (ImGui::Button("Print Datas"))
+		{
+			GameObject()->Transform()->GetLocalMatrix().Print();
 		}
 	}
 

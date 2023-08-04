@@ -32,5 +32,5 @@ void Core::SceneHolder::Update()
 
 Core::Scene* Core::SceneHolder::GetCurrentScene()
 {
-	return m_currentScene.get();
+	return GetInstance()->m_currentScene.get();
 }

@@ -46,6 +46,9 @@ namespace GALAXY
 			virtual void CreateTexture(Resource::Texture* texture) {}
 			virtual void DestroyTexture(Resource::Texture* texture) {}
 
+			virtual void BindTexture(Resource::Texture* texture, uint32_t id) {}
+			virtual void UnbindTexture() {}
+
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
 			virtual uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) { return -1; }
 
@@ -67,7 +70,7 @@ namespace GALAXY
 			virtual void ShaderSendVec2i(uint32_t location, const Vec2i& value) {}
 			virtual void ShaderSendVec3i(uint32_t location, const Vec3i& value) {}
 			virtual void ShaderSendVec4i(uint32_t location, const Vec4i& value) {}
-			virtual void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) {}
+			virtual void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = true) {}
 
 			// === Buffers === //
 			virtual void CreateVertexArray(uint32_t& vao) {}
@@ -113,6 +116,9 @@ namespace GALAXY
 			void CreateTexture(Resource::Texture* texture) override;
 			void DestroyTexture(Resource::Texture* texture) override;
 
+			void BindTexture(Resource::Texture* texture, uint32_t id) override;
+			void UnbindTexture() override;
+
 			uint32_t TextureFormatToAPI(Resource::TextureFormat format) override;
 			uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) override;
 
@@ -134,7 +140,7 @@ namespace GALAXY
 			void ShaderSendVec2i(uint32_t location, const Vec2i& value) override;
 			void ShaderSendVec3i(uint32_t location, const Vec3i& value) override;
 			void ShaderSendVec4i(uint32_t location, const Vec4i& value) override;
-			void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) override;
+			void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = true) override;
 
 			// === Buffers === //
 			void CreateVertexArray(uint32_t& vao) override;

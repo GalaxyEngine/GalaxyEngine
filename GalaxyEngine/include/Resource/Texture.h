@@ -39,6 +39,9 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
+			void Bind(uint32_t index);
+			void UnBind();
+
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Texture; }
 

@@ -71,11 +71,13 @@ void Core::Application::UpdateResources()
 		std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
 		if (resource.expired())
 		{
+			PrintError("Failed to send resource %s", resourcePath.c_str());
 			m_resourceToSend.pop_front();
 		}
 		else
 		{
-			resource.lock()->Send();
+			if (!resource.lock()->HasBeenSent())
+				resource.lock()->Send();
 			m_resourceToSend.pop_front();
 			if (!resource.lock()->HasBeenSent())
 				m_resourceToSend.push_back(resourcePath);
@@ -114,6 +116,9 @@ void Core::Application::Update()
 void Core::Application::Destroy()
 {
 	// Cleanup:
+	// Resource Manager
+	m_resourceManager->Release();
+
 	// Thread Manager
 	m_threadManager->Destroy();
 

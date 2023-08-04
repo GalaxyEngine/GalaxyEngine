@@ -15,9 +15,11 @@ namespace GALAXY
 			Camera(Camera&&) noexcept = default;
 			virtual ~Camera();
 
+			static std::shared_ptr<Camera> GetEditorCamera();
+
 			void Update();
 
-			virtual Component::Transform* GetTransform();
+			virtual Component::Transform* Transform();
 
 			Mat4 GetViewMatrix();
 			Mat4 GetProjectionMatrix();

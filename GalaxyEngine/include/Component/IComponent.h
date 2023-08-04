@@ -40,6 +40,8 @@ namespace GALAXY {
 
 			bool IsEnable() const { return p_enable; }
 
+			std::shared_ptr<Core::GameObject> GameObject() { return gameObject.lock(); }
+
 			// === Setters === //
 
 			void SetEnable(bool enable) { p_enable = enable; }

@@ -34,11 +34,13 @@ Scene::~Scene()
 {
 }
 
+#include <glad/glad.h>
 void Scene::Update()
 {
 	const Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 	auto renderer = Wrapper::Renderer::GetInstance();
 	renderer->ClearColorAndBuffer(clear_color);
+
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
 	SetCurrentCamera(m_editorCamera);

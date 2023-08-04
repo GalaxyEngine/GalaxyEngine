@@ -11,7 +11,7 @@ namespace GALAXY
 		class Material : public IResource
 		{
 		public:
-			Material(const std::string& fullPath) : IResource(fullPath) {}
+			Material(const std::string& fullPath);
 			Material& operator=(const Material& other) = default;
 			Material(const Material&) = default;
 			Material(Material&&) noexcept = default;
@@ -19,9 +19,13 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
+			void SendValues();
+
 			static ResourceType GetResourceType() { return ResourceType::Material; }
+			std::weak_ptr<class Shader> GetShader() const { return m_shader; }
 		private:
 			friend Wrapper::OBJLoader;
+			std::weak_ptr<class Shader> m_shader;
 
 			Vec4f m_ambient;
 			Vec4f m_diffuse;
