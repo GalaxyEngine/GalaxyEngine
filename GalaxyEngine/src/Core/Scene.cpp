@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "Core/Scene.h"
 #include "Core/GameObject.h"
+#include "Core/Application.h"
 
 #include "EditorUI/EditorUIManager.h"
 
@@ -9,6 +11,8 @@
 #include "Render/Camera.h"
 
 #include "Component/MeshComponent.h"
+
+#include "Wrapper/Window.h"
 
 //TEMP
 #include "Resource/Mesh.h"
@@ -34,16 +38,21 @@ Scene::~Scene()
 {
 }
 
-#include <glad/glad.h>
 void Scene::Update()
 {
 	const Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
-	auto renderer = Wrapper::Renderer::GetInstance();
-	renderer->ClearColorAndBuffer(clear_color);
+	const auto renderer = Wrapper::Renderer::GetInstance();
 
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
+	// if (camera visible) {
 	SetCurrentCamera(m_editorCamera);
+
+	renderer->ClearColorAndBuffer(clear_color);
+
+	m_currentCamera.lock()->Begin();
+	m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
+
 	m_editorCamera->Update();
 
 	m_root->UpdateSelfAndChild();
@@ -53,6 +62,8 @@ void Scene::Update()
 	renderer->DrawLine(Vec3f::Zero(), Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1));
 	renderer->DrawLine(Vec3f::Zero(), Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1));
 	renderer->DrawLine(Vec3f::Zero(), Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1));
+	m_currentCamera.lock()->End();
+	// }
 }
 
 std::weak_ptr<GameObject> Scene::GetRootGameObject() const

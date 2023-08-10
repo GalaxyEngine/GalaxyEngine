@@ -99,7 +99,7 @@ std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
 	return GetUnlitShader();
 }
 
-void GALAXY::Resource::ResourceManager::Release()
+void Resource::ResourceManager::Release()
 {
 	m_instance.release();
 }

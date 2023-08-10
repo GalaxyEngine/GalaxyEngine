@@ -1,8 +1,6 @@
 
 #include "pch.h"
 
-#include <glad/glad.h>
-
 #include "Core/Application.h"
 #include "Core/ThreadManager.h"
 #include "Core/SceneHolder.h"

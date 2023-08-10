@@ -32,7 +32,7 @@ void Resource::Texture::Send()
 	p_hasBeenSent = true;
 }
 
-void Resource::Texture::Bind(uint32_t index)
+void Resource::Texture::Bind(uint32_t index /* = 0 */)
 {
 	Wrapper::Renderer::GetInstance()->BindTexture(this, index);
 }

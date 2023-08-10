@@ -13,6 +13,10 @@ namespace GALAXY
 		class GeometryShader;
 		class FragmentShader;
 	}
+	namespace Render
+	{
+		class Framebuffer;
+	}
 	namespace Wrapper 
 	{
 		enum class RenderAPI
@@ -46,7 +50,7 @@ namespace GALAXY
 			virtual void CreateTexture(Resource::Texture* texture) {}
 			virtual void DestroyTexture(Resource::Texture* texture) {}
 
-			virtual void BindTexture(Resource::Texture* texture, uint32_t id) {}
+			virtual void BindTexture(Resource::Texture* texture, uint32_t id = 0) {}
 			virtual void UnbindTexture() {}
 
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
@@ -89,6 +93,12 @@ namespace GALAXY
 			virtual void DrawElement(size_t count) {}
 			virtual void DrawArrays(size_t start, size_t count) {}
 
+			// === Render Buffers === //
+			virtual void CreateRenderBuffer(Render::Framebuffer* framebuffer) {}
+			virtual void BindRenderBuffer(Render::Framebuffer* framebuffer) {}
+			virtual void UnbindRenderBuffer(Render::Framebuffer* framebuffer) {}
+			virtual void DeleteRenderBuffer(Render::Framebuffer* framebuffer) {}
+
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) {}
 		protected:
@@ -116,7 +126,7 @@ namespace GALAXY
 			void CreateTexture(Resource::Texture* texture) override;
 			void DestroyTexture(Resource::Texture* texture) override;
 
-			void BindTexture(Resource::Texture* texture, uint32_t id) override;
+			void BindTexture(Resource::Texture* texture, uint32_t id = 0) override;
 			void UnbindTexture() override;
 
 			uint32_t TextureFormatToAPI(Resource::TextureFormat format) override;
@@ -158,6 +168,12 @@ namespace GALAXY
 
 			void DrawElement(size_t count) override;
 			void DrawArrays(size_t start, size_t count) override;
+
+			// === Render Buffers === //
+			void CreateRenderBuffer(Render::Framebuffer* framebuffer) override;
+			void BindRenderBuffer(Render::Framebuffer* framebuffer) override;
+			void UnbindRenderBuffer(Render::Framebuffer* framebuffer) override;
+			void DeleteRenderBuffer(Render::Framebuffer* framebuffer) override;
 
 			// Debug
 			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) override;

@@ -91,7 +91,6 @@ bool Wrapper::OBJLoader::Parse()
 		}
 		else if (token == "f")
 		{
-			char slash;
 			std::string indexStr;
 			while (iss >> indexStr) {
 				Vec3i indices = ParseFaceIndex(indexStr);
@@ -203,7 +202,7 @@ void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIn
 		return;
 	}
 
-	const int numQuads = quadIndices.size() / 4;
+	const size_t numQuads = quadIndices.size() / 4;
 
 	for (int i = 0; i < numQuads; ++i) {
 		const int quadOffset = i * 4;

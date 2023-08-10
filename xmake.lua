@@ -2,7 +2,7 @@ add_rules("mode.release", "mode.debug")
 add_rules("plugin.vsxmake.autoupdate")
 
 add_requires("imgui v1.89.6-docking", { configs = { glfw_opengl3 = true } })
-add_requires("glad")
+add_requires("glad v0.1.36")
 add_requires("stb")
 add_requires("rttr")
 

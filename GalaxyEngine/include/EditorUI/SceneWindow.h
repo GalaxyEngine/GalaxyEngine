@@ -1,15 +1,14 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "EditorUI/EditorWindow.h"
-
 namespace GALAXY 
 {
 	namespace EditorUI
 	{
-		class Console : public EditorWindow
+		class SceneWindow : public EditorWindow
 		{
 		public:
-			Console();
+			virtual ~SceneWindow();
 
 			void Draw() override;
 
@@ -18,4 +17,3 @@ namespace GALAXY
 		};
 	}
 }
-#include "EditorUI/Console.inl" 

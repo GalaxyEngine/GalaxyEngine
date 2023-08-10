@@ -17,6 +17,8 @@ namespace GALAXY {
 
 			bool TextureButton(Resource::Texture* texture, Vec2f size);
 
+			void TextureImage(Resource::Texture* texture, Vec2f size);
+
 			std::shared_ptr<Component::BaseComponent> ComponentPopup();
 
 			float DeltaTime();

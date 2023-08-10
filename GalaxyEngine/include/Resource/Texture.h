@@ -39,7 +39,7 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
-			void Bind(uint32_t index);
+			void Bind(uint32_t index = 0);
 			void UnBind();
 
 			// Get the enum with the class

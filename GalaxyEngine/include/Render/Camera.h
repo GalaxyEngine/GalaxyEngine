@@ -17,13 +17,21 @@ namespace GALAXY
 
 			static std::shared_ptr<Camera> GetEditorCamera();
 
+			void Begin();
+
+			void End();
+
 			void Update();
 
 			virtual Component::Transform* Transform();
 
+			void SetSize(const Vec2i& framebufferSize);
+
 			Mat4 GetViewMatrix();
 			Mat4 GetProjectionMatrix();
 			Mat4 GetViewProjectionMatrix();
+
+			std::weak_ptr<Resource::Texture> GetRenderTexture();
 		private:
 			void StartLooking();
 			void StopLooking();
@@ -32,8 +40,11 @@ namespace GALAXY
 			float p_far = 0.1f;
 			float p_near = 1000.f;
 			float p_aspectRatio = 4.f / 3.f;
+			Vec2i p_framebufferSize;
 
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
+
+			class Framebuffer* m_framebuffer = nullptr;
 
 		private:
 			float m_movementSpeed = 10.f;

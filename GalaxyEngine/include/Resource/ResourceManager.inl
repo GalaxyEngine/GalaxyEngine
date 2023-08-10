@@ -12,6 +12,20 @@ namespace GALAXY
 		m_resources[resource->GetRelativePath()] = resource;
 	}
 
+	void Resource::ResourceManager::RemoveResource(IResource* resource)
+	{
+		if (auto it = m_resources.find(resource->GetRelativePath());  it != m_resources.end())
+		{
+			it->second.reset();
+			m_resources.erase(it);
+		}
+		else
+		{
+			PrintError("Resource %s not found in Resource Manager", resource->GetRelativePath());
+		}
+	}
+
+
 	template <typename T>
 	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::string& fullPath)
 	{

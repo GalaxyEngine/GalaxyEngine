@@ -230,5 +230,11 @@ std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
 
 bool Wrapper::GUI::TextureButton(Resource::Texture* texture, Vec2f size)
 {
-	return ImGui::ImageButton(reinterpret_cast<ImTextureID>(texture->GetID()), size);
+	return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size);
 }
+
+void Wrapper::GUI::TextureImage(Resource::Texture* texture, Vec2f size)
+{
+	return ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size);
+}
+	

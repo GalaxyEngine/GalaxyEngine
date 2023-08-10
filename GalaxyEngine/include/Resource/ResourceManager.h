@@ -24,6 +24,11 @@ namespace GALAXY::Resource {
 
 		inline void AddResource(const std::shared_ptr<IResource>& resource);
 
+		// Remove the Resource to the resource Manager
+		inline void RemoveResource(IResource* resource);
+
+		inline void RemoveResource(const std::shared_ptr<IResource>& resource);
+
 		// Get and load the resources if not loaded yet, 
 		// import the resource if not inside the resource Manager
 		template <typename T>
