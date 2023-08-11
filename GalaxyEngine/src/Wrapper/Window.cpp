@@ -17,10 +17,11 @@ bool Wrapper::Window::Initialize()
 		PrintError("Failed to initalize GLFW");
 		return false;
 	}
-	PrintLog("Initalized GLFW %d.%d", 3, 0);
+	const size_t major = 4, minor = 5;
+	PrintLog("Initalized GLFW %d.%d", major, minor);
 	glfwSetErrorCallback(glfw_error_callback);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
 	return true;
 }
 

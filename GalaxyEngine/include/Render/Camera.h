@@ -27,6 +27,8 @@ namespace GALAXY
 
 			void SetSize(const Vec2i& framebufferSize);
 
+			virtual bool IsVisible();
+
 			Mat4 GetViewMatrix();
 			Mat4 GetProjectionMatrix();
 			Mat4 GetViewProjectionMatrix();

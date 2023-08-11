@@ -39,10 +39,10 @@ namespace GALAXY {
 		{
 			m_mesh = mesh;
 		}
-		static size_t selected = 0;
-		static size_t clicked = 0;
+		static uint32_t selected = 0;
+		static uint32_t clicked = 0;
 		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
-			for (size_t i = 0; i < m_materials.size(); i++)
+			for (uint32_t i = 0; i < m_materials.size(); i++)
 			{
 				ImGui::PushID(i);
 				ImGui::BeginGroup();

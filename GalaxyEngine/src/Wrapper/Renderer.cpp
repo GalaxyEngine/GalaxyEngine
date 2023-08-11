@@ -252,9 +252,9 @@ namespace GALAXY {
 		case Resource::TextureFormat::ALPHA:
 			return GL_ALPHA;
 		case Resource::TextureFormat::LUMINANCE:
-			return GL_LUMINANCE;
+			//return GL_LUMINANCE;
 		case Resource::TextureFormat::LUMINANCE_ALPHA:
-			return GL_LUMINANCE_ALPHA;
+			//return GL_LUMINANCE_ALPHA
 		default:
 			PrintError("Texture format not recognize");
 			return GL_RGBA;
@@ -542,6 +542,14 @@ namespace GALAXY {
 	{
 		glDeleteFramebuffers(1, &framebuffer->m_frameBuffer);
 		glDeleteRenderbuffers(1, &framebuffer->m_renderBuffer);
+	}
+
+	void Wrapper::OpenGLRenderer::ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size)
+	{
+		if (size.x * size.y != 0) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, 0, GL_RGBA, GL_FLOAT, NULL);
+			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)size.x, (GLsizei)size.y);
+		}
 	}
 
 }

@@ -30,4 +30,16 @@ namespace GALAXY {
 		Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture.get());
 	}
 
+	void Render::Framebuffer::Update(const Vec2i& windowSize)
+{
+		if (m_size != windowSize) {
+			m_size = windowSize;
+			Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);
+			m_renderTexture->Bind();
+			Wrapper::Renderer::GetInstance()->ResizeRenderBuffer(this, m_size);
+			m_renderTexture->UnBind();
+			Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
+		}
+	}
+
 }

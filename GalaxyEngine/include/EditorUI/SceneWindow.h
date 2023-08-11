@@ -12,7 +12,9 @@ namespace GALAXY
 
 			void Draw() override;
 
+			bool IsVisible() const { return m_visible; }
 		private:
+			bool m_visible = true;
 
 		};
 	}

@@ -7,6 +7,8 @@
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
+#include "EditorUI/EditorUIManager.h"
+
 namespace GALAXY {
 
 	Render::Camera::Camera()
@@ -156,8 +158,14 @@ namespace GALAXY {
 		p_aspectRatio = (float)p_framebufferSize.x / (float)p_framebufferSize.y;
 	}
 
+	bool Render::Camera::IsVisible()
+	{
+		return EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
+	}
+
 	void Render::Camera::Begin()
 	{
+		m_framebuffer->Update(Core::Application::GetInstance().GetWindow()->GetSize());
 		Wrapper::Renderer::GetInstance()->BindRenderBuffer(m_framebuffer);
 	}
 

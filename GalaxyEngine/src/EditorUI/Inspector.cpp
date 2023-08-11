@@ -53,7 +53,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 
 	// Other Components
 	bool openPopup = false;
-	for (size_t i = 0; i < object->m_components.size(); i++) {
+	for (uint32_t i = 0; i < object->m_components.size(); i++) {
 		if (!object->m_components[i].get())
 			continue;
 		ImGui::PushID(i);

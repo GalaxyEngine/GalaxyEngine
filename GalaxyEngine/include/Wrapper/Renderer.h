@@ -98,6 +98,7 @@ namespace GALAXY
 			virtual void BindRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void UnbindRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void DeleteRenderBuffer(Render::Framebuffer* framebuffer) {}
+			virtual void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) {}
 
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) {}
@@ -174,6 +175,7 @@ namespace GALAXY
 			void BindRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void UnbindRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void DeleteRenderBuffer(Render::Framebuffer* framebuffer) override;
+			void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) override;
 
 			// Debug
 			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) override;

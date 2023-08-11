@@ -16,11 +16,11 @@ namespace GALAXY {
 	{
 		if (!p_open)
 			return;
-		if (ImGui::Begin("Scene", &p_open))
+		if (m_visible = ImGui::Begin("Scene", &p_open))
 		{
 			auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
 
-			Wrapper::GUI::TextureImage(renderTexture, (Vec2f)ImGui::GetContentRegionAvail());
+			Wrapper::GUI::TextureImage(renderTexture, (Vec2f)ImGui::GetContentRegionAvail(), {0, 1}, {1, 0});
 		}
 		ImGui::End();
 	}

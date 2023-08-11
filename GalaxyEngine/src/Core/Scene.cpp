@@ -25,9 +25,9 @@ Scene::Scene()
 	auto child = CreateObject("Child 0");
 	auto component = child.lock()->AddComponent<Component::MeshComponent>();
 	auto mesh = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Mesh>("Assets/Cube.obj");
-	while (!mesh.lock() || !mesh.lock()->IsLoaded()) 
-	{ 
-		mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube"); 
+	while (!mesh.lock() || !mesh.lock()->IsLoaded())
+	{
+		mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
 	}
 	component.lock()->SetMesh(mesh);
 	m_root->AddChild(child);
@@ -45,25 +45,24 @@ void Scene::Update()
 
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
-	// if (camera visible) {
-	SetCurrentCamera(m_editorCamera);
-
-	renderer->ClearColorAndBuffer(clear_color);
-
-	m_currentCamera.lock()->Begin();
-	m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
-
-	m_editorCamera->Update();
-
 	m_root->UpdateSelfAndChild();
 
-	m_root->DrawSelfAndChild();
+	if (m_editorCamera->IsVisible()) {
+		SetCurrentCamera(m_editorCamera);
 
-	renderer->DrawLine(Vec3f::Zero(), Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1));
-	renderer->DrawLine(Vec3f::Zero(), Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1));
-	renderer->DrawLine(Vec3f::Zero(), Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1));
-	m_currentCamera.lock()->End();
-	// }
+		m_currentCamera.lock()->Begin();
+		renderer->ClearColorAndBuffer(clear_color);
+		m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
+
+		m_editorCamera->Update();
+
+		m_root->DrawSelfAndChild();
+
+		renderer->DrawLine(Vec3f::Zero(), Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1));
+		renderer->DrawLine(Vec3f::Zero(), Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1));
+		renderer->DrawLine(Vec3f::Zero(), Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1));
+		m_currentCamera.lock()->End();
+	}
 }
 
 std::weak_ptr<GameObject> Scene::GetRootGameObject() const

@@ -24,6 +24,9 @@ namespace GALAXY
 			virtual ~Framebuffer();
 
 			std::weak_ptr<GALAXY::Resource::Texture> GetRenderTexture() const { return m_renderTexture; }
+
+			// Update the size of the Framebuffer each frame
+			void Update(const Vec2i& windowSize);
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
