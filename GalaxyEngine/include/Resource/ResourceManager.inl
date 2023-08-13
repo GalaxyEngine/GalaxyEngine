@@ -30,6 +30,7 @@ namespace GALAXY
 	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::string& fullPath)
 	{
 		std::string relativePath = StringToRelativePath(fullPath);
+
 		auto resource = m_resources.find(relativePath);
 		if (resource == m_resources.end())
 		{

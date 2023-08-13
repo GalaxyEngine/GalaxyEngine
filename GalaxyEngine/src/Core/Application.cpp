@@ -13,6 +13,8 @@
 #include "EditorUI/EditorUIManager.h"
 #include "Component/ComponentHolder.h"
 
+#include "Resource/IResource.h"
+
 #pragma region static
 Core::Application Core::Application::m_instance;
 #pragma endregion
@@ -47,14 +49,14 @@ void Core::Application::Initalize()
 
 	// Initalize Resource Manager
 	m_resourceManager = Resource::ResourceManager::GetInstance();
-	m_resourceManager->ImportAllFilesInFolder("Assets");
+	m_resourceManager->ImportAllFilesInFolder(RESOURCE_FOLDER_NAME);
+	m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 	
 	// Initialize Scene
 	m_sceneHolder = Core::SceneHolder::GetInstance();
 
 	// Initalize EditorUI
 	m_editorUI = EditorUI::EditorUIManager::GetInstance();
-	m_editorUI->Initalize();
 
 	// Initalize Components
 	Component::ComponentHolder::Initialize();

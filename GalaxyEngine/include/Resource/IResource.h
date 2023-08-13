@@ -4,6 +4,10 @@
 #include <atomic>
 #include <memory>
 #include <vector>
+
+#define RESOURCE_FOLDER_NAME "assets"
+#define ENGINE_RESOURCE_FOLDER_NAME "coreresources"
+
 namespace GALAXY::Resource {
 	enum class ResourceType
 	{

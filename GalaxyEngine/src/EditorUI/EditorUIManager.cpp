@@ -7,11 +7,17 @@
 namespace GALAXY {
 	std::unique_ptr<EditorUI::EditorUIManager> EditorUI::EditorUIManager::m_instance;
 
+	EditorUI::EditorUIManager::EditorUIManager()
+	{
+		Initalize();
+	}
+
 	void EditorUI::EditorUIManager::Initalize()
 	{
 		m_sceneWindow = std::make_unique<SceneWindow>();
 		m_hierarchy = std::make_unique<Hierarchy>();
 		m_inspector = std::make_unique<Inspector>();
+		m_console = std::make_unique<Console>();
 	}
 
 	void EditorUI::EditorUIManager::DrawUI()
@@ -20,6 +26,7 @@ namespace GALAXY {
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
 		m_inspector->Draw();
+		m_console->Draw();
 	}
 
 	EditorUI::EditorUIManager* GALAXY::EditorUI::EditorUIManager::GetInstance()

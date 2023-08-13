@@ -2,7 +2,6 @@
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
 #include "Core/Application.h"
-#define RESOURCE_FOLDER_NAME "assets"
 
 Resource::IResource::IResource(const std::string& fullPath)
 {
@@ -53,7 +52,10 @@ std::string GALAXY::Resource::IResource::ExtractRelativePathFromPath(const std::
 	if (pos < path.size()) {
 		return path.substr(pos);
 	}
-	else {
+	else if (auto startWith = path.substr(0, static_cast<std::string>(ENGINE_RESOURCE_FOLDER_NAME).length()); startWith == ENGINE_RESOURCE_FOLDER_NAME) {
+		return path;
+	}
+	else{
 		PrintWarning("%s not found in Resource %s", RESOURCE_FOLDER_NAME, path.c_str());
 		return "";
 	}

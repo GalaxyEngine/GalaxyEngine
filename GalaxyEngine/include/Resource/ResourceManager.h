@@ -31,6 +31,7 @@ namespace GALAXY::Resource {
 
 		// Get and load the resources if not loaded yet, 
 		// import the resource if not inside the resource Manager
+		// TODO: this with Engine Resources
 		template <typename T>
 		inline std::weak_ptr<T> GetOrLoad(const std::string& fullPath);
 
