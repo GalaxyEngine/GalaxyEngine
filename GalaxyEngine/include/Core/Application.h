@@ -31,6 +31,8 @@ namespace GALAXY
 
 			Wrapper::Window* GetWindow() { return m_window.get(); }
 
+			bool* GetDrawGrid() { return &m_drawGrid; }
+
 		private:
 			static Application m_instance;
 
@@ -43,6 +45,8 @@ namespace GALAXY
 			std::unique_ptr<Wrapper::Window> m_window;
 
 			std::deque<std::string> m_resourceToSend;
+
+			bool m_drawGrid = true;
 		};
 	}
 }

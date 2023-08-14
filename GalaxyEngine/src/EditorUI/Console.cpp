@@ -39,7 +39,7 @@ namespace GALAXY {
 			filter.Draw("Search");
 
 			// Setting Splitter for the log and the text selected
-			static float size1 = ImGui::GetContentRegionAvail().y - (25 * ImGui::GetWindowHeight() / 100), size2 = 25 * ImGui::GetWindowHeight() / 100;
+			static float size1 = ImGui::GetContentRegionAvail().y - (12 * ImGui::GetWindowHeight() / 100), size2 = 12 * ImGui::GetWindowHeight() / 100;
 			Wrapper::GUI::Splitter(false, 2, &size1, &size2, 10, 10);
 			ImGui::BeginChild("Content", Vec2f(0, size1), true);
 			for (size_t i = 0; i < m_texts.size(); i++)

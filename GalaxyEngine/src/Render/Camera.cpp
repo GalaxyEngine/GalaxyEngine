@@ -166,6 +166,11 @@ namespace GALAXY {
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}
 
+	std::weak_ptr<Render::Camera> Render::Camera::GetCurrentCamera()
+	{
+		return Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
+	}
+
 	void Render::Camera::SetSize(const Vec2i& framebufferSize)
 	{
 		p_framebufferSize = framebufferSize;

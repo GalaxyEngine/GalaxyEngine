@@ -4,7 +4,10 @@
 #include <unordered_map>
 
 namespace GALAXY {
-	namespace Render { class Camera; }
+	namespace Render { 
+		class Camera;
+		class Grid;
+	}
 	namespace Core {
 		class Scene
 		{
@@ -39,7 +42,8 @@ namespace GALAXY {
 			void SetCurrentCamera(const std::weak_ptr<Render::Camera>& camera);
 
 			Mat4& GetVP() { return m_VP; }
-			std::shared_ptr<GALAXY::Render::Camera> GetEditorCamera() const { return m_editorCamera; }
+			std::shared_ptr<Render::Camera> GetEditorCamera() const { return m_editorCamera; }
+			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
 		private:
 			std::shared_ptr<Render::Camera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
@@ -47,6 +51,8 @@ namespace GALAXY {
 
 			std::shared_ptr<GameObject> m_root;
 			std::unordered_map<uint64_t, std::shared_ptr<GameObject>> m_objectList;
+
+			std::shared_ptr<Render::Grid> m_grid;
 		};
 	}
 }

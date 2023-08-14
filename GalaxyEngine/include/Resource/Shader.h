@@ -20,6 +20,17 @@ namespace GALAXY {
 			void Use();
 			int GetLocation(const std::string& locationName);
 
+			void SendInt(const std::string& locationName, int value);
+			void SendFloat(const std::string& locationName, float value);
+			void SendDouble(const std::string& locationName, double value);
+			void SendVec2f(const std::string& locationName, const Vec2f& value);
+			void SendVec3f(const std::string& locationName, const Vec3f& value);
+			void SendVec4f(const std::string& locationName, const Vec4f& value);
+			void SendVec2i(const std::string& locationName, const Vec2i& value);
+			void SendVec3i(const std::string& locationName, const Vec3i& value);
+			void SendVec4i(const std::string& locationName, const Vec4i& value);
+			void SendMat4(const std::string& locationName, const Mat4& value);
+
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
 		private:
@@ -28,6 +39,8 @@ namespace GALAXY {
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> m_subShaders = {};
 			std::unordered_map<std::string, int> m_locations;
+
+			Wrapper::Renderer* m_renderer;
 			uint32_t m_id = -1;
 		};
 

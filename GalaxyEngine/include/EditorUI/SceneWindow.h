@@ -17,6 +17,8 @@ namespace GALAXY
 
 			void Draw() override;
 
+			void SetResouces();
+
 			bool IsVisible() const { return m_visible; }
 			bool IsHovered() const { return m_isHovered; }
 		private:
@@ -26,6 +28,7 @@ namespace GALAXY
 			bool m_isHovered = false;
 
 			std::weak_ptr<Resource::Texture> m_settingsIcon;
+			std::weak_ptr<Resource::Texture> m_menuIcon;
 		};
 	}
 }

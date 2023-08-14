@@ -16,6 +16,7 @@ namespace GALAXY
 			virtual ~Camera();
 
 			static std::shared_ptr<Camera> GetEditorCamera();
+			static std::weak_ptr<Camera> GetCurrentCamera();
 
 			void Begin();
 
@@ -37,6 +38,15 @@ namespace GALAXY
 			Vec4f GetClearColor() const { return p_clearColor; }
 
 			std::weak_ptr<Resource::Texture> GetRenderTexture();
+
+			float GetFar() const { return p_far; }
+			void SetFar(float val) { p_far = val; }
+
+			float GetNear() const { return p_near; }
+			void SetNear(float val) { p_near = val; }
+
+			float GetFOV() const { return p_fov; }
+			void SetFOV(float val) { p_fov = val; }
 		private:
 			void StartLooking();
 			void StopLooking();

@@ -3,6 +3,8 @@
 
 #include "Core/Scene.h"
 #include "Core/SceneHolder.h"
+#include "Core/Application.h"
+
 #include "Render/Camera.h"
 
 #include "Resource/Texture.h"
@@ -20,11 +22,9 @@ namespace GALAXY {
 			return;
 		if (m_visible = ImGui::Begin("Scene", &p_open))
 		{
-			m_isHovered = ImGui::IsWindowHovered();
-			if (!m_settingsIcon.lock())
-			{
-				m_settingsIcon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/settings.png");
-			}
+			m_isHovered = ImGui::IsWindowHovered(); 
+			SetResouces();
+			const float windowAvaibleWidth = ImGui::GetContentRegionAvail().x;
 			if (Wrapper::GUI::TextureButton(m_settingsIcon.lock() ? m_settingsIcon.lock().get() : nullptr, Vec2f(16)))
 			{
 				ImGui::OpenPopup("Camera settings");
@@ -34,13 +34,36 @@ namespace GALAXY {
 				Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->DisplayCameraSettings();
 				ImGui::EndPopup();
 			}
+
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(windowAvaibleWidth - 16);
+			if (Wrapper::GUI::TextureButton(m_menuIcon.lock() ? m_menuIcon.lock().get() : nullptr, Vec2f(16)))
+			{
+				ImGui::OpenPopup("Menu Icons");
+			}
+			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
+			{
+				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGrid());
+				ImGui::EndPopup();
+			}
 			ImGui::Separator();
-			
 
 			DrawImage();
 
 		}
 		ImGui::End();
+	}
+
+	void EditorUI::SceneWindow::SetResouces()
+	{
+		if (!m_settingsIcon.lock())
+		{
+			m_settingsIcon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/settings.png");
+		}
+		if (!m_menuIcon.lock())
+		{
+			m_menuIcon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/menu.png");
+		}
 	}
 
 	void EditorUI::SceneWindow::DrawImage()

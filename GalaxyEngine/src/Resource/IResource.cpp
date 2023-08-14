@@ -52,13 +52,13 @@ std::string GALAXY::Resource::IResource::ExtractRelativePathFromPath(const std::
 	if (pos < path.size()) {
 		return path.substr(pos);
 	}
-	else if (auto startWith = path.substr(0, static_cast<std::string>(ENGINE_RESOURCE_FOLDER_NAME).length()); startWith == ENGINE_RESOURCE_FOLDER_NAME) {
-		return path;
+	else if (path.size() > static_cast<std::string>(ENGINE_RESOURCE_FOLDER_NAME).length()) {
+		auto startWith = path.substr(0, static_cast<std::string>(ENGINE_RESOURCE_FOLDER_NAME).length());
+		if (startWith == ENGINE_RESOURCE_FOLDER_NAME)
+			return path;
 	}
-	else{
-		PrintWarning("%s not found in Resource %s", RESOURCE_FOLDER_NAME, path.c_str());
-		return "";
-	}
+	PrintWarning("%s not found in Resource %s", RESOURCE_FOLDER_NAME, path.c_str());
+	return "";
 }
 
 std::string GALAXY::Resource::IResource::ExtractExtensionFromPath(const std::string& path)
