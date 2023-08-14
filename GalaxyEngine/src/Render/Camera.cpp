@@ -23,6 +23,8 @@ namespace GALAXY {
 	Vec2f prevMousePos;
 	void Render::Camera::Update()
 	{
+		if (!EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
+			return;
 		/*TODO:
 		 * change input with input class
 		 * change delta time with Time class
@@ -102,6 +104,18 @@ namespace GALAXY {
 		{
 			StopLooking();
 		}
+	}
+
+	void Render::Camera::DisplayCameraSettings()
+	{
+		float contentWidth = 200.f;
+
+		// Use the content width as the width for the controls
+		ImGui::PushItemWidth(contentWidth);
+		ImGui::SliderFloat("FOV", &p_fov, 25.f, 120.f);
+		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
+		ImGui::ColorPicker4("Clear Color", &p_clearColor.x);
+		ImGui::PopItemWidth();
 	}
 
 	Mat4 Render::Camera::GetViewMatrix()

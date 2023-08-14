@@ -40,7 +40,6 @@ Scene::~Scene()
 
 void Scene::Update()
 {
-	const Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 	const auto renderer = Wrapper::Renderer::GetInstance();
 
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
@@ -51,7 +50,7 @@ void Scene::Update()
 		SetCurrentCamera(m_editorCamera);
 
 		m_currentCamera.lock()->Begin();
-		renderer->ClearColorAndBuffer(clear_color);
+		renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
 		m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
 		m_editorCamera->Update();

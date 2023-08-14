@@ -23,6 +23,8 @@ namespace GALAXY
 
 			void Update();
 
+			void DisplayCameraSettings();
+
 			virtual Component::Transform* Transform();
 
 			void SetSize(const Vec2i& framebufferSize);
@@ -32,6 +34,7 @@ namespace GALAXY
 			Mat4 GetViewMatrix();
 			Mat4 GetProjectionMatrix();
 			Mat4 GetViewProjectionMatrix();
+			Vec4f GetClearColor() const { return p_clearColor; }
 
 			std::weak_ptr<Resource::Texture> GetRenderTexture();
 		private:
@@ -39,8 +42,8 @@ namespace GALAXY
 			void StopLooking();
 		protected:
 			float p_fov = 70.f;
-			float p_far = 0.1f;
-			float p_near = 1000.f;
+			float p_far = 1000.f;
+			float p_near = 0.03f;
 			float p_aspectRatio = 4.f / 3.f;
 			Vec2i p_framebufferSize;
 

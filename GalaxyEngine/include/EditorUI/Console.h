@@ -45,6 +45,8 @@ namespace GALAXY
 			bool m_errorCheckbox = true;
 
 			bool m_resourcesLoaded = false;
+
+			bool m_scrollToBottom = false;
 		};
 	}
 }

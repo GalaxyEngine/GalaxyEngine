@@ -1,8 +1,13 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "EditorUI/EditorWindow.h"
-namespace GALAXY 
+
+namespace GALAXY
 {
+	namespace Resource
+	{
+		class Texture;
+	}
 	namespace EditorUI
 	{
 		class SceneWindow : public EditorWindow
@@ -13,9 +18,14 @@ namespace GALAXY
 			void Draw() override;
 
 			bool IsVisible() const { return m_visible; }
+			bool IsHovered() const { return m_isHovered; }
 		private:
-			bool m_visible = true;
+			void DrawImage();
 
+			bool m_visible = true;
+			bool m_isHovered = false;
+
+			std::weak_ptr<Resource::Texture> m_settingsIcon;
 		};
 	}
 }

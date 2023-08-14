@@ -47,10 +47,15 @@ namespace GALAXY {
 				if (filter.PassFilter(m_texts[i].second.c_str()))
 					DisplayText(i);
 			}
+			if (m_scrollToBottom)
+			{
+				m_scrollToBottom = false;
+				ImGui::SetScrollHereY(1.f);
+			}
 			ImGui::EndChild();
 
 			// Display Text Selected
-			ImGui::BeginChild("Message", {0, size2 });
+			ImGui::BeginChild("Message", { 0, size2 - 5 }); // - 5 disable scrollbar
 			if (m_textSelected != -1 && m_textSelected < m_texts.size())
 			{
 				std::string prefix = "";
@@ -83,7 +88,7 @@ namespace GALAXY {
 
 	void EditorUI::Console::DisplayText(size_t i)
 	{
-		ImGui::PushID(i);
+		ImGui::PushID((int)i);
 		Resource::Texture* tex = nullptr;
 		switch (m_texts[i].first)
 		{
@@ -132,12 +137,11 @@ namespace GALAXY {
 		}
 
 		m_resourcesLoaded = m_infoTexture.lock() && m_warningTexture.lock() && m_errorTexture.lock();
-		PrintLog("Aleddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd\naaa\naaa\naaa\naaa\naaa\naaa");
-
 	}
 
 	void EditorUI::Console::AddText(Debug::LogType type, std::string text)
 	{
+		m_scrollToBottom = true;
 		if (m_texts.size() > m_maxText)
 		{
 			for (size_t i = 0; i < m_texts.size() - m_maxText + 1; i++)
