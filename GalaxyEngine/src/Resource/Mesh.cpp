@@ -28,7 +28,7 @@ void Resource::Mesh::Send()
 	renderer->UnbindVertexBuffer();
 	
 	p_hasBeenSent = true;
-	PrintLog("Sended resource %s", GetFullPath().c_str());
+	PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 }
 
 void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<Resource::Material>>& materials)
@@ -39,7 +39,7 @@ void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak
 	renderer->BindVertexArray(m_vertexArrayIndex);
 
 	for (size_t i = 0; i < materials.size(); i++) {
-		if (!materials[i].lock())
+		if (!materials[i].lock() || !materials[i].lock()->GetShader().lock())
 			continue;
 		materials[i].lock()->SendValues();
 

@@ -1,14 +1,15 @@
 #pragma once
 #include "GalaxyAPI.h"
+#ifdef ENABLE_REFLECTION
 #include <rttr/registration>
 #include <rttr/variant.h>
 #include <rttr/type>
+using namespace rttr;
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-using namespace rttr;
 namespace GALAXY::Wrapper::Reflection
 {
 	// Print the values of a given instance
@@ -80,5 +81,4 @@ void GALAXY::Wrapper::Reflection::ShowInspectorClass(T* object)
 	}
 	*/
 }
-
-
+#endif

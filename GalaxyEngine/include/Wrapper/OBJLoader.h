@@ -12,11 +12,11 @@ namespace GALAXY
 		class OBJLoader
 		{
 		public:
-			static void Load(const std::string& fullPath, Resource::Model* outputModel);
+			static void Load(const std::filesystem::path& fullPath, Resource::Model* outputModel);
 		private:
 			struct OBJMesh
 			{
-				std::string name;
+				std::filesystem::path name;
 				std::vector<Vec3f> positions;
 				std::vector<Vec2f> textureUVs;
 				std::vector<Vec3f> normals;
@@ -26,7 +26,7 @@ namespace GALAXY
 
 			std::vector<OBJMesh> m_meshes;
 
-			std::string m_path;
+			std::filesystem::path m_path;
 		private:
 			bool Parse();
 
@@ -36,7 +36,7 @@ namespace GALAXY
 
 			void ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices);
 
-			bool ReadMtl(const std::string& mtlPath);
+			bool ReadMtl(const std::filesystem::path& mtlPath);
 		};
 	}
 }

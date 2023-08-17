@@ -18,42 +18,44 @@ void Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::pa
 	for (const std::filesystem::directory_entry& entry : dirIt) {
 		if (entry.is_directory())
 		{
-			ImportAllFilesInFolder(entry.path().string());
+			ImportAllFilesInFolder(entry.path());
 		}
 		else
 		{
-			ImportResource(entry.path().string());
+			ImportResource(entry.path());
 		}
 	}
 }
 
-void Resource::ResourceManager::ImportResource(const std::string& resourcePath)
+void Resource::ResourceManager::ImportResource(const std::filesystem::path& resourcePath)
 {
-	std::string extension = IResource::ExtractExtensionFromPath(resourcePath);
-	ResourceType type = IResource::GetTypeFromExtension(extension);
+	if (!resourcePath.has_extension())
+		return;
+	auto extension = resourcePath.extension();
+	ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension);
 	switch (type)
 	{
-	case GALAXY::Resource::ResourceType::None:
-		PrintError("Cannot Import resource with this extension : %s", extension.c_str());
+	case Resource::ResourceType::None:
+		PrintError("Cannot Import resource with this extension : %s", extension.string().c_str());
 		break;
-	case GALAXY::Resource::ResourceType::Texture:
+	case Resource::ResourceType::Texture:
 		// Default load all textures.
 		GetOrLoad<Texture>(resourcePath);
 		break;
-	case GALAXY::Resource::ResourceType::Shader:
+	case Resource::ResourceType::Shader:
 		AddResource(new Shader(resourcePath));
 		break;
-	case GALAXY::Resource::ResourceType::VertexShader:
+	case Resource::ResourceType::VertexShader:
 		AddResource(new VertexShader(resourcePath));
 		break;
-	case GALAXY::Resource::ResourceType::FragmentShader:
+	case Resource::ResourceType::FragmentShader:
 		AddResource(new FragmentShader(resourcePath));
 		break;
-	case GALAXY::Resource::ResourceType::Model:
+	case Resource::ResourceType::Model:
 		//AddResource(new Model(resourcePath));
 		GetOrLoad<Model>(resourcePath);
 		break;
-	case GALAXY::Resource::ResourceType::Mesh:
+	case Resource::ResourceType::Mesh:
 		break;
 	default:
 		break;
@@ -68,30 +70,12 @@ Resource::ResourceManager* Resource::ResourceManager::GetInstance()
 	return m_instance.get();
 }
 
-std::string Resource::ResourceManager::StringToRelativePath(const std::string& value)
-{
-	std::string result = StringToPath(value);
-	result = IResource::ExtractRelativePathFromPath(result);
-
-	return result;
-}
-
-std::string Resource::ResourceManager::StringToPath(const std::string& value)
-{
-	std::string result = value;
-
-	// Convert to lowercase
-	std::transform(result.begin(), result.end(), result.begin(), ::tolower);
-
-	// Replace '/' with '\\'
-	std::replace(result.begin(), result.end(), '/', '\\');
-
-	return result;
-}
-
 std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 {
-	return std::dynamic_pointer_cast<Resource::Shader>(m_resources.at("assets\\unlit.shader"));
+	std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
+	if (m_resources.count(unlitPath))
+		return std::dynamic_pointer_cast<Resource::Shader>(m_resources.at(unlitPath));
+	return GetOrLoad<Resource::Shader>(unlitPath);
 }
 
 std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()

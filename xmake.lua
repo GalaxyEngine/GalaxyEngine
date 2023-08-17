@@ -4,19 +4,19 @@ add_rules("plugin.vsxmake.autoupdate")
 add_requires("imgui v1.89.6-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
-add_requires("rttr")
+--add_requires("rttr")
 
 -- enable features
 add_defines("ENABLE_MULTITHREAD")
-add_defines("ENABLE_REFLECTION")
+--add_defines("ENABLE_REFLECTION")
 
 
 set_languages("c++20")
 set_rundir("GalaxyCore")
 
-if is_plat("windows") then
-    -- set_runtimes(is_mode("debug") and "MDd" or "MD")
-end
+-- if is_plat("windows") then
+--     set_runtimes(is_mode("debug") and "MDd" or "MD")
+-- end
 
 -- diable warnings
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
@@ -51,7 +51,7 @@ target("GalaxyEngine")
     set_symbols("debug")
 
     -- set include dirs
-    add_includedirs("GalaxyEngine/include", "GalaxyEngine/externals")
+    add_includedirs("GalaxyEngine/include")
 
     add_defines("GALAXY_EXPORTS")
     
@@ -76,7 +76,7 @@ target("GalaxyEngine")
     add_packages("imgui")
     add_packages("glad")
     add_packages("stb")
-    add_packages("rttr")
+    --add_packages("rttr")
 target_end()
 
 target("GalaxyCore")

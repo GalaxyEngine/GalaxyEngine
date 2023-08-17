@@ -2,6 +2,8 @@
 namespace GALAXY {}
 using namespace GALAXY;
 
+#include "Maths/Maths.h"
+
 #ifdef GALAXY_EXPORTS
 #define GALAXY_API __declspec(dllexport)
 #else

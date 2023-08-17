@@ -5,7 +5,7 @@
 
 #include <memory>
 #include <deque>
-#include <string>
+#include <filesystem>
 
 namespace GALAXY
 {
@@ -25,7 +25,7 @@ namespace GALAXY
 			void Update();
 			void Destroy();
 
-			void AddResourceToSend(const std::string& fullPath);
+			void AddResourceToSend(const std::filesystem::path& fullPath);
 
 			void UpdateResources();
 
@@ -44,7 +44,7 @@ namespace GALAXY
 
 			std::unique_ptr<Wrapper::Window> m_window;
 
-			std::deque<std::string> m_resourceToSend;
+			std::deque<std::filesystem::path> m_resourceToSend;
 
 			bool m_drawGrid = true;
 		};

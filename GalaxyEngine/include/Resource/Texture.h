@@ -28,7 +28,7 @@ namespace GALAXY {
 		class Texture : public IResource
 		{
 		public:
-			Texture(const std::string& fullPath) : IResource(fullPath) {}
+			Texture(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 			Texture& operator=(const Texture& other) = default;
 			Texture(const Texture&) = default;
 			Texture(Texture&&) noexcept = default;

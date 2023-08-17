@@ -77,7 +77,9 @@ namespace GALAXY {
 
 			virtual void ShowInInspector() override
 			{
+#ifdef ENABLE_REFLECTION
 				Wrapper::Reflection::ShowInspectorClass(dynamic_cast<Derived*>(this));
+#endif
 			}
 		private:
 

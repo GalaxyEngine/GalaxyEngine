@@ -6,7 +6,7 @@
 #include "Resource/Material.h"
 #include "Core/Application.h"
 
-void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outputModel)
+void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 {
 	//TODO
 	OBJLoader model;
@@ -14,10 +14,11 @@ void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outp
 	if (!model.Parse())
 		return;
 	for (int i = 0; i < model.m_meshes.size(); i++) {
-		const std::string& meshFullPath = fullPath + ":" + model.m_meshes[i].name;
+		// todo : change this
+		const std::filesystem::path& meshFullPath = fullPath / model.m_meshes[i].name;
 		auto mesh = std::make_shared<Resource::Mesh>(meshFullPath);
-		mesh->p_name = model.m_meshes[i].name;
-		mesh->p_type = Resource::ResourceType::Mesh;
+		mesh->GetFileInfo().m_fileName = model.m_meshes[i].name;
+		mesh->GetFileInfo().m_resouceType = Resource::ResourceType::Mesh;
 		mesh->m_positions = model.m_meshes[i].positions;
 		mesh->m_textureUVs = model.m_meshes[i].textureUVs;
 		mesh->m_normals = model.m_meshes[i].normals;
@@ -31,7 +32,7 @@ void Wrapper::OBJLoader::Load(const std::string& fullPath, Resource::Model* outp
 
 		mesh->SendRequest();
 	}
-	PrintLog("Sucessfuly Loaded Model %s", fullPath.c_str());
+	PrintLog("Sucessfuly Loaded Model %s", fullPath.string().c_str());
 }
 
 bool Wrapper::OBJLoader::Parse()
@@ -43,7 +44,7 @@ bool Wrapper::OBJLoader::Parse()
 	// submeshes
 	std::ifstream file(m_path);
 	if (!file.is_open()) {
-		PrintError("Failed to open OBJ file %s", m_path.c_str());
+		PrintError("Failed to open OBJ file %s", m_path.string().c_str());
 		return false;
 	}
 
@@ -65,9 +66,9 @@ bool Wrapper::OBJLoader::Parse()
 		}
 		if (token == "mtllib")
 		{
-			std::string mtlPath;
+			std::filesystem::path mtlPath;
 			iss >> mtlPath;
-			mtlPath = m_path.substr(0, m_path.find_last_of('\\')) + '\\' + mtlPath;
+			mtlPath = m_path.parent_path() / mtlPath;
 			ReadMtl(mtlPath);
 		}
 		if (token == "v")
@@ -80,6 +81,7 @@ bool Wrapper::OBJLoader::Parse()
 		{
 			Vec2f uv;
 			iss >> uv.x >> uv.y;
+			uv.y = 1 - uv.y;
 			currentMesh.textureUVs.push_back(uv);
 		}
 		else if (token == "vn")
@@ -218,7 +220,7 @@ void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIn
 	}
 }
 
-bool Wrapper::OBJLoader::ReadMtl(const std::string& mtlPath)
+bool Wrapper::OBJLoader::ReadMtl(const std::filesystem::path& mtlPath)
 {
 	std::ifstream file(mtlPath);
 	if (!file.is_open()) {
@@ -237,7 +239,7 @@ bool Wrapper::OBJLoader::ReadMtl(const std::string& mtlPath)
 		{
 			std::string name;
 			iss >> name;
-			const std::string& matFullPath = mtlPath.substr(0, mtlPath.find_last_of('\\') + 1) + name + ".mat";
+			const std::filesystem::path& matFullPath = mtlPath.parent_path() / name.append(".mat");
 			currentMaterial = std::make_shared<Resource::Material>(matFullPath);
 			Resource::ResourceManager::GetInstance()->AddResource(currentMaterial);
 		}
@@ -272,9 +274,9 @@ bool Wrapper::OBJLoader::ReadMtl(const std::string& mtlPath)
 		}
 		else if (token == "map_Kd")
 		{
-			std::string texPath;
+			std::filesystem::path texPath;
 			iss >> texPath;
-			texPath = mtlPath.substr(0, mtlPath.find_last_of('\\') + 1) + texPath;
+			texPath = mtlPath.parent_path() / texPath;
 			currentMaterial->m_albedo = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(texPath);
 		}
 	}

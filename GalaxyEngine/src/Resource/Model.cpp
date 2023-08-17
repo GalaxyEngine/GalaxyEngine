@@ -4,14 +4,13 @@
 
 void Resource::Model::Load()
 {
-	auto extension = GetRelativePath().substr(GetRelativePath().find_last_of('.'));
-	if (extension == ".fbx")
+	if (p_fileInfo.GetExtension() == ".fbx")
 	{
 		m_modelType = Resource::ModelExtension::FBX;
 	}
-	else if (extension == ".obj")
+	else if (p_fileInfo.GetExtension() == ".obj")
 	{
 		m_modelType = Resource::ModelExtension::OBJ;
-		Wrapper::OBJLoader::Load(p_fullPath, this);
+		Wrapper::OBJLoader::Load(p_fileInfo.GetFullPath(), this);
 	}
 }

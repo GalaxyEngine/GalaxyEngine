@@ -33,23 +33,20 @@ namespace GALAXY::Resource {
 		// import the resource if not inside the resource Manager
 		// TODO: this with Engine Resources
 		template <typename T>
-		inline std::weak_ptr<T> GetOrLoad(const std::string& fullPath);
+		inline std::weak_ptr<T> GetOrLoad(const std::filesystem::path& fullPath);
 
 		// Get The Resource, return null if the type is wrong
 		template <typename T>
-		[[nodiscard]] inline std::weak_ptr<T> GetResource(const std::string& fullPath);
+		[[nodiscard]] inline std::weak_ptr<T> GetResource(const std::filesystem::path& fullPath);
 
 		template <typename T>
 		[[nodiscard]] inline std::vector<std::weak_ptr<T>> GetAllResources();
-
-		static std::string StringToRelativePath(const std::string& value);
-		static std::string StringToPath(const std::string& value);
 
 		std::weak_ptr<Resource::Shader> GetDefaultShader();
 		std::weak_ptr<Resource::Shader> GetUnlitShader();
 
 		void ImportAllFilesInFolder(const std::filesystem::path& folder);
-		void ImportResource(const std::string& resourcePath);
+		void ImportResource(const std::filesystem::path& resourcePath);
 
 		template <typename T>
 		[[nodiscard]] inline std::weak_ptr<T> ResourcePopup(const char* popupName);
@@ -57,7 +54,7 @@ namespace GALAXY::Resource {
 	private:
 		static std::unique_ptr<Resource::ResourceManager> m_instance;
 
-		std::unordered_map<std::string, std::shared_ptr<IResource>> m_resources;
+		std::unordered_map<std::filesystem::path, std::shared_ptr<IResource>> m_resources;
 
 	};
 }

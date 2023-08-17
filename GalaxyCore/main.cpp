@@ -7,18 +7,6 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	/*
-	float arr[] = {
-	1, 5, 6, 7,
-		8, 9, 9, 10,
-		5, 8, 9, 8,
-		1, 2, 7, 3
-	};
-	auto mat1 = Math::Mat4(arr);
-	auto mat2 = mat1;
-	(mat1 * mat2).Print();
-	(mat1.GetTranspose() * mat2.GetTranspose()).Print();
-	*/
 	Core::Application& application = Core::Application::GetInstance();
 
 	application.Initalize();

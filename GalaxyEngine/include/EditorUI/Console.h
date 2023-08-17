@@ -13,7 +13,7 @@ namespace GALAXY
 		class Console : public EditorWindow
 		{
 		public:
-			Console();
+			~Console();
 
 			void Draw() override;
 

@@ -4,33 +4,32 @@ namespace GALAXY
 {
 	void Resource::ResourceManager::AddResource(IResource* resource)
 	{
-		m_resources[resource->GetRelativePath()] = std::shared_ptr<IResource>(resource);
+		m_resources[resource->GetFileInfo().GetRelativePath()] = std::shared_ptr<IResource>(resource);
 	}
 
 	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
 	{
-		m_resources[resource->GetRelativePath()] = resource;
+		m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
 	}
 
 	void Resource::ResourceManager::RemoveResource(IResource* resource)
 	{
-		if (auto it = m_resources.find(resource->GetRelativePath());  it != m_resources.end())
+		if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
 		{
 			it->second.reset();
 			m_resources.erase(it);
 		}
 		else
 		{
-			PrintError("Resource %s not found in Resource Manager", resource->GetRelativePath());
+			PrintError("Resource %s not found in Resource Manager", resource->GetFileInfo().GetRelativePath().c_str());
 		}
 	}
 
 
 	template <typename T>
-	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::string& fullPath)
+	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
 	{
-		std::string relativePath = StringToRelativePath(fullPath);
-
+		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		auto resource = m_resources.find(relativePath);
 		if (resource == m_resources.end())
 		{
@@ -61,9 +60,9 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline std::weak_ptr<T> Resource::ResourceManager::GetResource(const std::string& fullPath)
+	inline std::weak_ptr<T> Resource::ResourceManager::GetResource(const std::filesystem::path& fullPath)
 	{
-		std::string relativePath = StringToRelativePath(fullPath);
+		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_resources.count(relativePath))
 		{
 			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
@@ -77,7 +76,7 @@ namespace GALAXY
 		std::vector<std::weak_ptr<T>> m_resourcesOfType;
 		for (auto&& resource : m_resources)
 		{
-			if (resource.second->GetType() == T::GetResourceType())
+			if (resource.second->GetFileInfo().GetResourceType() == T::GetResourceType())
 			{
 				m_resourcesOfType.push_back(std::dynamic_pointer_cast<T>(resource.second));
 			}
@@ -94,9 +93,9 @@ namespace GALAXY
 			filter.Draw();
 			for (const auto& [path, resource] : m_resources)
 			{
-				if (filter.PassFilter(path.c_str()) && resource->GetType() == T::GetResourceType())
+				if (filter.PassFilter(resource->GetName().c_str()) && resource->GetFileInfo().GetResourceType() == T::GetResourceType())
 				{
-					if (ImGui::Button(path.c_str()))
+					if (ImGui::Button(resource->GetName().c_str()))
 					{
 						ImGui::CloseCurrentPopup();
 						return std::dynamic_pointer_cast<T>(resource);

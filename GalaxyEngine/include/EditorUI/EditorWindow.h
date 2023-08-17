@@ -9,6 +9,7 @@ namespace GALAXY::EditorUI {
 		bool IsOpen() const { return p_open; }
 		void SetOpen(bool value) { p_open = value; };
 
+		virtual void Initialize() {}
 		virtual void Draw() {}
 
 	protected:

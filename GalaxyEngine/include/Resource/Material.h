@@ -11,7 +11,7 @@ namespace GALAXY
 		class Material : public IResource
 		{
 		public:
-			Material(const std::string& fullPath);
+			Material(const std::filesystem::path& fullPath);
 			Material& operator=(const Material& other) = default;
 			Material(const Material&) = default;
 			Material(Material&&) noexcept = default;

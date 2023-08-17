@@ -15,6 +15,8 @@
 
 #include "Resource/IResource.h"
 
+#include "Utils/FileInfo.h"
+
 #pragma region static
 Core::Application Core::Application::m_instance;
 #pragma endregion
@@ -23,6 +25,10 @@ Core::Application::~Application() {}
 
 void Core::Application::Initalize()
 {
+	auto file1 = Utils::FileInfo("Assets/Textures/Prop_Radio.png");
+	auto file2 = Utils::FileInfo("Assets\\Textures\\Prop_Radio.png");
+
+	bool equal = file1.GetFullPath() == file2.GetFullPath();
 	// Initalize Window Lib
 	if (!Wrapper::Window::Initialize())
 		PrintError("Failed to initalize window API");
@@ -30,8 +36,8 @@ void Core::Application::Initalize()
 	// Create Window
 	m_window = std::make_unique<Wrapper::Window>();
 	Wrapper::WindowConfig windowConfig;
-	windowConfig.width = 800;
-	windowConfig.height = 600;
+	windowConfig.width = 1600;
+	windowConfig.height = 900;
 	windowConfig.name = "Galaxy Engine";
 	m_window->Create(windowConfig);
 	m_window->SetVSync(false);
@@ -49,7 +55,7 @@ void Core::Application::Initalize()
 
 	// Initalize Resource Manager
 	m_resourceManager = Resource::ResourceManager::GetInstance();
-	m_resourceManager->ImportAllFilesInFolder(RESOURCE_FOLDER_NAME);
+	m_resourceManager->ImportAllFilesInFolder(ASSET_FOLDER_NAME);
 	m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 	
 	// Initialize Scene
@@ -57,6 +63,7 @@ void Core::Application::Initalize()
 
 	// Initalize EditorUI
 	m_editorUI = EditorUI::EditorUIManager::GetInstance();
+	m_editorUI->Initalize();
 
 	// Initalize Components
 	Component::ComponentHolder::Initialize();
@@ -87,9 +94,6 @@ void Core::Application::UpdateResources()
 
 void Core::Application::Update()
 {
-	Vec4f clear_color = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
-	std::weak_ptr<Resource::Shader> unlitShader = m_resourceManager->GetOrLoad<Resource::Shader>("Assets/unlit.shader");
-
 	while (!m_window->ShouldClose())
 	{
 		Wrapper::Window::PollEvent();
@@ -132,7 +136,7 @@ void Core::Application::Destroy()
 	PrintLog("Application clean-up completed.");
 }
 
-void GALAXY::Core::Application::AddResourceToSend(const std::string& fullPath)
+void GALAXY::Core::Application::AddResourceToSend(const std::filesystem::path& fullPath)
 {
 	if (!std::count(m_resourceToSend.begin(), m_resourceToSend.end(), fullPath))
 		m_resourceToSend.push_back(fullPath);

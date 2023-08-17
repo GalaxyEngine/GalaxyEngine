@@ -14,7 +14,7 @@ namespace GALAXY {
 		class Model : public IResource
 		{
 		public:
-			Model(const std::string& fullPath) : IResource(fullPath) {}
+			Model(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 			Model& operator=(const Model& other) = default;
 			Model(const Model&) = default;
 			Model(Model&&) noexcept = default;

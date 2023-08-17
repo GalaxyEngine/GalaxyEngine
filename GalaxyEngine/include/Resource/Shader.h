@@ -2,6 +2,8 @@
 #include "GalaxyAPI.h"
 #include "IResource.h"
 
+#include <unordered_map>
+
 
 namespace GALAXY {
 	namespace Wrapper { class Renderer; class OpenGLRenderer; }
@@ -12,7 +14,7 @@ namespace GALAXY {
 		class Shader : public IResource
 		{
 		public:
-			Shader(const std::string& fullPath) : IResource(fullPath) {}
+			Shader(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 
 			void Load() override;
 			void Send() override;
@@ -47,7 +49,7 @@ namespace GALAXY {
 		class BaseShader : public IResource
 		{
 		public:
-			BaseShader(const std::string& fullPath) : IResource(fullPath) {}
+			BaseShader(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 
 			virtual void Load() override;
 			void AddShader(std::weak_ptr<Shader> shader);
@@ -61,7 +63,7 @@ namespace GALAXY {
 		class VertexShader : public BaseShader
 		{
 		public:
-			VertexShader(const std::string& fullPath) : BaseShader(fullPath) {}
+			VertexShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
 
 			void Send() override;
 
@@ -77,7 +79,7 @@ namespace GALAXY {
 		class GeometryShader : public BaseShader
 		{
 		public:
-			GeometryShader(const std::string& fullPath) : BaseShader(fullPath) {}
+			GeometryShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::GeometryShader; }
@@ -91,7 +93,7 @@ namespace GALAXY {
 		class FragmentShader : public BaseShader
 		{
 		public:
-			FragmentShader(const std::string& fullPath) : BaseShader(fullPath) {}
+			FragmentShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
 
 			void Send() override;
 

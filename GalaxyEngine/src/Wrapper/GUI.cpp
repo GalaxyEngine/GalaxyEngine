@@ -239,8 +239,8 @@ namespace GALAXY {
 	{
 		bool pressed = false;
 		Vec2f cursorPos = ImGui::GetCursorPos();
-		int space = ImGui::CalcTextSize(" ").x;
-		int spaceNumber = (imageSize.x / space) + 1;
+		int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
+		int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
 		std::string resultString = label;
 
 		for (int i = 0; i < spaceNumber; i++)
@@ -265,7 +265,7 @@ namespace GALAXY {
 	{
 		Vec2f cursorPos = ImGui::GetCursorPos();
 		int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
-		int spaceNumber = (imageSize.x / space) + 1;
+		int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
 		std::string resultString = label;
 
 		for (int i = 0; i < spaceNumber; i++)

@@ -1,11 +1,11 @@
 #include "pch.h"
+#ifdef ENABLE_REFLECTION
 #include "Wrapper/Reflection.h"
 
 //Classes Include
 #include "Component/Transform.h"
 #include "Component/MeshComponent.h"
 
-#ifdef ENABLE_REFLECTION
 #define PROPRETY_HIDDEN (metadata("Hidden", true))
 
 
@@ -45,7 +45,6 @@ RTTR_REGISTRATION
 		.property("z", &Quat::z)
 		.property("w", &Quat::w);
 }
-#endif
 
 void GALAXY::Wrapper::Reflection::PrintClass(const rttr::variant& object, const std::string& indent /*= ""*/)
 {
@@ -68,3 +67,4 @@ void GALAXY::Wrapper::Reflection::PrintClass(const rttr::variant& object, const 
 		}
 	}
 }
+#endif

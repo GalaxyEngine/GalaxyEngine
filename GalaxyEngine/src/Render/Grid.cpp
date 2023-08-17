@@ -9,7 +9,7 @@
 
 #include <glad/glad.h>
 
-namespace GALAXY 
+namespace GALAXY
 {
 
 	void Render::Grid::Initialize()

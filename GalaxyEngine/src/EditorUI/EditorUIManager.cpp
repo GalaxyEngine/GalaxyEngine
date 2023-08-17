@@ -9,15 +9,16 @@ namespace GALAXY {
 
 	EditorUI::EditorUIManager::EditorUIManager()
 	{
-		Initalize();
-	}
-
-	void EditorUI::EditorUIManager::Initalize()
-	{
 		m_sceneWindow = std::make_unique<SceneWindow>();
 		m_hierarchy = std::make_unique<Hierarchy>();
 		m_inspector = std::make_unique<Inspector>();
 		m_console = std::make_unique<Console>();
+		m_fileExplorer = std::make_unique<FileExplorer>();
+	}
+
+	void EditorUI::EditorUIManager::Initalize()
+	{
+		m_fileExplorer->Initialize();
 	}
 
 	void EditorUI::EditorUIManager::DrawUI()
@@ -27,6 +28,7 @@ namespace GALAXY {
 		m_hierarchy->Draw();
 		m_inspector->Draw();
 		m_console->Draw();
+		m_fileExplorer->Draw();
 	}
 
 	EditorUI::EditorUIManager* GALAXY::EditorUI::EditorUIManager::GetInstance()

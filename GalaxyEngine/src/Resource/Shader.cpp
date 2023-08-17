@@ -8,31 +8,36 @@ namespace GALAXY {
 		if (p_shouldBeLoaded)
 			return;
 		m_renderer = Wrapper::Renderer::GetInstance();
-		if (std::fstream file = Utils::FileSystem::OpenFile(p_fullPath); file.is_open())
+		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
 			// Parse .shader file
 			std::string line;
 			while (std::getline(file, line)) {
 				if (line[0] == 'V')
 				{
-					std::string vertPath = line.substr(4);
+					std::filesystem::path vertPath = line.substr(4);
+					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
 					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
 					std::get<0>(m_subShaders) = vertexShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fullPath);
+					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 					vertexShader.lock()->AddShader(thisShader);
 				}
 				else if (line[0] == 'G')
 				{
-					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(line.substr(4));
+					std::filesystem::path geomPath = line.substr(4);
+					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
+					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
 					std::get<1>(m_subShaders) = geometryShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fullPath);
+					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 					geometryShader.lock()->AddShader(thisShader);
 				}
 				else if (line[0] == 'F')
 				{
-					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(line.substr(4));
+					std::filesystem::path fragPath = line.substr(4);
+					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
+					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
 					std::get<2>(m_subShaders) = fragmentShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fullPath);
+					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 					fragmentShader.lock()->AddShader(thisShader);
 				}
 			}
@@ -64,14 +69,14 @@ namespace GALAXY {
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-		p_content = Utils::FileSystem::ReadFile(p_fullPath);
+		p_content = Utils::FileSystem::ReadFile(p_fileInfo.GetFullPath());
 		p_loaded = true;
 		SendRequest();
 	}
 
 
 	// === Vertex === //
-	void GALAXY::Resource::VertexShader::Send()
+	void Resource::VertexShader::Send()
 	{
 		if (p_hasBeenSent)
 			return;
@@ -79,7 +84,7 @@ namespace GALAXY {
 	}
 
 	// === Fragment === //
-	void GALAXY::Resource::FragmentShader::Send()
+	void Resource::FragmentShader::Send()
 	{
 		if (p_hasBeenSent)
 			return;

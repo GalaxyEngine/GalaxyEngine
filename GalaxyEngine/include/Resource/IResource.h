@@ -1,12 +1,12 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <string>
+#include <filesystem>
 #include <atomic>
 #include <memory>
 #include <vector>
 
-#define RESOURCE_FOLDER_NAME "assets"
-#define ENGINE_RESOURCE_FOLDER_NAME "coreresources"
+#include "Utils/FileInfo.h"
 
 namespace GALAXY::Resource {
 	enum class ResourceType
@@ -25,16 +25,12 @@ namespace GALAXY::Resource {
 	class IResource
 	{
 	public:
-		IResource(const std::string& fullPath);
+		IResource(const std::filesystem::path& fullPath);
 		IResource& operator=(const IResource& other) = default;
 		IResource(const IResource&) = default;
 		IResource(IResource&&) noexcept = default;
 		virtual ~IResource() {}
 
-		static ResourceType GetTypeFromExtension(const std::string_view& ext);
-		static std::string ExtractNameFromPath(std::string path, bool extension = true);
-		static std::string ExtractRelativePathFromPath(const std::string& path);
-		static std::string ExtractExtensionFromPath(const std::string& path);
 
 		virtual void Load() {}
 		virtual void Send() {}
@@ -46,17 +42,13 @@ namespace GALAXY::Resource {
 
 		void SendRequest();
 
-		ResourceType GetType() const { return p_type; }
-		std::string GetName() const { return p_name; }
-		std::string GetRelativePath() const { return p_relativePath; }
-		std::string GetFullPath() const { return p_fullPath; }
+		std::string GetName() { return p_fileInfo.GetFileName().string(); }
+
+		Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 	protected:
 		friend class ResourceManager;
 
-		ResourceType p_type;
-		std::string p_fullPath;
-		std::string p_relativePath;
-		std::string p_name;
+		Utils::FileInfo p_fileInfo;
 
 		std::atomic_bool p_shouldBeLoaded = false;
 		std::atomic_bool p_loaded = false;

@@ -4,7 +4,7 @@
 #include "Resource/ResourceManager.h"
 
 namespace GALAXY {
-	EditorUI::Console::Console()
+	EditorUI::Console::~Console()
 	{
 	}
 

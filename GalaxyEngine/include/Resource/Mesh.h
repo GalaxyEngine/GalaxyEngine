@@ -9,7 +9,7 @@ namespace GALAXY
 		class Mesh : public IResource
 		{
 		public:
-			Mesh(const std::string& fullPath) : IResource(fullPath) {}
+			Mesh(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 			Mesh& operator=(const Mesh& other) = default;
 			Mesh(const Mesh&) = default;
 			Mesh(Mesh&&) noexcept = default;

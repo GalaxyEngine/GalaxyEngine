@@ -196,6 +196,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 			{
 				auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
 				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->AddChild(gameObject);
+				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->m_open = true;
 			}
 			else
 			{

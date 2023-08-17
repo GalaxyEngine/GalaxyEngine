@@ -24,18 +24,6 @@ Scene::Scene()
 	m_root = std::make_shared<GameObject>("Scene");
 	m_editorCamera = std::make_unique<Render::Camera>();
 
-
-	auto child = CreateObject("Child 0");
-	auto component = child.lock()->AddComponent<Component::MeshComponent>();
-	auto mesh = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Mesh>("Assets/Cube.obj");
-	while (!mesh.lock() || !mesh.lock()->IsLoaded())
-	{
-		mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>("Assets/Cube.obj:Cube");
-	}
-	component.lock()->SetMesh(mesh);
-	m_root->AddChild(child);
-	m_root->AddChild(CreateObject("Child 1"));
-
 	m_grid = std::make_shared<Render::Grid>();
 	m_grid->Initialize();
 }

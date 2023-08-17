@@ -24,7 +24,7 @@ namespace GALAXY {
 	void Component::MeshComponent::ShowInInspector()
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x / 2.f, 0 };
-		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetName().c_str() : "Empty", buttonSize))
+		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().string().c_str(): "Empty", buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}
@@ -53,7 +53,7 @@ namespace GALAXY {
 				}
 				ImGui::SameLine();
 				Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, size.y };
-				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetName().c_str() : "Missing", buttonSize))
+				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetFileName().string().c_str() : "Missing", buttonSize))
 				{
 					ImGui::OpenPopup("MaterialPopup");
 					clicked = i;
@@ -82,16 +82,21 @@ namespace GALAXY {
 				m_materials[clicked] = mat;
 			}
 			ImGui::PopID();
-			if (ImGui::SmallButton("+"))
+			//const Vec2f smallButtonSize(24);
+			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.15f, 0.8f, 0.1f, 1.f));
+			if (ImGui::Button("Add"))
 			{
 				m_materials.push_back(std::weak_ptr<Resource::Material>());
 			}
+			ImGui::PopStyleColor();
 			ImGui::SameLine();
-			if (ImGui::SmallButton("-"))
+			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.8f, 0.15f, 0.1f, 1.f));
+			if (ImGui::Button("Remove"))
 			{
 				if (selected >= 0 && selected < m_materials.size())
 					m_materials.erase(m_materials.begin() + selected);
 			}
+			ImGui::PopStyleColor();
 			ImGui::TreePop();
 		}
 

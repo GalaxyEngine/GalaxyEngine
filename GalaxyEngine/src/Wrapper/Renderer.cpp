@@ -136,7 +136,7 @@ namespace GALAXY {
 		if (!success) {
 			char infoLog[512];
 			glGetProgramInfoLog(shader->m_id, 512, NULL, infoLog);
-			PrintError("Error when Link shader %s :\n %s", shader->p_fullPath.c_str(), infoLog);
+			PrintError("Error when Link shader %s :\n %s", shader->GetFileInfo().GetFullPath().string().c_str(), infoLog);
 			return false;
 		}
 		return true;
@@ -162,12 +162,12 @@ namespace GALAXY {
 			std::vector<GLchar> infoLog(infoLogLength);
 			glGetShaderInfoLog(vertex->m_id, infoLogLength, nullptr, infoLog.data());
 
-			PrintError("Vertex shader %s compilation failed:\n %s", vertex->p_fullPath.c_str(), infoLog.data());
+			PrintError("Vertex shader %s compilation failed:\n %s", vertex->GetFileInfo().GetFullPath().string().c_str(), infoLog.data());
 			glDeleteShader(vertex->m_id);
 			return false;
 		}
 
-		PrintLog("Vertex shader %s compiled", vertex->p_fullPath.c_str());
+		PrintLog("Vertex shader %s compiled", vertex->GetFileInfo().GetFullPath().string().c_str());
 		return true;
 	}
 
@@ -191,11 +191,11 @@ namespace GALAXY {
 			std::vector<GLchar> infoLog(infoLogLength);
 			glGetShaderInfoLog(fragment->m_id, infoLogLength, nullptr, infoLog.data());
 
-			PrintError("Fragment shader %s compilation failed:\n %s", fragment->p_fullPath.c_str(), infoLog.data());
+			PrintError("Fragment shader %s compilation failed:\n %s", fragment->GetFileInfo().GetFullPath().string().c_str(), infoLog.data());
 			glDeleteShader(fragment->m_id);
 			return false;
 		}
-		PrintLog("Framgment shader %s compiled", fragment->p_fullPath.c_str());
+		PrintLog("Framgment shader %s compiled", fragment->GetFileInfo().GetFullPath().string().c_str());
 		return true;
 	}
 
