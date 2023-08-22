@@ -26,7 +26,7 @@ namespace GALAXY
 
 			void DisplayCameraSettings();
 
-			virtual Component::Transform* Transform();
+			virtual Component::Transform* GetTransform();
 
 			void SetSize(const Vec2i& framebufferSize);
 

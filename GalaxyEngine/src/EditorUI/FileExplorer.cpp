@@ -7,6 +7,18 @@
 #define FOLDER_ICON_PATH "CoreResources\\icons\\folder.png"
 #define FILE_ICON_PATH "CoreResources\\icons\\file.png"
 
+/* TODO:
+* Drag and Drop (folders, models, ...)
+* Delete
+* Add folder
+* Thumbnails
+* Specification Right Click : (Ex. Recompile Shader)
+* Bottom bar too see clicked file
+* Inspector files selected
+* All this need to work with multiple selected files
+* Improve left child
+ */
+
 namespace fs = std::filesystem;
 namespace GALAXY {
 #pragma region File

@@ -704,11 +704,11 @@ namespace GALAXY::Math {
 	{
 		float tanHalfFov = std::tanf(_fov * DegToRad * 0.5f);
 
-		Mat4 projectionMatrix = Mat4(1);
+		Mat4 projectionMatrix = Mat4();
 		projectionMatrix[0][0] = 1.0f / (_aspect * tanHalfFov);
 		projectionMatrix[1][1] = 1.0f / tanHalfFov;
-		projectionMatrix[2][2] = -(_far + _near) / (_far - _near);
-		projectionMatrix[3][2] = -1.0f;
+		projectionMatrix[2][2] = (_far + _near) / (_far - _near);
+		projectionMatrix[3][2] = 1.0f;
 		projectionMatrix[2][3] = -(2.0f * _far * _near) / (_far - _near);
 		projectionMatrix[3][3] = 0.0f;
 

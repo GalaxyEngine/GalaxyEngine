@@ -7,6 +7,7 @@
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
+#include "Wrapper/ImageLoader.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
@@ -67,7 +68,6 @@ void Core::Application::Initalize()
 
 	// Initalize Components
 	Component::ComponentHolder::Initialize();
-	
 }
 
 void Core::Application::UpdateResources()

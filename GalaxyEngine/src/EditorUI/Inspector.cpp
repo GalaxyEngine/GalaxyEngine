@@ -27,11 +27,9 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 {
 	if (!object->GetParent().lock())
 	{
-		Render::Camera::GetEditorCamera()->Transform()->ShowInInspector();
+		Render::Camera::GetEditorCamera()->GetTransform()->ShowInInspector();
 		if (ImGui::Button("Print Camera Datas")) {
-			Render::Camera::GetEditorCamera()->GetViewMatrix().Print();
-			Render::Camera::GetEditorCamera()->GetProjectionMatrix().Print();
-			Render::Camera::GetEditorCamera()->GetViewProjectionMatrix().Print();
+			Render::Camera::GetEditorCamera()->GetTransform()->GetLocalPosition().Print();
 		}
 		return;
 	}

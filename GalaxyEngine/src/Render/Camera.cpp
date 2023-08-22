@@ -85,8 +85,8 @@ namespace GALAXY {
 				mouseX *= -1;
 			}
 
-			m_transform->Rotate(Vec3f::Up(), mouseX, Space::World);
-			m_transform->Rotate(Vec3f::Right(), mouseY, Space::Local);
+			m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
+			m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
 		}
 
 		float axis = ImGui::GetIO().MouseWheel;
@@ -125,16 +125,28 @@ namespace GALAXY {
 		return out;
 	}
 
-	Component::Transform* Render::Camera::Transform()
+	Mat4 Render::Camera::GetProjectionMatrix()
+	{
+		//return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
+
+		float tanHalfFov = std::tanf(p_fov * DegToRad * 0.5f);
+
+		Mat4 projectionMatrix = Mat4();
+		projectionMatrix[0][0] = 1.0f / (p_aspectRatio * tanHalfFov);
+		projectionMatrix[1][1] = 1.0f / tanHalfFov;
+		projectionMatrix[2][2] = (p_far + p_near) / (p_far - p_near);
+		projectionMatrix[3][2] = 1.0f;
+		projectionMatrix[2][3] = -(2.0f * p_far * p_near) / (p_far - p_near);
+		projectionMatrix[3][3] = 0.0f;
+
+		return projectionMatrix;
+	}
+
+
+	Component::Transform* Render::Camera::GetTransform()	
 	{
 		return m_transform.get();
 	}
-
-	Mat4 Render::Camera::GetProjectionMatrix()
-	{
-		return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
-	}
-
 	Mat4 Render::Camera::GetViewProjectionMatrix()
 	{
 		return GetProjectionMatrix() * GetViewMatrix();

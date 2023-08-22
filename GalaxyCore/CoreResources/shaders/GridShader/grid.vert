@@ -10,10 +10,12 @@ out mat4 fragView;
 out mat4 fragProj;
 
 // Grid position are in clipped space
+
 vec3 gridPlane[6] = vec3[] (
-    vec3(1, 1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
-    vec3(-1, -1, 0), vec3(1, 1, 0), vec3(1, -1, 0)
+    vec3(1, 1, 0), vec3(-1, 1, 0), vec3(-1, -1, 0),
+    vec3(-1, -1, 0), vec3(1, -1, 0), vec3(1, 1, 0)
 );
+
 
 vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
     mat4 viewInv = inverse(view);

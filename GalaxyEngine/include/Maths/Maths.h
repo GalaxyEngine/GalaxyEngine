@@ -131,11 +131,11 @@ namespace GALAXY::Math
 
 		static inline Vec3 Right() { return { 1, 0, 0 }; }
 		static inline Vec3 Up() { return { 0, 1, 0 }; }
-		static inline Vec3 Forward() { return { 0, 0, 1 }; }
+		static inline Vec3 Forward() { return { 0, 0, -1 }; }
 
 		static inline Vec3 Left() { return { -1, 0, 0 }; }
 		static inline Vec3 Down() { return { 0, -1, 0 }; }
-		static inline Vec3 Back() { return { 0, 0, -1 }; }
+		static inline Vec3 Back() { return { 0, 0, 1 }; }
 
 		static inline Vec3 Zero() { return { 0, 0, 0 }; }
 		static inline Vec3 One() { return { 1, 1, 1 }; }
