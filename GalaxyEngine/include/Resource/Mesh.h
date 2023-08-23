@@ -9,21 +9,26 @@ namespace GALAXY
 		class Mesh : public IResource
 		{
 		public:
-			Mesh(const std::filesystem::path& fullPath) : IResource(fullPath) {}
+			Mesh(const std::filesystem::path& fullPath);
 			Mesh& operator=(const Mesh& other) = default;
 			Mesh(const Mesh&) = default;
 			Mesh(Mesh&&) noexcept = default;
 			virtual ~Mesh() {}
 
+			void Load() override;
 			void Send() override;
 
 			void Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials);
 
 			static ResourceType GetResourceType() { return ResourceType::Mesh; }
 
+			static std::filesystem::path CreateMeshPath(const std::filesystem::path& modelPath, const std::filesystem::path& fileName);
+
 		private:
 			friend Wrapper::OBJLoader;
 			friend class Model;
+
+			std::filesystem::path m_modelPath;
 
 			std::vector<Vec3f> m_positions;
 			std::vector<Vec2f> m_textureUVs;

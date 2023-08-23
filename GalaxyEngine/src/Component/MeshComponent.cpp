@@ -82,7 +82,6 @@ namespace GALAXY {
 				m_materials[clicked] = mat;
 			}
 			ImGui::PopID();
-			//const Vec2f smallButtonSize(24);
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.15f, 0.8f, 0.1f, 1.f));
 			if (ImGui::Button("Add"))
 			{
@@ -106,11 +105,6 @@ namespace GALAXY {
 			if (!m_materials[i].lock())
 				continue;
 			m_materials[i].lock()->ShowInInspector();
-		}
-
-		if (ImGui::Button("Print Datas"))
-		{
-			GameObject()->Transform()->GetLocalMatrix().Print();
 		}
 	}
 

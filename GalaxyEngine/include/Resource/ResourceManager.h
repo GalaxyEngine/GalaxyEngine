@@ -24,6 +24,8 @@ namespace GALAXY::Resource {
 
 		inline void AddResource(const std::shared_ptr<IResource>& resource);
 
+		inline bool Contains(const std::filesystem::path& fullPath);
+
 		// Remove the Resource to the resource Manager
 		inline void RemoveResource(IResource* resource);
 
@@ -47,6 +49,8 @@ namespace GALAXY::Resource {
 
 		void ImportAllFilesInFolder(const std::filesystem::path& folder);
 		void ImportResource(const std::filesystem::path& resourcePath);
+
+		void ProcessDataFile(const std::filesystem::path& dataPath);
 
 		template <typename T>
 		[[nodiscard]] inline std::weak_ptr<T> ResourcePopup(const char* popupName);

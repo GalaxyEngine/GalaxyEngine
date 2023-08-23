@@ -32,6 +32,7 @@ namespace GALAXY
 
 			Utils::FileInfo m_info;
 			std::weak_ptr<Resource::Texture> m_icon;
+			std::weak_ptr<Resource::IResource> m_resource;
 
 			std::shared_ptr<File> m_parent;
 			std::vector<std::shared_ptr<File>> m_childrens;

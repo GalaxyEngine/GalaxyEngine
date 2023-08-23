@@ -20,6 +20,7 @@ namespace GALAXY::Resource {
 		Model,
 		Mesh,
 		Material,
+		Data,
 	};
 
 	class IResource

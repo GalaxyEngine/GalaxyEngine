@@ -20,6 +20,7 @@ namespace GALAXY {
 	Render::Camera::~Camera()
 	{
 	}
+
 	Vec2f prevMousePos;
 	void Render::Camera::Update()
 	{

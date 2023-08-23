@@ -23,6 +23,10 @@ namespace GALAXY {
 			void Load() override;
 
 		private:
+			void CreateFiles();
+
+		private:
+
 			friend Wrapper::OBJLoader;
 
 			std::vector<std::shared_ptr<class Mesh>> m_meshes;

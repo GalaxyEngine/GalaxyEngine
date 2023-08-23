@@ -5,7 +5,7 @@ std::fstream Utils::FileSystem::OpenFile(const std::filesystem::path& path)
 {
 	std::fstream file(path);
 	if (!file.is_open()) {
-		PrintError("File %s could'nt be open", path.c_str());
+		PrintError("File %s could'nt be open", path.string().c_str());
 	}
 	return file;
 }
@@ -25,7 +25,19 @@ std::string Utils::FileSystem::ReadFile(const std::filesystem::path& path)
 	}
 	else
 	{
-		PrintError("Failed To Read %s", path.c_str());
+		PrintError("Failed To Read %s", path.string().c_str());
 		return std::string();
 	}
+}
+
+std::ofstream Utils::FileSystem::GenerateFile(const std::filesystem::path& path)
+{
+	std::ofstream outputFile(path, std::ios::trunc);
+	if (outputFile.is_open()) {
+		PrintLog("File created successfully : %s", path.string().c_str());
+	}
+	else {
+		PrintError("Failed to create the file %s", path.string().c_str());
+	}
+	return outputFile;
 }

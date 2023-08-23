@@ -96,16 +96,19 @@ namespace GALAXY {
 			if (!m_infoCheckbox)
 				return;
 			tex = m_infoTexture.lock().get();
+			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 1, 1, 1));
 			break;
 		case Debug::LogType::L_WARNING:
 			if (!m_warningCheckbox)
 				return;
 			tex = m_warningTexture.lock().get();
+			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 1, 0, 1));
 			break;
 		case Debug::LogType::L_ERROR:
 			if (!m_errorCheckbox)
 				return;
 			tex = m_errorTexture.lock().get();
+			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 0, 0, 1));
 			break;
 		default:
 			break;
@@ -116,6 +119,7 @@ namespace GALAXY {
 		}
 		if (ImGui::Selectable(m_texts[i].second.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, Vec2f(0, 32)))
 			m_textSelected = i;
+		ImGui::PopStyleColor();
 		ImGui::PopID();
 	}
 

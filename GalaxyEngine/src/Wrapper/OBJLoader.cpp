@@ -14,11 +14,18 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 	if (!model.Parse())
 		return;
 	for (int i = 0; i < model.m_meshes.size(); i++) {
-		// todo : change this
-		const std::filesystem::path& meshFullPath = fullPath / model.m_meshes[i].name;
-		auto mesh = std::make_shared<Resource::Mesh>(meshFullPath);
-		mesh->GetFileInfo().m_fileName = model.m_meshes[i].name;
-		mesh->GetFileInfo().m_resouceType = Resource::ResourceType::Mesh;
+
+		const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, model.m_meshes[i].name);
+
+		Resource::Mesh* mesh;
+		mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>(meshFullPath).lock().get();
+
+		if (!mesh) {
+			// If mesh not in resource manager
+			auto sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
+			Resource::ResourceManager::GetInstance()->AddResource(sharedMesh);
+			mesh = sharedMesh.get();
+		}
 		mesh->m_positions = model.m_meshes[i].positions;
 		mesh->m_textureUVs = model.m_meshes[i].textureUVs;
 		mesh->m_normals = model.m_meshes[i].normals;
@@ -27,8 +34,8 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
-		Resource::ResourceManager::GetInstance()->AddResource(mesh);
-		outputModel->m_meshes.push_back(mesh);
+
+		outputModel->m_meshes.push_back(std::shared_ptr<Resource::Mesh>(mesh));
 
 		mesh->SendRequest();
 	}

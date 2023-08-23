@@ -24,7 +24,11 @@ namespace GALAXY {
 #pragma region File
 	EditorUI::File::File(const std::filesystem::path& path)
 	{
-		m_info = Utils::FileInfo(path);
+		m_resource = Resource::ResourceManager::GetInstance()->GetResource<Resource::IResource>(path);
+		if (m_resource.lock())
+			m_info = m_resource.lock()->GetFileInfo();
+		else
+			m_info = Utils::FileInfo(path);
 
 		if (m_info.isDirectory())
 		{
@@ -176,7 +180,7 @@ namespace GALAXY {
 			// Iterate through each child of the current file
 			for (size_t i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++) {
 				auto& child = m_currentFile->m_childrens[i];
-				if (!child || !child->m_icon.lock()) {
+				if (!child || !child->m_icon.lock() || child->m_info.GetResourceType() == Resource::ResourceType::Data) {
 					continue;
 				}
 
@@ -237,7 +241,7 @@ namespace GALAXY {
 				ImGui::EndGroup();
 
 				if (ImGui::GetWindowWidth() - (j + 1) * (iconSize + space) > iconSize) {
-					ImGui::SameLine(static_cast<int>((j + 1) * (iconSize + space)));
+					ImGui::SameLine(static_cast<float>((j + 1) * (iconSize + space)));
 					j++;
 				}
 				else
@@ -311,7 +315,50 @@ namespace GALAXY {
 			Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 			if (!m_rightClickedFiles.empty()) {
 				ImGui::TextUnformatted(m_rightClickedFiles[0]->m_info.GetFileName().string().c_str());
-				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);;
+				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+				if (m_rightClickedFiles[0]->m_resource.lock()) {
+					bool allSame = true;
+					Resource::ResourceType commonType = m_rightClickedFiles[0]->m_resource.lock()->GetFileInfo().GetResourceType();
+
+					for (auto& file : m_rightClickedFiles)
+					{
+						if (!file->m_resource.lock() || commonType != file->m_resource.lock()->GetFileInfo().GetResourceType())
+						{
+							allSame = false;
+						}
+					}
+					if (allSame) {
+						switch (commonType)
+						{
+						case Resource::ResourceType::Texture:
+							break;
+						case Resource::ResourceType::Shader:
+							break;
+						case Resource::ResourceType::VertexShader:
+							break;
+						case Resource::ResourceType::GeometryShader:
+							break;
+						case Resource::ResourceType::FragmentShader:
+							break;
+						case Resource::ResourceType::Model:
+							if (ImGui::Button("Import", buttonSize))
+							{
+								for (auto& file : m_rightClickedFiles)
+								{
+									file->m_resource.lock()->Load();
+								}
+							}
+							break;
+						case Resource::ResourceType::Mesh:
+							break;
+						case Resource::ResourceType::Material:
+							break;
+						default:
+							break;
+						}
+					}
+				}
+
 				if (ImGui::Button("Delete", buttonSize))
 				{
 
@@ -338,6 +385,7 @@ namespace GALAXY {
 #ifdef _WIN32
 #include <shlobj_core.h>
 #endif
+
 	void EditorUI::FileExplorer::ShowInExplorer(const std::vector<std::shared_ptr<File>>& files, bool select)
 	{
 #ifdef _WIN32

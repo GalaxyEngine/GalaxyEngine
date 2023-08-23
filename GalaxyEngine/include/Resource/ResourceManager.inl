@@ -25,6 +25,10 @@ namespace GALAXY
 		}
 	}
 
+	bool Resource::ResourceManager::Contains(const std::filesystem::path& fullPath)
+	{
+		return m_resources.contains(fullPath);
+	}
 
 	template <typename T>
 	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
@@ -91,14 +95,15 @@ namespace GALAXY
 		{
 			static ImGuiTextFilter filter;
 			filter.Draw();
+			Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			for (const auto& [path, resource] : m_resources)
 			{
-				if (filter.PassFilter(resource->GetName().c_str()) && resource->GetFileInfo().GetResourceType() == T::GetResourceType())
+				if (resource->GetFileInfo().GetResourceType() == T::GetResourceType() && filter.PassFilter(resource->GetName().c_str()))
 				{
-					if (ImGui::Button(resource->GetName().c_str()))
+					if (ImGui::Button(resource->GetName().c_str(), buttonSize))
 					{
 						ImGui::CloseCurrentPopup();
-						return std::dynamic_pointer_cast<T>(resource);
+						return GetOrLoad<T>(path);
 					}
 				}
 			}

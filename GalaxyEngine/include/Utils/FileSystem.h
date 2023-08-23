@@ -4,4 +4,5 @@
 namespace GALAXY::Utils::FileSystem {
 	std::fstream OpenFile(const std::filesystem::path& path);
 	std::string ReadFile(const std::filesystem::path& path);
+	std::ofstream GenerateFile(const std::filesystem::path& path);
 }

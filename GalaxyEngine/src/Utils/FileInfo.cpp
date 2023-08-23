@@ -13,7 +13,7 @@ namespace GALAXY
 		m_relativePath = ToRelativePath(m_fullPath);
 		m_fileName = m_fullPath.filename();
 		m_extension = m_fileName.extension();
-		m_resouceType = GetTypeFromExtension(m_extension);
+		m_resourceType = GetTypeFromExtension(m_extension);
 
 		if (!m_exist)
 		{
@@ -64,6 +64,8 @@ namespace GALAXY
 			return ResourceType::FragmentShader;
 		else if (ext == ".mat")
 			return ResourceType::Material;
+		else if (ext == ".gdata")
+			return ResourceType::Data;
 		else
 			return ResourceType::None;
 	}
