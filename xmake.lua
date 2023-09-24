@@ -12,7 +12,9 @@ add_defines("ENABLE_MULTITHREAD")
 
 
 set_languages("c++20")
+
 set_rundir("GalaxyCore")
+set_targetdir("GalaxyCore")
 
 -- if is_plat("windows") then
 --     set_runtimes(is_mode("debug") and "MDd" or "MD")
@@ -40,12 +42,6 @@ function fileExists(path)
     return false
 end
 
-function includeDir(path)
-    add_headerfiles("GalaxyEngine/include/" .. path .. "/*.h")
-    add_headerfiles("GalaxyEngine/include/" .. path .. "/*.inl")
-    add_files("GalaxyEngine/src/" .. path .. "/*.cpp")
-end
-
 target("GalaxyEngine")
     set_kind("shared")
     set_symbols("debug")
@@ -60,22 +56,17 @@ target("GalaxyEngine")
     end
 
     -- Includes --
-    includeDir("")
-    includeDir("Wrapper")
-    includeDir("Core")
-    includeDir("Debug")
-    includeDir("Resource")
-    includeDir("Math")
-    includeDir("Utils")
-    includeDir("Component")
-    includeDir("EditorUI")
-    includeDir("Render")
+    add_headerfiles("GalaxyEngine/include/**.h");
+    add_headerfiles("GalaxyEngine/include/**.inl");
+    add_files("GalaxyEngine/src/**.cpp")
 
     -- Packages --
     add_packages("glfw")
     add_packages("imgui")
     add_packages("glad")
     add_packages("stb")
+
+
     --add_packages("rttr")
 target_end()
 
@@ -83,6 +74,6 @@ target("GalaxyCore")
     set_default(true)
     set_kind("binary")
     add_deps("GalaxyEngine")
-    add_files("GalaxyCore/main.cpp")
+    add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
 target_end()
