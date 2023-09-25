@@ -30,7 +30,7 @@ namespace GALAXY
 	std::filesystem::path Utils::FileInfo::ToRelativePath(std::filesystem::path path)
 	{
 		path = ToPath(path);
-		if (auto relative = std::filesystem::relative(path, ASSET_FOLDER_NAME); !relative.empty())
+		if (auto relative = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath()); !relative.empty() && relative.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
 		{
 			if (relative == ".")
 				return ASSET_FOLDER_NAME;
@@ -38,7 +38,7 @@ namespace GALAXY
 		}
 		else if (auto relative = std::filesystem::relative(path, ENGINE_RESOURCE_FOLDER_NAME); !relative.empty())
 		{
-			return ASSET_FOLDER_NAME / relative;
+			return ENGINE_RESOURCE_FOLDER_NAME / relative;
 		}
 		else
 		{

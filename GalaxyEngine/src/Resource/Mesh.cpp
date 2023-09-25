@@ -56,7 +56,7 @@ namespace GALAXY {
 		renderer->BindVertexArray(m_vertexArrayIndex);
 
 		for (size_t i = 0; i < materials.size(); i++) {
-			if (!materials[i].lock() || !materials[i].lock()->GetShader().lock())
+			if (!materials[i].lock() || !materials[i].lock()->GetShader().lock()/* || !materials[i].lock()->GetShader().lock()->IsLoaded()*/)
 				continue;
 			materials[i].lock()->SendValues();
 

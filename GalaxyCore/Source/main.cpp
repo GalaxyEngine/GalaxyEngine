@@ -11,20 +11,17 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	std::cout << argc << std::endl;
-	for (int i = 0; i < argc; i++)
-		std::cout << argv[i] << std::endl;
-
-	// Extract the file path from command-line arguments
-	const char* filePath = argv[0];
 	auto workDir = std::filesystem::path(argv[0]).parent_path();
-
-	// Change the working directory to where you want it to be
+	// Change the working directory
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
 
-	application.Initalize();
+	std::filesystem::path projectPath/* = "D:\\Code\\ProjectTest"*/;
+	if (argc > 1)
+		projectPath = std::filesystem::path(argv[1]).parent_path();
+
+	application.Initalize(projectPath);
 
 	application.Update();
 

@@ -128,8 +128,6 @@ namespace GALAXY {
 	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
 		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
-		if (m_resources.count(unlitPath))
-			return std::dynamic_pointer_cast<Resource::Shader>(m_resources.at(unlitPath));
 		return GetOrLoad<Resource::Shader>(unlitPath);
 	}
 

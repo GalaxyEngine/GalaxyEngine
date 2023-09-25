@@ -95,6 +95,11 @@ namespace GALAXY {
 
 	void EditorUI::File::FindAllChildrens()
 	{
+		if (!std::filesystem::exists(m_info.GetFullPath()))
+		{
+			PrintLog("%s does not exist, maybe because of no project path", m_info.GetFullPath().string().c_str());
+			return;
+		}
 		auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
 		for (const std::filesystem::directory_entry& entry : dirIt)
 		{
@@ -135,6 +140,7 @@ namespace GALAXY {
 
 	void EditorUI::FileExplorer::Initialize()
 	{
+		m_workingDirectory = Resource::ResourceManager::GetInstance()->GetAssetPath();
 		m_mainFile = std::make_shared<File>(m_workingDirectory);
 		m_mainFile->FindAllChildrens();
 

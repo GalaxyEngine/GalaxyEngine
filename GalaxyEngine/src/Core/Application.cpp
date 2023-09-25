@@ -24,12 +24,8 @@ Core::Application Core::Application::m_instance;
 
 Core::Application::~Application() {}
 
-void Core::Application::Initalize()
+void Core::Application::Initalize(const std::filesystem::path& projectPath)
 {
-	auto file1 = Utils::FileInfo("Assets/Textures/Prop_Radio.png");
-	auto file2 = Utils::FileInfo("Assets\\Textures\\Prop_Radio.png");
-
-	bool equal = file1.GetFullPath() == file2.GetFullPath();
 	// Initalize Window Lib
 	if (!Wrapper::Window::Initialize())
 		PrintError("Failed to initalize window API");
@@ -56,7 +52,9 @@ void Core::Application::Initalize()
 
 	// Initalize Resource Manager
 	m_resourceManager = Resource::ResourceManager::GetInstance();
-	m_resourceManager->ImportAllFilesInFolder(ASSET_FOLDER_NAME);
+	m_resourceManager->m_projectPath = projectPath;
+	m_resourceManager->m_assetPath = projectPath / ASSET_FOLDER_NAME;
+	m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 	m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 	
 	// Initialize Scene
