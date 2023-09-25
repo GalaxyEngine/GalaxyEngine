@@ -4,6 +4,10 @@
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
+
+#define AUTO_IMPORT_MODEL
+// Automatic import all model that not get a .gdata
+
 namespace GALAXY {
 	std::unique_ptr<Resource::ResourceManager> Resource::ResourceManager::m_instance = nullptr;
 
@@ -53,11 +57,26 @@ namespace GALAXY {
 			AddResource(new FragmentShader(resourcePath));
 			break;
 		case Resource::ResourceType::Model:
+#ifndef AUTO_IMPORT_MODEL
 			AddResource(new Model(resourcePath));
-			//GetOrLoad<Model>(resourcePath);
+#else
+			{
+				std::filesystem::path dataFilePath = resourcePath.parent_path() / resourcePath.stem();
+				if (!std::filesystem::exists(dataFilePath.wstring() + L".gdata"))
+					GetOrLoad<Model>(resourcePath);
+				else
+					AddResource(new Model(resourcePath));
+			}
+#endif
 			break;
 		case Resource::ResourceType::Data:
+		{
+			if (!Utils::FileSystem::FileExistNoExtension(resourcePath)) {
+				Utils::FileSystem::RemoveFile(resourcePath);
+				break;
+			}
 			ProcessDataFile(resourcePath);
+		}
 			break;
 		default:
 			break;

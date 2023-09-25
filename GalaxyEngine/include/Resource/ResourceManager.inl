@@ -96,15 +96,22 @@ namespace GALAXY
 			static ImGuiTextFilter filter;
 			filter.Draw();
 			Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
+			size_t i = 0;
 			for (const auto& [path, resource] : m_resources)
 			{
 				if (resource->GetFileInfo().GetResourceType() == T::GetResourceType() && filter.PassFilter(resource->GetName().c_str()))
 				{
+					ImGui::PushID((int)i++);
 					if (ImGui::Button(resource->GetName().c_str(), buttonSize))
 					{
 						ImGui::CloseCurrentPopup();
 						return GetOrLoad<T>(path);
 					}
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(resource->GetFileInfo().GetRelativePath().string().c_str());
+					}
+					ImGui::PopID();
 				}
 			}
 			ImGui::EndPopup();
