@@ -9,6 +9,9 @@ if not exist "%cppfile%" (
   (  
     echo #include "pch.h"
     echo #include "%filename%.h"
+    echo namespace GALAXY 
+    echo {
+    echo }
   ) >> "%cppfile%"
 )
 

@@ -13,6 +13,7 @@
 #include "Resource/Shader.h"
 #include "EditorUI/EditorUIManager.h"
 #include "Component/ComponentHolder.h"
+#include "Scripting/ScriptEngine.h"
 
 #include "Resource/IResource.h"
 
@@ -52,8 +53,10 @@ void Core::Application::Initalize(const std::filesystem::path& projectPath)
 
 	// Initalize Resource Manager
 	m_resourceManager = Resource::ResourceManager::GetInstance();
-	m_resourceManager->m_projectPath = projectPath;
-	m_resourceManager->m_assetPath = projectPath / ASSET_FOLDER_NAME;
+	m_resourceManager->m_projectPath = projectPath.parent_path();
+	m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
+	std::string filename = projectPath.filename().string();
+	m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
 	m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 	m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 	
@@ -63,6 +66,9 @@ void Core::Application::Initalize(const std::filesystem::path& projectPath)
 	// Initalize EditorUI
 	m_editorUI = EditorUI::EditorUIManager::GetInstance();
 	m_editorUI->Initalize();
+
+	m_scriptEngine = Scripting::ScriptEngine::GetInstance();
+	m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
 
 	// Initalize Components
 	Component::ComponentHolder::Initialize();

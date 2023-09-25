@@ -8,5 +8,7 @@ namespace GALAXY::Utils::FileSystem {
 
 	bool RemoveFile(const std::filesystem::path& path);
 
+	bool CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath);
+
 	bool FileExistNoExtension(const std::filesystem::path& path);
 }

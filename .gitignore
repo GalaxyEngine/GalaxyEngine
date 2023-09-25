@@ -10,3 +10,6 @@ GalaxyCore/GalaxyEngine.*
 GalaxyCore/compile.GalaxyEngine.pdb
 GalaxyCore/GalaxyCore.*
 GalaxyCore/compile.GalaxyCore.pdb
+
+*.dll
+*.pdb

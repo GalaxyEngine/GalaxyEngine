@@ -11,6 +11,7 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
+	getchar();
 	auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
@@ -19,7 +20,7 @@ void Main(int argc, char** argv)
 
 	std::filesystem::path projectPath/* = "D:\\Code\\ProjectTest"*/;
 	if (argc > 1)
-		projectPath = std::filesystem::path(argv[1]).parent_path();
+		projectPath = std::filesystem::path(argv[1]);
 
 	application.Initalize(projectPath);
 

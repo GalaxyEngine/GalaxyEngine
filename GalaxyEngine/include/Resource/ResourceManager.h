@@ -70,6 +70,7 @@ namespace GALAXY {
 
 			std::filesystem::path m_assetPath;
 			std::filesystem::path m_projectPath;
+			std::string m_projectName;
 
 		};
 	}

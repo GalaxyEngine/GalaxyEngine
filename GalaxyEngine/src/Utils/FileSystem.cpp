@@ -79,4 +79,30 @@ namespace GALAXY {
 		return false;
 	}
 
+	bool Utils::FileSystem::CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath)
+	{
+		std::ifstream sourceFile(sourcePath, std::ios::binary);
+
+		if (!sourceFile) {
+			PrintError("File %s not found", sourcePath);
+			return false;
+		}
+
+		std::ofstream destinationFile(destinationPath, std::ios::binary);
+
+		if (!destinationFile) {
+			PrintError("File %s not found", destinationPath);
+			return false;
+		}
+
+		PrintLog("File %s Copied to %s", sourcePath.string().c_str(), destinationPath.string().c_str());
+
+		destinationFile << sourceFile.rdbuf();
+
+		sourceFile.close();
+		destinationFile.close();
+
+		return true;
+	}
+
 }
