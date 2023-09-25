@@ -230,6 +230,10 @@ namespace GALAXY {
 					m_rightClickedFiles = m_selectedFiles;
 					openRightClick = true;
 				}
+				else if (ImGui::IsItemHovered())
+				{
+					ImGui::SetTooltip(child->m_info.GetFileName().string().c_str());
+				}
 
 				// Positioning for the file icon and text
 				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));

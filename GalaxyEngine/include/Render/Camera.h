@@ -64,7 +64,7 @@ namespace GALAXY
 		private:
 			float m_movementSpeed = 10.f;
 			float m_fastMovementSpeed = 100.f;
-			float m_freeLookSensitivity = 3.f;
+			float m_freeLookSensitivity = 100.f;
 			float m_zoomSensitivity = 1.f;
 			float m_fastZoomSensitivity = 5.f;
 

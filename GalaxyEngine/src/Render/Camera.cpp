@@ -75,8 +75,8 @@ namespace GALAXY {
 
 		if (m_looking)
 		{
-			float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * 0.1f;
-			float mouseY = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).y * m_freeLookSensitivity * 0.1f;
+			float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
+			float mouseY = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
 
 			Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 			window->SetMousePosition(prevMousePos);
