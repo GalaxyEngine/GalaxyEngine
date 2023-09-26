@@ -6,12 +6,9 @@ namespace GALAXY
 {
 	inline void Utils::FileWatcher::Update()
 	{
-		if (m_running) {
-			std::cout << "FileWatcher is already running." << std::endl;
-			return;
+		if (!m_running) {
+			m_running = true;
 		}
-
-		m_running = true;
 
 		auto lastModificationTime = std::filesystem::last_write_time(m_filePath);
 
