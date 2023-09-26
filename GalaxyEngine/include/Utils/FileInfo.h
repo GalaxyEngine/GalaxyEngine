@@ -48,7 +48,7 @@ namespace GALAXY
 			std::filesystem::path m_extension;
 			bool m_exist = false;
 
-			Resource::ResourceType m_resourceType;
+			Resource::ResourceType m_resourceType = (Resource::ResourceType)0;
 		};
 	}
 }

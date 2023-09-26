@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Scripting/HeaderParser.h"
+
 namespace GALAXY 
 {
 	Scripting::HeaderParser::HeaderParser()
@@ -7,29 +8,7 @@ namespace GALAXY
 
 	}
 
-	void Scripting::HeaderParser::FindFiles(const std::filesystem::path& path)
-	{
-		try {
-			for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
-				if (std::filesystem::is_regular_file(entry) && entry.path().extension() == ".h") {
-					hFiles.push_back(entry.path());
-					auto properties = ParseFile(entry.path().string());
-					for (auto& property : properties)
-					{
-						std::cout << property.propertyType << " " << property.propertyName << std::endl;
-					}
-				}
-				else if (std::filesystem::is_directory(entry)) {
-					FindFiles(entry.path());
-				}
-			}
-		}
-		catch (const std::exception& e) {
-			std::cerr << "Error : " << e.what() << std::endl;
-		}
-	}
-
-	std::vector<Scripting::PropertyInfo> Scripting::HeaderParser::ParseFile(const std::string& filename)
+	std::vector<GALAXY::Scripting::PropertyInfo> Scripting::HeaderParser::ParseFile(const std::filesystem::path& filename)
 	{
 		std::ifstream file(filename);
 		std::vector<PropertyInfo> properties;
@@ -56,7 +35,7 @@ namespace GALAXY
 			{
 				properties.push_back(property);
 			}
-			content = content.substr(content.find_first_of('\n'));
+			content = content.substr(line.length());
 		}
 
 		return properties;

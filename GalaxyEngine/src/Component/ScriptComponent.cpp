@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Component/ScriptComponent.h"
+#include "Scripting/ScriptEngine.h"
 namespace GALAXY 
 {
 
@@ -31,6 +32,16 @@ namespace GALAXY
 	void Component::ScriptComponent::ShowInInspector()
 	{
 		m_component->ShowInInspector();
+	}
+
+	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
+	{
+		return Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(m_component.get(), m_component.get()->GetComponentName(), variableName);
+	}
+
+	void Component::ScriptComponent::SetVariableVoid(const std::string& variableName, void* value)
+	{
+		Scripting::ScriptEngine::GetInstance()->SetVariableOfScript(m_component.get(), m_component.get()->GetComponentName(), variableName, value);
 	}
 
 }

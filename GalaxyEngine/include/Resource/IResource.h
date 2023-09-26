@@ -21,6 +21,7 @@ namespace GALAXY::Resource {
 		Mesh,
 		Material,
 		Data,
+		Script,
 	};
 
 	class IResource
@@ -31,7 +32,6 @@ namespace GALAXY::Resource {
 		IResource(const IResource&) = default;
 		IResource(IResource&&) noexcept = default;
 		virtual ~IResource() {}
-
 
 		virtual void Load() {}
 		virtual void Send() {}

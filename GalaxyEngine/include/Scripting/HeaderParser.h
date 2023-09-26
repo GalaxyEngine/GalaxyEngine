@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <filesystem>
 namespace GALAXY 
 {
 	namespace Scripting
@@ -20,13 +21,10 @@ namespace GALAXY
 		public:
 			HeaderParser();
 
-			void FindFiles(const std::filesystem::path& path);
-
-			std::vector<PropertyInfo> ParseFile(const std::string& filename);
+			std::vector<PropertyInfo> ParseFile(const std::filesystem::path& filename);
 			bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, const std::string& file);
 
 		private:
-			std::vector<HFile> hFiles;
 		};
 	}
 }

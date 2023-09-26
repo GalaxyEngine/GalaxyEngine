@@ -4,6 +4,7 @@
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
+#include "Resource/Script.h"
 
 #define AUTO_IMPORT_MODEL
 // Automatic import all model that not get a .gdata
@@ -76,6 +77,11 @@ namespace GALAXY {
 				break;
 			}
 			ProcessDataFile(resourcePath);
+			break;
+		}
+		case Resource::ResourceType::Script:
+		{
+			GetOrLoad<Resource::Script>(resourcePath);
 		}
 			break;
 		default:

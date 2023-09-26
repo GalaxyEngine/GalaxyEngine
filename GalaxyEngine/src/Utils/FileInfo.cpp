@@ -66,6 +66,8 @@ namespace GALAXY
 			return ResourceType::Material;
 		else if (ext == ".gdata")
 			return ResourceType::Data;
+		else if (ext == ".h" || ext == ".hpp")
+			return ResourceType::Script;
 		else
 			return ResourceType::None;
 	}

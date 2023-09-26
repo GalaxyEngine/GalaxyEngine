@@ -11,10 +11,14 @@ namespace GALAXY
 
 		enum class VariableType
 		{
+			Unknown,
 			Bool,
 			Int,
 			Float,
 			Double,
+			Vector2,
+			Vector3,
+			Vector4,
 		};
 
 		class ScriptInstance
@@ -27,11 +31,13 @@ namespace GALAXY
 			virtual ~ScriptInstance() {}
 
 		private:
-			ScriptConstructor m_constructor;
+			friend class ScriptEngine;
+
+			ScriptConstructor m_constructor = nullptr;
 			std::unordered_map<std::string, GetterMethod> m_gettersMethods;
 			std::unordered_map<std::string, SetterMethod> m_settersMethods;
 			std::unordered_map<std::string, VariableType> m_variables;
-		};
+		}; 
 	}
 }
 #include "Scripting/ScriptInstance.inl" 

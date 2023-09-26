@@ -15,8 +15,6 @@ namespace GALAXY
 			virtual ~ScriptComponent() {}
 
 			virtual std::string GetComponentName() const override { return "ScriptComponent"; }
-		private:
-			std::shared_ptr<BaseComponent> m_component;
 
 			void OnCreate() override;
 
@@ -29,6 +27,26 @@ namespace GALAXY
 			void OnDestroy() override;
 
 			void ShowInInspector() override;
+
+			template<typename T>
+			T GetVariable(const std::string& variableName)
+			{
+				return reinterpret_cast<T*>(GetVariableVoid(variableName));
+			}
+
+			template<typename T>
+			void SetVariable(const std::string& variableName, T value)
+			{
+				T* newValue = &value;
+				SetVariableVoid(variableName, newValue);
+			}
+
+		private:
+			void* GetVariableVoid(const std::string& variableName);
+
+			void SetVariableVoid(const std::string& variableName, void* value);
+
+			std::shared_ptr<BaseComponent> m_component;
 
 		};
 	}
