@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <unordered_map>
 namespace GALAXY 
 {
 	namespace Scripting {
@@ -24,6 +25,9 @@ namespace GALAXY
 
 			std::filesystem::path m_dllPath;
 			std::string m_dllName;
+
+			std::unordered_map<std::string, std::shared_ptr<class ScriptInstance>> m_scriptInstances;
+			std::vector<std::weak_ptr<class ScriptComponent>> m_scriptComponents;
 		};
 	}
 }
