@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <functional>
+#include <chrono>
 namespace GALAXY 
 {
 	namespace Utils
@@ -22,6 +23,7 @@ namespace GALAXY
 			std::string m_filePath;
 			std::function<void()> m_callback;
 			bool m_running;
+			std::filesystem::file_time_type m_lastModificationTime;
 		};
 	}
 }

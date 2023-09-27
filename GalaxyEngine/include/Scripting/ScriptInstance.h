@@ -3,6 +3,7 @@
 #include <unordered_map>
 namespace GALAXY 
 {
+	namespace Component { class ScriptComponent; }
 	namespace Scripting
 	{
 		using ScriptConstructor = void* (*)();
@@ -30,8 +31,10 @@ namespace GALAXY
 			ScriptInstance(ScriptInstance&&) noexcept = default;
 			virtual ~ScriptInstance() {}
 
+			std::unordered_map<std::string, Scripting::VariableType> GetAllVariables() const { return m_variables; }
 		private:
 			friend class ScriptEngine;
+			friend Component::ScriptComponent;
 
 			ScriptConstructor m_constructor = nullptr;
 			std::unordered_map<std::string, GetterMethod> m_gettersMethods;

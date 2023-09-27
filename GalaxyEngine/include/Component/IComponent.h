@@ -55,6 +55,7 @@ namespace GALAXY {
 			bool p_enable = true;
 
 		};
+
 		template <typename Derived>
 		class IComponent : public BaseComponent
 		{

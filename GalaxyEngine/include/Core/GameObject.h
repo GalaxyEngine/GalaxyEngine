@@ -6,10 +6,10 @@
 #include <string>
 
 namespace GALAXY {
-	namespace EditorUI 
-	{ 
-		class Hierarchy; 
-		class Inspector; 
+	namespace EditorUI
+	{
+		class Hierarchy;
+		class Inspector;
 	}
 	namespace Core {
 		class GameObject : public std::enable_shared_from_this<GameObject>
@@ -60,6 +60,29 @@ namespace GALAXY {
 			uint32_t GetChildIndex(GameObject* child);
 			// Return the Component index in the list of components
 			uint32_t GetComponentIndex(Component::BaseComponent* component);
+
+			template<typename T>
+			std::vector<Weak<T>> GetComponentsInChildren()
+			{
+				std::vector<Weak<T>> list;
+				for (auto& child : m_childs)
+				{
+					list.append_range(child->GetComponents<T>());
+				}
+				return list;
+			}
+
+			template<typename T>
+			std::vector<Weak<T>> GetComponents()
+			{
+				std::vector<Weak<T>> list;
+				for (auto& comp : m_components) {
+					if (auto castedComp = dynamic_pointer_cast<T>(comp))
+					{
+						list.push_back(comp);
+					}
+				}
+			}
 
 
 			// Check if the object givent is a parent of the this

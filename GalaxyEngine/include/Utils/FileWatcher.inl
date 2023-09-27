@@ -8,9 +8,8 @@ namespace GALAXY
 	{
 		if (!m_running) {
 			m_running = true;
+			m_lastModificationTime = std::filesystem::last_write_time(m_filePath);
 		}
-
-		auto lastModificationTime = std::filesystem::last_write_time(m_filePath);
 
 		bool exist = std::filesystem::exists(m_filePath);
 		if (!exist) {
@@ -21,8 +20,8 @@ namespace GALAXY
 
 		auto currentFileTime = std::filesystem::last_write_time(m_filePath);
 
-		if (currentFileTime != lastModificationTime) {
-			lastModificationTime = currentFileTime;
+		if (currentFileTime != m_lastModificationTime) {
+			m_lastModificationTime = currentFileTime;
 			m_callback();
 		}
 

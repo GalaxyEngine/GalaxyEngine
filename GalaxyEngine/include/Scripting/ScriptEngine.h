@@ -3,8 +3,9 @@
 #include <unordered_map>
 namespace GALAXY 
 {
-	namespace Component { class BaseComponent; }
+	namespace Component { class BaseComponent; class ScriptComponent; }
 	namespace Resource { class Script; }
+	namespace Utils { class FileWatcher; }
 	namespace Scripting {
 
 		using ScriptConstructor = void* (*)();
@@ -27,7 +28,15 @@ namespace GALAXY
 
 			void ParseScript(Weak<Resource::Script>& script);
 
+			void CleanScripts();
+
+			void OnDLLUpdated();
+
 			static enum class VariableType StringToVariableType(const std::string& typeName);
+
+			Weak<class ScriptInstance> GetScriptInstance(const std::string& scriptName);
+
+			Shared<Component::BaseComponent> CreateScript(const std::string& scriptName);
 
 			void* GetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName);
 			void SetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
@@ -39,6 +48,8 @@ namespace GALAXY
 			static Unique<ScriptEngine> m_instance;
 			Shared<class HeaderParser> m_headerParser = nullptr;
 
+			Shared<Utils::FileWatcher> m_fileWatcherDLL;
+
 			HMODULE m_hDll = NULL;
 			bool m_dllLoaded = false;
 
@@ -46,6 +57,7 @@ namespace GALAXY
 			std::string m_dllName;
 
 			std::vector<Weak<Resource::Script>> m_scripts;
+			std::vector<Shared<Component::ScriptComponent>> m_registeredScriptComponents;
 			std::unordered_map<std::string, Shared<class ScriptInstance>> m_scriptInstances;
 			std::vector<Weak<class ScriptComponent>> m_scriptComponents;
 		};

@@ -5,9 +5,18 @@
 
 #include "Resource/Script.h"
 
+#include "Component/ComponentHolder.h"
+#include "Component/ScriptComponent.h"
+
+#include "Utils/FileWatcher.h"
+
+#include "Core/Application.h"
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
+
 #define DESTINATION_DLL std::filesystem::path("")
 
-namespace GALAXY 
+namespace GALAXY
 {
 
 	std::unique_ptr<Scripting::ScriptEngine> Scripting::ScriptEngine::m_instance;
@@ -20,6 +29,10 @@ namespace GALAXY
 	{
 	}
 
+	void OnDllUpdate()
+	{
+		PrintLog("Dll Updated !");
+	}
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
@@ -55,6 +68,12 @@ namespace GALAXY
 		else {
 			PrintError("Failed to load project DLL.");
 		}
+
+		if (m_fileWatcherDLL)
+			m_fileWatcherDLL->StopWatching();
+		std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
+		m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
+		m_fileWatcherDLL->StartWatching();
 	}
 
 	void Scripting::ScriptEngine::UnloadDLL()
@@ -84,12 +103,45 @@ namespace GALAXY
 		auto scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 
 		scriptInstance->m_constructor = GetConstructor(className);
+
+		std::shared_ptr<Component::ScriptComponent> scriptComp = std::make_shared<Component::ScriptComponent>();
+
+		Component::BaseComponent* component = reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor());
+		std::shared_ptr<Component::BaseComponent> shared = std::shared_ptr<Component::BaseComponent>(component);
+		scriptComp->SetScriptComponent(shared);
+		Component::ComponentHolder::RegisterComponent<Component::ScriptComponent>(scriptComp);
+		m_registeredScriptComponents.push_back(scriptComp);
+
 		for (auto& property : properties)
 		{
 			auto type = StringToVariableType(property.propertyType);
 			scriptInstance->m_gettersMethods[property.propertyName] = GetGetter(className, property.propertyName);
 			scriptInstance->m_settersMethods[property.propertyName] = GetSetter(className, property.propertyName);
 			scriptInstance->m_variables[property.propertyName] = type;
+		}
+	}
+
+	void Scripting::ScriptEngine::CleanScripts()
+	{
+		for (auto scriptComponent : m_registeredScriptComponents)
+		{
+			Component::ComponentHolder::UnregisterComponent(scriptComponent);
+		}
+		m_scriptInstances.clear();
+	}
+
+	void Scripting::ScriptEngine::OnDLLUpdated()
+	{
+		PrintLog("Dll Updated");
+		CleanScripts();
+		for (auto& script : m_scripts)
+		{
+			ParseScript(script);
+		}
+		auto childs = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->GetChildren();
+		for (auto& child : childs)
+		{
+
 		}
 	}
 
@@ -109,8 +161,25 @@ namespace GALAXY
 			return VariableType::Vector3;
 		else if (typeName == "Vec4f" || typeName == "Math::Vec4f")
 			return VariableType::Vector4;
-		else 
+		else
 			return VariableType::Unknown;
+	}
+
+	Weak<Scripting::ScriptInstance> Scripting::ScriptEngine::GetScriptInstance(const std::string& scriptName)
+	{
+		if (m_scriptInstances.contains(scriptName))
+			return m_scriptInstances.at(scriptName);
+		return Weak< ScriptInstance>();
+	}
+
+	Shared<Component::BaseComponent> Scripting::ScriptEngine::CreateScript(const std::string& scriptName)
+	{
+		if (m_scriptInstances.contains(scriptName))
+		{
+			auto scriptInstance = m_scriptInstances.at(scriptName);
+			return Shared < Component::BaseComponent>(reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor()));
+		}
+		return nullptr;
 	}
 
 	void* Scripting::ScriptEngine::GetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName)
@@ -132,12 +201,14 @@ namespace GALAXY
 
 	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)
 	{
-		return (GetterMethod)(GetProcAddress(m_hDll, ("Get_" + className + '_' + variableName).c_str()));
+		const char* getterMethodName = ("Get_" + className + '_' + variableName).c_str();
+		return (GetterMethod)(GetProcAddress(m_hDll, getterMethodName));
 	}
 
 	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName)
 	{
-		return (SetterMethod)(GetProcAddress(m_hDll, ("Set_" + className + '_' + variableName).c_str()));
+		const char* setteMethodName = ("Set_" + className + '_' + variableName).c_str();
+		return (SetterMethod)(GetProcAddress(m_hDll, setteMethodName));
 	}
 
 }
