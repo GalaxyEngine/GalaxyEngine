@@ -45,6 +45,7 @@ namespace GALAXY
 			return;
 		}
 
+		m_dllPath = dllPath;
 		m_dllName = dllName;
 
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
@@ -64,16 +65,20 @@ namespace GALAXY
 			{
 				ParseScript(script);
 			}
+			m_dllLoaded = true;
 		}
 		else {
 			PrintError("Failed to load project DLL.");
 		}
 
-		if (m_fileWatcherDLL)
-			m_fileWatcherDLL->StopWatching();
-		std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
-		m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
-		m_fileWatcherDLL->StartWatching();
+		//if (m_fileWatcherDLL)
+			//m_fileWatcherDLL->StopWatching();
+		if (!m_fileWatcherDLL)
+		{
+			std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
+			m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
+		}
+		//m_fileWatcherDLL->StartWatching();
 	}
 
 	void Scripting::ScriptEngine::UnloadDLL()
@@ -133,16 +138,39 @@ namespace GALAXY
 	void Scripting::ScriptEngine::OnDLLUpdated()
 	{
 		PrintLog("Dll Updated");
-		CleanScripts();
-		for (auto& script : m_scripts)
-		{
-			ParseScript(script);
-		}
-		auto childs = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->GetChildren();
-		for (auto& child : childs)
-		{
+		ReloadDLL();
+	}
 
+	void Scripting::ScriptEngine::ReloadDLL()
+	{
+
+		auto components = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->GetComponentsInChildren<Component::ScriptComponent>();
+		for (auto& component : components)
+		{
+			if (component.lock())
+			{
+				component.lock()->BeforeReloadScript();
+			}
 		}
+
+		UnloadDLL();
+
+		CleanScripts();
+
+		LoadDLL(m_dllPath, m_dllName);
+
+		for (auto& component : components)
+		{
+			if (component.lock())
+			{
+				component.lock()->AfterReloadScript();
+			}
+		}
+	}
+
+	void Scripting::ScriptEngine::UpdateFileWatcherDLL()
+	{
+		m_fileWatcherDLL->Update();
 	}
 
 	Scripting::VariableType Scripting::ScriptEngine::StringToVariableType(const std::string& typeName)
@@ -177,15 +205,20 @@ namespace GALAXY
 		if (m_scriptInstances.contains(scriptName))
 		{
 			auto scriptInstance = m_scriptInstances.at(scriptName);
-			return Shared < Component::BaseComponent>(reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor()));
+			return Shared<Component::BaseComponent>(reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor()));
 		}
 		return nullptr;
 	}
 
 	void* Scripting::ScriptEngine::GetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName)
 	{
-		if (m_scriptInstances.contains(scriptName) && m_scriptInstances[scriptName]->m_gettersMethods.contains(variableName))
+		if (m_scriptInstances.contains(scriptName)
+			&& m_scriptInstances[scriptName]->m_gettersMethods.contains(variableName)
+			&& m_scriptInstances[scriptName]->m_gettersMethods[variableName])
+		{
 			return m_scriptInstances[scriptName]->m_gettersMethods[variableName](component);
+		}
+		return nullptr;
 	}
 
 	void Scripting::ScriptEngine::SetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName, void* value)

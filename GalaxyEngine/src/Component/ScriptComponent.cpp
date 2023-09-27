@@ -4,6 +4,7 @@
 #include "Scripting/ScriptEngine.h"
 #include "Scripting/ScriptInstance.h"
 
+#include <any>
 namespace GALAXY
 {
 
@@ -60,44 +61,44 @@ namespace GALAXY
 			break;
 			case Scripting::VariableType::Bool:
 			{
-				bool* value = GetVariable<bool>(variable.first);
-				ImGui::Checkbox(variable.first.c_str(), value);
+				if (bool* value = GetVariable<bool>(variable.first))
+					ImGui::Checkbox(variable.first.c_str(), value);
 			}
 			break;
 			case Scripting::VariableType::Int:
 			{
-				int* value = GetVariable<int>(variable.first);
-				ImGui::InputInt(variable.first.c_str(), value);
+				if (int* value = GetVariable<int>(variable.first))
+					ImGui::InputInt(variable.first.c_str(), value);
 			}
 			break;
 			case Scripting::VariableType::Float:
 			{
-				float* value = GetVariable<float>(variable.first);
-				ImGui::DragFloat(variable.first.c_str(), value);
+				if (float* value = GetVariable<float>(variable.first))
+					ImGui::DragFloat(variable.first.c_str(), value);
 			}
 			break;
 			case Scripting::VariableType::Double:
 			{
-				double* value = GetVariable<double>(variable.first);
-				ImGui::InputDouble(variable.first.c_str(), value);
+				if (double* value = GetVariable<double>(variable.first))
+					ImGui::InputDouble(variable.first.c_str(), value);
 			}
 			break;
 			case Scripting::VariableType::Vector2:
 			{
-				Math::Vec2f* value = GetVariable<Math::Vec2f>(variable.first);
-				ImGui::DragFloat2(variable.first.c_str(), &value->x);
+				if (Math::Vec2f* value = GetVariable<Math::Vec2f>(variable.first))
+					ImGui::DragFloat2(variable.first.c_str(), &value->x);
 			}
 			break;
 			case Scripting::VariableType::Vector3:
 			{
-				Math::Vec3f* value = GetVariable<Math::Vec3f>(variable.first);
-				ImGui::DragFloat3(variable.first.c_str(), &value->x);
+				if (Math::Vec3f* value = GetVariable<Math::Vec3f>(variable.first))
+					ImGui::DragFloat3(variable.first.c_str(), &value->x);
 			}
 			break;
 			case Scripting::VariableType::Vector4:
 			{
-				Math::Vec4f* value = GetVariable<Math::Vec4f>(variable.first);
-				ImGui::DragFloat4(variable.first.c_str(), &value->x);
+				if (Math::Vec4f* value = GetVariable<Math::Vec4f>(variable.first))
+					ImGui::DragFloat4(variable.first.c_str(), &value->x);
 			}
 			break;
 			default:
@@ -106,17 +107,106 @@ namespace GALAXY
 		}
 	}
 
-	std::unordered_map<std::string, Scripting::VariableType> Component::ScriptComponent::GetAllVariables() const
+	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
-		auto scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(m_component->GetComponentName()).lock();
-		return scriptInstance->GetAllVariables();
+		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(variableName).lock();
+		if (scriptInstance)
+		{
+			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
+			switch (variableType)
+			{
+			case Scripting::VariableType::Unknown:
+				break;
+			case Scripting::VariableType::Bool:
+				return *GetVariable<bool>(variableName);
+			case Scripting::VariableType::Int:
+				return *GetVariable<int>(variableName);
+			case Scripting::VariableType::Float:
+				return *GetVariable<float>(variableName);
+			case Scripting::VariableType::Double:
+				return *GetVariable<double>(variableName);
+			case Scripting::VariableType::Vector2:
+				return *GetVariable<Vec2f>(variableName);
+			case Scripting::VariableType::Vector3:
+				return *GetVariable<Vec3f>(variableName);
+			case Scripting::VariableType::Vector4:
+				return *GetVariable<Vec4f>(variableName);
+				break;
+			default:
+				break;
+			}
+		}
+		return nullptr;
 	}
 
-	void Component::ScriptComponent::ReloadScript()
+	void Component::ScriptComponent::SetVariable(const std::string& variableName, std::any value)
 	{
-		//auto beforeVariables = GetAllVariables();
-		m_component.reset();
+		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(variableName).lock();
+		if (scriptInstance)
+		{
+			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
+			switch (variableType)
+			{
+			case Scripting::VariableType::Unknown:
+				break;
+			case Scripting::VariableType::Bool:
+				SetVariable(variableName, std::any_cast<bool>(value));
+				break;
+			case Scripting::VariableType::Int:
+				SetVariable(variableName, std::any_cast<int>(value));
+				break;
+			case Scripting::VariableType::Float:
+				SetVariable(variableName, std::any_cast<float>(value));
+				break;
+			case Scripting::VariableType::Double:
+				SetVariable(variableName, std::any_cast<double>(value));
+				break;
+			case Scripting::VariableType::Vector2:
+				SetVariable(variableName, std::any_cast<Vec2f>(value));
+				break;
+			case Scripting::VariableType::Vector3:
+				SetVariable(variableName, std::any_cast<Vec3f>(value));
+				break;
+			case Scripting::VariableType::Vector4:
+				SetVariable(variableName, std::any_cast<Vec4f>(value));
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	std::unordered_map<std::string, Scripting::VariableType> Component::ScriptComponent::GetAllVariables() const
+	{
+		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		auto scriptInstance = scriptEngine->GetScriptInstance(m_scriptName).lock();
+		if (scriptInstance)
+			return scriptInstance->GetAllVariables();
+		return {};
+	}
+
+	void Component::ScriptComponent::BeforeReloadScript()
+	{
+		auto beforeVariables = GetAllVariables();
+		for (auto& variable : beforeVariables)
+		{
+			m_tempVariables[variable.first] = GetVariable(variable.first);
+		}
+	}
+
+	void Component::ScriptComponent::AfterReloadScript()
+	{
 		m_component = Scripting::ScriptEngine::GetInstance()->CreateScript(m_scriptName);
+
+		auto afterVariables = GetAllVariables();
+		int i = 0;
+		for (auto& variable : afterVariables)
+		{
+			if (auto anyValue = m_tempVariables.find(variable.first); anyValue != m_tempVariables.end())
+			{
+				SetVariable(variable.first, anyValue);
+			}
+		}
 	}
 
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)

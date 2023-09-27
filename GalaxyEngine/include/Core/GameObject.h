@@ -64,24 +64,30 @@ namespace GALAXY {
 			template<typename T>
 			std::vector<Weak<T>> GetComponentsInChildren()
 			{
-				std::vector<Weak<T>> list;
-				for (auto& child : m_childs)
+				std::vector<Weak<T>> list = GetComponents<T>();
+				for (Weak<GameObject>& child : m_childs)
 				{
-					list.append_range(child->GetComponents<T>());
+					Shared<GameObject> lockedChild = child.lock();
+					if (lockedChild)
+					{
+						std::vector<Weak<T>> newList = lockedChild->GetComponentsInChildren<T>();
+						list.insert(list.end(), newList.begin(), newList.end());
+					}
 				}
 				return list;
 			}
+
 
 			template<typename T>
 			std::vector<Weak<T>> GetComponents()
 			{
 				std::vector<Weak<T>> list;
 				for (auto& comp : m_components) {
-					if (auto castedComp = dynamic_pointer_cast<T>(comp))
-					{
-						list.push_back(comp);
+					if (auto castedComp = std::dynamic_pointer_cast<T>(comp)) {
+						list.push_back(castedComp);
 					}
 				}
+				return list;
 			}
 
 

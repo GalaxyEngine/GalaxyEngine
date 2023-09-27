@@ -32,6 +32,10 @@ namespace GALAXY
 
 			void OnDLLUpdated();
 
+			void ReloadDLL();
+
+			void UpdateFileWatcherDLL();
+
 			static enum class VariableType StringToVariableType(const std::string& typeName);
 
 			Weak<class ScriptInstance> GetScriptInstance(const std::string& scriptName);
@@ -55,6 +59,8 @@ namespace GALAXY
 
 			std::filesystem::path m_dllPath;
 			std::string m_dllName;
+
+			bool m_shouldReloadDll = false;
 
 			std::vector<Weak<Resource::Script>> m_scripts;
 			std::vector<Shared<Component::ScriptComponent>> m_registeredScriptComponents;

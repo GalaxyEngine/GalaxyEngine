@@ -7,7 +7,9 @@ namespace GALAXY
 
 	void Utils::FileWatcher::StartWatching()
 	{
-		Core::ThreadManager::GetInstance()->AddTask(&FileWatcher::Update, this);
+		m_shouldStop = false;
+		if (m_multithread)
+			Core::ThreadManager::GetInstance()->AddTask(&FileWatcher::Update, this);
 	}
 
 }

@@ -76,6 +76,8 @@ void Core::Application::Initalize(const std::filesystem::path& projectPath)
 
 void Core::Application::UpdateResources()
 {
+	m_scriptEngine->UpdateFileWatcherDLL();
+
 	if (!m_resourceToSend.empty())
 	{
 		auto resourcePath = m_resourceToSend.front();

@@ -3,6 +3,7 @@
 #include "IComponent.h"
 
 #include <unordered_map>
+#include <any>
 
 namespace GALAXY
 {
@@ -40,6 +41,9 @@ namespace GALAXY
 				return reinterpret_cast<T*>(GetVariableVoid(variableName));
 			}
 
+			std::any GetVariable(const std::string& variableName);
+			void SetVariable(const std::string& variableName, std::any value);
+
 			template<typename T>
 			void SetVariable(const std::string& variableName, T value)
 			{
@@ -54,7 +58,8 @@ namespace GALAXY
 				m_scriptName = m_component->GetComponentName();
 			}
 
-			void ReloadScript();
+			void BeforeReloadScript();
+			void AfterReloadScript();
 		private:
 
 			void* GetVariableVoid(const std::string& variableName);
@@ -64,6 +69,8 @@ namespace GALAXY
 			std::shared_ptr<BaseComponent> m_component;
 
 			std::string m_scriptName;
+
+			std::unordered_map<std::string, std::any> m_tempVariables;
 
 		};
 	}
