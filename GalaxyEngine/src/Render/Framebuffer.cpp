@@ -17,7 +17,7 @@ namespace GALAXY {
 		m_index = freeIndex;
 		s_indexArray[m_index] = true;
 
-		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer ");
+		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer");
 		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture.get());
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);

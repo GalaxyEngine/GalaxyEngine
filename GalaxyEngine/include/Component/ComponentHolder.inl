@@ -8,7 +8,20 @@ void Component::ComponentHolder::RegisterComponent()
 }
 
 template<typename T>
-void Component::ComponentHolder::RegisterComponent(Shared<T> component)
+void Component::ComponentHolder::RegisterComponent(T* component)
 {
-	m_componentList.push_back(component);
+	m_componentList.push_back(std::shared_ptr<T>(component));
+}
+
+
+template<typename T>
+void Component::ComponentHolder::UnregisterComponent(T* component)
+{
+	for (int i = 0; i < m_componentList.size(); i++)
+	{
+		if (m_componentList[i].get() == component)
+		{
+			return;
+		}
+	}
 }

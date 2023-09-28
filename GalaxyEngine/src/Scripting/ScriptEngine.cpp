@@ -109,7 +109,7 @@ namespace GALAXY
 
 		scriptInstance->m_constructor = GetConstructor(className);
 
-		std::shared_ptr<Component::ScriptComponent> scriptComp = std::make_shared<Component::ScriptComponent>();
+		Component::ScriptComponent* scriptComp = new Component::ScriptComponent();
 
 		Component::BaseComponent* component = reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor());
 		std::shared_ptr<Component::BaseComponent> shared = std::shared_ptr<Component::BaseComponent>(component);
@@ -143,7 +143,6 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
-
 		auto components = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->GetComponentsInChildren<Component::ScriptComponent>();
 		for (auto& component : components)
 		{

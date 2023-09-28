@@ -63,7 +63,7 @@ namespace GALAXY
 			bool m_shouldReloadDll = false;
 
 			std::vector<Weak<Resource::Script>> m_scripts;
-			std::vector<Shared<Component::ScriptComponent>> m_registeredScriptComponents;
+			std::vector<Component::ScriptComponent*> m_registeredScriptComponents;
 			std::unordered_map<std::string, Shared<class ScriptInstance>> m_scriptInstances;
 			std::vector<Weak<class ScriptComponent>> m_scriptComponents;
 		};

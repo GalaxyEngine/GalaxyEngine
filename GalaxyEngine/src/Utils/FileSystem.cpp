@@ -52,11 +52,11 @@ namespace GALAXY {
 		std::filesystem::path directory = path.parent_path();
 		std::string filename = path.stem().string();
 		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
-		if (entry.is_regular_file() && entry.path() != path && entry.path().stem().string() == filename) {
-			return true;
+			if (entry.is_regular_file() && entry.path() != path && entry.path().stem().string() == filename) {
+				return true;
+			}
 		}
-	}
-	return false;
+		return false;
 #else
 		struct stat buffer;
 		return (stat(path.string().c_str(), &buffer) == 0);
@@ -81,17 +81,18 @@ namespace GALAXY {
 
 	bool Utils::FileSystem::CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath)
 	{
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::ifstream sourceFile(sourcePath, std::ios::binary);
 
 		if (!sourceFile) {
-			PrintError("File %s not found", sourcePath);
+			PrintError("File %s not found", sourcePath.string().c_str());
 			return false;
 		}
 
 		std::ofstream destinationFile(destinationPath, std::ios::binary);
 
 		if (!destinationFile) {
-			PrintError("File %s not found", destinationPath);
+			PrintError("File %s not found", destinationPath.string().c_str());
 			return false;
 		}
 
