@@ -7,6 +7,18 @@ namespace GALAXY
 	namespace Resource { class Script; }
 	namespace Utils { class FileWatcher; }
 	namespace Scripting {
+		enum class VariableType
+		{
+			Unknown,
+			Bool,
+			Int,
+			Float,
+			Double,
+			Vector2,
+			Vector3,
+			Vector4,
+			String,
+		};
 
 		using ScriptConstructor = void* (*)();
 		using GetterMethod = void* (*)(void*);

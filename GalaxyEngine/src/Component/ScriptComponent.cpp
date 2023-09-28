@@ -57,6 +57,8 @@ namespace GALAXY
 			case Scripting::VariableType::Unknown:
 			{
 				ImGui::Text("Unknown type for %s", variable.first.c_str());
+				if (auto component = *GetVariable<Component::BaseComponent*>(variable.first))
+					ImGui::Text("Component %s", component->GetComponentName().c_str());
 			}
 			break;
 			case Scripting::VariableType::Bool:
@@ -101,12 +103,17 @@ namespace GALAXY
 					ImGui::DragFloat4(variable.first.c_str(), &value->x);
 			}
 			break;
+			case Scripting::VariableType::String:
+			{
+				if (std::string* value = GetVariable<std::string>(variable.first))
+					ImGui::InputText(variable.first.c_str(), value);
+			}
+			break;
 			default:
 				break;
 			}
 		}
 	}
-
 	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
 		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(m_scriptName).lock();
@@ -131,6 +138,8 @@ namespace GALAXY
 				return *GetVariable<Vec3f>(variableName);
 			case Scripting::VariableType::Vector4:
 				return *GetVariable<Vec4f>(variableName);
+			case Scripting::VariableType::String:
+				return *GetVariable<std::string>(variableName);
 				break;
 			default:
 				break;
@@ -168,6 +177,9 @@ namespace GALAXY
 				SetVariable(variableName, std::any_cast<Vec3f>(value));
 				break;
 			case Scripting::VariableType::Vector4:
+				SetVariable(variableName, std::any_cast<Vec4f>(value));
+				break;
+			case Scripting::VariableType::String:
 				SetVariable(variableName, std::any_cast<Vec4f>(value));
 				break;
 			default:
@@ -224,5 +236,4 @@ namespace GALAXY
 	{
 		Scripting::ScriptEngine::GetInstance()->SetVariableOfScript(m_component.get(), m_component.get()->GetComponentName(), variableName, value);
 	}
-
 }

@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <unordered_map>
+#include "ScriptEngine.h"
+
 namespace GALAXY 
 {
 	namespace Component { class ScriptComponent; }
@@ -9,18 +11,6 @@ namespace GALAXY
 		using ScriptConstructor = void* (*)();
 		using GetterMethod = void* (*)(void*);
 		using SetterMethod = void (*)(void*, void*);
-
-		enum class VariableType
-		{
-			Unknown,
-			Bool,
-			Int,
-			Float,
-			Double,
-			Vector2,
-			Vector3,
-			Vector4,
-		};
 
 		class ScriptInstance
 		{

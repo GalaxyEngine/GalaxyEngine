@@ -24,8 +24,10 @@ namespace GALAXY
 			std::vector<PropertyInfo> ParseFile(const std::filesystem::path& filename);
 			bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, const std::string& file);
 
+			bool isValidVariableCharacter(char ch);
 		private:
 		};
 	}
 }
 #include "Scripting/HeaderParser.inl" 
+;

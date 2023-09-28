@@ -45,12 +45,12 @@ namespace GALAXY
 	{
 		// Get Variable Name
 		std::string variableName = line.substr(line.find_last_of(',') + 1);
-		while (!std::isalpha(variableName[0]))
+		while (!isValidVariableCharacter(variableName[0]))
 		{
 			variableName.erase(variableName.begin());
 		}
 
-		while (!std::isalpha(variableName.back()))
+		while (!isValidVariableCharacter(variableName.back()))
 		{
 			variableName.pop_back();
 		}
@@ -69,7 +69,7 @@ namespace GALAXY
 			lineVariable = lineVariable.substr(0, lineVariable.find_first_of('\n'));
 
 
-			while (!std::isalpha(lineVariable[0]))
+			while (!isValidVariableCharacter(lineVariable[0]))
 			{
 				lineVariable.erase(lineVariable.begin());
 			}
@@ -85,6 +85,12 @@ namespace GALAXY
 		}
 
 		return false;
+	}
+
+	bool Scripting::HeaderParser::isValidVariableCharacter(char ch)
+	{
+		// Check if the character is an uppercase letter, lowercase letter, digit, or underscore
+		return std::isalpha(ch) || std::isdigit(ch) || ch == '_';
 	}
 
 }

@@ -83,6 +83,7 @@ namespace GALAXY {
 	{
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::ifstream sourceFile(sourcePath, std::ios::binary);
+		while (!sourceFile) { sourceFile = std::ifstream(sourcePath, std::ios::binary); }
 
 		if (!sourceFile) {
 			PrintError("File %s not found", sourcePath.string().c_str());

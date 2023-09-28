@@ -188,6 +188,8 @@ namespace GALAXY
 			return VariableType::Vector3;
 		else if (typeName == "Vec4f" || typeName == "Math::Vec4f")
 			return VariableType::Vector4;
+		else if (typeName == "std::string" || typeName == "string")
+			return VariableType::String;
 		else
 			return VariableType::Unknown;
 	}
