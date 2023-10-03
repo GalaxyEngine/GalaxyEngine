@@ -7,47 +7,6 @@
 #include <any>
 namespace GALAXY
 {
-
-	const char* Component::ScriptComponent::GetComponentName()
-	{
-		if (m_component)
-			return m_component->GetComponentName();
-		return "Script Component";
-	}
-
-	std::shared_ptr<Component::BaseComponent> Component::ScriptComponent::Clone()
-	{
-		auto copy = std::make_shared<ScriptComponent>(*dynamic_cast<ScriptComponent*>(this));
-		if (m_component)
-			copy->m_component = m_component->Clone();
-		return copy;
-	}
-
-	void Component::ScriptComponent::OnCreate()
-	{
-		m_component->OnCreate();
-	}
-
-	void Component::ScriptComponent::OnStart()
-	{
-		m_component->OnStart();
-	}
-
-	void Component::ScriptComponent::OnUpdate()
-	{
-		m_component->OnUpdate();
-	}
-
-	void Component::ScriptComponent::OnDraw()
-	{
-		m_component->OnDraw();
-	}
-
-	void Component::ScriptComponent::OnDestroy()
-	{
-		m_component->OnDestroy();
-	}
-
 	void Component::ScriptComponent::ShowInInspector()
 	{
 		auto variables = GetAllVariables();
@@ -116,16 +75,11 @@ namespace GALAXY
 		}
 	}
 
-	void Component::ScriptComponent::SetGameObject(Weak<Core::GameObject> object)
-	{
-		if (m_component)
-			m_component->gameObject = object;
-		gameObject = object;
-	}
-
 	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
-		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(m_scriptName).lock();
+		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		Weak<Scripting::ScriptInstance> scriptInstanceWeakPtr = scriptEngine->GetScriptInstance(GetComponentName());
+		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
 			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
@@ -159,7 +113,9 @@ namespace GALAXY
 
 	void Component::ScriptComponent::SetVariable(const std::string& variableName, std::any value)
 	{
-		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(m_scriptName).lock();
+		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		Weak<Scripting::ScriptInstance> scriptInstanceWeakPtr = scriptEngine->GetScriptInstance(GetComponentName());
+		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
 			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
@@ -200,36 +156,30 @@ namespace GALAXY
 	std::unordered_map<std::string, Scripting::VariableType> Component::ScriptComponent::GetAllVariables() const
 	{
 		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
-		auto scriptInstance = scriptEngine->GetScriptInstance(m_scriptName).lock();
+		auto scriptInstance = scriptEngine->GetScriptInstance(this->GetComponentName()).lock();
 		if (scriptInstance)
 			return scriptInstance->GetAllVariables();
 		return {};
 	}
 
-	void Component::ScriptComponent::SetScriptComponent(std::shared_ptr<Component::BaseComponent> val)
+	void Component::ReloadScript::BeforeReloadScript()
 	{
-		m_component = val;
-		m_component->gameObject = gameObject;
 		m_scriptName = m_component->GetComponentName();
-	}
-
-	void Component::ScriptComponent::BeforeReloadScript()
-	{
-		auto beforeVariables = GetAllVariables();
+		auto beforeVariables = m_component->GetAllVariables();
 		for (auto& variable : beforeVariables)
 		{
-			m_tempVariables[variable.first] = GetVariable(variable.first);
+			m_tempVariables[variable.first] = m_component->GetVariable(variable.first);
 		}
 		m_component.reset();
 	}
 
-	void Component::ScriptComponent::AfterReloadScript()
+	void Component::ReloadScript::AfterReloadScript()
 	{
 		m_component = Scripting::ScriptEngine::GetInstance()->CreateScript(m_scriptName);
 
 		ASSERT(m_component);
 
-		auto afterVariables = GetAllVariables();
+		auto afterVariables = m_component->GetAllVariables();
 		int i = 0;
 		for (auto& variable : afterVariables)
 		{
@@ -237,7 +187,7 @@ namespace GALAXY
 			{
 				if (variable.second == Scripting::VariableType::Float)
 					std::cout << std::any_cast<float>(m_tempVariables[variable.first]) << std::endl;
-				SetVariable(variable.first, m_tempVariables[variable.first]);
+				m_component->SetVariable(variable.first, m_tempVariables[variable.first]);
 			}
 		}
 		m_tempVariables.clear();
@@ -245,11 +195,11 @@ namespace GALAXY
 
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
 	{
-		return Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(m_component.get(), m_component.get()->GetComponentName(), variableName);
+		return Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(this, GetComponentName(), variableName);
 	}
 
 	void Component::ScriptComponent::SetVariableVoid(const std::string& variableName, void* value)
 	{
-		Scripting::ScriptEngine::GetInstance()->SetVariableOfScript(m_component.get(), m_component.get()->GetComponentName(), variableName, value);
+		Scripting::ScriptEngine::GetInstance()->SetVariableOfScript(this, GetComponentName(), variableName, value);
 	}
 }

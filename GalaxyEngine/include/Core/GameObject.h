@@ -11,6 +11,10 @@ namespace GALAXY {
 		class Hierarchy;
 		class Inspector;
 	}
+	namespace Scripting
+	{
+		class ScriptEngine;
+	}
 	namespace Core {
 		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -54,6 +58,7 @@ namespace GALAXY {
 			std::weak_ptr<GameObject> GetParent();
 
 			std::vector<std::weak_ptr<GameObject>> GetChildren();
+			std::vector<std::weak_ptr<GameObject>> GetAllChildren();
 			std::weak_ptr<GameObject> GetChild(uint32_t index);
 
 			// Return the child index in the list of child
@@ -62,34 +67,10 @@ namespace GALAXY {
 			uint32_t GetComponentIndex(Component::BaseComponent* component);
 
 			template<typename T>
-			std::vector<Weak<T>> GetComponentsInChildren()
-			{
-				std::vector<Weak<T>> list = GetComponents<T>();
-				for (Weak<GameObject>& child : m_childs)
-				{
-					Shared<GameObject> lockedChild = child.lock();
-					if (lockedChild)
-					{
-						std::vector<Weak<T>> newList = lockedChild->GetComponentsInChildren<T>();
-						list.insert(list.end(), newList.begin(), newList.end());
-					}
-				}
-				return list;
-			}
-
+			inline std::vector<Weak<T>> GetComponentsInChildren();
 
 			template<typename T>
-			std::vector<Weak<T>> GetComponents()
-			{
-				std::vector<Weak<T>> list;
-				for (auto& comp : m_components) {
-					if (auto castedComp = std::dynamic_pointer_cast<T>(comp)) {
-						list.push_back(castedComp);
-					}
-				}
-				return list;
-			}
-
+			inline std::vector<Weak<T>> GetComponents();
 
 			// Check if the object given is a parent of the this
 			bool IsAParent(GameObject* object);
@@ -99,6 +80,7 @@ namespace GALAXY {
 			void SetName(std::string val) { m_name = val; }
 		private:
 			friend class Scene;
+			friend Scripting::ScriptEngine;
 			uint64_t m_id = -1;
 			std::string m_name = "GameObject";
 			std::weak_ptr<GameObject> m_parent;
@@ -115,6 +97,15 @@ namespace GALAXY {
 
 			friend EditorUI::Inspector;
 			bool m_active = true;
+
+		private:
+			template<typename T>
+			inline std::vector<Shared<T>> GetComponentsPrivate();
+			template<typename T>
+			inline std::vector<Shared<T>> GetComponentsInChildrenPrivate();
+
+			template<typename T>
+			inline void AddComponent(std::shared_ptr<T> component, uint32_t index);
 		};
 	}
 }

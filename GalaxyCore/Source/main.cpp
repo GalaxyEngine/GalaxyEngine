@@ -29,9 +29,10 @@ void Main(int argc, char** argv)
 	application.Destroy();
 
 	/*TODO On Hub :
-	* Fix Project :
+	* Fix in Project :
 	*	xmake (/MD)
 	*   main.cpp avec DLLMain
+	*	DLL path
 	*/
 
 }

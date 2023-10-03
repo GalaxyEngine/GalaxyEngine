@@ -10,6 +10,7 @@ namespace GALAXY
 	namespace Scripting { enum class VariableType; }
 	namespace Component
 	{
+
 		class GALAXY_API ScriptComponent : public IComponent<ScriptComponent>
 		{
 		public:
@@ -19,23 +20,12 @@ namespace GALAXY
 			ScriptComponent(ScriptComponent&&) noexcept = default;
 			virtual ~ScriptComponent() {}
 
-			virtual const char* GetComponentName() override;
+			virtual const char* GetComponentName() const override
+			{
+				return "Script Component";
+			}
 
-			virtual std::shared_ptr<BaseComponent> Clone() override;
-
-			void OnCreate() override;
-
-			void OnStart() override;
-
-			void OnUpdate() override;
-
-			void OnDraw() override;
-
-			void OnDestroy() override;
-
-			void ShowInInspector() override;
-
-			void SetGameObject(Weak<Core::GameObject> object) override;
+			virtual void ShowInInspector() override;
 
 			template<typename T>
 			T* GetVariable(const std::string& variableName)
@@ -55,22 +45,28 @@ namespace GALAXY
 
 			std::unordered_map<std::string, Scripting::VariableType> GetAllVariables() const;
 
-			void SetScriptComponent(std::shared_ptr<Component::BaseComponent> val);
-
-			void BeforeReloadScript();
-			void AfterReloadScript();
 		private:
 
 			void* GetVariableVoid(const std::string& variableName);
 
 			void SetVariableVoid(const std::string& variableName, void* value);
 
-			std::shared_ptr<BaseComponent> m_component;
+		};
+
+		class ReloadScript
+		{
+		public:
+			ReloadScript(Shared<ScriptComponent> component) : m_component(component) {}
+
+			void BeforeReloadScript();
+			void AfterReloadScript();
+			Shared<GALAXY::Component::ScriptComponent> GetComponent() const { return m_component; }
+		private:
+			Shared<ScriptComponent> m_component;
 
 			std::string m_scriptName;
 
 			std::unordered_map<std::string, std::any> m_tempVariables;
-
 		};
 	}
 }

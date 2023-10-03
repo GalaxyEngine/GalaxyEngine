@@ -24,3 +24,69 @@ inline void Core::GameObject::AddComponent(std::shared_ptr<T> component)
 	component->SetGameObject(weak_from_this());
 	m_components.push_back(component);
 }
+
+template<typename T>
+inline std::vector<Weak<T>> Core::GameObject::GetComponentsInChildren()
+{
+	std::vector<Weak<T>> list = GetComponents<T>();
+	for (Weak<GameObject>& child : m_childs)
+	{
+		Shared<GameObject> lockedChild = child.lock();
+		if (lockedChild)
+		{
+			std::vector<Weak<T>> newList = lockedChild->GetComponentsInChildren<T>();
+			list.insert(list.end(), newList.begin(), newList.end());
+		}
+	}
+	return list;
+}
+
+
+template<typename T>
+inline std::vector<Weak<T>> Core::GameObject::GetComponents()
+{
+	std::vector<Weak<T>> list;
+	for (auto& comp : m_components) {
+		if (auto castedComp = std::dynamic_pointer_cast<T>(comp)) {
+			list.push_back(castedComp);
+		}
+	}
+	return list;
+}
+
+
+template<typename T>
+inline std::vector<Shared<T>> Core::GameObject::GetComponentsPrivate()
+{
+	std::vector<Shared<T>> list;
+	for (auto& comp : m_components) {
+		if (auto castedComp = std::dynamic_pointer_cast<T>(comp)) {
+			list.push_back(castedComp);
+		}
+	}
+	return list;
+}
+
+template<typename T>
+inline std::vector<Shared<T>> Core::GameObject::GetComponentsInChildrenPrivate()
+{
+	std::vector<Shared<T>> list = GetComponentsPrivate<T>();
+	for (Weak<GameObject>& child : m_childs)
+	{
+		Shared<GameObject> lockedChild = child.lock();
+		if (lockedChild)
+		{
+			std::vector<Shared<T>> newList = lockedChild->GetComponentsInChildrenPrivate<T>();
+			list.insert(list.end(), newList.begin(), newList.end());
+		}
+	}
+	return list;
+}
+
+
+template<typename T>
+inline void Core::GameObject::AddComponent(std::shared_ptr<T> component, uint32_t index)
+{
+	component->SetGameObject(weak_from_this());
+	m_components.insert(m_components.begin() + index, component);
+}

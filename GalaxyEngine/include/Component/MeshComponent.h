@@ -12,7 +12,7 @@ namespace GALAXY {
 			MeshComponent() {}
 			~MeshComponent() {}
 
-			const char* GetComponentName() override { return "Mesh Component"; }
+			const char* GetComponentName() const override { return "Mesh Component"; }
 
 			void OnDraw() override;
 

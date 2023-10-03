@@ -26,7 +26,7 @@ namespace GALAXY {
 			void ComputeModelMatrix();
 			void ComputeModelMatrix(const Mat4& parentMatrix);
 
-			const char* GetComponentName() override { return "Transform"; }
+			const char* GetComponentName() const override { return "Transform"; }
 
 			void ShowInInspector() override;
 

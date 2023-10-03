@@ -196,3 +196,14 @@ std::string GameObject::GetName() const
 {
 	return m_name;
 }
+
+std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
+{
+	std::vector<Weak<Core::GameObject>> childs = GetChildren();
+	for (auto& child : m_childs)
+	{
+		std::vector<Weak<Core::GameObject>> newChild = child.lock()->GetAllChildren();
+		childs.insert(childs.end(), newChild.begin(), newChild.end());
+	}
+	return childs;
+}

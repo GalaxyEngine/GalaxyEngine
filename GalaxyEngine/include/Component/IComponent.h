@@ -18,7 +18,7 @@ namespace GALAXY {
 			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent() {}
 
-			virtual const char* GetComponentName() { return "Empty"; }
+			virtual const char* GetComponentName() const { return "Empty"; }
 
 			virtual void ShowInInspector() {}
 

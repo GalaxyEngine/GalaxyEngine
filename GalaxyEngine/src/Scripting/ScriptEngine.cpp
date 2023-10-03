@@ -135,14 +135,10 @@ namespace GALAXY
 		Shared<ScriptInstance> scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 		scriptInstance->m_constructor = GetConstructor(className);
 
-		Component::BaseComponent* component = scriptInstance->m_constructor();
-		std::shared_ptr<Component::BaseComponent> shared = std::shared_ptr<Component::BaseComponent>(component);
-		
-		Component::ScriptComponent* scriptComp = new Component::ScriptComponent();
-		scriptComp->SetScriptComponent(shared);
+		Component::ScriptComponent* component = reinterpret_cast<Component::ScriptComponent*>(scriptInstance->m_constructor());
 
-		Component::ComponentHolder::RegisterComponent<Component::ScriptComponent>(scriptComp);
-		m_registeredScriptComponents.push_back(scriptComp);
+		Component::ComponentHolder::RegisterComponent<Component::ScriptComponent>(component);
+		m_registeredScriptComponents.push_back(component);
 
 		auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
 		for (auto& property : properties)
@@ -174,13 +170,30 @@ namespace GALAXY
 		Core::SceneHolder* sceneHolder = Core::SceneHolder::GetInstance();
 		Core::Scene* currentScene = sceneHolder->GetCurrentScene();
 		Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
-		auto scriptComponents = rootGameObject->GetComponentsInChildren<Component::ScriptComponent>();
 
-		for (auto& component : scriptComponents)
-		{
-			if (component.lock())
+		auto childs = rootGameObject->GetAllChildren();
+
+		std::vector<std::vector<Component::ReloadScript>> reloaders;
+		std::vector<std::vector<uint32_t>> componentIDs;
+		for (auto& child : childs) {
+			reloaders.push_back({});
+			componentIDs.push_back({});
+
+			auto& currentComponentID = componentIDs.back();
+			auto& currentReloaderList = reloaders.back();
+			if (!child.lock())
+				continue;
+			auto scriptComponents = child.lock()->GetComponentsPrivate<Component::ScriptComponent>();
+			for (auto& component : scriptComponents)
 			{
-				component.lock()->BeforeReloadScript();
+				if (component)
+				{
+					currentReloaderList.push_back(Component::ReloadScript(component));
+					currentComponentID.push_back(child.lock()->GetComponentIndex(component.get()));
+					auto& reload = currentReloaderList.back();
+					reload.BeforeReloadScript();
+					component->RemoveFromGameObject();
+				}
 			}
 		}
 
@@ -190,11 +203,15 @@ namespace GALAXY
 
 		LoadDLL(m_dllPath, m_dllName);
 
-		for (auto& component : scriptComponents)
+		for (int i = 0; i < reloaders.size(); i++)
 		{
-			if (component.lock())
+			auto& currentReloaderList = reloaders[i];
+			auto& currentComponentID = componentIDs[i];
+			for (int j = 0; j < currentReloaderList.size(); j++)
 			{
-				component.lock()->AfterReloadScript();
+				currentReloaderList[j].AfterReloadScript();
+				auto gameObject = childs[i];
+				gameObject.lock()->AddComponent(currentReloaderList[i].GetComponent(), currentComponentID[j]);
 			}
 		}
 	}
@@ -226,25 +243,25 @@ namespace GALAXY
 			return VariableType::Unknown;
 	}
 
-	Weak<Scripting::ScriptInstance> Scripting::ScriptEngine::GetScriptInstance(const std::string& scriptName)
+	Weak<Scripting::ScriptInstance> Scripting::ScriptEngine::GetScriptInstance(const char* scriptName)
 	{
 		if (m_scriptInstances.contains(scriptName))
 			return m_scriptInstances.at(scriptName);
-		return Weak< ScriptInstance>();
+		return Weak<ScriptInstance>();
 	}
 
-	Shared<Component::BaseComponent> Scripting::ScriptEngine::CreateScript(const std::string& scriptName)
+	Shared<Component::ScriptComponent> Scripting::ScriptEngine::CreateScript(const std::string& scriptName)
 	{
 		if (m_scriptInstances.contains(scriptName))
 		{
 			auto scriptInstance = m_scriptInstances.at(scriptName);
-			Component::BaseComponent* component = scriptInstance->m_constructor();
-			return Shared<Component::BaseComponent>(component);
+			Component::ScriptComponent* component = reinterpret_cast<Component::ScriptComponent*>(scriptInstance->m_constructor());
+			return Shared<Component::ScriptComponent>(component);
 		}
 		return nullptr;
 	}
 
-	void* Scripting::ScriptEngine::GetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName)
+	void* Scripting::ScriptEngine::GetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName)
 	{
 		if (m_scriptInstances.contains(scriptName)
 			&& m_scriptInstances[scriptName]->m_gettersMethods.contains(variableName)
@@ -255,7 +272,7 @@ namespace GALAXY
 		return nullptr;
 	}
 
-	void Scripting::ScriptEngine::SetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName, void* value)
+	void Scripting::ScriptEngine::SetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName, void* value)
 	{
 		if (m_scriptInstances.contains(scriptName) && m_scriptInstances[scriptName]->m_settersMethods.contains(variableName))
 			m_scriptInstances[scriptName]->m_settersMethods[variableName](component, value);

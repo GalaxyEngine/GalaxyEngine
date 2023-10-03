@@ -50,12 +50,12 @@ namespace GALAXY
 
 			static enum class VariableType StringToVariableType(const std::string& typeName);
 
-			Weak<class ScriptInstance> GetScriptInstance(const std::string& scriptName);
+			Weak<class ScriptInstance> GetScriptInstance(const char* scriptName);
 
-			Shared<Component::BaseComponent> CreateScript(const std::string& scriptName);
+			Shared<Component::ScriptComponent> CreateScript(const std::string& scriptName);
 
-			void* GetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName);
-			void SetVariableOfScript(Component::BaseComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
+			void* GetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName);
+			void SetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
 		private:
 			ScriptConstructor GetConstructor(const std::string& className);
 			GetterMethod GetGetter(const std::string& className, const std::string& variableName);

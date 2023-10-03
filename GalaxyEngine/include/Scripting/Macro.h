@@ -11,13 +11,16 @@
 
 #define GENERATED_BODY(x)\
 public:\
-	x() : Component::IComponent<x>() {}\
+	x() {}\
 	x& operator=(const x& other) = default;\
 	x(const x&) = default;\
 	x(x&&) noexcept = default;\
 	virtual ~x() {}\
-	const char* GetComponentName() override \
+	const char* GetComponentName() const override \
 		{ \
 			return typeid(*this).name() + 6;\
 		}\
+	virtual std::shared_ptr<Component::BaseComponent> Clone() override {\
+		return std::make_shared<x>(*dynamic_cast<x*>(this));\
+	}\
 private:
