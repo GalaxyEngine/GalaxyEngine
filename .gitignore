@@ -13,3 +13,4 @@ GalaxyCore/compile.GalaxyCore.pdb
 
 *.dll
 *.pdb
+*.lib

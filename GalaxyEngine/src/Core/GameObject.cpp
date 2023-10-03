@@ -191,3 +191,8 @@ void GameObject::ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex)
 		m_components.insert(m_components.begin() + newIndex, std::move(elementToMove));
 	}
 }
+
+std::string GameObject::GetName() const
+{
+	return m_name;
+}

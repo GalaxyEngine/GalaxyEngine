@@ -6,13 +6,13 @@ namespace GALAXY {
 	namespace Resource { class Mesh; class Material; }
 	namespace Component
 	{
-		class MeshComponent : public IComponent<MeshComponent>
+		class GALAXY_API MeshComponent : public IComponent<MeshComponent>
 		{
 		public:
 			MeshComponent() {}
 			~MeshComponent() {}
 
-			std::string GetComponentName() const override { return "Mesh Component"; }
+			const char* GetComponentName() override { return "Mesh Component"; }
 
 			void OnDraw() override;
 

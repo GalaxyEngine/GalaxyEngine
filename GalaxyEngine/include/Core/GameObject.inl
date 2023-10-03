@@ -21,6 +21,6 @@ inline void Core::GameObject::AddComponent(std::shared_ptr<T> component)
 		PrintError("Incorrect Type for component");
 		return;
 	}
-	component->gameObject = weak_from_this();
+	component->SetGameObject(weak_from_this());
 	m_components.push_back(component);
 }

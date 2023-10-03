@@ -8,7 +8,7 @@
 namespace GALAXY
 {
 
-	std::string Component::ScriptComponent::GetComponentName() const
+	const char* Component::ScriptComponent::GetComponentName()
 	{
 		if (m_component)
 			return m_component->GetComponentName();
@@ -18,7 +18,8 @@ namespace GALAXY
 	std::shared_ptr<Component::BaseComponent> Component::ScriptComponent::Clone()
 	{
 		auto copy = std::make_shared<ScriptComponent>(*dynamic_cast<ScriptComponent*>(this));
-		copy->m_component = m_component->Clone();
+		if (m_component)
+			copy->m_component = m_component->Clone();
 		return copy;
 	}
 
@@ -58,7 +59,7 @@ namespace GALAXY
 			{
 				ImGui::Text("Unknown type for %s", variable.first.c_str());
 				if (auto component = *GetVariable<Component::BaseComponent*>(variable.first))
-					ImGui::Text("Component %s", component->GetComponentName().c_str());
+					ImGui::Text("Component %s", component->GetComponentName());
 			}
 			break;
 			case Scripting::VariableType::Bool:
@@ -114,6 +115,14 @@ namespace GALAXY
 			}
 		}
 	}
+
+	void Component::ScriptComponent::SetGameObject(Weak<Core::GameObject> object)
+	{
+		if (m_component)
+			m_component->gameObject = object;
+		gameObject = object;
+	}
+
 	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
 		Shared<Scripting::ScriptInstance> scriptInstance = Scripting::ScriptEngine::GetInstance()->GetScriptInstance(m_scriptName).lock();
@@ -195,6 +204,13 @@ namespace GALAXY
 		if (scriptInstance)
 			return scriptInstance->GetAllVariables();
 		return {};
+	}
+
+	void Component::ScriptComponent::SetScriptComponent(std::shared_ptr<Component::BaseComponent> val)
+	{
+		m_component = val;
+		m_component->gameObject = gameObject;
+		m_scriptName = m_component->GetComponentName();
 	}
 
 	void Component::ScriptComponent::BeforeReloadScript()

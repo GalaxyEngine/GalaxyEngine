@@ -8,10 +8,6 @@ namespace GALAXY
 	namespace Component { class ScriptComponent; }
 	namespace Scripting
 	{
-		using ScriptConstructor = void* (*)();
-		using GetterMethod = void* (*)(void*);
-		using SetterMethod = void (*)(void*, void*);
-
 		class ScriptInstance
 		{
 		public:

@@ -20,7 +20,7 @@ namespace GALAXY
 			String,
 		};
 
-		using ScriptConstructor = void* (*)();
+		using ScriptConstructor = Component::BaseComponent* (*)();
 		using GetterMethod = void* (*)(void*);
 		using SetterMethod = void (*)(void*, void*);
 

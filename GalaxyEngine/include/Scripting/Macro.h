@@ -3,12 +3,21 @@
 
 #define EXPORT_FUNC extern "C" __declspec(dllexport)
 #define UCLASS(x) \
-	class x;\
-	EXPORT_FUNC void* Create##_##x() {return new x(); }
+	EXPORT_FUNC Component::BaseComponent* Create##_##x() {return new x(); }
 
 #define UPROPERTY(x, y) \
 	EXPORT_FUNC void* Get_##x##_##y(x* object) { return &object->y;} \
 	EXPORT_FUNC void Set_##x##_##y(x* object, void* variable){ object->y = *reinterpret_cast<decltype(object->y)*>(variable); }
 
 #define GENERATED_BODY(x)\
-	std::string GetComponentName() const override { return std::string(typeid(*this).name()).substr(6); }
+public:\
+	x() : Component::IComponent<x>() {}\
+	x& operator=(const x& other) = default;\
+	x(const x&) = default;\
+	x(x&&) noexcept = default;\
+	virtual ~x() {}\
+	const char* GetComponentName() override \
+		{ \
+			return typeid(*this).name() + 6;\
+		}\
+private:

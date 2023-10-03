@@ -9,3 +9,8 @@ void Component::BaseComponent::RemoveFromGameObject()
 		gameObject.lock()->RemoveComponent(this);
 	}
 }
+
+Component::BaseComponent::BaseComponent()
+{
+
+}

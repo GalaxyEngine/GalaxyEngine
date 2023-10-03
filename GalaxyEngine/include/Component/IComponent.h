@@ -6,19 +6,19 @@ namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
 
-		class BaseComponent : public std::enable_shared_from_this<BaseComponent>
+		class GALAXY_API BaseComponent
 		{
 		public:
-			std::weak_ptr<Core::GameObject> gameObject = std::weak_ptr<Core::GameObject>();
+			Weak<Core::GameObject> gameObject = Weak<Core::GameObject>();
 
 		public:
-			BaseComponent() {}
+			BaseComponent();
 			BaseComponent& operator=(const BaseComponent& other) = default;
 			BaseComponent(const BaseComponent&) = default;
 			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent() {}
 
-			virtual std::string GetComponentName() const { return "Empty"; }
+			virtual const char* GetComponentName() { return "Empty"; }
 
 			virtual void ShowInInspector() {}
 
@@ -40,6 +40,8 @@ namespace GALAXY {
 
 			bool IsEnable() const { return p_enable; }
 
+			virtual void SetGameObject(Weak<Core::GameObject> object) { gameObject = object; }
+
 			std::shared_ptr<Core::GameObject> GameObject() { return gameObject.lock(); }
 
 			// === Setters === //
@@ -47,9 +49,7 @@ namespace GALAXY {
 			void SetEnable(bool enable) { p_enable = enable; }
 
 
-			virtual std::shared_ptr<BaseComponent> Clone() {
-				return std::make_shared<BaseComponent>(*shared_from_this());
-			}
+			virtual std::shared_ptr<BaseComponent> Clone() = 0;
 
 		protected:
 			bool p_enable = true;

@@ -64,7 +64,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 		ImGui::SameLine();
 
 		bool destroy = true;
-		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName().c_str(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
 		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 		{
 			openPopup = true;
@@ -74,7 +74,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 		if (ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("COMPONENT", &i, sizeof(uint32_t));
-			ImGui::TextUnformatted(object->m_components[i]->GetComponentName().c_str());
+			ImGui::TextUnformatted(object->m_components[i]->GetComponentName());
 			ImGui::EndDragDropSource();
 		}
 		if (ImGui::BeginDragDropTarget())
@@ -88,7 +88,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 		// Content of the Collapsing Header
 		if (open) {
 			ImGui::BeginDisabled(!enable);
-			ImGui::TreePush(object->m_components[i]->GetComponentName().c_str());
+			ImGui::TreePush(object->m_components[i]->GetComponentName());
 			object->m_components[i]->ShowInInspector();
 			ImGui::TreePop();
 			ImGui::EndDisabled();

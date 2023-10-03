@@ -17,8 +17,8 @@ void Main(int argc, char** argv)
 
 	Core::Application& application = Core::Application::GetInstance();
 
-	std::filesystem::path projectPath = "D:\\Code\\Moteurs\\TestProject\\TestProject.gProject";
-	//std::filesystem::path projectPath = "D:\\Code\\ProjectTest\\ProjectTest.gProject";
+	//std::filesystem::path projectPath = "D:\\Code\\Moteurs\\TestProject\\TestProject.gProject";
+	std::filesystem::path projectPath = "D:\\Code\\ProjectTest\\ProjectTest.gProject";
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 
@@ -27,6 +27,12 @@ void Main(int argc, char** argv)
 	application.Update();
 
 	application.Destroy();
+
+	/*TODO On Hub :
+	* Fix Project :
+	*	xmake (/MD)
+	*   main.cpp avec DLLMain
+	*/
 
 }
 

@@ -10,7 +10,7 @@ namespace GALAXY {
 		World,
 	};
 	namespace Component {
-		class Transform : public IComponent<Transform>
+		class GALAXY_API Transform : public IComponent<Transform>
 		{
 		public:
 			Transform();
@@ -26,7 +26,7 @@ namespace GALAXY {
 			void ComputeModelMatrix();
 			void ComputeModelMatrix(const Mat4& parentMatrix);
 
-			std::string GetComponentName() const override { return "Transform"; }
+			const char* GetComponentName() override { return "Transform"; }
 
 			void ShowInInspector() override;
 
@@ -75,7 +75,7 @@ namespace GALAXY {
 			Math::Vec3f    m_localScale = Math::Vec3f(1);
 			bool m_dirty = true;
 
-			REFLECTION_FRIEND
+			//REFLECTION_FRIEND
 		};
 	}
 }

@@ -27,6 +27,7 @@ namespace GALAXY
 
 	Scripting::ScriptEngine::~ScriptEngine()
 	{
+		UnloadDLL();
 	}
 
 	void OnDllUpdate()
@@ -34,10 +35,35 @@ namespace GALAXY
 		PrintLog("Dll Updated !");
 	}
 
+	std::string GetLastErrorAsString()
+	{
+		//Get the error message ID, if any.
+		DWORD errorMessageID = ::GetLastError();
+		if (errorMessageID == 0) {
+			return std::string(); //No error message has been recorded
+		}
+
+		LPSTR messageBuffer = nullptr;
+
+		//Ask Win32 to give us the string version of that message ID.
+		//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
+		size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+		//Copy the error message into a std::string.
+		std::string message(messageBuffer, size);
+
+		//Free the Win32's string's buffer.
+		LocalFree(messageBuffer);
+
+		return message;
+	}
+
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
 		auto dllPathName = dllPath / (dllName + ".dll");
 		auto pdbPathName = dllPath / (dllName + ".pdb");
+		auto libPathName = dllPath / (dllName + ".lib");
 
 		if (!std::filesystem::exists(dllPathName))
 		{
@@ -50,14 +76,18 @@ namespace GALAXY
 
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
+		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
 
 		Utils::FileSystem::RemoveFile(copiedDllPath);
 		Utils::FileSystem::RemoveFile(copiedPdbPath);
+		Utils::FileSystem::RemoveFile(copiedLibPath);
 
 		Utils::FileSystem::CopyFileTo(dllPathName, copiedDllPath);
 		Utils::FileSystem::CopyFileTo(pdbPathName, copiedPdbPath);
+		Utils::FileSystem::CopyFileTo(libPathName, copiedLibPath);
 
-		m_hDll = LoadLibrary(copiedDllPath.string().c_str());
+		auto dllLoad = copiedDllPath.string();
+		m_hDll = LoadLibrary(dllLoad.c_str());
 		if (m_hDll != NULL) {
 			PrintLog("Loading Project %s", dllName.c_str());
 
@@ -68,17 +98,14 @@ namespace GALAXY
 			m_dllLoaded = true;
 		}
 		else {
-			PrintError("Failed to load project DLL.");
+			PrintError("Failed to load project DLL : %s", GetLastErrorAsString().c_str());
 		}
 
-		//if (m_fileWatcherDLL)
-			//m_fileWatcherDLL->StopWatching();
 		if (!m_fileWatcherDLL)
 		{
 			std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
 			m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
 		}
-		//m_fileWatcherDLL->StartWatching();
 	}
 
 	void Scripting::ScriptEngine::UnloadDLL()
@@ -102,21 +129,22 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ParseScript(Weak<Resource::Script>& script)
 	{
-		auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
 		std::string className = script.lock()->GetName();
 		className = className.substr(0, className.find_last_of('.'));
-		auto scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 
+		Shared<ScriptInstance> scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 		scriptInstance->m_constructor = GetConstructor(className);
 
-		Component::ScriptComponent* scriptComp = new Component::ScriptComponent();
-
-		Component::BaseComponent* component = reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor());
+		Component::BaseComponent* component = scriptInstance->m_constructor();
 		std::shared_ptr<Component::BaseComponent> shared = std::shared_ptr<Component::BaseComponent>(component);
+		
+		Component::ScriptComponent* scriptComp = new Component::ScriptComponent();
 		scriptComp->SetScriptComponent(shared);
+
 		Component::ComponentHolder::RegisterComponent<Component::ScriptComponent>(scriptComp);
 		m_registeredScriptComponents.push_back(scriptComp);
 
+		auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
 		for (auto& property : properties)
 		{
 			auto type = StringToVariableType(property.propertyType);
@@ -143,8 +171,12 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
-		auto components = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->GetComponentsInChildren<Component::ScriptComponent>();
-		for (auto& component : components)
+		Core::SceneHolder* sceneHolder = Core::SceneHolder::GetInstance();
+		Core::Scene* currentScene = sceneHolder->GetCurrentScene();
+		Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
+		auto scriptComponents = rootGameObject->GetComponentsInChildren<Component::ScriptComponent>();
+
+		for (auto& component : scriptComponents)
 		{
 			if (component.lock())
 			{
@@ -152,13 +184,13 @@ namespace GALAXY
 			}
 		}
 
-		UnloadDLL();
-
 		CleanScripts();
+
+		UnloadDLL();
 
 		LoadDLL(m_dllPath, m_dllName);
 
-		for (auto& component : components)
+		for (auto& component : scriptComponents)
 		{
 			if (component.lock())
 			{
@@ -206,7 +238,8 @@ namespace GALAXY
 		if (m_scriptInstances.contains(scriptName))
 		{
 			auto scriptInstance = m_scriptInstances.at(scriptName);
-			return Shared<Component::BaseComponent>(reinterpret_cast<Component::BaseComponent*>(scriptInstance->m_constructor()));
+			Component::BaseComponent* component = scriptInstance->m_constructor();
+			return Shared<Component::BaseComponent>(component);
 		}
 		return nullptr;
 	}
@@ -230,7 +263,7 @@ namespace GALAXY
 
 	Scripting::ScriptConstructor Scripting::ScriptEngine::GetConstructor(const std::string& className)
 	{
-		return (ScriptConstructor)(GetProcAddress(m_hDll, "Create_TestScript"));
+		return (ScriptConstructor)(GetProcAddress(m_hDll, ("Create_" + className).c_str()));
 	}
 
 	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)

@@ -10,7 +10,7 @@ namespace GALAXY
 	namespace Scripting { enum class VariableType; }
 	namespace Component
 	{
-		class ScriptComponent : public IComponent<ScriptComponent>
+		class GALAXY_API ScriptComponent : public IComponent<ScriptComponent>
 		{
 		public:
 			ScriptComponent() {}
@@ -19,7 +19,7 @@ namespace GALAXY
 			ScriptComponent(ScriptComponent&&) noexcept = default;
 			virtual ~ScriptComponent() {}
 
-			virtual std::string GetComponentName() const override;
+			virtual const char* GetComponentName() override;
 
 			virtual std::shared_ptr<BaseComponent> Clone() override;
 
@@ -34,6 +34,8 @@ namespace GALAXY
 			void OnDestroy() override;
 
 			void ShowInInspector() override;
+
+			void SetGameObject(Weak<Core::GameObject> object) override;
 
 			template<typename T>
 			T* GetVariable(const std::string& variableName)
@@ -53,10 +55,7 @@ namespace GALAXY
 
 			std::unordered_map<std::string, Scripting::VariableType> GetAllVariables() const;
 
-			void SetScriptComponent(std::shared_ptr<Component::BaseComponent> val) {
-				m_component = val; 
-				m_scriptName = m_component->GetComponentName();
-			}
+			void SetScriptComponent(std::shared_ptr<Component::BaseComponent> val);
 
 			void BeforeReloadScript();
 			void AfterReloadScript();

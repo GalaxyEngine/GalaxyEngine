@@ -21,6 +21,7 @@ void Component::ComponentHolder::UnregisterComponent(T* component)
 	{
 		if (m_componentList[i].get() == component)
 		{
+			m_componentList.erase(m_componentList.begin() + i);
 			return;
 		}
 	}

@@ -12,7 +12,7 @@ namespace GALAXY {
 		class Inspector;
 	}
 	namespace Core {
-		class GameObject : public std::enable_shared_from_this<GameObject>
+		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
 		public:
 			GameObject();
@@ -91,14 +91,16 @@ namespace GALAXY {
 			}
 
 
-			// Check if the object givent is a parent of the this
+			// Check if the object given is a parent of the this
 			bool IsAParent(GameObject* object);
 			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
 
+			std::string GetName() const;
+			void SetName(std::string val) { m_name = val; }
 		private:
 			friend class Scene;
 			uint64_t m_id = -1;
-			std::string m_name = "GameObject";;
+			std::string m_name = "GameObject";
 			std::weak_ptr<GameObject> m_parent;
 			std::vector<std::weak_ptr<GameObject>> m_childs;
 			std::vector<std::shared_ptr<Component::BaseComponent>> m_components;
