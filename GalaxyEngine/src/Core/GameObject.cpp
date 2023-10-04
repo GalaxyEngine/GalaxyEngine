@@ -207,6 +207,15 @@ Component::BaseComponent* GameObject::GetComponentWithName(const std::string& co
 	return nullptr;
 }
 
+Weak<Component::BaseComponent> GameObject::GetComponentWithIndex(uint32_t index)
+{
+	if (index < m_components.size())
+	{
+		return m_components[index];
+	}
+	return {};
+}
+
 std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
 {
 	std::vector<Weak<Core::GameObject>> childs = GetChildren();

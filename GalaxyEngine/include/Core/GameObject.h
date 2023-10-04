@@ -55,6 +55,7 @@ namespace GALAXY {
 
 			// === Getters === //
 			inline std::string GetName() const;
+			inline uint64_t GetIndex() const;
 
 			Component::Transform* Transform() { return m_transform.get(); }
 			std::weak_ptr<GameObject> GetParent();
@@ -70,9 +71,10 @@ namespace GALAXY {
 
 			template<typename T>
 			inline std::vector<Weak<T>> GetComponentsInChildren();
-
 			template<typename T>
 			inline std::vector<Weak<T>> GetComponents();
+
+			Weak<Component::BaseComponent> GetComponentWithIndex(uint32_t index);
 
 			Component::BaseComponent* GetComponentWithName(const std::string& componentName);
 

@@ -27,8 +27,6 @@ namespace GALAXY
 			case Scripting::VariableType::Unknown:
 			{
 				ImGui::Text("Unknown type for %s", variable.first.c_str());
-				if (auto component = *GetVariable<Component::BaseComponent*>(variable.first))
-					ImGui::Text("Component %s", component->GetComponentName());
 			}
 			break;
 			case Scripting::VariableType::Bool:
@@ -81,7 +79,7 @@ namespace GALAXY
 			break;
 			case Scripting::VariableType::Component:
 			{
-				if (Component::BaseComponent** value = GetVariable<Component::BaseComponent*>(variable.first)) 
+				if (Component::BaseComponent** value = GetVariable<Component::BaseComponent*>(variable.first))
 				{
 					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
 					ImGui::Button(*value ? (*value)->GetComponentName() : "None", buttonSize);
@@ -173,6 +171,10 @@ namespace GALAXY
 				return *GetVariable<Vec4f>(variableName);
 			case Scripting::VariableType::String:
 				return *GetVariable<std::string>(variableName);
+			case Scripting::VariableType::Component:
+				return *GetVariable<Component::BaseComponent*>(variableName);
+			case Scripting::VariableType::GameObject:
+				return *GetVariable<Core::GameObject*>(variableName);
 				break;
 			default:
 				break;
@@ -215,7 +217,13 @@ namespace GALAXY
 				SetVariable(variableName, std::any_cast<Vec4f>(value));
 				break;
 			case Scripting::VariableType::String:
-				SetVariable(variableName, std::any_cast<Vec4f>(value));
+				SetVariable(variableName, std::any_cast<std::string>(value));
+				break;
+			case Scripting::VariableType::Component:
+				SetVariable(variableName, std::any_cast<Component::BaseComponent*>(value));
+				break;
+			case Scripting::VariableType::GameObject:
+				SetVariable(variableName, std::any_cast<Core::GameObject*>(value));
 				break;
 			default:
 				break;
@@ -240,7 +248,15 @@ namespace GALAXY
 		// Create a tempvariable map with the name of the variable and a pair with the value and the type
 		for (auto& variable : beforeVariables)
 		{
-			m_tempVariables[variable.first] = std::make_pair(m_component->GetVariable(variable.first), variable.second);
+			auto variableValue = m_component->GetVariable(variable.first);
+			if (variable.second.type == Scripting::VariableType::Component)
+			{
+				auto component = std::any_cast<Component::BaseComponent*>(variableValue);
+				auto gameObjectID = component->gameObject.lock()->GetIndex();
+				auto componentID = component->gameObject.lock()->GetComponentIndex(component);
+				variableValue = std::make_pair(gameObjectID, componentID);
+			}
+			m_tempVariables[variable.first] = std::make_pair(variableValue, variable.second);
 		}
 		m_component.reset();
 	}
@@ -258,7 +274,19 @@ namespace GALAXY
 			// Check if the variable is still there and if the variable has the same type
 			if (m_tempVariables.count(variable.first) && m_tempVariables[variable.first].second.type == variable.second.type)
 			{
-				m_component->SetVariable(variable.first, m_tempVariables[variable.first]);
+				auto variableValue = m_tempVariables[variable.first];
+				if (variable.second.type == Scripting::VariableType::Component)
+				{
+					std::pair<uint64_t, uint32_t> pair = std::any_cast<std::pair<uint64_t, uint32_t>>(variableValue.first);
+					auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(pair.first);
+					if (!gameObject.lock())
+						continue;
+					if (auto component = gameObject.lock()->GetComponentWithIndex(pair.second).lock())
+						variableValue.first = component.get();
+					else
+						continue;
+				}
+				m_component->SetVariable(variable.first, variableValue);
 			}
 		}
 		m_tempVariables.clear();

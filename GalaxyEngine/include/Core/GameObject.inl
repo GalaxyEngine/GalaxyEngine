@@ -6,6 +6,12 @@ std::string Core::GameObject::GetName() const
 	return m_name;
 }
 
+
+uint64_t Core::GameObject::GetIndex() const
+{
+	return m_id;
+}
+
 void Core::GameObject::SetName(std::string val)
 {
 	m_name = val;
