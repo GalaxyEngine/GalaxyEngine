@@ -1,6 +1,16 @@
 #pragma once
 #include "Core/GameObject.h"
 
+std::string Core::GameObject::GetName() const
+{
+	return m_name;
+}
+
+void Core::GameObject::SetName(std::string val)
+{
+	m_name = val;
+}
+
 template<typename T>
 inline std::weak_ptr<T> Core::GameObject::AddComponent()
 {

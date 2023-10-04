@@ -17,7 +17,7 @@ namespace GALAXY
 			ScriptInstance(ScriptInstance&&) noexcept = default;
 			virtual ~ScriptInstance() {}
 
-			std::unordered_map<std::string, Scripting::VariableType> GetAllVariables() const { return m_variables; }
+			std::unordered_map<std::string, VariableData> GetAllVariables() const { return m_variables; }
 		private:
 			friend class ScriptEngine;
 			friend Component::ScriptComponent;
@@ -25,7 +25,7 @@ namespace GALAXY
 			ScriptConstructor m_constructor = nullptr;
 			std::unordered_map<std::string, GetterMethod> m_gettersMethods;
 			std::unordered_map<std::string, SetterMethod> m_settersMethods;
-			std::unordered_map<std::string, VariableType> m_variables;
+			std::unordered_map<std::string, VariableData> m_variables;
 		}; 
 	}
 }

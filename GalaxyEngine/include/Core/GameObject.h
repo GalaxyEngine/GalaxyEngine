@@ -38,6 +38,7 @@ namespace GALAXY {
 			void RemoveComponent(Component::BaseComponent* component);
 
 			// === Setters === //
+			inline void SetName(std::string val);
 
 			void AddChild(std::weak_ptr<GameObject> child, uint32_t index = -1);
 
@@ -53,6 +54,7 @@ namespace GALAXY {
 			void ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex);
 
 			// === Getters === //
+			inline std::string GetName() const;
 
 			Component::Transform* Transform() { return m_transform.get(); }
 			std::weak_ptr<GameObject> GetParent();
@@ -72,12 +74,11 @@ namespace GALAXY {
 			template<typename T>
 			inline std::vector<Weak<T>> GetComponents();
 
+			Component::BaseComponent* GetComponentWithName(const std::string& componentName);
+
 			// Check if the object given is a parent of the this
 			bool IsAParent(GameObject* object);
 			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
-
-			std::string GetName() const;
-			void SetName(std::string val) { m_name = val; }
 		private:
 			friend class Scene;
 			friend Scripting::ScriptEngine;

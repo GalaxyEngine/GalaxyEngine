@@ -6,16 +6,15 @@
 namespace GALAXY
 {
 	const char* hFileContent = R"(
-	#include "Component/IComponent.h"
 	#include "Scripting/Macro.h"
 	#include "Component/ScriptComponent.h"
 	
 	class %s : public Component::ScriptComponent
 	{
-	    GENERATED_BODY(%s)
+	    GENERATED_BODY(%s, Component::ScriptComponent)
 	public:
 	};
-	UCLASS(%s)
+	CLASS(%s)
 	)";
 
 	void Resource::Script::Load()

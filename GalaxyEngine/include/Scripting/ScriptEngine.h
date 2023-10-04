@@ -1,6 +1,10 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <unordered_map>
+#include <filesystem>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 namespace GALAXY 
 {
 	namespace Component { class BaseComponent; class ScriptComponent; }
@@ -18,13 +22,22 @@ namespace GALAXY
 			Vector3,
 			Vector4,
 			String,
+			Component,
+			GameObject,
+		};
+
+		struct GALAXY_API VariableData
+		{
+			VariableType type = VariableType::Unknown;
+			std::string typeName = "";
+			bool isAList = false;
 		};
 
 		using ScriptConstructor = Component::BaseComponent* (*)();
 		using GetterMethod = void* (*)(void*);
 		using SetterMethod = void (*)(void*, void*);
 
-		class ScriptEngine
+		class GALAXY_API ScriptEngine
 		{
 		public:
 			ScriptEngine();

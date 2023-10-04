@@ -20,7 +20,7 @@ namespace GALAXY
 		file.read(&buffer[0], size);
 		std::vector<size_t> Ppos;
 
-		const char* searchWord = "UPROPERTY";
+		const char* searchWord = "PROPERTY";
 		size_t pos = buffer.find(searchWord);
 
 		std::string content = buffer;
@@ -80,6 +80,10 @@ namespace GALAXY
 			}
 
 			lineVariable = lineVariable.substr(0, lineVariable.find_first_of(' '));
+			if (pos = lineVariable.find_first_of('*'); pos != std::string::npos)
+				lineVariable = lineVariable.substr(0, lineVariable.find_first_of('*'));
+			if (pos = lineVariable.find("::") + 2; pos != std::string::npos)
+				lineVariable = lineVariable.substr(pos);
 			propertyInfo.propertyType = lineVariable;
 			return true;
 		}

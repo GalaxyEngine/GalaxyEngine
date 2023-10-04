@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <Wrapper/Reflection.h>
+#include <vector>
 
 namespace GALAXY {
 	namespace Core { class GameObject; }
@@ -18,7 +19,9 @@ namespace GALAXY {
 			BaseComponent(BaseComponent&&) noexcept = default;
 			virtual ~BaseComponent() {}
 
-			virtual const char* GetComponentName() const { return "Empty"; }
+			virtual const char* GetComponentName() const { return "BaseComponent"; }
+
+			virtual std::vector<const char*> GetComponentNames() const;
 
 			virtual void ShowInInspector() {}
 

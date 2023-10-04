@@ -1,16 +1,16 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "IComponent.h"
+#include "Scripting/ScriptEngine.h"
 
 #include <unordered_map>
 #include <any>
 
 namespace GALAXY
 {
-	namespace Scripting { enum class VariableType; }
+	namespace Scripting {}
 	namespace Component
 	{
-
 		class GALAXY_API ScriptComponent : public IComponent<ScriptComponent>
 		{
 		public:
@@ -24,6 +24,8 @@ namespace GALAXY
 			{
 				return "Script Component";
 			}
+
+			virtual std::vector<const char*> GetComponentNames() const override;
 
 			virtual void ShowInInspector() override;
 
@@ -43,7 +45,7 @@ namespace GALAXY
 				SetVariableVoid(variableName, newValue);
 			}
 
-			std::unordered_map<std::string, Scripting::VariableType> GetAllVariables() const;
+			std::unordered_map<std::string, Scripting::VariableData> GetAllVariables() const;
 
 		private:
 
@@ -68,7 +70,7 @@ namespace GALAXY
 
 			std::string m_scriptName;
 
-			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableType>> m_tempVariables;
+			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
 		};
 	}
 }

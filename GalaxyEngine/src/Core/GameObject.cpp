@@ -192,9 +192,19 @@ void GameObject::ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex)
 	}
 }
 
-std::string GameObject::GetName() const
+Component::BaseComponent* GameObject::GetComponentWithName(const std::string& componentName)
 {
-	return m_name;
+	for (auto component : m_components)
+	{
+		auto names = component->GetComponentNames();
+		for (auto& curComponentName : names)
+		{
+			if (componentName == curComponentName) {
+				return component.get();
+			}
+		}
+	}
+	return nullptr;
 }
 
 std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()

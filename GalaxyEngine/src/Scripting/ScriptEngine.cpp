@@ -85,7 +85,7 @@ namespace GALAXY
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
-		
+
 		auto threadManager = Core::ThreadManager::GetInstance();
 		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
 		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
@@ -93,7 +93,6 @@ namespace GALAXY
 
 		while (copiedFile != 3) {}
 		copiedFile = 0;
-
 		auto dllLoad = copiedDllPath.string();
 		m_hDll = LoadLibrary(dllLoad.c_str());
 		if (m_hDll != NULL) {
@@ -127,9 +126,13 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::AddScript(Weak<Resource::Script> script)
 	{
-		Core::ThreadManager::GetInstance()->Lock();
+		PrintError("Add script");
 		m_scripts.push_back(script);
-		Core::ThreadManager::GetInstance()->Unlock();
+
+		if (!m_dllLoaded)
+			return;
+
+		ParseScript(script);
 	}
 
 	void Scripting::ScriptEngine::RemoveScript(Weak<Resource::Script> script)
@@ -173,7 +176,9 @@ namespace GALAXY
 			auto type = StringToVariableType(property.propertyType);
 			scriptInstance->m_gettersMethods[property.propertyName] = GetGetter(className, property.propertyName);
 			scriptInstance->m_settersMethods[property.propertyName] = GetSetter(className, property.propertyName);
-			scriptInstance->m_variables[property.propertyName] = type;
+			scriptInstance->m_variables[property.propertyName].type = type;
+			scriptInstance->m_variables[property.propertyName].typeName = property.propertyType;
+			scriptInstance->m_variables[property.propertyName].isAList = false;
 		}
 	}
 
@@ -261,16 +266,29 @@ namespace GALAXY
 			return VariableType::Float;
 		else if (typeName == "double")
 			return VariableType::Double;
-		else if (typeName == "Vec2f" || typeName == "Math::Vec2f")
+		else if (typeName == "Vec2f")
 			return VariableType::Vector2;
-		else if (typeName == "Vec3f" || typeName == "Math::Vec3f")
+		else if (typeName == "Vec3f")
 			return VariableType::Vector3;
-		else if (typeName == "Vec4f" || typeName == "Math::Vec4f")
+		else if (typeName == "Vec4f")
 			return VariableType::Vector4;
-		else if (typeName == "std::string" || typeName == "string")
+		else if (typeName == "string")
 			return VariableType::String;
+		else if (typeName == "GameObject")
+			return VariableType::GameObject;
 		else
+		{
+			if (typeName == "BaseComponent")
+				return VariableType::Component;
+			for (auto componentRegistered : Component::ComponentHolder::GetList())
+			{
+				if (componentRegistered->GetComponentName() == typeName)
+				{
+					return VariableType::Component;
+				}
+			}
 			return VariableType::Unknown;
+		}
 	}
 
 	Weak<Scripting::ScriptInstance> Scripting::ScriptEngine::GetScriptInstance(const char* scriptName)

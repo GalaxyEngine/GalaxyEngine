@@ -14,6 +14,13 @@ namespace GALAXY {
 
 			const char* GetComponentName() const override { return "Mesh Component"; }
 
+			virtual std::vector<const char*> GetComponentNames() const override\
+			{
+				auto vector = BaseComponent::GetComponentNames();
+				vector.insert(vector.end(), MeshComponent::GetComponentName());
+				return vector;
+			}
+
 			void OnDraw() override;
 
 			void SetMesh(const std::weak_ptr<Resource::Mesh>& mesh);

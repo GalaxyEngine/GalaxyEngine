@@ -4,15 +4,25 @@
 #include "Scripting/ScriptEngine.h"
 #include "Scripting/ScriptInstance.h"
 
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
+
 #include <any>
 namespace GALAXY
 {
+	std::vector<const char*> Component::ScriptComponent::GetComponentNames() const
+	{
+		auto vector = BaseComponent::GetComponentNames();
+		vector.insert(vector.end(), ScriptComponent::GetComponentName());
+		return vector;
+	}
+
 	void Component::ScriptComponent::ShowInInspector()
 	{
 		auto variables = GetAllVariables();
 		for (auto& variable : variables)
 		{
-			switch (variable.second)
+			switch (variable.second.type)
 			{
 			case Scripting::VariableType::Unknown:
 			{
@@ -69,6 +79,66 @@ namespace GALAXY
 					ImGui::InputText(variable.first.c_str(), value);
 			}
 			break;
+			case Scripting::VariableType::Component:
+			{
+				if (Component::BaseComponent** value = GetVariable<Component::BaseComponent*>(variable.first)) 
+				{
+					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
+					ImGui::Button(*value ? (*value)->GetComponentName() : "None", buttonSize);
+					ImGui::SameLine();
+					if (*value && ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+						(*value) = nullptr;
+
+					if (ImGui::BeginDragDropTarget()) {
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+							// Check if the payload data type matches
+							std::vector<uint64_t> indices;
+							if (payload->DataSize % sizeof(uint64_t) == 0)
+							{
+								uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+								uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+								indices.assign(payloadData, payloadData + payloadSize);
+							}
+							for (size_t i = 0; i < indices.size(); i++) {
+								std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
+								if (auto component = payloadGameObject.lock()->GetComponentWithName(variable.second.typeName))
+								{
+									(*value) = component;
+									return;
+								}
+							}
+						}
+						ImGui::EndDragDropTarget();
+					}
+				}
+			}
+			break;
+			case Scripting::VariableType::GameObject:
+			{
+				if (Core::GameObject** value = GetVariable<Core::GameObject*>(variable.first))
+				{
+					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
+					ImGui::Button(*value ? (*value)->GetName().c_str() : "None", buttonSize);
+					ImGui::SameLine();
+					if (*value && ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+						(*value) = nullptr;
+
+					if (ImGui::BeginDragDropTarget()) {
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+							// Check if the payload data type matches
+							std::vector<uint64_t> indices;
+							if (payload->DataSize % sizeof(uint64_t) == 0)
+							{
+								uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+								uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+								indices.assign(payloadData, payloadData + payloadSize);
+							}
+							*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[0]).lock().get();
+						}
+						ImGui::EndDragDropTarget();
+					}
+				}
+			}
 			default:
 				break;
 			}
@@ -82,7 +152,7 @@ namespace GALAXY
 		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
-			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
+			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName).type;
 			switch (variableType)
 			{
 			case Scripting::VariableType::Unknown:
@@ -118,7 +188,7 @@ namespace GALAXY
 		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
-			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName);
+			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName).type;
 			switch (variableType)
 			{
 			case Scripting::VariableType::Unknown:
@@ -153,7 +223,7 @@ namespace GALAXY
 		}
 	}
 
-	std::unordered_map<std::string, Scripting::VariableType> Component::ScriptComponent::GetAllVariables() const
+	std::unordered_map<std::string, Scripting::VariableData> Component::ScriptComponent::GetAllVariables() const
 	{
 		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
 		auto scriptInstance = scriptEngine->GetScriptInstance(this->GetComponentName()).lock();
@@ -186,7 +256,7 @@ namespace GALAXY
 		for (auto& variable : afterVariables)
 		{
 			// Check if the variable is still there and if the variable has the same type
-			if (m_tempVariables.count(variable.first) && m_tempVariables[variable.first].second == variable.second)
+			if (m_tempVariables.count(variable.first) && m_tempVariables[variable.first].second.type == variable.second.type)
 			{
 				m_component->SetVariable(variable.first, m_tempVariables[variable.first]);
 			}
