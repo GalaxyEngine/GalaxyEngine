@@ -38,6 +38,8 @@ namespace GALAXY
 
 			void AddScript(Weak<Resource::Script> script);
 
+			void RemoveScript(Weak<Resource::Script> script);
+
 			void ParseScript(Weak<Resource::Script>& script);
 
 			void CleanScripts();
@@ -56,10 +58,15 @@ namespace GALAXY
 
 			void* GetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName);
 			void SetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
+		
 		private:
 			ScriptConstructor GetConstructor(const std::string& className);
 			GetterMethod GetGetter(const std::string& className, const std::string& variableName);
 			SetterMethod GetSetter(const std::string& className, const std::string& variableName);
+
+			bool ScriptExist(const std::string& scriptName);
+
+			void CopyDLLFile(const std::filesystem::path& originalPath, const std::filesystem::path& copiedPath);
 		private:
 			static Unique<ScriptEngine> m_instance;
 			Shared<class HeaderParser> m_headerParser = nullptr;
@@ -78,6 +85,8 @@ namespace GALAXY
 			std::vector<Component::ScriptComponent*> m_registeredScriptComponents;
 			std::unordered_map<std::string, Shared<class ScriptInstance>> m_scriptInstances;
 			std::vector<Weak<class ScriptComponent>> m_scriptComponents;
+
+			int copiedFile = 0;
 		};
 	}
 }

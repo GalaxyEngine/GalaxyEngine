@@ -36,6 +36,8 @@ namespace GALAXY {
 
 			inline void RemoveResource(const std::shared_ptr<IResource>& resource);
 
+			inline void RemoveResource(const std::filesystem::path& relativePath);
+
 			// Get and load the resources if not loaded yet, 
 			// import the resource if not inside the resource Manager
 			// TODO: this with Engine Resources

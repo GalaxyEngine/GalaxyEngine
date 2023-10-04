@@ -16,12 +16,26 @@ namespace GALAXY
 	{
 		if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
 		{
+			it->second->Unload();
 			it->second.reset();
 			m_resources.erase(it);
 		}
 		else
 		{
 			PrintError("Resource %s not found in Resource Manager", resource->GetFileInfo().GetRelativePath().c_str());
+		}
+	}
+
+	void Resource::ResourceManager::RemoveResource(const std::shared_ptr<IResource>& resource)
+	{
+		RemoveResource(resource.get());
+	}
+
+	void Resource::ResourceManager::RemoveResource(const std::filesystem::path& relativePath)
+	{
+		if (auto resource = GetResource<IResource>(relativePath).lock())
+		{
+			RemoveResource(resource.get());
 		}
 	}
 

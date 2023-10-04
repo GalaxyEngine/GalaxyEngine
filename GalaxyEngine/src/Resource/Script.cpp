@@ -27,6 +27,14 @@ namespace GALAXY
 		p_loaded = true;
 	}
 
+	void Resource::Script::Unload()
+	{
+		// Remove the resource from ScriptEngine, remove all component when the user rebuild the dll
+		std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
+		Scripting::ScriptEngine::GetInstance()->RemoveScript(resource);
+		p_loaded = false;
+	}
+
 	Weak<Resource::Script> Resource::Script::Create(const std::filesystem::path& path)
 	{
 		std::ofstream hFile(path.string() + ".h");

@@ -17,6 +17,8 @@ namespace GALAXY
 
 			void Load() override;
 
+			void Unload() override;
+
 			static Weak<Script> Create(const std::filesystem::path& path);
 
 		private:

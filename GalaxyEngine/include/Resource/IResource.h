@@ -36,6 +36,7 @@ namespace GALAXY::Resource {
 		virtual void Load() {}
 		virtual void Send() {}
 		virtual void ShowInInspector() {}
+		virtual void Unload() {}
 
 		bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
 		bool IsLoaded() const { return p_loaded.load(); }

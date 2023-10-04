@@ -248,7 +248,7 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24));
 
 				// Truncate and display file name
-				int length = child->m_info.GetFileName().string().length();
+				size_t length = child->m_info.GetFileName().string().length();
 				std::string fileName = child->m_info.GetFileName().string();
 				if (length > textLength + 3) {
 					fileName = fileName.substr(0, textLength);
@@ -380,8 +380,13 @@ namespace GALAXY {
 
 				if (ImGui::Button("Delete", buttonSize))
 				{
-
+					for (auto& file : m_rightClickedFiles)
+					{
+						Resource::ResourceManager::GetInstance()->RemoveResource(file->m_info.GetRelativePath());
+						std::remove(file->m_info.GetFullPath().string().c_str());
+					}
 					quitPopup();
+					ReloadContent();
 				}
 				ImGui::Separator();
 

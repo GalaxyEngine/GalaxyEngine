@@ -13,6 +13,7 @@
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
+#include "Core/ThreadManager.h"
 
 #define DESTINATION_DLL std::filesystem::path("")
 
@@ -59,6 +60,13 @@ namespace GALAXY
 		return message;
 	}
 
+	void Scripting::ScriptEngine::CopyDLLFile(const std::filesystem::path& originalPath, const std::filesystem::path& copiedPath)
+	{
+		Utils::FileSystem::RemoveFile(copiedPath);
+		Utils::FileSystem::CopyFileTo(originalPath, copiedPath);
+		copiedFile++;
+	}
+
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
 		auto dllPathName = dllPath / (dllName + ".dll");
@@ -77,14 +85,14 @@ namespace GALAXY
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
+		
+		auto threadManager = Core::ThreadManager::GetInstance();
+		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
+		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
+		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, libPathName, copiedLibPath);
 
-		Utils::FileSystem::RemoveFile(copiedDllPath);
-		Utils::FileSystem::RemoveFile(copiedPdbPath);
-		Utils::FileSystem::RemoveFile(copiedLibPath);
-
-		Utils::FileSystem::CopyFileTo(dllPathName, copiedDllPath);
-		Utils::FileSystem::CopyFileTo(pdbPathName, copiedPdbPath);
-		Utils::FileSystem::CopyFileTo(libPathName, copiedLibPath);
+		while (copiedFile != 3) {}
+		copiedFile = 0;
 
 		auto dllLoad = copiedDllPath.string();
 		m_hDll = LoadLibrary(dllLoad.c_str());
@@ -119,12 +127,31 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::AddScript(Weak<Resource::Script> script)
 	{
+		Core::ThreadManager::GetInstance()->Lock();
 		m_scripts.push_back(script);
+		Core::ThreadManager::GetInstance()->Unlock();
+	}
 
-		if (!m_dllLoaded)
-			return;
+	void Scripting::ScriptEngine::RemoveScript(Weak<Resource::Script> script)
+	{
+		for (int i = 0; i < m_scripts.size(); i++){
+			if (script.lock().get() == m_scripts[i].lock().get())
+			{
+				for (auto scriptComponent : m_registeredScriptComponents)
+				{
+					const char* componentName = scriptComponent->GetComponentName();
+					std::string scriptName = script.lock()->GetFileInfo().GetFileName().stem().string();
+					if (componentName == scriptName) 
+					{
+						Component::ComponentHolder::UnregisterComponent(scriptComponent);
+						break;
+					}
+				}
 
-		//ReloadDLL();
+				m_scripts.erase(m_scripts.begin() + i);
+				return;
+			}
+		}
 	}
 
 	void Scripting::ScriptEngine::ParseScript(Weak<Resource::Script>& script)
@@ -209,6 +236,9 @@ namespace GALAXY
 			auto& currentComponentID = componentIDs[i];
 			for (int j = 0; j < currentReloaderList.size(); j++)
 			{
+				// Remove of script not exist
+				if (!ScriptExist(currentReloaderList[i].GetScriptName()))
+					break;
 				currentReloaderList[j].AfterReloadScript();
 				auto gameObject = childs[i];
 				gameObject.lock()->AddComponent(currentReloaderList[i].GetComponent(), currentComponentID[j]);
@@ -293,6 +323,18 @@ namespace GALAXY
 	{
 		std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
 		return (SetterMethod)(GetProcAddress(m_hDll, setterMethodName.c_str()));
+	}
+
+	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName)
+	{
+		for (int i = 0; i < m_scripts.size(); i++)
+		{
+			if (scriptName == m_scripts[i].lock()->GetFileInfo().GetFileName().stem())
+			{
+				return m_scripts[i].lock() != nullptr;
+			}
+		}
+		return false;
 	}
 
 }

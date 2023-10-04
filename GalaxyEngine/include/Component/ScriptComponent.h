@@ -61,12 +61,14 @@ namespace GALAXY
 			void BeforeReloadScript();
 			void AfterReloadScript();
 			Shared<GALAXY::Component::ScriptComponent> GetComponent() const { return m_component; }
+
+			std::string GetScriptName() const { return m_scriptName; }
 		private:
 			Shared<ScriptComponent> m_component;
 
 			std::string m_scriptName;
 
-			std::unordered_map<std::string, std::any> m_tempVariables;
+			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableType>> m_tempVariables;
 		};
 	}
 }

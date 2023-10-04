@@ -166,16 +166,18 @@ namespace GALAXY
 	{
 		m_scriptName = m_component->GetComponentName();
 		auto beforeVariables = m_component->GetAllVariables();
+
+		// Create a tempvariable map with the name of the variable and a pair with the value and the type
 		for (auto& variable : beforeVariables)
 		{
-			m_tempVariables[variable.first] = m_component->GetVariable(variable.first);
+			m_tempVariables[variable.first] = std::make_pair(m_component->GetVariable(variable.first), variable.second);
 		}
 		m_component.reset();
 	}
 
 	void Component::ReloadScript::AfterReloadScript()
 	{
-		m_component = Scripting::ScriptEngine::GetInstance()->CreateScript(m_scriptName);
+		m_component = Scripting::ScriptEngine::GetInstance()->CreateScript(GetScriptName());
 
 		ASSERT(m_component);
 
@@ -183,10 +185,9 @@ namespace GALAXY
 		int i = 0;
 		for (auto& variable : afterVariables)
 		{
-			if (m_tempVariables.count(variable.first))
+			// Check if the variable is still there and if the variable has the same type
+			if (m_tempVariables.count(variable.first) && m_tempVariables[variable.first].second == variable.second)
 			{
-				if (variable.second == Scripting::VariableType::Float)
-					std::cout << std::any_cast<float>(m_tempVariables[variable.first]) << std::endl;
 				m_component->SetVariable(variable.first, m_tempVariables[variable.first]);
 			}
 		}
