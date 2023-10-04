@@ -61,6 +61,8 @@ namespace GALAXY
 			void RightClickWindow();
 
 			void ShowInExplorer(const std::vector<std::shared_ptr<File>>& files, bool select);
+
+			void ReloadContent();
 		private:
 			std::filesystem::path m_workingDirectory = ASSET_FOLDER_NAME;
 

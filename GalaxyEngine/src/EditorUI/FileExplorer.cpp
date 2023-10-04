@@ -3,6 +3,7 @@
 
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
+#include "Resource/Script.h"
 
 #define FOLDER_ICON_PATH "CoreResources\\icons\\folder.png"
 #define FILE_ICON_PATH "CoreResources\\icons\\file.png"
@@ -21,6 +22,7 @@
 
 namespace fs = std::filesystem;
 namespace GALAXY {
+
 #pragma region File
 	EditorUI::File::File(const std::filesystem::path& path)
 	{
@@ -155,7 +157,7 @@ namespace GALAXY {
 
 		const int iconSize = 86;
 		const int space = 15;
-		const int textLength = 10;
+		const int textLength = 9;
 		bool openRightClick = false;
 
 		// Begin the ImGui window for the File Explorer
@@ -174,6 +176,11 @@ namespace GALAXY {
 			if (ImGui::Button("Back") && m_currentFile->m_parent)
 			{
 				SetCurrentFile(m_currentFile->m_parent);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Reload"))
+			{
+				ReloadContent();
 			}
 			ImGui::SameLine();
 			std::string in = m_currentFile->m_info.GetRelativePath().string();
@@ -241,8 +248,10 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24));
 
 				// Truncate and display file name
-				std::string fileName = child->m_info.GetFileName().string().substr(0, textLength + 3);
-				if (child->m_info.GetFileName().string().length() > textLength + 3) {
+				int length = child->m_info.GetFileName().string().length();
+				std::string fileName = child->m_info.GetFileName().string();
+				if (length > textLength + 3) {
+					fileName = fileName.substr(0, textLength);
 					fileName.append("...");
 				}
 				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2) + iconSize / 2, iconSize - 24 + 5);
@@ -389,6 +398,24 @@ namespace GALAXY {
 
 				quitPopup();
 			}
+			if (ImGui::Button("Create Script", buttonSize))
+			{
+				ImGui::OpenPopup("Create Script");
+			}
+			if (ImGui::BeginPopupModal("Create Script"))
+			{
+				static std::string scriptName;
+				ImGui::InputText("Script Name", &scriptName);
+				if (ImGui::Button("Create") && !scriptName.empty())
+				{
+					Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);
+
+					ReloadContent();
+					ImGui::CloseCurrentPopup();
+					quitPopup();
+				}
+				ImGui::EndPopup();
+			}
 			ImGui::EndPopup();
 		}
 	}
@@ -440,4 +467,9 @@ namespace GALAXY {
 #endif
 	}
 
+	void EditorUI::FileExplorer::ReloadContent()
+	{
+		m_currentFile->m_childrens.clear();
+		m_currentFile->FindAllChildrens();
+	}
 }

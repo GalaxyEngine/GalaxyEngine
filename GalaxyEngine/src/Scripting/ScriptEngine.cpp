@@ -96,6 +96,7 @@ namespace GALAXY
 				ParseScript(script);
 			}
 			m_dllLoaded = true;
+			PrintLog("Loaded Project %s", dllName.c_str());
 		}
 		else {
 			PrintError("Failed to load project DLL : %s", GetLastErrorAsString().c_str());
@@ -123,8 +124,7 @@ namespace GALAXY
 		if (!m_dllLoaded)
 			return;
 
-		// Parse if dll already loaded
-		ParseScript(script);
+		//ReloadDLL();
 	}
 
 	void Scripting::ScriptEngine::ParseScript(Weak<Resource::Script>& script)
@@ -285,14 +285,14 @@ namespace GALAXY
 
 	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)
 	{
-		const char* getterMethodName = ("Get_" + className + '_' + variableName).c_str();
-		return (GetterMethod)(GetProcAddress(m_hDll, getterMethodName));
+		std::string getterMethodName = ("Get_" + className + '_' + variableName).c_str();
+		return (GetterMethod)(GetProcAddress(m_hDll, getterMethodName.c_str()));
 	}
 
 	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName)
 	{
-		const char* setteMethodName = ("Set_" + className + '_' + variableName).c_str();
-		return (SetterMethod)(GetProcAddress(m_hDll, setteMethodName));
+		std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
+		return (SetterMethod)(GetProcAddress(m_hDll, setterMethodName.c_str()));
 	}
 
 }
