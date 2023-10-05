@@ -71,6 +71,7 @@ namespace GALAXY
 			std::string m_scriptName;
 
 			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
+			
 		};
 	}
 }

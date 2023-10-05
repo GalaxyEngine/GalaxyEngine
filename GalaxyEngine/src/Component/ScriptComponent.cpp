@@ -102,9 +102,11 @@ namespace GALAXY
 								indices.assign(payloadData, payloadData + payloadSize);
 							}
 							for (size_t i = 0; i < indices.size(); i++) {
+								// Get the gameobject with the indices
 								std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
 								if (auto component = payloadGameObject.lock()->GetComponentWithName(variable.second.typeName))
 								{
+									// Get Component of the good type with the name
 									(*value) = component;
 									return;
 								}
@@ -121,9 +123,11 @@ namespace GALAXY
 				{
 					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
 					ImGui::Button(*value ? (*value)->GetName().c_str() : "None", buttonSize);
-					ImGui::SameLine();
-					if (*value && ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
-						(*value) = nullptr;
+					if (*value) {
+						ImGui::SameLine();
+						if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+							(*value) = nullptr;
+					}
 
 					if (ImGui::BeginDragDropTarget()) {
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
@@ -135,12 +139,14 @@ namespace GALAXY
 								uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
 								indices.assign(payloadData, payloadData + payloadSize);
 							}
+							// Get the gameobject with the first index
 							*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[0]).lock().get();
 						}
 						ImGui::EndDragDropTarget();
 					}
 				}
 			}
+			break;
 			default:
 				break;
 			}
@@ -262,7 +268,8 @@ namespace GALAXY
 			}
 			else if (variable.second.type == Scripting::VariableType::GameObject)
 			{
-				variableValue = std::any_cast<Core::GameObject*>(variableValue)->GetIndex();
+				uint64_t id = std::any_cast<Core::GameObject*>(variableValue)->GetIndex();
+				variableValue = id;
 			}
 			m_tempVariables[variable.first] = std::make_pair(variableValue, variable.second);
 		}
@@ -283,6 +290,7 @@ namespace GALAXY
 			if (m_tempVariables.count(variable.first) && m_tempVariables[variable.first].second.type == variable.second.type)
 			{
 				auto variableValue = m_tempVariables[variable.first];
+				// Set with index of Component + Gameobject
 				if (variable.second.type == Scripting::VariableType::Component)
 				{
 					std::pair<uint64_t, uint32_t> pair = std::any_cast<std::pair<uint64_t, uint32_t>>(variableValue.first);
@@ -294,7 +302,8 @@ namespace GALAXY
 					else
 						continue;
 				}
-				else if (variable.second.type == Scripting::VariableType::Component)
+				// Set with index of GameObject
+				else if (variable.second.type == Scripting::VariableType::GameObject)
 				{
 					uint64_t index = std::any_cast<uint64_t>(variableValue.first);
 					if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(index).lock())
