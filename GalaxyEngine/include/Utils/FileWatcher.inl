@@ -6,36 +6,7 @@ namespace GALAXY
 {
 	inline void Utils::FileWatcher::Update()
 	{
-		if (m_multithread)
-		{
-			if (m_shouldStop)
-				return;
-
-			if (!m_running) {
-				m_running = true;
-				m_lastModificationTime = std::filesystem::last_write_time(m_filePath);
-			}
-
-			bool exist = std::filesystem::exists(m_filePath);
-			if (!exist) {
-				std::cerr << "File Deleted " << m_filePath << std::endl;
-				StopWatching();
-				return;
-			}
-
-			auto currentFileTime = std::filesystem::last_write_time(m_filePath);
-
-			if (currentFileTime != m_lastModificationTime) {
-				m_lastModificationTime = currentFileTime;
-				m_callback();
-			}
-
-			// Check for changes every 1 second
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-
-			StartWatching();
-		}
-		else
+		if (!m_multithread)
 		{
 			if (m_shouldStop)
 				return;
@@ -46,17 +17,31 @@ namespace GALAXY
 			m_currentTime = 0.f;
 
 			bool exist = std::filesystem::exists(m_filePath);
-			if (!exist) {
+			if (m_exist && !exist) {
+				// Existed but not now, Delete
 				std::cerr << "File Deleted " << m_filePath << std::endl;
 				StopWatching();
+				return;
+			}
+			else if (!m_exist && exist)
+			{
+				// Not exist but now yes, callback to say that the file is created
+				m_exist = exist;
+				m_callback();
+			}
+			else if (!exist)
+			{
+				// If not exist
 				return;
 			}
 
 			auto currentFileTime = std::filesystem::last_write_time(m_filePath);
 
 			if (currentFileTime != m_lastModificationTime) {
+				// Call callback only if the value was initalized
+				if (m_lastModificationTime.has_value())
+					m_callback();
 				m_lastModificationTime = currentFileTime;
-				m_callback();
 			}
 		}
 	}

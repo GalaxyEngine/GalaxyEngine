@@ -73,14 +73,20 @@ namespace GALAXY
 		auto pdbPathName = dllPath / (dllName + ".pdb");
 		auto libPathName = dllPath / (dllName + ".lib");
 
-		if (!std::filesystem::exists(dllPathName))
-		{
-			PrintError("Failed to load project DLL.");
-			return;
-		}
-
 		m_dllPath = dllPath;
 		m_dllName = dllName;
+
+		if (!m_fileWatcherDLL)
+		{
+			std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
+			m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
+		}
+
+		if (!std::filesystem::exists(dllPathName))
+		{
+			PrintError("Failed to load project DLL : file not %s exist", dllPathName.string().c_str());
+			return;
+		}
 
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
@@ -108,12 +114,6 @@ namespace GALAXY
 		else {
 			PrintError("Failed to load project DLL : %s", GetLastErrorAsString().c_str());
 		}
-
-		if (!m_fileWatcherDLL)
-		{
-			std::function<void()> func = std::bind(&ScriptEngine::OnDLLUpdated, this);
-			m_fileWatcherDLL = std::make_shared<Utils::FileWatcher>(dllPathName.string(), func);
-		}
 	}
 
 	void Scripting::ScriptEngine::UnloadDLL()
@@ -137,14 +137,14 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::RemoveScript(Weak<Resource::Script> script)
 	{
-		for (int i = 0; i < m_scripts.size(); i++){
+		for (int i = 0; i < m_scripts.size(); i++) {
 			if (script.lock().get() == m_scripts[i].lock().get())
 			{
 				for (auto scriptComponent : m_registeredScriptComponents)
 				{
 					const char* componentName = scriptComponent->GetComponentName();
 					std::string scriptName = script.lock()->GetFileInfo().GetFileName().stem().string();
-					if (componentName == scriptName) 
+					if (componentName == scriptName)
 					{
 						Component::ComponentHolder::UnregisterComponent(scriptComponent);
 						break;
@@ -194,7 +194,10 @@ namespace GALAXY
 	void Scripting::ScriptEngine::OnDLLUpdated()
 	{
 		PrintLog("Dll Updated");
-		ReloadDLL();
+		if (m_dllLoaded)
+			ReloadDLL();
+		else
+			LoadDLL(m_dllPath, m_dllName);
 	}
 
 	void Scripting::ScriptEngine::ReloadDLL()
@@ -253,7 +256,8 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::UpdateFileWatcherDLL()
 	{
-		m_fileWatcherDLL->Update();
+		if (m_fileWatcherDLL)
+			m_fileWatcherDLL->Update();
 	}
 
 	Scripting::VariableType Scripting::ScriptEngine::StringToVariableType(const std::string& typeName)

@@ -9,8 +9,7 @@ namespace GALAXY
 		class FileWatcher {
 		public:
 			FileWatcher(const std::string& filePath, std::function<void()> callback, bool multithread = false)
-				: m_filePath(filePath), m_callback(callback), m_running(false), m_multithread(multithread) {
-				m_lastModificationTime = std::filesystem::last_write_time(m_filePath);
+				: m_filePath(filePath), m_callback(callback), m_multithread(multithread), m_exist(std::filesystem::exists(filePath)){
 			}
 			~FileWatcher() { StopWatching(); }
 
@@ -29,9 +28,9 @@ namespace GALAXY
 
 			std::string m_filePath;
 			std::function<void()> m_callback;
-			bool m_running;
 			bool m_shouldStop = false;
-			std::filesystem::file_time_type m_lastModificationTime;
+			bool m_exist = false;
+			std::optional<std::filesystem::file_time_type> m_lastModificationTime;
 		};
 	}
 }

@@ -5,16 +5,27 @@
 #include "Scripting/ScriptEngine.h"
 namespace GALAXY
 {
-	const char* hFileContent = R"(
-	#include "Scripting/Macro.h"
-	#include "Component/ScriptComponent.h"
-	
-	class %s : public Component::ScriptComponent
+	const char* hFileContent = 
+	R"(
+#include "Scripting/Macro.h"
+#include "Component/ScriptComponent.h"
+
+class %s : public Component::ScriptComponent
+{
+	GENERATED_BODY(%s, Component::ScriptComponent)
+public:
+	void OnStart() override
 	{
-	    GENERATED_BODY(%s, Component::ScriptComponent)
-	public:
-	};
-	CLASS(%s)
+
+	}
+
+	void OnUpdate() override
+	{
+
+	}
+
+};
+CLASS(%s)
 	)";
 
 	void Resource::Script::Load()
