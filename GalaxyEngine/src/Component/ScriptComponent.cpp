@@ -83,9 +83,13 @@ namespace GALAXY
 				{
 					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
 					ImGui::Button(*value ? (*value)->GetComponentName() : "None", buttonSize);
-					ImGui::SameLine();
-					if (*value && ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
-						(*value) = nullptr;
+					if (*value) {
+						ImGui::SameLine();
+						if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+						{
+							(*value) = nullptr;
+						}
+					}
 
 					if (ImGui::BeginDragDropTarget()) {
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
@@ -256,6 +260,10 @@ namespace GALAXY
 				auto componentID = component->gameObject.lock()->GetComponentIndex(component);
 				variableValue = std::make_pair(gameObjectID, componentID);
 			}
+			else if (variable.second.type == Scripting::VariableType::GameObject)
+			{
+				variableValue = std::any_cast<Core::GameObject*>(variableValue)->GetIndex();
+			}
 			m_tempVariables[variable.first] = std::make_pair(variableValue, variable.second);
 		}
 		m_component.reset();
@@ -285,6 +293,12 @@ namespace GALAXY
 						variableValue.first = component.get();
 					else
 						continue;
+				}
+				else if (variable.second.type == Scripting::VariableType::Component)
+				{
+					uint64_t index = std::any_cast<uint64_t>(variableValue.first);
+					if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(index).lock())
+						variableValue.first = gameObject.get();
 				}
 				m_component->SetVariable(variable.first, variableValue);
 			}

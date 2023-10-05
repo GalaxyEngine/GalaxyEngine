@@ -41,7 +41,7 @@ namespace GALAXY
 		return properties;
 	}
 
-	bool Scripting::HeaderParser::ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, const std::string& file)
+	bool Scripting::HeaderParser::ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, std::string file)
 	{
 		// Get Variable Name
 		std::string variableName = line.substr(line.find_last_of(',') + 1);
@@ -57,8 +57,14 @@ namespace GALAXY
 
 		propertyInfo.propertyName = variableName;
 
+		auto pos = file.find(variableName);
+		while (file[pos - 1] != ' ' || isValidVariableCharacter(file[pos + variableName.size()]))
+		{
+			pos = file.find(variableName, pos + 1);
+		}
+
 		// Get Variable Type
-		if (auto pos = file.find(variableName); pos != std::string::npos)
+		if (pos != std::string::npos)
 		{
 			size_t newPos = pos;
 			while (file[newPos] != '\n')
@@ -82,8 +88,8 @@ namespace GALAXY
 			lineVariable = lineVariable.substr(0, lineVariable.find_first_of(' '));
 			if (pos = lineVariable.find_first_of('*'); pos != std::string::npos)
 				lineVariable = lineVariable.substr(0, lineVariable.find_first_of('*'));
-			if (pos = lineVariable.find("::") + 2; pos != std::string::npos)
-				lineVariable = lineVariable.substr(pos);
+			if (pos = lineVariable.find("::"); pos != std::string::npos)
+				lineVariable = lineVariable.substr(pos + 2);
 			propertyInfo.propertyType = lineVariable;
 			return true;
 		}

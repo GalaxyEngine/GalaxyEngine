@@ -22,7 +22,7 @@ namespace GALAXY
 			HeaderParser();
 
 			std::vector<PropertyInfo> ParseFile(const std::filesystem::path& filename);
-			bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, const std::string& file);
+			bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, std::string file);
 
 			bool isValidVariableCharacter(char ch);
 		private:
