@@ -86,10 +86,22 @@ namespace GALAXY
 			}
 
 			lineVariable = lineVariable.substr(0, lineVariable.find_first_of(' '));
+			// Remove character * if exist inside the string
 			if (pos = lineVariable.find_first_of('*'); pos != std::string::npos)
 				lineVariable = lineVariable.substr(0, lineVariable.find_first_of('*'));
+			// Remove namespace if exist
 			if (pos = lineVariable.find("::"); pos != std::string::npos)
 				lineVariable = lineVariable.substr(pos + 2);
+
+			if (pos = lineVariable.find("vector<"); pos != std::string::npos)
+			{
+				propertyInfo.isAList = true;
+				lineVariable = lineVariable.substr(0, lineVariable.find_first_of('>'));
+				lineVariable = lineVariable.substr(lineVariable.find_first_of('<') + 1);
+				if (pos = lineVariable.find("::"); pos != std::string::npos)
+					lineVariable = lineVariable.substr(pos + 2);
+			}
+
 			propertyInfo.propertyType = lineVariable;
 			return true;
 		}

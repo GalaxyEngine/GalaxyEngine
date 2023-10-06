@@ -8,6 +8,19 @@
 #include "Core/Scene.h"
 
 #include <any>
+
+#define GETVARIABLE(x)\
+	if (!variable.isAList)\
+		return *GetVariable<x>(variableName);\
+	else\
+		return *GetVariable<std::vector<x>>(variableName)
+
+#define SETVARIABLE(x)\
+	if (!variable.isAList)\
+		SetVariable(variableName, std::any_cast<x>(value));\
+	else\
+		SetVariable(variableName, std::any_cast<std::vector<x>>(value))\
+
 namespace GALAXY
 {
 	std::vector<const char*> Component::ScriptComponent::GetComponentNames() const
@@ -22,140 +35,10 @@ namespace GALAXY
 		auto variables = GetAllVariables();
 		for (auto& variable : variables)
 		{
-			switch (variable.second.type)
-			{
-			case Scripting::VariableType::Unknown:
-			{
-				ImGui::Text("Unknown type for %s", variable.first.c_str());
-			}
-			break;
-			case Scripting::VariableType::Bool:
-			{
-				if (bool* value = GetVariable<bool>(variable.first))
-					ImGui::Checkbox(variable.first.c_str(), value);
-			}
-			break;
-			case Scripting::VariableType::Int:
-			{
-				if (int* value = GetVariable<int>(variable.first))
-					ImGui::InputInt(variable.first.c_str(), value);
-			}
-			break;
-			case Scripting::VariableType::Float:
-			{
-				if (float* value = GetVariable<float>(variable.first))
-					ImGui::DragFloat(variable.first.c_str(), value);
-			}
-			break;
-			case Scripting::VariableType::Double:
-			{
-				if (double* value = GetVariable<double>(variable.first))
-					ImGui::InputDouble(variable.first.c_str(), value);
-			}
-			break;
-			case Scripting::VariableType::Vector2:
-			{
-				if (Math::Vec2f* value = GetVariable<Math::Vec2f>(variable.first))
-					ImGui::DragFloat2(variable.first.c_str(), &value->x);
-			}
-			break;
-			case Scripting::VariableType::Vector3:
-			{
-				if (Math::Vec3f* value = GetVariable<Math::Vec3f>(variable.first))
-					ImGui::DragFloat3(variable.first.c_str(), &value->x);
-			}
-			break;
-			case Scripting::VariableType::Vector4:
-			{
-				if (Math::Vec4f* value = GetVariable<Math::Vec4f>(variable.first))
-					ImGui::DragFloat4(variable.first.c_str(), &value->x);
-			}
-			break;
-			case Scripting::VariableType::String:
-			{
-				if (std::string* value = GetVariable<std::string>(variable.first))
-					ImGui::InputText(variable.first.c_str(), value);
-			}
-			break;
-			case Scripting::VariableType::Component:
-			{
-				if (Component::BaseComponent** value = GetVariable<Component::BaseComponent*>(variable.first))
-				{
-					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
-					ImGui::Button(*value ? (*value)->GetComponentName() : "None", buttonSize);
-					if (*value) {
-						ImGui::SameLine();
-						if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
-						{
-							(*value) = nullptr;
-						}
-					}
-
-					if (ImGui::BeginDragDropTarget()) {
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
-							// Check if the payload data type matches
-							std::vector<uint64_t> indices;
-							if (payload->DataSize % sizeof(uint64_t) == 0)
-							{
-								uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
-								uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
-								indices.assign(payloadData, payloadData + payloadSize);
-							}
-							for (size_t i = 0; i < indices.size(); i++) {
-								// Get the gameobject with the indices
-								std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
-								if (auto component = payloadGameObject.lock()->GetComponentWithName(variable.second.typeName))
-								{
-									// Get Component of the good type with the name
-									(*value) = component;
-									return;
-								}
-							}
-						}
-						ImGui::EndDragDropTarget();
-					}
-					ImGui::SameLine();
-					ImGui::Text("(%s)", variable.second.typeName.c_str());
-				}
-			}
-			break;
-			case Scripting::VariableType::GameObject:
-			{
-				if (Core::GameObject** value = GetVariable<Core::GameObject*>(variable.first))
-				{
-					Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
-					ImGui::Button(*value ? (*value)->GetName().c_str() : "None", buttonSize);
-					if (*value) {
-						ImGui::SameLine();
-						if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
-							(*value) = nullptr;
-					}
-
-					if (ImGui::BeginDragDropTarget()) {
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
-							// Check if the payload data type matches
-							std::vector<uint64_t> indices;
-							if (payload->DataSize % sizeof(uint64_t) == 0)
-							{
-								uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
-								uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
-								indices.assign(payloadData, payloadData + payloadSize);
-							}
-							// Get the gameobject with the first index
-							*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[0]).lock().get();
-						}
-						ImGui::EndDragDropTarget();
-					}
-					ImGui::SameLine();
-					ImGui::TextUnformatted("(GameObject)");
-				}
-			}
-			break;
-			default:
-				break;
-			}
+			DisplayVariableField(variable);
 		}
 	}
+
 
 	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
@@ -164,32 +47,32 @@ namespace GALAXY
 		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
-			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName).type;
+			Scripting::VariableData variable = scriptInstance->m_variables.at(variableName);
+			Scripting::VariableType variableType = variable.type;
 			switch (variableType)
 			{
 			case Scripting::VariableType::Unknown:
 				break;
 			case Scripting::VariableType::Bool:
-				return *GetVariable<bool>(variableName);
+				GETVARIABLE(bool);
 			case Scripting::VariableType::Int:
-				return *GetVariable<int>(variableName);
+				GETVARIABLE(int);
 			case Scripting::VariableType::Float:
-				return *GetVariable<float>(variableName);
+				GETVARIABLE(float);
 			case Scripting::VariableType::Double:
-				return *GetVariable<double>(variableName);
+				GETVARIABLE(double);
 			case Scripting::VariableType::Vector2:
-				return *GetVariable<Vec2f>(variableName);
+				GETVARIABLE(Vec2f);
 			case Scripting::VariableType::Vector3:
-				return *GetVariable<Vec3f>(variableName);
+				GETVARIABLE(Vec3f);
 			case Scripting::VariableType::Vector4:
-				return *GetVariable<Vec4f>(variableName);
+				GETVARIABLE(Vec4f);
 			case Scripting::VariableType::String:
-				return *GetVariable<std::string>(variableName);
+				GETVARIABLE(std::string);
 			case Scripting::VariableType::Component:
-				return *GetVariable<Component::BaseComponent*>(variableName);
+				GETVARIABLE(Component::BaseComponent*);
 			case Scripting::VariableType::GameObject:
-				return *GetVariable<Core::GameObject*>(variableName);
-				break;
+				GETVARIABLE(Core::GameObject*);
 			default:
 				break;
 			}
@@ -204,40 +87,41 @@ namespace GALAXY
 		Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock();
 		if (scriptInstance)
 		{
-			Scripting::VariableType variableType = scriptInstance->m_variables.at(variableName).type;
+			Scripting::VariableData variable = scriptInstance->m_variables.at(variableName);
+			Scripting::VariableType variableType = variable.type;
 			switch (variableType)
 			{
 			case Scripting::VariableType::Unknown:
 				break;
 			case Scripting::VariableType::Bool:
-				SetVariable(variableName, std::any_cast<bool>(value));
+				SETVARIABLE(bool);
 				break;
 			case Scripting::VariableType::Int:
-				SetVariable(variableName, std::any_cast<int>(value));
+				SETVARIABLE(int);
 				break;
 			case Scripting::VariableType::Float:
-				SetVariable(variableName, std::any_cast<float>(value));
+				SETVARIABLE(float);
 				break;
 			case Scripting::VariableType::Double:
-				SetVariable(variableName, std::any_cast<double>(value));
+				SETVARIABLE(double);
 				break;
 			case Scripting::VariableType::Vector2:
-				SetVariable(variableName, std::any_cast<Vec2f>(value));
+				SETVARIABLE(Vec2f);
 				break;
 			case Scripting::VariableType::Vector3:
-				SetVariable(variableName, std::any_cast<Vec3f>(value));
+				SETVARIABLE(Vec3f);
 				break;
 			case Scripting::VariableType::Vector4:
-				SetVariable(variableName, std::any_cast<Vec4f>(value));
+				SETVARIABLE(Vec4f);
 				break;
 			case Scripting::VariableType::String:
-				SetVariable(variableName, std::any_cast<std::string>(value));
+				SETVARIABLE(std::string);
 				break;
 			case Scripting::VariableType::Component:
-				SetVariable(variableName, std::any_cast<Component::BaseComponent*>(value));
+				SETVARIABLE(Component::BaseComponent*);
 				break;
 			case Scripting::VariableType::GameObject:
-				SetVariable(variableName, std::any_cast<Core::GameObject*>(value));
+				SETVARIABLE(Core::GameObject*);
 				break;
 			default:
 				break;
@@ -254,34 +138,47 @@ namespace GALAXY
 		return {};
 	}
 
+#pragma region ReloadScript
 	void Component::ReloadScript::BeforeReloadScript()
 	{
 		m_scriptName = m_component->GetComponentName();
 		auto beforeVariables = m_component->GetAllVariables();
 
 		// Create a tempvariable map with the name of the variable and a pair with the value and the type
-		for (auto& variable : beforeVariables)
+		for (const auto& variable : beforeVariables)
 		{
 			auto variableValue = m_component->GetVariable(variable.first);
 			if (variable.second.type == Scripting::VariableType::Component)
 			{
-				auto component = std::any_cast<Component::BaseComponent*>(variableValue);
-				std::tuple<uint64_t, uint32_t, std::string> tuple;
-				if (component) {
-					auto gameObjectID = component->gameObject.lock()->GetIndex();
-					auto componentID = component->gameObject.lock()->GetComponentIndex(component);
-					tuple = std::make_tuple(gameObjectID, componentID, std::string(component->GetComponentName()));
+				if (!variable.second.isAList)
+					variableValue = ConvertComponentToInfo(variableValue);
+				else
+				{
+					std::vector<Component::BaseComponent*> vector = std::any_cast<std::vector<Component::BaseComponent*>>(variableValue);
+					std::vector<ComponentInfo> vectorValue(vector.size());
+					for (int i = 0; i < vectorValue.size(); i++)
+					{
+						auto anyValue = ConvertComponentToInfo(vector[i]);
+						vectorValue[i] = std::any_cast<ComponentInfo>(anyValue);
+					}
+					variableValue = vectorValue;
 				}
-				variableValue = tuple;
 			}
 			else if (variable.second.type == Scripting::VariableType::GameObject)
 			{
-				uint64_t id = -1;
-				if (auto gameObject = std::any_cast<Core::GameObject*>(variableValue)) 
+				if (!variable.second.isAList)
+					variableValue = ConvertGameObjectToID(variableValue);
+				else
 				{
-					id = gameObject->GetIndex();
+					std::vector<Core::GameObject*> vector = std::any_cast<std::vector<Core::GameObject*>>(variableValue);
+					std::vector<uint64_t> vectorValue(vector.size());
+					for (int i = 0; i < vectorValue.size(); i++)
+					{
+						auto anyValue = ConvertGameObjectToID(vector[i]);
+						vectorValue[i] = std::any_cast<uint64_t>(anyValue);
+					}
+					variableValue = vectorValue;
 				}
-				variableValue = id;
 			}
 			m_tempVariables[variable.first] = std::make_pair(variableValue, variable.second);
 		}
@@ -305,27 +202,56 @@ namespace GALAXY
 				// Set with index of Component + Gameobject
 				if (variable.second.type == Scripting::VariableType::Component)
 				{
-					std::tuple<uint64_t, uint32_t, std::string> tuple = std::any_cast<std::tuple<uint64_t, uint32_t, std::string>>(variableValue.first);
-					auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(std::get<0>(tuple));
-					if (!gameObject.lock())
-						continue;
-					// Check if component exist and the same type of the previous one
-					uint32_t componentID = std::get<1>(tuple);
-					std::string componentName = std::get<2>(tuple);
-					auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
-					if (component && component->GetComponentName() == componentName)
-						variableValue.first = component.get();
-					else {
+					//TODO Handle vector
+					if (variableValue.second.isAList && variable.second.isAList)
+					{
+						auto listOfInfo = std::any_cast<std::vector<ComponentInfo>>(variableValue.first);
+						std::vector<Component::BaseComponent*> listOfComponent(listOfInfo.size());
+						// Go trough all componentInfo
+						for (int i = 0; i < listOfComponent.size(); i++)
+						{
+							Component::BaseComponent* component;
+							std::any value = listOfInfo[i];
+							if (!ConvertInfoToComponent(value)) {
+								ComponentInfo info = std::any_cast<ComponentInfo>(listOfInfo[i]);
+								info.indexOnList = i;
+								info.variableName = variable.first;
+								m_missingComponentRefs[variable.first + std::to_string(i)] = info;
+							}
+							else {
+								component = std::any_cast<Component::BaseComponent*>(value);
+								listOfComponent[i] = component;
+							}
+						}
+						variableValue.first = listOfComponent;
+					}
+					else if (variable.second.isAList || variableValue.second.isAList)
+						return;
+					else if (!ConvertInfoToComponent(variableValue.first)) {
+						ComponentInfo tuple = std::any_cast<ComponentInfo>(variableValue.first);
 						m_missingComponentRefs[variable.first] = tuple;
-						continue;
 					}
 				}
 				// Set with index of GameObject
 				else if (variable.second.type == Scripting::VariableType::GameObject)
 				{
-					uint64_t index = std::any_cast<uint64_t>(variableValue.first);
-					if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(index).lock())
-						variableValue.first = gameObject.get();
+					if (variableValue.second.isAList && variable.second.isAList)
+					{
+						auto listOfID = std::any_cast<std::vector<uint64_t>>(variableValue.first);
+						std::vector<Core::GameObject*> listOfGameObject(listOfID.size());
+						// Go trough all gameObjectIDs
+						for (int i = 0; i < listOfGameObject.size(); i++)
+						{
+							std::any id = listOfID[i];
+							auto anyGameObject = ConvertIDToGameObject(id);
+							listOfGameObject[i] = std::any_cast<Core::GameObject*>(anyGameObject);
+						}
+						variableValue.first = listOfGameObject;
+					}
+					else if (variable.second.isAList || variableValue.second.isAList)
+						return;
+					else
+						variableValue.first = ConvertIDToGameObject(variableValue.first);
 				}
 				m_component->SetVariable(variable.first, variableValue);
 			}
@@ -339,17 +265,265 @@ namespace GALAXY
 			return;
 		for (auto& refs : m_missingComponentRefs)
 		{
-			auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(std::get<0>(refs.second));
+			auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(refs.second.componentID);
 			if (!gameObject.lock())
 				continue;
 			// Check if component exist and the same type of the previous one
-			uint32_t componentID = std::get<1>(refs.second);
-			std::string componentName = std::get<2>(refs.second);
+			uint32_t componentID = refs.second.componentID;
+			std::string componentName = refs.second.componentName;
 			auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
-			if (component && component->GetComponentName() == componentName)
-				m_component->SetVariable(refs.first, component.get());
+			if (component && component->GetComponentName() == componentName) {
+				if (!refs.second.indexOnList.has_value()) {
+					m_component->SetVariable(refs.first, component.get());
+				}
+				// The Component is inside a list
+				else {
+					std::vector<Component::BaseComponent*>* vector = m_component->GetVariable<std::vector<Component::BaseComponent*>>(refs.second.variableName);
+					(*vector)[refs.second.indexOnList.value()] = component.get();
+					m_component->SetVariable(refs.second.variableName, *vector);
+				}
+			}
 		}
 	}
+
+	std::any Component::ReloadScript::ConvertComponentToInfo(const std::any& value)
+	{
+		auto component = std::any_cast<Component::BaseComponent*>(value);
+		ComponentInfo info;
+		if (component) {
+			auto gameObjectID = component->gameObject.lock()->GetIndex();
+			auto componentID = component->gameObject.lock()->GetComponentIndex(component);
+			info = ComponentInfo(gameObjectID, componentID, std::string(component->GetComponentName()));
+		}
+		return info;
+	}
+
+	std::any Component::ReloadScript::ConvertGameObjectToID(const std::any& value)
+	{
+		uint64_t id = -1;
+		if (auto gameObject = std::any_cast<Core::GameObject*>(value))
+		{
+			id = gameObject->GetIndex();
+		}
+		return id;
+	}
+
+	bool Component::ReloadScript::ConvertInfoToComponent(std::any& value)
+	{
+		ComponentInfo info = std::any_cast<ComponentInfo>(value);
+		auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(info.gameObjectID);
+		if (!gameObject.lock())
+			return true;
+		// Check if component exist and the same type of the previous one
+		uint32_t componentID = info.componentID;
+		std::string componentName = info.componentName;
+		auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
+		if (component && component->GetComponentName() == componentName) {
+			value = component.get();
+			return true;
+		}
+		else {
+			value = nullptr;
+			return false;
+		}
+	}
+
+	std::any Component::ReloadScript::ConvertIDToGameObject(const std::any& value)
+	{
+		uint64_t index = std::any_cast<uint64_t>(value);
+		if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(index).lock())
+			return gameObject.get();
+		return nullptr;
+	}
+
+#pragma endregion
+
+#pragma region DisplayVariableField
+	template<typename T> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, T* value)
+	{
+
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, bool* value)
+	{
+		if (value)
+			ImGui::Checkbox(variable.first.c_str(), value);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, int* value)
+	{
+		if (value)
+			ImGui::InputInt(variable.first.c_str(), value);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, float* value)
+	{
+		if (value)
+			ImGui::DragFloat(variable.first.c_str(), value);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, double* value)
+	{
+		if (value)
+			ImGui::InputDouble(variable.first.c_str(), value);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, Vec2f* value)
+	{
+		if (value)
+			ImGui::DragFloat2(variable.first.c_str(), &value->x);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, Vec3f* value)
+	{
+		if (value)
+			ImGui::DragFloat3(variable.first.c_str(), &value->x);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, Vec4f* value)
+	{
+		if (value)
+			ImGui::ColorPicker4(variable.first.c_str(), &value->x);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, std::string* value)
+	{
+		if (value)
+			ImGui::InputText(variable.first.c_str(), value);
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT<Component::BaseComponent*>(const std::pair<std::string, Scripting::VariableData>& variable, Component::BaseComponent** value)
+	{
+		Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
+		ImGui::Button(*value ? (*value)->GetComponentName() : "None", buttonSize);
+		if (*value) {
+			ImGui::SameLine();
+			if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+			{
+				(*value) = nullptr;
+			}
+		}
+
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+				// Check if the payload data type matches
+				std::vector<uint64_t> indices;
+				if (payload->DataSize % sizeof(uint64_t) == 0)
+				{
+					uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+					uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+					indices.assign(payloadData, payloadData + payloadSize);
+				}
+				for (size_t i = 0; i < indices.size(); i++) {
+					// Get the gameobject with the indices
+					std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
+					if (auto component = payloadGameObject.lock()->GetComponentWithName(variable.second.typeName))
+					{
+						// Get Component of the good type with the name
+						(*value) = component;
+						return;
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+		ImGui::SameLine();
+		ImGui::Text("(%s)", variable.second.typeName.c_str());
+	}
+
+	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, Core::GameObject** value)
+	{
+		Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
+		ImGui::Button(*value ? (*value)->GetName().c_str() : "None", buttonSize);
+		if (*value) {
+			ImGui::SameLine();
+			if (ImGui::Button("Reset", Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+				(*value) = nullptr;
+		}
+
+		if (ImGui::BeginDragDropTarget()) {
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+				// Check if the payload data type matches
+				std::vector<uint64_t> indices;
+				if (payload->DataSize % sizeof(uint64_t) == 0)
+				{
+					uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+					uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+					indices.assign(payloadData, payloadData + payloadSize);
+				}
+				// Get the gameobject with the first index
+				*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[0]).lock().get();
+			}
+			ImGui::EndDragDropTarget();
+		}
+		ImGui::SameLine();
+		ImGui::TextUnformatted("(GameObject)");
+	}
+
+	void Component::ScriptComponent::DisplayVariableField(const std::pair<std::string, Scripting::VariableData>& variable)
+	{
+		switch (variable.second.type)
+		{
+		case Scripting::VariableType::Unknown:
+		{
+			ImGui::Text("Unknown type for %s", variable.first.c_str());
+		}
+		break;
+		case Scripting::VariableType::Bool:
+		{
+			DisplayAndManageVariable<bool>(variable);
+		}
+		break;
+		case Scripting::VariableType::Int:
+		{
+			DisplayAndManageVariable<int>(variable);
+		}
+		break;
+		case Scripting::VariableType::Float:
+		{
+			DisplayAndManageVariable<float>(variable);
+		}
+		break;
+		case Scripting::VariableType::Double:
+		{
+			DisplayAndManageVariable<double>(variable);
+		}
+		break;
+		case Scripting::VariableType::Vector2:
+		{
+			DisplayAndManageVariable<Vec2f>(variable);
+		}
+		break;
+		case Scripting::VariableType::Vector3:
+		{
+			DisplayAndManageVariable<Vec3f>(variable);
+		}
+		break;
+		case Scripting::VariableType::Vector4:
+		{
+			DisplayAndManageVariable<Vec4f>(variable);
+		}
+		break;
+		case Scripting::VariableType::String:
+		{
+			DisplayAndManageVariable<std::string>(variable);
+		}
+		break;
+		case Scripting::VariableType::Component:
+		{
+			DisplayAndManageVariable<Component::BaseComponent*>(variable);
+		}
+		break;
+		case Scripting::VariableType::GameObject:
+		{
+			DisplayAndManageVariable<Core::GameObject*>(variable);
+		}
+		break;
+		default:
+			break;
+		}
+	}
+#pragma endregion
 
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
 	{

@@ -35,12 +35,9 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 	}
 
 	//TODO: Add tag & layer
-	static std::string name;
-	name = object->m_name;
 	ImGui::Checkbox("##", &object->m_active);
 	ImGui::SameLine();
-	ImGui::InputText("##InputName", &name);
-
+	ImGui::InputText("##InputName", &object->m_name);
 	ImGui::Separator();
 
 	// Transform

@@ -64,6 +64,41 @@ namespace GALAXY {
 		return ImGui::GetIO().DeltaTime;
 	}
 
+	void Wrapper::GUI::SetNextItemOpen(bool open /*= true*/)
+{
+		ImGui::SetNextItemOpen(open);
+	}
+
+	bool Wrapper::GUI::TreeNode(const char* treeName)
+	{
+		return ImGui::TreeNode(treeName);
+	}
+
+	void Wrapper::GUI::TreePop()
+	{
+		ImGui::TreePop();
+	}
+
+	void Wrapper::GUI::PushID(size_t id)
+	{
+		ImGui::PushID((int)id);
+	}
+
+	void Wrapper::GUI::PopID()
+	{
+		ImGui::PopID();
+	}
+
+	bool Wrapper::GUI::Button(const char* buttonName, Vec2f buttonSize)
+	{
+		return ImGui::Button(buttonName, buttonSize);
+	}
+
+	void Wrapper::GUI::SameLine()
+	{
+		ImGui::SameLine();
+	}
+
 	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
 	{
 		static bool _lock = false;

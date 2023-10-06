@@ -14,6 +14,7 @@ namespace GALAXY
 		struct PropertyInfo {
 			std::string propertyName;
 			std::string propertyType;
+			bool isAList = false;
 		};
 
 		class HeaderParser

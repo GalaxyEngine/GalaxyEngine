@@ -33,6 +33,14 @@ namespace GALAXY {
 
 			float DeltaTime();
 
+			void SetNextItemOpen(bool open = true);
+			bool TreeNode(const char* treeName);
+			void TreePop();
+			void PushID(size_t id);
+			void PopID();
+			bool Button(const char* buttonName, Vec2f buttonSize = 0);
+			void SameLine();
+
 		}
 	}
 }

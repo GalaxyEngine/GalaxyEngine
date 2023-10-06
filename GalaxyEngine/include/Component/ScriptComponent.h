@@ -49,11 +49,24 @@ namespace GALAXY
 			std::unordered_map<std::string, Scripting::VariableData> GetAllVariables() const;
 
 		private:
+			template<typename T> inline void DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable);
+
+			template<typename T> void DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, T* value);
+
+			void DisplayVariableField(const std::pair<std::string, Scripting::VariableData>& variable);
 
 			void* GetVariableVoid(const std::string& variableName);
 
 			void SetVariableVoid(const std::string& variableName, void* value);
+		};
 
+		struct ComponentInfo
+		{
+			uint64_t gameObjectID = -1;
+			uint32_t componentID = -1;
+			std::string componentName = "";
+			std::optional<size_t> indexOnList;
+			std::string variableName = "";
 		};
 
 		class ReloadScript
@@ -68,11 +81,19 @@ namespace GALAXY
 
 			std::string GetScriptName() const { return m_scriptName; }
 		private:
+			std::any ConvertComponentToInfo(const std::any& value);
+
+			std::any ConvertGameObjectToID(const std::any& value);
+
+			bool ConvertInfoToComponent(std::any& value);
+
+			std::any ConvertIDToGameObject(const std::any& value);
+		private:
 			Shared<ScriptComponent> m_component;
 
 			std::string m_scriptName;
 
-			std::unordered_map<std::string, std::tuple<uint64_t, uint32_t, std::string>> m_missingComponentRefs;
+			std::unordered_map<std::string, ComponentInfo> m_missingComponentRefs;
 
 			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
 			

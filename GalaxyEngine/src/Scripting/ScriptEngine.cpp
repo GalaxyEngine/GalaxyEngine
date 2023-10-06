@@ -162,14 +162,17 @@ namespace GALAXY
 		std::string className = script.lock()->GetName();
 		className = className.substr(0, className.find_last_of('.'));
 
+		// Get the constructor
 		Shared<ScriptInstance> scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 		scriptInstance->m_constructor = GetConstructor(className);
 
+		// Get the component and register it in componentHolder
 		Component::ScriptComponent* component = reinterpret_cast<Component::ScriptComponent*>(scriptInstance->m_constructor());
 
 		Component::ComponentHolder::RegisterComponent<Component::ScriptComponent>(component);
 		m_registeredScriptComponents.push_back(component);
 
+		// Parse script and get getters, setters and variables.
 		auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
 		for (auto& property : properties)
 		{
@@ -178,12 +181,13 @@ namespace GALAXY
 			scriptInstance->m_settersMethods[property.propertyName] = GetSetter(className, property.propertyName);
 			scriptInstance->m_variables[property.propertyName].type = type;
 			scriptInstance->m_variables[property.propertyName].typeName = property.propertyType;
-			scriptInstance->m_variables[property.propertyName].isAList = false;
+			scriptInstance->m_variables[property.propertyName].isAList = property.isAList;
 		}
 	}
 
 	void Scripting::ScriptEngine::CleanScripts()
 	{
+		// Unregister all script Components
 		for (auto scriptComponent : m_registeredScriptComponents)
 		{
 			Component::ComponentHolder::UnregisterComponent(scriptComponent);
@@ -206,25 +210,31 @@ namespace GALAXY
 		Core::Scene* currentScene = sceneHolder->GetCurrentScene();
 		Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
 
-		auto childs = rootGameObject->GetAllChildren();
+		auto childGameObjects = rootGameObject->GetAllChildren();
 
-		std::vector<std::vector<Component::ReloadScript>> reloaders;
-		std::vector<std::vector<uint32_t>> componentIDs;
-		for (auto& child : childs) {
-			reloaders.push_back({});
-			componentIDs.push_back({});
+		// Initialize vectors to store reloaders and component IDs for each child game object
+		std::vector<std::vector<Component::ReloadScript>> reloaders(childGameObjects.size());
+		std::vector<std::vector<uint32_t>> componentIDs(childGameObjects.size());
 
-			auto& currentComponentID = componentIDs.back();
-			auto& currentReloaderList = reloaders.back();
-			if (!child.lock())
+		for (size_t i = 0; i < childGameObjects.size(); ++i)
+		{
+			auto& currentReloaderList = reloaders[i];
+			auto& currentComponentID = componentIDs[i];
+			auto childGameObject = childGameObjects[i].lock();
+
+			if (!childGameObject)
 				continue;
-			auto scriptComponents = child.lock()->GetComponentsPrivate<Component::ScriptComponent>();
+
+			// Get script components and create reloaders
+			auto scriptComponents = childGameObject->GetComponentsPrivate<Component::ScriptComponent>();
 			for (auto& component : scriptComponents)
 			{
 				if (component)
 				{
-					currentReloaderList.push_back(Component::ReloadScript(component));
-					currentComponentID.push_back(child.lock()->GetComponentIndex(component.get()));
+					currentReloaderList.emplace_back(component);
+					currentComponentID.push_back(childGameObject->GetComponentIndex(component.get()));
+
+					// Reload the script and remove it from the game object
 					auto& reload = currentReloaderList.back();
 					reload.BeforeReloadScript();
 					component->RemoveFromGameObject();
@@ -232,32 +242,38 @@ namespace GALAXY
 			}
 		}
 
+		// Clean up old scripts
 		CleanScripts();
 
+		// Unload the old DLL
 		UnloadDLL();
 
+		// Load the new DLL
 		LoadDLL(m_dllPath, m_dllName);
 
 		for (int i = 0; i < reloaders.size(); i++)
 		{
 			auto& currentReloaderList = reloaders[i];
 			auto& currentComponentID = componentIDs[i];
-			for (int j = 0; j < currentReloaderList.size(); j++)
+			auto childGameObject = childGameObjects[i];
+
+			for (size_t j = 0; j < currentReloaderList.size(); ++j)
 			{
-				// Remove of script not exist
+				// Check if the script still exists
 				if (!ScriptExist(currentReloaderList[j].GetScriptName()))
 					continue;
+
+				// After reloading the script, add it back to the game object
 				currentReloaderList[j].AfterReloadScript();
-				auto gameObject = childs[i];
-				gameObject.lock()->AddComponent(currentReloaderList[j].GetComponent(), currentComponentID[j]);
+				childGameObject.lock()->AddComponent(currentReloaderList[j].GetComponent(), currentComponentID[j]);
 			}
 		}
 
-		for (int i = 0; i < reloaders.size(); i++)
+		// Sync component values for all reloaders
+		for (size_t i = 0; i < reloaders.size(); ++i)
 		{
 			auto& currentReloaderList = reloaders[i];
-			auto& currentComponentID = componentIDs[i];
-			for (int j = 0; j < currentReloaderList.size(); j++)
+			for (size_t j = 0; j < currentReloaderList.size(); ++j)
 			{
 				currentReloaderList[j].SyncComponentsValues();
 			}
@@ -294,7 +310,7 @@ namespace GALAXY
 		{
 			if (typeName == "BaseComponent")
 				return VariableType::Component;
-			for (auto componentRegistered : Component::ComponentHolder::GetList())
+			for (const auto& componentRegistered : Component::ComponentHolder::GetList())
 			{
 				if (componentRegistered->GetComponentName() == typeName)
 				{
