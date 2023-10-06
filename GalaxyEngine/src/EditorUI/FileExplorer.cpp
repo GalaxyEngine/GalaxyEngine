@@ -400,7 +400,8 @@ namespace GALAXY {
 			}
 			if (ImGui::Button("New Folder", buttonSize))
 			{
-
+				std::filesystem::create_directory(m_currentFile->m_info.GetFullPath() / "New Folder");
+				ReloadContent();
 				quitPopup();
 			}
 			if (ImGui::Button("Create Script", buttonSize))

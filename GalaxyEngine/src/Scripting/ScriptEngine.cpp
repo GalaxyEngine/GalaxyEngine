@@ -245,11 +245,21 @@ namespace GALAXY
 			for (int j = 0; j < currentReloaderList.size(); j++)
 			{
 				// Remove of script not exist
-				if (!ScriptExist(currentReloaderList[i].GetScriptName()))
-					break;
+				if (!ScriptExist(currentReloaderList[j].GetScriptName()))
+					continue;
 				currentReloaderList[j].AfterReloadScript();
 				auto gameObject = childs[i];
-				gameObject.lock()->AddComponent(currentReloaderList[i].GetComponent(), currentComponentID[j]);
+				gameObject.lock()->AddComponent(currentReloaderList[j].GetComponent(), currentComponentID[j]);
+			}
+		}
+
+		for (int i = 0; i < reloaders.size(); i++)
+		{
+			auto& currentReloaderList = reloaders[i];
+			auto& currentComponentID = componentIDs[i];
+			for (int j = 0; j < currentReloaderList.size(); j++)
+			{
+				currentReloaderList[j].SyncComponentsValues();
 			}
 		}
 	}

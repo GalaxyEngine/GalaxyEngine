@@ -220,7 +220,8 @@ namespace GALAXY {
 					Vec2f ButtonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 					if (ImGui::Button(component->GetComponentName(), ButtonSize)) {
 						ImGui::CloseCurrentPopup();
-						return component->Clone();
+						auto cloned = component->Clone();
+						return cloned;
 					}
 
 				}

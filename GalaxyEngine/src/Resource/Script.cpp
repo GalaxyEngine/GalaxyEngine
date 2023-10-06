@@ -9,10 +9,13 @@ namespace GALAXY
 	R"(
 #include "Scripting/Macro.h"
 #include "Component/ScriptComponent.h"
+// Note : all ptr variable need to be initialized with nullptr
 
 class %s : public Component::ScriptComponent
 {
 	GENERATED_BODY(%s, Component::ScriptComponent)
+public:
+
 public:
 	void OnStart() override
 	{

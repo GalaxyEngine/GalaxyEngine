@@ -42,6 +42,8 @@ function fileExists(path)
     return false
 end
 
+add_mxflags("-MD")
+
 target("GalaxyEngine")
     set_kind("shared")
     set_symbols("debug")

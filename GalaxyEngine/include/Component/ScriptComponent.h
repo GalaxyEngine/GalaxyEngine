@@ -32,7 +32,8 @@ namespace GALAXY
 			template<typename T>
 			T* GetVariable(const std::string& variableName)
 			{
-				return reinterpret_cast<T*>(GetVariableVoid(variableName));
+				auto value = reinterpret_cast<T*>(GetVariableVoid(variableName));
+				return value;
 			}
 
 			std::any GetVariable(const std::string& variableName);
@@ -62,6 +63,7 @@ namespace GALAXY
 
 			void BeforeReloadScript();
 			void AfterReloadScript();
+			void SyncComponentsValues();
 			Shared<GALAXY::Component::ScriptComponent> GetComponent() const { return m_component; }
 
 			std::string GetScriptName() const { return m_scriptName; }
@@ -69,6 +71,8 @@ namespace GALAXY
 			Shared<ScriptComponent> m_component;
 
 			std::string m_scriptName;
+
+			std::unordered_map<std::string, std::tuple<uint64_t, uint32_t, std::string>> m_missingComponentRefs;
 
 			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
 			

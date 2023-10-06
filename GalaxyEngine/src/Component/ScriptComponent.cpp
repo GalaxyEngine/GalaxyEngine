@@ -114,6 +114,8 @@ namespace GALAXY
 						}
 						ImGui::EndDragDropTarget();
 					}
+					ImGui::SameLine();
+					ImGui::Text("(%s)", variable.second.typeName.c_str());
 				}
 			}
 			break;
@@ -144,6 +146,8 @@ namespace GALAXY
 						}
 						ImGui::EndDragDropTarget();
 					}
+					ImGui::SameLine();
+					ImGui::TextUnformatted("(GameObject)");
 				}
 			}
 			break;
@@ -262,13 +266,21 @@ namespace GALAXY
 			if (variable.second.type == Scripting::VariableType::Component)
 			{
 				auto component = std::any_cast<Component::BaseComponent*>(variableValue);
-				auto gameObjectID = component->gameObject.lock()->GetIndex();
-				auto componentID = component->gameObject.lock()->GetComponentIndex(component);
-				variableValue = std::make_pair(gameObjectID, componentID);
+				std::tuple<uint64_t, uint32_t, std::string> tuple;
+				if (component) {
+					auto gameObjectID = component->gameObject.lock()->GetIndex();
+					auto componentID = component->gameObject.lock()->GetComponentIndex(component);
+					tuple = std::make_tuple(gameObjectID, componentID, std::string(component->GetComponentName()));
+				}
+				variableValue = tuple;
 			}
 			else if (variable.second.type == Scripting::VariableType::GameObject)
 			{
-				uint64_t id = std::any_cast<Core::GameObject*>(variableValue)->GetIndex();
+				uint64_t id = -1;
+				if (auto gameObject = std::any_cast<Core::GameObject*>(variableValue)) 
+				{
+					id = gameObject->GetIndex();
+				}
 				variableValue = id;
 			}
 			m_tempVariables[variable.first] = std::make_pair(variableValue, variable.second);
@@ -293,14 +305,20 @@ namespace GALAXY
 				// Set with index of Component + Gameobject
 				if (variable.second.type == Scripting::VariableType::Component)
 				{
-					std::pair<uint64_t, uint32_t> pair = std::any_cast<std::pair<uint64_t, uint32_t>>(variableValue.first);
-					auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(pair.first);
+					std::tuple<uint64_t, uint32_t, std::string> tuple = std::any_cast<std::tuple<uint64_t, uint32_t, std::string>>(variableValue.first);
+					auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(std::get<0>(tuple));
 					if (!gameObject.lock())
 						continue;
-					if (auto component = gameObject.lock()->GetComponentWithIndex(pair.second).lock())
+					// Check if component exist and the same type of the previous one
+					uint32_t componentID = std::get<1>(tuple);
+					std::string componentName = std::get<2>(tuple);
+					auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
+					if (component && component->GetComponentName() == componentName)
 						variableValue.first = component.get();
-					else
+					else {
+						m_missingComponentRefs[variable.first] = tuple;
 						continue;
+					}
 				}
 				// Set with index of GameObject
 				else if (variable.second.type == Scripting::VariableType::GameObject)
@@ -315,9 +333,30 @@ namespace GALAXY
 		m_tempVariables.clear();
 	}
 
+	void Component::ReloadScript::SyncComponentsValues()
+	{
+		if (m_missingComponentRefs.size() == 0)
+			return;
+		for (auto& refs : m_missingComponentRefs)
+		{
+			auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(std::get<0>(refs.second));
+			if (!gameObject.lock())
+				continue;
+			// Check if component exist and the same type of the previous one
+			uint32_t componentID = std::get<1>(refs.second);
+			std::string componentName = std::get<2>(refs.second);
+			auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
+			if (component && component->GetComponentName() == componentName)
+				m_component->SetVariable(refs.first, component.get());
+		}
+	}
+
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
 	{
-		return Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(this, GetComponentName(), variableName);
+		if (!this)
+			return nullptr;
+		void* variableVoid = Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(this, GetComponentName(), variableName);
+		return variableVoid;
 	}
 
 	void Component::ScriptComponent::SetVariableVoid(const std::string& variableName, void* value)
