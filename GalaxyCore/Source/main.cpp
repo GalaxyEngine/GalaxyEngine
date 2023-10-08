@@ -17,8 +17,8 @@ void Main(int argc, char** argv)
 
 	Core::Application& application = Core::Application::GetInstance();
 
-	//std::filesystem::path projectPath = "D:\\Code\\Moteurs\\ProjectTest\\ProjectTest.gProject";
-	std::filesystem::path projectPath = "D:\\Code\\Test Projects\\Project\\Project.gProject";
+	std::filesystem::path projectPath = "D:\\Code\\Moteurs\\ProjectTest\\ProjectTest.gProject";
+	//std::filesystem::path projectPath = "D:\\Code\\Test Projects\\Project\\Project.gProject";
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 

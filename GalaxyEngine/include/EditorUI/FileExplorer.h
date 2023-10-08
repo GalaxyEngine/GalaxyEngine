@@ -64,6 +64,8 @@ namespace GALAXY
 
 			void ReloadContent();
 		private:
+			friend class MainBar;
+
 			std::filesystem::path m_workingDirectory = ASSET_FOLDER_NAME;
 
 			std::shared_ptr<File> m_mainFile;

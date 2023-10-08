@@ -9,6 +9,8 @@
 
 #include "EditorUI/EditorUIManager.h"
 
+#include "Core/Input.h"
+
 namespace GALAXY {
 
 	Render::Camera::Camera()
@@ -30,53 +32,54 @@ namespace GALAXY {
 		 * change input with input class
 		 * change delta time with Time class
 		*/
-		bool fastMode = ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift);
-		bool movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
+		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
+		float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
 
-		if (ImGui::IsKeyDown(ImGuiKey_A) || ImGui::IsKeyDown(ImGuiKey_LeftArrow))
+		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_D) || ImGui::IsKeyDown(ImGuiKey_RightArrow))
+		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_W) || ImGui::IsKeyDown(ImGuiKey_UpArrow))
+		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_S) || ImGui::IsKeyDown(ImGuiKey_DownArrow))
+		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_Q))
+		if (Input::IsKeyDown(Key::Q))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_E))
+		if (Input::IsKeyDown(Key::E))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_R) || ImGui::IsKeyDown(ImGuiKey_PageUp))
+		if (Input::IsKeyDown(Key::R) || Input::IsKeyDown(Key::PAGE_UP))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (ImGui::IsKeyDown(ImGuiKey_F) || ImGui::IsKeyDown(ImGuiKey_PageDown))
+		if (Input::IsKeyDown(Key::F) || Input::IsKeyDown(Key::PAGE_DOWN))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
 		if (m_looking)
 		{
-			float mouseX = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-			float mouseY = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f).y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
+			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
+			float mouseX = delta.x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
+			float mouseY = delta.y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
 
 			Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 			window->SetMousePosition(prevMousePos);
@@ -90,18 +93,18 @@ namespace GALAXY {
 			m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
 		}
 
-		float axis = ImGui::GetIO().MouseWheel;
+		float axis = Input::GetScrollWheelValue();
 		if (axis != 0)
 		{
 			float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
 		}
 
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_2))
 		{
 			StartLooking();
 		}
-		else if (ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+		else if (Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
 		{
 			StopLooking();
 		}

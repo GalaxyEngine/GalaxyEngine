@@ -24,7 +24,9 @@ namespace GALAXY
 	std::filesystem::path Utils::FileInfo::ToPath(std::filesystem::path path)
 	{
 		std::filesystem::path canonicalPath = std::filesystem::weakly_canonical(path);
-		return canonicalPath.make_preferred();
+		// Temp Try to remove this line :
+		// return canonicalPath.make_preferred();
+		return canonicalPath;
 	}
 
 	std::filesystem::path Utils::FileInfo::ToRelativePath(std::filesystem::path path)
@@ -66,7 +68,7 @@ namespace GALAXY
 			return ResourceType::Material;
 		else if (ext == ".gdata")
 			return ResourceType::Data;
-		else if (ext == ".h" || ext == ".hpp")
+		else if (ext == ".h" || ext == ".hpp" || ext == ".cpp" || ext == "cc")
 			return ResourceType::Script;
 		else
 			return ResourceType::None;

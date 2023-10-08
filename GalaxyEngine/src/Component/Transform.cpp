@@ -177,9 +177,11 @@ void Component::Transform::ShowInInspector()
 	Wrapper::GUI::DrawVec3Control("Rotation", &rotation.x);
 	Wrapper::GUI::DrawVec3Control("Scale", &scale.x, 1.f, true);
 
+	/*
 	ImGui::Text("World Position %s", GetWorldPosition().ToString().c_str());
 	ImGui::Text("World Rotation %s", GetWorldRotation().ToEuler().ToString().c_str());
 	ImGui::Text("World Scale %s", GetWorldScale().ToString().c_str());
+	*/
 
 	if (position != m_localPosition || rotation != m_localEulerRotation || scale != m_localScale) {
 		SetLocalPosition(position);

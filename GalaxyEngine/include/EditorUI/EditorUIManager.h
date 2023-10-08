@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 
+#include "EditorUI/MainBar.h"
 #include "EditorUI/Hierarchy.h"
 #include "EditorUI/Inspector.h"
 #include "EditorUI/SceneWindow.h"
@@ -25,6 +26,7 @@ namespace GALAXY::EditorUI {
 
 		void DrawMainDock();
 
+		MainBar* GetMainBar() const { return m_mainBar.get(); }
 		Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }
 		Inspector* GetInspector() const { return m_inspector.get(); }
 		SceneWindow* GetSceneWindow() const { return m_sceneWindow.get(); }
@@ -32,6 +34,7 @@ namespace GALAXY::EditorUI {
 		FileExplorer* GetFileExplorer() const { return m_fileExplorer.get(); }
 	private:
 		static std::unique_ptr<EditorUIManager> m_instance;
+		std::unique_ptr<MainBar> m_mainBar;
 		std::unique_ptr<Hierarchy> m_hierarchy;
 		std::unique_ptr<Inspector> m_inspector;
 		std::unique_ptr<SceneWindow> m_sceneWindow;

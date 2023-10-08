@@ -23,8 +23,8 @@ namespace GALAXY {
 		if (m_visible = ImGui::Begin("Scene", &p_open))
 		{
 			m_isHovered = ImGui::IsWindowHovered(); 
-			SetResouces();
-			const float windowAvaibleWidth = ImGui::GetContentRegionAvail().x;
+			SetResources();
+			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;
 			if (Wrapper::GUI::TextureButton(m_settingsIcon.lock() ? m_settingsIcon.lock().get() : nullptr, Vec2f(16)))
 			{
 				ImGui::OpenPopup("Camera settings");
@@ -36,7 +36,9 @@ namespace GALAXY {
 			}
 
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowAvaibleWidth - 16);
+			ImGui::Text("FPS %f", 1.f / Wrapper::GUI::DeltaTime());
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(windowAvailableWidth - 16);
 			if (Wrapper::GUI::TextureButton(m_menuIcon.lock() ? m_menuIcon.lock().get() : nullptr, Vec2f(16)))
 			{
 				ImGui::OpenPopup("Menu Icons");
@@ -54,7 +56,7 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void EditorUI::SceneWindow::SetResouces()
+	void EditorUI::SceneWindow::SetResources()
 	{
 		if (!m_settingsIcon.lock())
 		{

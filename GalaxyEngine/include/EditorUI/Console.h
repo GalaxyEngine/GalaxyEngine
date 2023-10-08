@@ -27,6 +27,8 @@ namespace GALAXY
 		private:
 
 		private:
+			friend class MainBar;
+
 			const size_t m_maxText = 200;
 
 			std::vector<std::pair<Debug::LogType, std::string>> m_texts;

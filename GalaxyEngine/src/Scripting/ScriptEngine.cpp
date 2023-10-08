@@ -92,13 +92,17 @@ namespace GALAXY
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
 
-		auto threadManager = Core::ThreadManager::GetInstance();
-		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
-		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
-		threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, libPathName, copiedLibPath);
+		auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
+		auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
+		if (lastTimeCopied < lastTimeDLL) {
+			auto threadManager = Core::ThreadManager::GetInstance();
+			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
+			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
+			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, libPathName, copiedLibPath);
 
-		while (copiedFile != 3) {}
-		copiedFile = 0;
+			while (copiedFile != 3) {}
+			copiedFile = 0;
+		}
 		auto dllLoad = copiedDllPath.string();
 		m_hDll = LoadLibrary(dllLoad.c_str());
 		if (m_hDll != NULL) {
@@ -308,6 +312,7 @@ namespace GALAXY
 			return VariableType::GameObject;
 		else
 		{
+			// Check the names of all components to see if they match.
 			if (typeName == "BaseComponent")
 				return VariableType::Component;
 			for (const auto& componentRegistered : Component::ComponentHolder::GetList())

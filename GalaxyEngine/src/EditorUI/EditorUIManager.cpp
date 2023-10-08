@@ -9,6 +9,7 @@ namespace GALAXY {
 
 	EditorUI::EditorUIManager::EditorUIManager()
 	{
+		m_mainBar = std::make_unique<MainBar>();
 		m_sceneWindow = std::make_unique<SceneWindow>();
 		m_hierarchy = std::make_unique<Hierarchy>();
 		m_inspector = std::make_unique<Inspector>();
@@ -24,6 +25,7 @@ namespace GALAXY {
 	void EditorUI::EditorUIManager::DrawUI()
 	{
 		DrawMainDock();
+		m_mainBar->Draw();
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
 		m_inspector->Draw();

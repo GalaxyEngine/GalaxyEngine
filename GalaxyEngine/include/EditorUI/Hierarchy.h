@@ -19,6 +19,8 @@ namespace GALAXY {
 			void SetRename(Core::GameObject* gameObject);
 
 		private:
+			friend class MainBar;
+
 			bool m_openRightClick = false;
 
 			bool m_openRename = false;

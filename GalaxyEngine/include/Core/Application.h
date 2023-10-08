@@ -34,6 +34,8 @@ namespace GALAXY
 
 			bool* GetDrawGrid() { return &m_drawGrid; }
 
+			void Exit();
+
 		private:
 			static Application m_instance;
 

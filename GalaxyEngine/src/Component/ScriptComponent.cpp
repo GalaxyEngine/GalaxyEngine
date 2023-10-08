@@ -7,8 +7,6 @@
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
-#include <any>
-
 #define GETVARIABLE(x)\
 	if (!variable.isAList)\
 		return *GetVariable<x>(variableName);\
@@ -150,10 +148,11 @@ namespace GALAXY
 			auto variableValue = m_component->GetVariable(variable.first);
 			if (variable.second.type == Scripting::VariableType::Component)
 			{
-				if (!variable.second.isAList)
+				if (!variable.second.isAList) {
 					variableValue = ConvertComponentToInfo(variableValue);
-				else
-				{
+				}
+				else {
+					// If it's a list
 					std::vector<Component::BaseComponent*> vector = std::any_cast<std::vector<Component::BaseComponent*>>(variableValue);
 					std::vector<ComponentInfo> vectorValue(vector.size());
 					for (int i = 0; i < vectorValue.size(); i++)
@@ -166,10 +165,11 @@ namespace GALAXY
 			}
 			else if (variable.second.type == Scripting::VariableType::GameObject)
 			{
-				if (!variable.second.isAList)
+				if (!variable.second.isAList) {
 					variableValue = ConvertGameObjectToID(variableValue);
-				else
-				{
+				}
+				else {
+					// If it's a list
 					std::vector<Core::GameObject*> vector = std::any_cast<std::vector<Core::GameObject*>>(variableValue);
 					std::vector<uint64_t> vectorValue(vector.size());
 					for (int i = 0; i < vectorValue.size(); i++)
@@ -202,9 +202,9 @@ namespace GALAXY
 				// Set with index of Component + Gameobject
 				if (variable.second.type == Scripting::VariableType::Component)
 				{
-					//TODO Handle vector
 					if (variableValue.second.isAList && variable.second.isAList)
 					{
+						// If it's a list
 						auto listOfInfo = std::any_cast<std::vector<ComponentInfo>>(variableValue.first);
 						std::vector<Component::BaseComponent*> listOfComponent(listOfInfo.size());
 						// Go trough all componentInfo
@@ -225,8 +225,11 @@ namespace GALAXY
 						}
 						variableValue.first = listOfComponent;
 					}
-					else if (variable.second.isAList || variableValue.second.isAList)
+					else if (variable.second.isAList || variableValue.second.isAList) 
+					{
+						// If was a list and not now or it's a list now
 						return;
+					}
 					else if (!ConvertInfoToComponent(variableValue.first)) {
 						ComponentInfo tuple = std::any_cast<ComponentInfo>(variableValue.first);
 						m_missingComponentRefs[variable.first] = tuple;
@@ -237,6 +240,7 @@ namespace GALAXY
 				{
 					if (variableValue.second.isAList && variable.second.isAList)
 					{
+						// If it's a list
 						auto listOfID = std::any_cast<std::vector<uint64_t>>(variableValue.first);
 						std::vector<Core::GameObject*> listOfGameObject(listOfID.size());
 						// Go trough all gameObjectIDs
@@ -248,8 +252,11 @@ namespace GALAXY
 						}
 						variableValue.first = listOfGameObject;
 					}
-					else if (variable.second.isAList || variableValue.second.isAList)
+					else if (variable.second.isAList || variableValue.second.isAList) 
+					{
+						// If was a list and not now or it's a list now
 						return;
+					}
 					else
 						variableValue.first = ConvertIDToGameObject(variableValue.first);
 				}
@@ -272,12 +279,14 @@ namespace GALAXY
 			uint32_t componentID = refs.second.componentID;
 			std::string componentName = refs.second.componentName;
 			auto component = gameObject.lock()->GetComponentWithIndex(componentID).lock();
-			if (component && component->GetComponentName() == componentName) {
+
+			if (component && component->GetComponentName() == componentName) 
+			{
 				if (!refs.second.indexOnList.has_value()) {
 					m_component->SetVariable(refs.first, component.get());
 				}
-				// The Component is inside a list
 				else {
+					// The Component is inside a list
 					std::vector<Component::BaseComponent*>* vector = m_component->GetVariable<std::vector<Component::BaseComponent*>>(refs.second.variableName);
 					(*vector)[refs.second.indexOnList.value()] = component.get();
 					m_component->SetVariable(refs.second.variableName, *vector);
@@ -341,7 +350,7 @@ namespace GALAXY
 #pragma region DisplayVariableField
 	template<typename T> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, T* value)
 	{
-
+		
 	}
 
 	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, bool* value)

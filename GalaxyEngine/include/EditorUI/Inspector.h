@@ -26,6 +26,8 @@ namespace GALAXY {
 			
 			std::vector<std::weak_ptr<Core::GameObject>> GetSelected();
 		private:
+			friend class MainBar;
+
 			std::vector<std::weak_ptr<Core::GameObject>> m_selectedGameObject;
 
 			std::weak_ptr<Component::BaseComponent> m_rightClicked;

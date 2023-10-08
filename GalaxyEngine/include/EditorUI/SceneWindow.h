@@ -17,11 +17,13 @@ namespace GALAXY
 
 			void Draw() override;
 
-			void SetResouces();
+			void SetResources();
 
 			bool IsVisible() const { return m_visible; }
 			bool IsHovered() const { return m_isHovered; }
 		private:
+			friend class MainBar;
+
 			void DrawImage();
 
 			bool m_visible = true;

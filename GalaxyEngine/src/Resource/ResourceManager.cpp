@@ -81,6 +81,7 @@ namespace GALAXY {
 		}
 		case Resource::ResourceType::Script:
 		{
+			// Default load all scripts
 			GetOrLoad<Resource::Script>(resourcePath);
 		}
 			break;

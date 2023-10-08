@@ -40,9 +40,9 @@ namespace GALAXY {
 			friend Wrapper::OpenGLRenderer;
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> m_subShaders = {};
-			std::unordered_map<std::string, int> m_locations;
+			std::unordered_map<std::string, int> m_locations = {};
 
-			Wrapper::Renderer* m_renderer;
+			Wrapper::Renderer* m_renderer = nullptr;
 			uint32_t m_id = -1;
 		};
 

@@ -64,6 +64,7 @@ namespace GALAXY::Wrapper
 		void SetCursorMode(CursorMode mode);
 
 		bool ShouldClose();
+		void Close();
 
 		[[nodiscard]] void* GetWindow() { return m_window; }
 

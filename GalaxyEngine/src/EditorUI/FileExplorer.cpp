@@ -372,6 +372,12 @@ namespace GALAXY {
 							break;
 						case Resource::ResourceType::Material:
 							break;
+						case Resource::ResourceType::Script:
+							if (ImGui::Button("Edit", buttonSize))
+							{
+								Resource::Script::OpenScript(m_rightClickedFiles[0]->m_info.GetFullPath());
+							}
+							break;
 						default:
 							break;
 						}

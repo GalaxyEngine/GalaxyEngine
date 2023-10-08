@@ -21,6 +21,10 @@ namespace GALAXY
 
 			static Weak<Script> Create(const std::filesystem::path& path);
 
+			static void OpenScript(const std::filesystem::path& path);
+
+			static ResourceType GetResourceType() { return ResourceType::Script; }
+
 		private:
 
 		};
