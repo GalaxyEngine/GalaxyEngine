@@ -5,6 +5,7 @@
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Script.h"
+#include "Resource/Material.h"
 
 #define AUTO_IMPORT_MODEL
 // Automatic import all model that not get a .gdata
@@ -56,6 +57,9 @@ namespace GALAXY {
 			break;
 		case Resource::ResourceType::FragmentShader:
 			AddResource(new FragmentShader(resourcePath));
+			break;
+		case Resource::ResourceType::Material:
+			AddResource(new Material(resourcePath));
 			break;
 		case Resource::ResourceType::Model:
 #ifndef AUTO_IMPORT_MODEL

@@ -8,7 +8,7 @@
 
 namespace GALAXY {
 
-	void Wrapper::GUI::Initalize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
+	void Wrapper::GUI::Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();

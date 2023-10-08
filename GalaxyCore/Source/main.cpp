@@ -22,19 +22,11 @@ void Main(int argc, char** argv)
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 
-	application.Initalize(projectPath);
+	application.Initialize(projectPath);
 
 	application.Update();
 
 	application.Destroy();
-
-	/*TODO On Hub :
-	* Fix in Project :
-	*	xmake (/MD)
-	*   main.cpp avec DLLMain
-	*	DLL path
-	*/
-
 }
 
 int main(int argc, char** argv)

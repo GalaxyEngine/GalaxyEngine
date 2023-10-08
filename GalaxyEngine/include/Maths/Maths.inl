@@ -4,7 +4,7 @@
 #include <cfloat>
 #include <algorithm>
 
-#include "Math.h"
+#include "Maths.h"
 
 namespace GALAXY::Math {
 #pragma region Math Functions

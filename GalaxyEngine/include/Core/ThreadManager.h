@@ -12,7 +12,7 @@ namespace GALAXY::Core {
 	public:
 		~ThreadManager();
 
-		void Initalize();
+		void Initialize();
 		void Destroy();
 
 		void ThreadLoop();

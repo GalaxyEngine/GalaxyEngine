@@ -7,7 +7,7 @@ Core::ThreadManager::~ThreadManager()
 {
 }
 
-void Core::ThreadManager::Initalize()
+void Core::ThreadManager::Initialize()
 {
 	m_threadList.resize(std::thread::hardware_concurrency());
 	for (uint32_t i = 0; i < m_threadList.size(); i++) {

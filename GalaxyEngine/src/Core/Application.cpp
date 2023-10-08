@@ -14,6 +14,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
+#include "Resource/Material.h"
 
 #include "EditorUI/EditorUIManager.h"
 
@@ -32,11 +33,11 @@ namespace GALAXY {
 
 	Core::Application::~Application() {}
 
-	void Core::Application::Initalize(const std::filesystem::path& projectPath)
+	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
-		// Initalize Window Lib
+		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
-			PrintError("Failed to initalize window API");
+			PrintError("Failed to initialize window API");
 
 		// Create Window
 		m_window = std::make_unique<Wrapper::Window>();
@@ -49,18 +50,18 @@ namespace GALAXY {
 
 		Input::Initialize();
 
-		// Initalize GUI Lib
-		Wrapper::GUI::Initalize(m_window, "#version 330");
+		// Initialize GUI Lib
+		Wrapper::GUI::Initialize(m_window, "#version 330");
 
-		// Initalize Render API
+		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
 		m_renderer = Wrapper::Renderer::GetInstance();
 
-		// Initalize Thread Manager
+		// Initialize Thread Manager
 		m_threadManager = Core::ThreadManager::GetInstance();
-		m_threadManager->Initalize();
+		m_threadManager->Initialize();
 
-		// Initalize Resource Manager
+		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
 		m_resourceManager->m_projectPath = projectPath.parent_path();
 		m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
@@ -72,14 +73,15 @@ namespace GALAXY {
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 
-		// Initalize EditorUI
+		// Initialize EditorUI
 		m_editorUI = EditorUI::EditorUIManager::GetInstance();
-		m_editorUI->Initalize();
+		m_editorUI->Initialize();
 
+		// Initialize Scripting
 		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
 		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
 
-		// Initalize Components
+		// Initialize Components
 		Component::ComponentHolder::Initialize();
 	}
 

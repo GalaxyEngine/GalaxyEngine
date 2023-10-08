@@ -22,7 +22,7 @@ namespace GALAXY
 
 			static Application& GetInstance() { return m_instance; }
 
-			void Initalize(const std::filesystem::path& projectPath);
+			void Initialize(const std::filesystem::path& projectPath);
 			void Update();
 			void Destroy();
 

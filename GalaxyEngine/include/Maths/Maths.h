@@ -212,6 +212,12 @@ namespace GALAXY::Math
 
 		inline T& operator[](const size_t a);
 
+		friend inline std::ostream& operator<<(std::ostream& os, const Vec4<T>& vec)
+		{
+			os << vec.x << " " << vec.y << " " << vec.z << " " << vec.w;
+			return os;
+		}
+
 		static inline Vec4 Right() { return { 1, 0, 0, 0 }; }
 		static inline Vec4 Up() { return { 0, 1, 0, 0 }; }
 		static inline Vec4 Forward() { return { 0, 0, 1, 0 }; }

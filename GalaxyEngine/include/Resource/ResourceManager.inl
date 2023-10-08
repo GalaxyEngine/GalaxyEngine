@@ -47,15 +47,18 @@ namespace GALAXY
 	template <typename T>
 	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
 	{
-		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
-		auto resource = m_resources.find(relativePath);
-		if (resource == m_resources.end())
+		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		auto resource = m_instance->m_resources.find(relativePath);
+		if (resource == m_instance->m_resources.end())
 		{
 			// if resource is not imported
-			AddResource(new T(fullPath));
-			resource = m_resources.find(relativePath);
+			if (!std::filesystem::exists(fullPath))
+				// If the resource does not exist in path
+				return std::weak_ptr<T>{};
+			m_instance->AddResource(new T(fullPath));
+			resource = m_instance->m_resources.find(relativePath);
 		}
-		if (resource != m_resources.end())
+		if (resource != m_instance->m_resources.end())
 		{
 			// Load the resource if not loaded.
 			if (!resource->second->p_shouldBeLoaded)

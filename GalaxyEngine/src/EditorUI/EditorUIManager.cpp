@@ -17,7 +17,7 @@ namespace GALAXY {
 		m_fileExplorer = std::make_unique<FileExplorer>();
 	}
 
-	void EditorUI::EditorUIManager::Initalize()
+	void EditorUI::EditorUIManager::Initialize()
 	{
 		m_fileExplorer->Initialize();
 	}

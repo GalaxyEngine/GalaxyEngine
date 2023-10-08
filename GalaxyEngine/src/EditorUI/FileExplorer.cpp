@@ -4,6 +4,7 @@
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Script.h"
+#include "Resource/Material.h"
 
 #define FOLDER_ICON_PATH "CoreResources\\icons\\folder.png"
 #define FILE_ICON_PATH "CoreResources\\icons\\file.png"
@@ -11,7 +12,7 @@
 /* TODO:
 * Drag and Drop (folders, models, ...)
 * Delete
-* Add folder
+* Rename
 * Thumbnails
 * Specification Right Click : (Ex. Recompile Shader)
 * Bottom bar too see clicked file
@@ -410,9 +411,19 @@ namespace GALAXY {
 				ReloadContent();
 				quitPopup();
 			}
-			if (ImGui::Button("Create Script", buttonSize))
+			if (ImGui::BeginMenu("Create"))
 			{
-				ImGui::OpenPopup("Create Script");
+				if (ImGui::Button("Script", buttonSize))
+				{
+					ImGui::OpenPopup("Create Script");
+				}
+				if (ImGui::Button("Material", buttonSize))
+				{
+					Resource::Material::Create(m_currentFile->m_info.GetFullPath() / "New Material.mat");
+					ReloadContent();
+					quitPopup();
+				}
+				ImGui::EndMenu();
 			}
 			if (ImGui::BeginPopupModal("Create Script"))
 			{
