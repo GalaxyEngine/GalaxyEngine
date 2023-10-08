@@ -6,7 +6,13 @@
 
 Resource::IResource::IResource(const std::filesystem::path& fullPath)
 {
+	ASSERT(!fullPath.empty());
 	p_fileInfo = Utils::FileInfo(fullPath);
+}
+
+Resource::IResource::~IResource()
+{
+	PrintWarning("Expired %s", p_fileInfo.GetFullPath().string().c_str());
 }
 
 void GALAXY::Resource::IResource::SendRequest()

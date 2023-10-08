@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "EditorUI/EditorWindow.h"
+#include <deque>
 
 namespace GALAXY 
 {
@@ -31,7 +32,7 @@ namespace GALAXY
 
 			const size_t m_maxText = 200;
 
-			std::vector<std::pair<Debug::LogType, std::string>> m_texts;
+			std::deque<std::pair<Debug::LogType, std::string>> m_texts;
 			size_t m_textSelected = -1;
 
 			std::weak_ptr<Resource::Texture> m_infoTexture;

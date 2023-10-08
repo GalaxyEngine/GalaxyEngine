@@ -3,6 +3,7 @@
 #include "IResource.h"
 
 #include <unordered_map>
+#include <deque>
 
 
 namespace GALAXY {

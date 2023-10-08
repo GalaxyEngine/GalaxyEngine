@@ -4,11 +4,19 @@ namespace GALAXY
 {
 	void Resource::ResourceManager::AddResource(IResource* resource)
 	{
+		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
+			PrintError("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
+			return;
+		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = std::shared_ptr<IResource>(resource);
 	}
 
 	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
 	{
+		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
+			PrintError("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
+			return;
+		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
 	}
 
@@ -52,9 +60,11 @@ namespace GALAXY
 		if (resource == m_instance->m_resources.end())
 		{
 			// if resource is not imported
+			// 
+			// if the resource does not exist in path
 			if (!std::filesystem::exists(fullPath))
-				// If the resource does not exist in path
 				return std::weak_ptr<T>{};
+
 			m_instance->AddResource(new T(fullPath));
 			resource = m_instance->m_resources.find(relativePath);
 		}

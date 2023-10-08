@@ -16,7 +16,8 @@ void Resource::Texture::Load()
 	int numColCh;
 	if (m_bytes = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), &m_size.x, &m_size.y, &numColCh, 4))
 		p_loaded = true;
-	else {
+	else 
+	{
 		PrintError("Failed to load Image %s", p_fileInfo.GetFullPath().string().c_str());
 		return;
 	}

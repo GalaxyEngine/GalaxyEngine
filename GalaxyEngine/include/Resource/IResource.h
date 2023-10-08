@@ -31,7 +31,7 @@ namespace GALAXY::Resource {
 		IResource& operator=(const IResource& other) = default;
 		IResource(const IResource&) = default;
 		IResource(IResource&&) noexcept = default;
-		virtual ~IResource() {}
+		virtual ~IResource();
 
 		virtual void Load() {}
 		virtual void Send() {}

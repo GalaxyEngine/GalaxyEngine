@@ -1,12 +1,13 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-#include "Core/Application.h"
+
 namespace GALAXY {
 	void Resource::Shader::Load()
 	{
 		if (p_shouldBeLoaded)
 			return;
+		p_shouldBeLoaded = true;
 		m_renderer = Wrapper::Renderer::GetInstance();
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
@@ -55,6 +56,8 @@ namespace GALAXY {
 	// === Base Shader === //
 	void Resource::BaseShader::AddShader(std::weak_ptr<Shader> shader)
 	{
+		if (!shader.lock())
+			return;
 		uint64_t count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const std::weak_ptr<Shader>& wp) {
 			return !wp.expired() && !wp.owner_before(shader) && !shader.owner_before(wp);
 			});

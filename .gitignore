@@ -7,9 +7,9 @@ vsxmake*/
 .DS_Store
 
 GalaxyCore/GalaxyEngine.*
-GalaxyCore/compile.GalaxyEngine.pdb
 GalaxyCore/GalaxyCore.*
-GalaxyCore/compile.GalaxyCore.pdb
+compile.*
+
 
 *.dll
 *.pdb

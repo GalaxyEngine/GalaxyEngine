@@ -23,7 +23,7 @@ namespace GALAXY::Core {
 		{
 			std::function<void()> task_function = [task = std::forward<F>(task), args = std::make_tuple(std::forward<A>(args)...)]() mutable {
 				std::apply(task, args);
-			};
+				};
 			if (task_function) {
 				std::lock_guard<std::mutex> lock(m_mutex);
 				m_tasks.push(task_function);

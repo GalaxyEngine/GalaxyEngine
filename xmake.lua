@@ -10,6 +10,9 @@ add_requires("stb")
 add_defines("ENABLE_MULTITHREAD")
 --add_defines("ENABLE_REFLECTION")
 
+if is_plat("windows") then
+        add_cxflags("/ZI")  -- Enable program database (PDB) generation for edit-and-continue debugging
+    end
 
 set_languages("c++20")
 
