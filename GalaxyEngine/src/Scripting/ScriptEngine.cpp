@@ -92,9 +92,16 @@ namespace GALAXY
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
 
-		auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
-		auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
-		if (lastTimeCopied < lastTimeDLL) {
+		bool shouldCopyFiles = true;
+		if (std::filesystem::exists(copiedDllPath)) {
+
+			auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
+			auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
+			if (lastTimeCopied < lastTimeDLL) {
+				shouldCopyFiles = false;
+			}
+		}
+		if (shouldCopyFiles) {
 			auto threadManager = Core::ThreadManager::GetInstance();
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
