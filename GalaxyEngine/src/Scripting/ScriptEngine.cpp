@@ -154,7 +154,7 @@ namespace GALAXY
 				for (auto scriptComponent : m_registeredScriptComponents)
 				{
 					const char* componentName = scriptComponent->GetComponentName();
-					std::string scriptName = script.lock()->GetFileInfo().GetFileName().stem().string();
+					std::string scriptName = script.lock()->GetFileInfo().GetFileNameNoExtension();
 					if (componentName == scriptName)
 					{
 						Component::ComponentHolder::UnregisterComponent(scriptComponent);
@@ -389,7 +389,7 @@ namespace GALAXY
 	{
 		for (int i = 0; i < m_scripts.size(); i++)
 		{
-			if (scriptName == m_scripts[i].lock()->GetFileInfo().GetFileName().stem())
+			if (scriptName == m_scripts[i].lock()->GetFileInfo().GetFileNameNoExtension())
 			{
 				return m_scripts[i].lock() != nullptr;
 			}

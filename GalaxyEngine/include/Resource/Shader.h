@@ -17,7 +17,7 @@ namespace GALAXY {
 		public:
 			Shader(const std::filesystem::path& fullPath) : IResource(fullPath) {}
 
-			void Load() override;
+			virtual void Load() override;
 			void Send() override;
 
 			void SetVertex(Weak<VertexShader> vertexShader, Weak<Shader> weak_this);
@@ -44,17 +44,19 @@ namespace GALAXY {
 			static Weak<Shader> Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
 
 			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
+		protected:
+			std::unordered_map<std::string, int> p_locations = {};
+
+			Wrapper::Renderer* p_renderer = nullptr;
+
+			uint32_t p_id = -1;
+
+			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> p_subShaders = {};
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
 
 			Weak<Shader> m_pickingVariant;
-
-			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> m_subShaders = {};
-			std::unordered_map<std::string, int> m_locations = {};
-
-			Wrapper::Renderer* m_renderer = nullptr;
-			uint32_t m_id = -1;
 		};
 
 		class BaseShader : public IResource

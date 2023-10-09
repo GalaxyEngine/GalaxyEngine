@@ -27,7 +27,6 @@ namespace GALAXY
 			}
 			if (ImGui::BeginMenu("Edit"))
 			{
-
 				ImGui::EndMenu();
 			}
 			if (ImGui::BeginMenu("Window"))

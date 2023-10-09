@@ -4,6 +4,8 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 
+#include "Core/Application.h"
+
 namespace GALAXY {
 
 	static std::unordered_map<size_t, bool> s_indexArray = {};
@@ -44,6 +46,20 @@ namespace GALAXY {
 		{
 
 		}
+	}
+
+	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)
+	{
+		if (!m_postProcess)
+			m_postProcess = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
+		m_postProcess->m_shader = postProcessShader;
+	}
+
+	Weak<Resource::PostProcessShader> Render::Framebuffer::GetPostProcessShader()
+	{
+		if (!m_postProcess)
+			return Weak<Resource::PostProcessShader>();
+		return m_postProcess->m_shader;
 	}
 
 }

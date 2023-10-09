@@ -11,8 +11,9 @@ namespace GALAXY
 
 		m_fullPath = ToPath(path);
 		m_relativePath = ToRelativePath(m_fullPath);
-		m_fileName = m_fullPath.filename();
-		m_extension = m_fileName.extension();
+		m_fileName = m_fullPath.filename().string();
+		m_fileNameNoExtension = m_fileName.substr(0, m_fileName.find_last_of('.'));
+		m_extension = m_relativePath.extension();
 		m_resourceType = GetTypeFromExtension(m_extension);
 
 		if (!m_exist)
@@ -58,6 +59,8 @@ namespace GALAXY
 			return ResourceType::Model;
 		else if (ext == ".shader")
 			return ResourceType::Shader;
+		else if (ext == ".ppshader")
+			return ResourceType::PostProcessShader;
 		else if (ext == ".vert" || ext == "vs" || ext == "vsh" || ext == "glslv")
 			return ResourceType::VertexShader;
 		else if (ext == ".geom" || ext == "gs" || ext == "gsh" || ext == "glslg")

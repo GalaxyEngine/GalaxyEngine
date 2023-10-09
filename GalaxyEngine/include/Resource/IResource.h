@@ -13,6 +13,7 @@ namespace GALAXY::Resource {
 	{
 		None,
 		Texture,
+		PostProcessShader,
 		Shader,
 		VertexShader,
 		GeometryShader,
@@ -46,7 +47,7 @@ namespace GALAXY::Resource {
 
 		void ShouldBeDisplayOnInspector(bool val) { p_displayOnInspector = val; }
 
-		std::string GetName() { return p_fileInfo.GetFileName().string(); }
+		std::string GetName() { return p_fileInfo.GetFileName(); }
 		Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 	protected:
 		friend class ResourceManager;

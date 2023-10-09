@@ -62,7 +62,9 @@ namespace GALAXY
 			// if resource is not imported
 			
 			// if the resource does not exist in path and is not a shader (Shaders are not always a file)
-			if (!std::filesystem::exists(fullPath) && T::GetResourceType() != Resource::ResourceType::Shader)
+			if (!std::filesystem::exists(fullPath) 
+				&& T::GetResourceType() != Resource::ResourceType::Shader 
+				&& T::GetResourceType() != Resource::ResourceType::PostProcessShader)
 				return std::weak_ptr<T>{};
 
 			m_instance->AddResource(new T(fullPath));
@@ -127,11 +129,11 @@ namespace GALAXY
 			for (const auto& [path, resource] : m_resources)
 			{
 				if (resource->GetFileInfo().GetResourceType() == T::GetResourceType() 
-					&& filter.PassFilter(resource->GetName().c_str()) 
+					&& filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
 					&& resource->p_displayOnInspector)
 				{
 					ImGui::PushID((int)i++);
-					if (ImGui::Button(resource->GetName().c_str(), buttonSize))
+					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))
 					{
 						ImGui::CloseCurrentPopup();
 						return GetOrLoad<T>(path);

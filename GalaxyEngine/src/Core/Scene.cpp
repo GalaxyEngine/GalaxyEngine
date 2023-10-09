@@ -68,7 +68,7 @@ void Scene::Update()
 
 			Vec4f color = renderer->ReadPixelColor(mousePosition);
 
-			uint64_t pickedID = color.x + color.y * 256 + color.z * 256 * 256;
+			uint64_t pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
 			if (auto gameObject = GetWithIndex(pickedID).lock())
 				inspector->SetSelected(gameObject);

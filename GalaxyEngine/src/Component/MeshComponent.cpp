@@ -26,7 +26,7 @@ namespace GALAXY {
 	void Component::MeshComponent::ShowInInspector()
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x / 2.f, 0 };
-		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().string().c_str(): "Empty", buttonSize))
+		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str(): "Empty", buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}
@@ -55,7 +55,7 @@ namespace GALAXY {
 				}
 				ImGui::SameLine();
 				Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, size.y };
-				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetFileName().string().c_str() : "Missing", buttonSize))
+				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetFileName().c_str() : "Missing", buttonSize))
 				{
 					ImGui::OpenPopup("MaterialPopup");
 					clicked = i;

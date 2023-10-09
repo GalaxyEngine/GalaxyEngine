@@ -22,13 +22,13 @@ namespace GALAXY {
 
 	void Resource::Model::CreateFiles()
 	{
-		auto fileWithoutExt = p_fileInfo.GetFullPath().parent_path() / p_fileInfo.GetFileName().stem().wstring();
+		auto fileWithoutExt = p_fileInfo.GetFullPath().parent_path() / p_fileInfo.GetFileNameNoExtension();
 		std::filesystem::path path = fileWithoutExt.wstring() + L".gdata";
 		if (auto& file = Utils::FileSystem::GenerateFile(path); file.is_open()) {
 			file << "Origin: " << p_fileInfo.GetRelativePath().string() << std::endl;
 			for (auto& mesh : m_meshes)
 			{
-				file << '\t' << mesh->GetFileInfo().GetFileName().string() << std::endl;
+				file << '\t' << mesh->GetFileInfo().GetFileName() << std::endl;
 			}
 			file.close();
 		}

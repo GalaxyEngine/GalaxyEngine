@@ -14,7 +14,7 @@ namespace GALAXY {
 	Resource::Mesh::Mesh(const std::filesystem::path& fullPath) : IResource(fullPath)
 	{
 		p_fileInfo.m_resourceType = GetResourceType();
-		std::wstring fullPathString = p_fileInfo.m_fullPath.wstring();
+		std::string fullPathString = p_fileInfo.m_fullPath.string();
 		p_fileInfo.m_fileName = fullPathString.substr(fullPathString.find_last_of(':') + 1);
 		m_modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 	}

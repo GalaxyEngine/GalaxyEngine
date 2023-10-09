@@ -2,6 +2,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
+#include "Resource/PostProcessShader.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Script.h"
@@ -51,6 +52,9 @@ namespace GALAXY {
 			break;
 		case Resource::ResourceType::Shader:
 			AddResource(new Shader(resourcePath));
+			break;
+		case Resource::ResourceType::PostProcessShader:
+			AddResource(new PostProcessShader(resourcePath));
 			break;
 		case Resource::ResourceType::VertexShader:
 			AddResource(new VertexShader(resourcePath));

@@ -124,7 +124,7 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(m_icon.lock().get(), 16);
 				ImGui::SameLine();
 			}
-			if (ImGui::TreeNodeEx(m_info.GetFileName().string().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
+			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
 			{
 				for (auto& children : m_childrens)
 				{
@@ -240,7 +240,7 @@ namespace GALAXY {
 				}
 				else if (ImGui::IsItemHovered())
 				{
-					ImGui::SetTooltip(child->m_info.GetFileName().string().c_str());
+					ImGui::SetTooltip(child->m_info.GetFileName().c_str());
 				}
 
 				// Positioning for the file icon and text
@@ -249,8 +249,8 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24));
 
 				// Truncate and display file name
-				size_t length = child->m_info.GetFileName().string().length();
-				std::string fileName = child->m_info.GetFileName().string();
+				size_t length = child->m_info.GetFileName().length();
+				std::string fileName = child->m_info.GetFileName();
 				if (length > textLength + 3) {
 					fileName = fileName.substr(0, textLength);
 					fileName.append("...");
@@ -334,7 +334,7 @@ namespace GALAXY {
 
 			Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 			if (!m_rightClickedFiles.empty()) {
-				ImGui::TextUnformatted(m_rightClickedFiles[0]->m_info.GetFileName().string().c_str());
+				ImGui::TextUnformatted(m_rightClickedFiles[0]->m_info.GetFileName().c_str());
 				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 				if (m_rightClickedFiles[0]->m_resource.lock()) {
 					bool allSame = true;

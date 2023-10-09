@@ -6,10 +6,12 @@
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
+#include "Core/Input.h"
 
 #include "EditorUI/EditorUIManager.h"
 
-#include "Core/Input.h"
+#include "Resource/ResourceManager.h"
+#include "Resource/PostProcessShader.h"
 
 namespace GALAXY {
 
@@ -119,7 +121,20 @@ namespace GALAXY {
 		ImGui::SliderFloat("FOV", &p_fov, 25.f, 120.f);
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
 		ImGui::ColorPicker4("Clear Color", &p_clearColor.x);
+		std::string buttonName;
+		if (auto shader = m_framebuffer->GetPostProcessShader().lock())
+			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
+		else
+			buttonName = "Set Post Process Shader";
+		if (ImGui::Button(buttonName.c_str(), Vec2f(contentWidth, 0)))
+		{
+			ImGui::OpenPopup("PostProcessPopup");
+		}
 		ImGui::PopItemWidth();
+		if (auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopup").lock())
+		{
+			m_framebuffer->SetPostProcessShader(ppShader);
+		}
 	}
 
 	Mat4 Render::Camera::GetViewMatrix()
@@ -131,8 +146,6 @@ namespace GALAXY {
 
 	Mat4 Render::Camera::GetProjectionMatrix()
 	{
-		//return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
-
 		float tanHalfFov = std::tanf(p_fov * DegToRad * 0.5f);
 
 		Mat4 projectionMatrix = Mat4();

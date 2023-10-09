@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-#define PICKING_PATH "CoreResources\\shaders\\PickingShader\\fragment.frag"
+#define PICKING_PATH "CoreResources\\shaders\\PickingShader\\picking.frag"
 namespace GALAXY {
 	void Resource::Shader::Load()
 	{
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-		m_renderer = Wrapper::Renderer::GetInstance();
-		if (std::get<0>(m_subShaders).lock() || std::get<1>(m_subShaders).lock() || std::get<2>(m_subShaders).lock()) 
+		p_renderer = Wrapper::Renderer::GetInstance();
+		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock()) 
 		{
 			SendRequest();
 			return;
@@ -59,19 +59,19 @@ namespace GALAXY {
 
 	void Resource::Shader::SetVertex(Weak<VertexShader> vertexShader, Weak<Shader> weak_this)
 	{
-		std::get<0>(m_subShaders) = vertexShader;
+		std::get<0>(p_subShaders) = vertexShader;
 		vertexShader.lock()->AddShader(weak_this);
 	}
 
 	void Resource::Shader::SetFragment(Weak<FragmentShader> fragmentShader, Weak<Shader> weak_this)
 	{
-		std::get<2>(m_subShaders) = fragmentShader;
+		std::get<2>(p_subShaders) = fragmentShader;
 		fragmentShader.lock()->AddShader(weak_this);
 	}
 
 	void Resource::Shader::SetGeometry(Weak<GeometryShader> geometryShader, Weak<Shader> weak_this)
 	{
-		std::get<1>(m_subShaders) = geometryShader;
+		std::get<1>(p_subShaders) = geometryShader;
 		geometryShader.lock()->AddShader(weak_this);
 	}
 
@@ -131,67 +131,67 @@ namespace GALAXY {
 
 	void Resource::Shader::Use()
 	{
-		m_renderer->UseShader(this);
+		p_renderer->UseShader(this);
 	}
 
 	int Resource::Shader::GetLocation(const std::string& locationName)
 	{
-		if (m_locations.count(locationName))
+		if (p_locations.count(locationName))
 		{
-			return m_locations.at(locationName);
+			return p_locations.at(locationName);
 		}
 		else
-			return m_locations[locationName] = m_renderer->GetShaderLocation(m_id, locationName);
+			return p_locations[locationName] = p_renderer->GetShaderLocation(p_id, locationName);
 	}
 
 	void Resource::Shader::SendInt(const std::string& locationName, int value)
 	{
-		m_renderer->ShaderSendInt(GetLocation(locationName), value);
+		p_renderer->ShaderSendInt(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendFloat(const std::string& locationName, float value)
 	{
-		m_renderer->ShaderSendFloat(GetLocation(locationName), value);
+		p_renderer->ShaderSendFloat(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendDouble(const std::string& locationName, double value)
 	{
-		m_renderer->ShaderSendDouble(GetLocation(locationName), value);
+		p_renderer->ShaderSendDouble(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec2f(const std::string& locationName, const Vec2f& value)
 	{
-		m_renderer->ShaderSendVec2f(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec2f(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec3f(const std::string& locationName, const Vec3f& value)
 	{
-		m_renderer->ShaderSendVec3f(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec3f(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec4f(const std::string& locationName, const Vec4f& value)
 	{
-		m_renderer->ShaderSendVec4f(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec4f(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec2i(const std::string& locationName, const Vec2i& value)
 	{
-		m_renderer->ShaderSendVec2i(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec2i(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec3i(const std::string& locationName, const Vec3i& value)
 	{
-		m_renderer->ShaderSendVec3i(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec3i(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendVec4i(const std::string& locationName, const Vec4i& value)
 	{
-		m_renderer->ShaderSendVec4i(GetLocation(locationName), value);
+		p_renderer->ShaderSendVec4i(GetLocation(locationName), value);
 	}
 
 	void Resource::Shader::SendMat4(const std::string& locationName, const Mat4& value)
 	{
-		m_renderer->ShaderSendMat4(GetLocation(locationName), value);
+		p_renderer->ShaderSendMat4(GetLocation(locationName), value);
 	}
 
 }

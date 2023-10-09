@@ -106,7 +106,7 @@ namespace GALAXY {
 
 	void Wrapper::OpenGLRenderer::UseShader(Resource::Shader* shader)
 	{
-		glUseProgram(shader->m_id);
+		glUseProgram(shader->p_id);
 	}
 
 	void Wrapper::OpenGLRenderer::Viewport(const Vec2i& pos, const Vec2i& size)
@@ -122,20 +122,20 @@ namespace GALAXY {
 
 	bool Wrapper::OpenGLRenderer::LinkShaders(Resource::Shader* shader)
 	{
-		auto& [vertex, geometry, fragment] = shader->m_subShaders;
+		auto& [vertex, geometry, fragment] = shader->p_subShaders;
 		if (!vertex.lock() || !vertex.lock()->HasBeenSent() || !fragment.lock() || !fragment.lock()->HasBeenSent())
 			return false;
 		// link shaders
-		shader->m_id = glCreateProgram();
-		glAttachShader(shader->m_id, vertex.lock()->m_id);
-		glAttachShader(shader->m_id, fragment.lock()->m_id);
-		glLinkProgram(shader->m_id);
+		shader->p_id = glCreateProgram();
+		glAttachShader(shader->p_id, vertex.lock()->m_id);
+		glAttachShader(shader->p_id, fragment.lock()->m_id);
+		glLinkProgram(shader->p_id);
 		// check for linking errors
 		int success;
-		glGetProgramiv(shader->m_id, GL_LINK_STATUS, &success);
+		glGetProgramiv(shader->p_id, GL_LINK_STATUS, &success);
 		if (!success) {
 			char infoLog[512];
-			glGetProgramInfoLog(shader->m_id, 512, NULL, infoLog);
+			glGetProgramInfoLog(shader->p_id, 512, NULL, infoLog);
 			PrintError("Error when Link shader %s :\n %s", shader->GetFileInfo().GetFullPath().string().c_str(), infoLog);
 			return false;
 		}

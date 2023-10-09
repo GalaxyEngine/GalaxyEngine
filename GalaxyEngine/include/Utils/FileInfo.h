@@ -32,7 +32,8 @@ namespace GALAXY
 
 			inline std::filesystem::path GetFullPath() const { return m_fullPath; }
 			inline std::filesystem::path GetRelativePath() const { return m_relativePath; }
-			inline std::filesystem::path GetFileName() const { return m_fileName; }
+			inline std::string GetFileName() const { return m_fileName; }
+			inline std::string GetFileNameNoExtension() const { return m_fileNameNoExtension; }
 			inline std::filesystem::path GetExtension() const { return m_extension; }
 			inline Resource::ResourceType GetResourceType() const { return m_resourceType; }
 
@@ -44,7 +45,8 @@ namespace GALAXY
 
 			std::filesystem::path m_fullPath;
 			std::filesystem::path m_relativePath;
-			std::filesystem::path m_fileName;
+			std::string m_fileName;
+			std::string m_fileNameNoExtension;
 			std::filesystem::path m_extension;
 			bool m_exist = false;
 
