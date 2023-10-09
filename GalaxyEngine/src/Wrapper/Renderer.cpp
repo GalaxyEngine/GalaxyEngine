@@ -30,7 +30,7 @@ namespace GALAXY {
 		default:
 			break;
 		}
-		m_instance->Initalize();
+		m_instance->Initialize();
 		m_instance->EnableDebugOutput();
 	}
 
@@ -39,7 +39,7 @@ namespace GALAXY {
 
 	Wrapper::OpenGLRenderer::~OpenGLRenderer() {}
 
-	void Wrapper::OpenGLRenderer::Initalize()
+	void Wrapper::OpenGLRenderer::Initialize()
 	{
 		if (!gladLoadGLLoader((GLADloadproc)(Window::GetProcAddress))) {
 			PrintError("Failed to initialize GLAD");
@@ -550,6 +550,17 @@ namespace GALAXY {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)size.x, (GLsizei)size.y);
 		}
+	}
+
+	Vec4f Wrapper::OpenGLRenderer::ReadPixelColor(const Vec2f& mousePos)
+	{
+		unsigned char data[4];
+		glFlush();
+		glFinish();
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		glReadPixels((GLint)mousePos.x, (GLint)mousePos.y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		return Vec4f(data[0], data[1], data[2], data[3]);
 	}
 
 }

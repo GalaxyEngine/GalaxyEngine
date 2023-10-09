@@ -39,9 +39,12 @@ namespace GALAXY
 			static void CreateInstance(RenderAPI renderAPI);
 			static Renderer* GetInstance() { return m_instance.get(); }
 
-			virtual void Initalize() {}
+			virtual void Initialize() {}
 			virtual void EnableDebugOutput() {}
 			bool IsInitalized() { return p_initalized; }
+
+			void RenderingPicking(bool value) { p_renderPicking = value; }
+			bool ShouldRenderPicking() const { return p_renderPicking; }
 
 			virtual void Viewport(const Vec2i& pos, const Vec2i& size) {}
 			virtual void ClearColorAndBuffer(const Vec4f& color) {}
@@ -99,11 +102,15 @@ namespace GALAXY
 			virtual void UnbindRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void DeleteRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) {}
+			
+			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
 
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) {}
+
 		protected:
 			bool p_initalized = false;
+			bool p_renderPicking = false;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};
@@ -117,7 +124,7 @@ namespace GALAXY
 			OpenGLRenderer(OpenGLRenderer&&) noexcept = default;
 			virtual ~OpenGLRenderer();
 
-			void Initalize() override;
+			void Initialize() override;
 			void EnableDebugOutput() override;
 
 			void Viewport(const Vec2i& pos, const Vec2i& size) override;
@@ -176,6 +183,8 @@ namespace GALAXY
 			void UnbindRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void DeleteRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) override;
+
+			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
 
 			// Debug
 			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) override;

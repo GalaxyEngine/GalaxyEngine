@@ -20,6 +20,10 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
+			void SetVertex(Weak<VertexShader> vertexShader, Weak<Shader> weak_this);
+			void SetFragment(Weak<FragmentShader> fragmentShader, Weak<Shader> weak_this);
+			void SetGeometry(Weak<GeometryShader> geometryShader, Weak<Shader> weak_this);
+
 			void Use();
 			int GetLocation(const std::string& locationName);
 
@@ -36,9 +40,15 @@ namespace GALAXY {
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
+
+			static Weak<Shader> Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
+
+			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
+
+			Weak<Shader> m_pickingVariant;
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> m_subShaders = {};
 			std::unordered_map<std::string, int> m_locations = {};

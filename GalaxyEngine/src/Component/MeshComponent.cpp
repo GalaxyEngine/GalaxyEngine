@@ -3,15 +3,17 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Mesh.h"
 #include "Resource/Material.h"
+#include "Wrapper/Renderer.h"
 #include "Core/GameObject.h"
 
 namespace GALAXY {
 
 	void Component::MeshComponent::OnDraw()
 	{
+		static auto renderer = Wrapper::Renderer::GetInstance();
 		if (!m_mesh.lock())
 			return;
-		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials);
+		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials, renderer->ShouldRenderPicking() ? gameObject.lock()->GetIndex() : -1);
 	}
 
 	void Component::MeshComponent::SetMesh(const std::weak_ptr<Resource::Mesh>& mesh)

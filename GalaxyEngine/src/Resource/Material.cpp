@@ -113,20 +113,36 @@ namespace GALAXY {
 		}
 	}
 
-	void Resource::Material::SendValues()
+	void Resource::Material::SendValues(uint64_t id /*= -1*/)
 	{
-		auto renderer = Wrapper::Renderer::GetInstance();
-		auto shader = m_shader.lock();
-		if (!shader || !shader->HasBeenSent())
-			return;
-		shader->Use();
+		static auto renderer = Wrapper::Renderer::GetInstance();
+		if (id != -1)
+		{
+			auto shader = m_shader.lock()->GetPickingVariant().lock();
+			if (!shader || !shader->HasBeenSent())
+				return;
+			shader->Use();
 
-		renderer->ShaderSendInt(shader->GetLocation("EnableTexture"), m_albedo.lock() ? true : false);
-		if (auto texture = m_albedo.lock()) {
-			texture->Bind(0);
-			renderer->ShaderSendInt(shader->GetLocation("Texture"), 0);
+			int r = (id & 0x000000FF) >> 0;
+			int g = (id & 0x0000FF00) >> 8;
+			int b = (id & 0x00FF0000) >> 16;
+			
+			renderer->ShaderSendVec4f(shader->GetLocation("Diffuse"), Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
 		}
-		renderer->ShaderSendVec4f(shader->GetLocation("Diffuse"), m_diffuse);
+		else
+		{
+			auto shader = m_shader.lock();
+			if (!shader || !shader->HasBeenSent())
+				return;
+			shader->Use();
+
+			renderer->ShaderSendInt(shader->GetLocation("EnableTexture"), m_albedo.lock() ? true : false);
+			if (auto texture = m_albedo.lock()) {
+				texture->Bind(0);
+				renderer->ShaderSendInt(shader->GetLocation("Texture"), 0);
+			}
+			renderer->ShaderSendVec4f(shader->GetLocation("Diffuse"), m_diffuse);
+		}
 	}
 
 	Weak<Resource::Material> Resource::Material::Create(const std::filesystem::path& path)

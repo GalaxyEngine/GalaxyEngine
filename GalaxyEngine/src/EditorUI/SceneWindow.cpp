@@ -4,6 +4,7 @@
 #include "Core/Scene.h"
 #include "Core/SceneHolder.h"
 #include "Core/Application.h"
+#include "Core/Input.h"
 
 #include "Render/Camera.h"
 
@@ -22,7 +23,7 @@ namespace GALAXY {
 			return;
 		if (m_visible = ImGui::Begin("Scene", &p_open))
 		{
-			m_isHovered = ImGui::IsWindowHovered(); 
+			m_isHovered = ImGui::IsWindowHovered();
 			SetResources();
 			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;
 			if (Wrapper::GUI::TextureButton(m_settingsIcon.lock() ? m_settingsIcon.lock().get() : nullptr, Vec2f(16)))
@@ -68,6 +69,11 @@ namespace GALAXY {
 		}
 	}
 
+	Vec2f EditorUI::SceneWindow::GetMousePosition() const
+	{
+		return m_windowPosition;
+	}
+
 	void EditorUI::SceneWindow::DrawImage()
 	{
 		auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
@@ -101,6 +107,9 @@ namespace GALAXY {
 
 		// Set the cursor position to center the content horizontally
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + Vec2f(xPos, yPos));
+
+		m_windowPosition = ImGui::GetCursorScreenPos() + Vec2f(0, -24.f);
+		//TODO : Fix this
 
 		// Get Position to draw a border
 		Vec2f topLeft = ImGui::GetCursorScreenPos();

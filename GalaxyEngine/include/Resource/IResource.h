@@ -44,8 +44,9 @@ namespace GALAXY::Resource {
 
 		void SendRequest();
 
-		std::string GetName() { return p_fileInfo.GetFileName().string(); }
+		void ShouldBeDisplayOnInspector(bool val) { p_displayOnInspector = val; }
 
+		std::string GetName() { return p_fileInfo.GetFileName().string(); }
 		Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 	protected:
 		friend class ResourceManager;
@@ -55,6 +56,8 @@ namespace GALAXY::Resource {
 		std::atomic_bool p_shouldBeLoaded = false;
 		std::atomic_bool p_loaded = false;
 		std::atomic_bool p_hasBeenSent = false;
+
+		bool p_displayOnInspector = true;
 
 	};
 }

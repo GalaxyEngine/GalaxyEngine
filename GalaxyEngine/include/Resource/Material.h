@@ -23,7 +23,7 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
-			void SendValues();
+			void SendValues(uint64_t id = -1);
 
 			static ResourceType GetResourceType() { return ResourceType::Material; }
 

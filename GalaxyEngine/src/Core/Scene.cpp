@@ -15,8 +15,7 @@
 
 #include "Wrapper/Window.h"
 
-//TEMP
-#include "Resource/Mesh.h"
+#include "Core/Input.h"
 
 using namespace Core;
 Scene::Scene()
@@ -51,7 +50,20 @@ void Scene::Update()
 		if (*Core::Application::GetInstance().GetDrawGrid())
 			m_grid->Draw();
 
-		m_root->DrawSelfAndChild();
+		if (Input::IsMouseButtonDown(MouseButton::BUTTON_1))
+		{
+			renderer->RenderingPicking(true);
+			m_root->DrawSelfAndChild();
+			renderer->RenderingPicking(false);
+
+			auto color = renderer->ReadPixelColor(Input::GetMousePosition());
+			std::cout << "Mouse Position ";
+			Input::GetMousePosition().Print();
+			EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->GetMousePosition().Print();
+			//color.Print();
+		}
+
+		//m_root->DrawSelfAndChild();
 
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1));
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1));

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-
+#define PICKING_PATH "CoreResources\\shaders\\PickingShader\\fragment.frag"
 namespace GALAXY {
 	void Resource::Shader::Load()
 	{
@@ -9,8 +9,15 @@ namespace GALAXY {
 			return;
 		p_shouldBeLoaded = true;
 		m_renderer = Wrapper::Renderer::GetInstance();
+		if (std::get<0>(m_subShaders).lock() || std::get<1>(m_subShaders).lock() || std::get<2>(m_subShaders).lock()) 
+		{
+			SendRequest();
+			return;
+		}
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
+			std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
+
 			// Parse .shader file
 			std::string line;
 			while (std::getline(file, line)) {
@@ -19,27 +26,24 @@ namespace GALAXY {
 					std::filesystem::path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
 					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
-					std::get<0>(m_subShaders) = vertexShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
-					vertexShader.lock()->AddShader(thisShader);
+					SetVertex(vertexShader, thisShader);
+
+					m_pickingVariant = Create(vertPath, PICKING_PATH);
+					m_pickingVariant.lock()->ShouldBeDisplayOnInspector(false);
 				}
 				else if (line[0] == 'G')
 				{
 					std::filesystem::path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
 					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
-					std::get<1>(m_subShaders) = geometryShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
-					geometryShader.lock()->AddShader(thisShader);
+					SetGeometry(geometryShader, thisShader);
 				}
 				else if (line[0] == 'F')
 				{
 					std::filesystem::path fragPath = line.substr(4);
 					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
 					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
-					std::get<2>(m_subShaders) = fragmentShader;
-					std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
-					fragmentShader.lock()->AddShader(thisShader);
+					SetFragment(fragmentShader, thisShader);
 				}
 			}
 			SendRequest();
@@ -51,6 +55,37 @@ namespace GALAXY {
 		if (p_hasBeenSent)
 			return;
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
+	}
+
+	void Resource::Shader::SetVertex(Weak<VertexShader> vertexShader, Weak<Shader> weak_this)
+	{
+		std::get<0>(m_subShaders) = vertexShader;
+		vertexShader.lock()->AddShader(weak_this);
+	}
+
+	void Resource::Shader::SetFragment(Weak<FragmentShader> fragmentShader, Weak<Shader> weak_this)
+	{
+		std::get<2>(m_subShaders) = fragmentShader;
+		fragmentShader.lock()->AddShader(weak_this);
+	}
+
+	void Resource::Shader::SetGeometry(Weak<GeometryShader> geometryShader, Weak<Shader> weak_this)
+	{
+		std::get<1>(m_subShaders) = geometryShader;
+		geometryShader.lock()->AddShader(weak_this);
+	}
+
+	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
+	{
+		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
+			return Weak<Resource::Shader>();
+		auto vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
+		auto fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+		std::string shaderPath = vertexShader.lock()->GetFileInfo().GetRelativePath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
+		auto shader = Resource::ResourceManager::GetOrLoad<Shader>(shaderPath + ".shader");
+		shader.lock()->SetFragment(fragShader, shader);
+		shader.lock()->SetVertex(vertexShader, shader);
+		return shader;
 	}
 
 	// === Base Shader === //

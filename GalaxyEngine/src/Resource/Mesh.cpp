@@ -48,7 +48,7 @@ namespace GALAXY {
 		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 	}
 
-	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<Resource::Material>>& materials)
+	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<Resource::Material>>& materials, uint64_t id /*= -1*/)
 	{
 		if (!HasBeenSent() || !IsLoaded())
 			return;
@@ -58,7 +58,7 @@ namespace GALAXY {
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || !materials[i].lock()->GetShader().lock()/* || !materials[i].lock()->GetShader().lock()->IsLoaded()*/)
 				continue;
-			materials[i].lock()->SendValues();
+			materials[i].lock()->SendValues(id);
 
 			renderer->ShaderSendMat4(materials[i].lock()->GetShader().lock()->GetLocation("MVP"), Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
 			renderer->DrawArrays(0, m_indices.size() * 3);

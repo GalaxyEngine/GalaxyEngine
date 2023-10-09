@@ -22,6 +22,7 @@ namespace GALAXY {
 
 			void Load() override;
 
+			static ResourceType GetResourceType() { return ResourceType::Model; }
 		private:
 			void CreateFiles();
 
