@@ -31,6 +31,8 @@ namespace GALAXY
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
 
+			std::shared_ptr<Framebuffer> m_postProcess;
+
 			uint32_t m_renderBuffer = -1;
 			uint32_t m_frameBuffer = -1;
 

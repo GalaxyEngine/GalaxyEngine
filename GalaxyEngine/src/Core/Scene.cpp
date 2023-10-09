@@ -33,7 +33,10 @@ Scene::~Scene()
 
 void Scene::Update()
 {
-	const auto renderer = Wrapper::Renderer::GetInstance();
+	static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+	static Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+	static EditorUI::Inspector* inspector = EditorUI::EditorUIManager::GetInstance()->GetInspector();
+	static EditorUI::SceneWindow* sceneWindow = EditorUI::EditorUIManager::GetInstance()->GetSceneWindow();
 
 	EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
@@ -47,23 +50,38 @@ void Scene::Update()
 		m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
 		m_editorCamera->Update();
-		if (*Core::Application::GetInstance().GetDrawGrid())
-			m_grid->Draw();
 
-		if (Input::IsMouseButtonDown(MouseButton::BUTTON_1))
+		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1))
 		{
+			renderer->ClearColorAndBuffer(Vec4f(1));
+
 			renderer->RenderingPicking(true);
 			m_root->DrawSelfAndChild();
 			renderer->RenderingPicking(false);
 
-			auto color = renderer->ReadPixelColor(Input::GetMousePosition());
-			std::cout << "Mouse Position ";
-			Input::GetMousePosition().Print();
-			EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->GetMousePosition().Print();
-			//color.Print();
+			// Calculate Mouse Position
+			Vec2i mainWindowSize = window->GetSize();
+			Vec2f imageSize = sceneWindow->GetImageSize();
+			Vec2f mousePosition = sceneWindow->GetMousePosition();
+			mousePosition = mousePosition * Vec2f(mainWindowSize.x / imageSize.x, mainWindowSize.y / imageSize.y);
+			mousePosition.y = mainWindowSize.y - mousePosition.y;
+
+			Vec4f color = renderer->ReadPixelColor(mousePosition);
+
+			uint64_t pickedID = color.x + color.y * 256 + color.z * 256 * 256;
+
+			if (auto gameObject = GetWithIndex(pickedID).lock())
+				inspector->SetSelected(gameObject);
+			else
+				inspector->ClearSelected();
+
+			renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
 		}
 
-		//m_root->DrawSelfAndChild();
+		if (*Core::Application::GetInstance().GetDrawGrid())
+			m_grid->Draw();
+
+		m_root->DrawSelfAndChild();
 
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1));
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1));

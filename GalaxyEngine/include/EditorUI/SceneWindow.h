@@ -20,6 +20,7 @@ namespace GALAXY
 			void SetResources();
 
 			Vec2f GetMousePosition() const;
+			Vec2f GetImageSize() const { return m_imageSize; }
 
 			bool IsVisible() const { return m_visible; }
 			bool IsHovered() const { return m_isHovered; }
@@ -31,7 +32,8 @@ namespace GALAXY
 			bool m_visible = true;
 			bool m_isHovered = false;
 
-			Vec2f m_windowPosition = 0;
+			Vec2f m_imagePosition = 0;
+			Vec2f m_imageSize = 0;
 
 			std::weak_ptr<Resource::Texture> m_settingsIcon;
 			std::weak_ptr<Resource::Texture> m_menuIcon;

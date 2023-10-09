@@ -71,7 +71,7 @@ namespace GALAXY {
 
 	Vec2f EditorUI::SceneWindow::GetMousePosition() const
 	{
-		return m_windowPosition;
+		return Input::GetMousePosition() - m_imagePosition;
 	}
 
 	void EditorUI::SceneWindow::DrawImage()
@@ -101,6 +101,7 @@ namespace GALAXY {
 				width = height * aspectRatio;
 			}
 		}
+		m_imageSize = Vec2f(width, height);
 		// Calculate the x position for centering horizontally
 		float xPos = (ImGui::GetContentRegionAvail().x - width) * 0.5f;
 		float yPos = (ImGui::GetContentRegionAvail().y - height) * 0.5f;
@@ -108,11 +109,11 @@ namespace GALAXY {
 		// Set the cursor position to center the content horizontally
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + Vec2f(xPos, yPos));
 
-		m_windowPosition = ImGui::GetCursorScreenPos() + Vec2f(0, -24.f);
-		//TODO : Fix this
-
 		// Get Position to draw a border
 		Vec2f topLeft = ImGui::GetCursorScreenPos();
+
+		m_imagePosition = ImGui::GetWindowPos() - Core::Application::GetInstance().GetWindow()->GetPosition().ToFloat() + ImGui::GetCursorPos();
+
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
 		Wrapper::GUI::TextureImage(renderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });

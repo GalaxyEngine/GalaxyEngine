@@ -40,6 +40,10 @@ namespace GALAXY {
 			m_renderTexture->UnBind();
 			Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
 		}
+		if (m_postProcess)
+		{
+
+		}
 	}
 
 }

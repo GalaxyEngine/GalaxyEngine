@@ -192,6 +192,18 @@ namespace GALAXY::Math {
 	}
 
 	template<typename T>
+	Vec2<float> Vec2<T>::ToFloat() const
+	{
+		return Vec2f{ static_cast<float>(x), static_cast<float>(y) };
+	}
+
+	template<typename T>
+	Vec2<int> Vec2<T>::ToInt() const
+	{
+		return Vec2i{ static_cast<int>(x), static_cast<int>(y) };
+	}
+
+	template<typename T>
 	T* Vec2<T>::Data() const
 	{
 		return const_cast<T*>(reinterpret_cast<const T*>(this));

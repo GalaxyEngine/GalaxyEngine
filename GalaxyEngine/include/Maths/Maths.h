@@ -78,6 +78,10 @@ namespace GALAXY::Math
 
 		inline std::string ToString(int precision = 6) const;
 
+		inline Vec2<float> ToFloat() const;
+
+		inline Vec2<int> ToInt() const;
+
 		inline T* Data() const;
 	};
 
