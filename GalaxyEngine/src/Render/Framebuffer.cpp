@@ -1,16 +1,22 @@
 #include "pch.h"
 #include "Render/Framebuffer.h"
+#include "Render/Camera.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
+#include "Resource/Mesh.h"
 
 #include "Core/Application.h"
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
 
+#define PLANE_PATH "CoreResources\\models\\Plane.obj:Plane"
 namespace GALAXY {
 
 	static std::unordered_map<size_t, bool> s_indexArray = {};
 	Render::Framebuffer::Framebuffer(const Vec2i& size) : m_size(size)
 	{
+		m_renderer = Wrapper::Renderer::GetInstance();
 		// Check for free index in list of indices
 		int freeIndex = 0;
 		while (s_indexArray.count(freeIndex) > 0) {
@@ -23,6 +29,7 @@ namespace GALAXY {
 		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture.get());
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
+		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
 	}
 
 	Render::Framebuffer::~Framebuffer()
@@ -42,10 +49,18 @@ namespace GALAXY {
 			m_renderTexture->UnBind();
 			Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
 		}
-		if (m_postProcess)
-		{
+	}
 
-		}
+	void Render::Framebuffer::Render()
+	{
+		m_plane.lock()->Render(Mat4::Identity(), { Resource::ResourceManager::GetInstance()->GetDefaultMaterial() });
+		if (!m_postProcess)
+			return;
+		m_renderer->BindRenderBuffer(this);
+
+		Vec4f clearColor = Core::SceneHolder::GetCurrentScene()->GetCurrentCamera().lock()->GetClearColor();
+		m_renderer->ClearColorAndBuffer(clearColor);
+
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)

@@ -1,5 +1,10 @@
 #pragma once
 #include "Resource/ResourceManager.h"
+
+#include "Resource/Texture.h"
+#include "Resource/Shader.h"
+#include "Resource/Material.h"
+
 namespace GALAXY
 {
 	void Resource::ResourceManager::AddResource(IResource* resource)
@@ -148,5 +153,25 @@ namespace GALAXY
 			ImGui::EndPopup();
 		}
 		return std::weak_ptr<T>();
+	}
+
+	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
+	{
+		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
+		return GetOrLoad<Resource::Shader>(unlitPath);
+	}
+
+	std::weak_ptr<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
+	{
+		if (!m_defaultMaterial.lock())
+			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"\\materials\\DefaultMaterial.mat");
+		return m_defaultMaterial;
+	}
+
+	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+	{
+		if (!m_defaultShader.lock())
+			m_defaultShader = GetUnlitShader();
+		return m_defaultShader;
 	}
 }

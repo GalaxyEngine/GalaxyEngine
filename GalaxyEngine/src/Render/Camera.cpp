@@ -220,6 +220,7 @@ namespace GALAXY {
 	void Render::Camera::End()
 	{
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(m_framebuffer);
+		//m_framebuffer->Render();
 	}
 
 }

@@ -11,6 +11,7 @@ namespace GALAXY
 	namespace Resource
 	{
 		class Texture;
+		class Mesh;
 		class PostProcessShader;
 	}
 	namespace Render
@@ -28,6 +29,7 @@ namespace GALAXY
 
 			// Update the size of the Framebuffer each frame
 			void Update(const Vec2i& windowSize);
+			void Render();
 
 			void SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader);
 			Weak<Resource::PostProcessShader> GetPostProcessShader();
@@ -36,12 +38,16 @@ namespace GALAXY
 			friend Wrapper::OpenGLRenderer;
 
 			std::shared_ptr<Framebuffer> m_postProcess;
+
 			Weak<Resource::PostProcessShader> m_shader;
+			Weak<Resource::Mesh> m_plane;
 
 			uint32_t m_renderBuffer = -1;
 			uint32_t m_frameBuffer = -1;
 
 			uint32_t m_index = -1;
+
+			Wrapper::Renderer* m_renderer = nullptr;
 
 			Vec2i m_size;
 			std::shared_ptr<Resource::Texture> m_renderTexture;

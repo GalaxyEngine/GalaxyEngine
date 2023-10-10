@@ -92,12 +92,12 @@ namespace GALAXY {
 	{
 		GLint flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+		//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(DebugCallback, nullptr);
 			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-		}
+		//}
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -195,7 +195,7 @@ namespace GALAXY {
 			glDeleteShader(fragment->m_id);
 			return false;
 		}
-		PrintLog("Framgment shader %s compiled", fragment->GetFileInfo().GetFullPath().string().c_str());
+		PrintLog("Fragment shader %s compiled", fragment->GetFileInfo().GetFullPath().string().c_str());
 		return true;
 	}
 
@@ -425,7 +425,7 @@ namespace GALAXY {
 		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)count);
 	}
 
-	void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 5.f*/)
+	void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
 	{
 		static bool initalized = false;
 		static std::weak_ptr<Resource::Shader> unlitShader;
@@ -524,6 +524,7 @@ namespace GALAXY {
 		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)framebuffer->m_size.x, (GLsizei)framebuffer->m_size.y); // use a single render buffer object for both a depth AND stencil buffer.
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, framebuffer->m_renderBuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
 	void Wrapper::OpenGLRenderer::BindRenderBuffer(Render::Framebuffer* framebuffer)

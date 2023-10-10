@@ -12,6 +12,9 @@ namespace GALAXY {
 
 	void Resource::Material::Load()
 	{
+		if (p_shouldBeLoaded)
+			return;
+		p_shouldBeLoaded = true;
 		// TODO : Parse Material File
 		std::ifstream matFile(p_fileInfo.GetFullPath());
 		if (!matFile.is_open())
@@ -52,6 +55,8 @@ namespace GALAXY {
 		}
 
 		matFile.close();
+
+		p_loaded = true;
 	}
 
 	void Resource::Material::Save()

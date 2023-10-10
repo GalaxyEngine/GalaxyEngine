@@ -51,7 +51,7 @@ void Scene::Update()
 
 		m_editorCamera->Update();
 
-		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1))
+		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1) && sceneWindow->IsHovered())
 		{
 			renderer->ClearColorAndBuffer(Vec4f(1));
 

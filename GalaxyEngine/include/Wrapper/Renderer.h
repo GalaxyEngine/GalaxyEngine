@@ -106,7 +106,7 @@ namespace GALAXY
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
 
 			// Debug
-			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) {}
+			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
 
 		protected:
 			bool p_initalized = false;
@@ -187,7 +187,7 @@ namespace GALAXY
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
 
 			// Debug
-			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 5.f) override;
+			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;
 		private:
 
 		};

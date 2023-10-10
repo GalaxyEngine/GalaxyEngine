@@ -51,7 +51,7 @@ namespace GALAXY {
 		Input::Initialize();
 
 		// Initialize GUI Lib
-		Wrapper::GUI::Initialize(m_window, "#version 330");
+		Wrapper::GUI::Initialize(m_window, "#version 450");
 
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);

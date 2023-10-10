@@ -3,6 +3,7 @@
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
 #include "Resource/PostProcessShader.h"
+#include "Resource/Material.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Script.h"
@@ -138,17 +139,6 @@ namespace GALAXY {
 			m_instance = std::make_unique<ResourceManager>();
 		}
 		return m_instance.get();
-	}
-
-	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
-	{
-		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
-		return GetOrLoad<Resource::Shader>(unlitPath);
-	}
-
-	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
-	{
-		return GetUnlitShader();
 	}
 
 	void Resource::ResourceManager::Release()

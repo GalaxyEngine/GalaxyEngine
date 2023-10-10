@@ -1,8 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Resource/IResource.h"
-#include "Resource/Texture.h"
-#include "Resource/Shader.h"
 #include "Core/ThreadManager.h"
 
 #include <unordered_map>
@@ -50,8 +48,9 @@ namespace GALAXY {
 			template <typename T>
 			[[nodiscard]] inline std::vector<std::weak_ptr<T>> GetAllResources();
 
-			std::weak_ptr<Resource::Shader> GetDefaultShader();
-			std::weak_ptr<Resource::Shader> GetUnlitShader();
+			inline std::weak_ptr<class Material> GetDefaultMaterial();
+			inline std::weak_ptr<Shader> GetDefaultShader();
+			inline std::weak_ptr<Shader> GetUnlitShader();
 
 			void ImportAllFilesInFolder(const std::filesystem::path& folder);
 			void ImportResource(const std::filesystem::path& resourcePath);
@@ -68,6 +67,9 @@ namespace GALAXY {
 			static std::unique_ptr<Resource::ResourceManager> m_instance;
 
 			std::unordered_map<std::filesystem::path, std::shared_ptr<IResource>> m_resources;
+
+			std::weak_ptr<class Material> m_defaultMaterial;
+			std::weak_ptr<class Shader> m_defaultShader;
 
 			std::filesystem::path m_assetPath;
 			std::filesystem::path m_projectPath;
