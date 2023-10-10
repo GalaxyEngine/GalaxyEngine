@@ -5,6 +5,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Mesh.h"
+#include "Resource/Material.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
@@ -25,7 +26,7 @@ namespace GALAXY {
 		m_index = freeIndex;
 		s_indexArray[m_index] = true;
 
-		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer");
+		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer" + std::to_string(m_index) + ".png");
 		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture.get());
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
@@ -36,7 +37,14 @@ namespace GALAXY {
 	{
 		Wrapper::Renderer::GetInstance()->DeleteRenderBuffer(this);
 		s_indexArray.erase(m_index);
-		Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture.get());
+		Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture->GetFileInfo().GetRelativePath());
+	}
+
+	std::weak_ptr<GALAXY::Resource::Texture> Render::Framebuffer::GetRenderTexture() const
+	{
+		if (!m_postProcess)
+			return m_renderTexture;
+		return m_postProcess->GetRenderTexture();
 	}
 
 	void Render::Framebuffer::Update(const Vec2i& windowSize)
@@ -53,20 +61,37 @@ namespace GALAXY {
 
 	void Render::Framebuffer::Render()
 	{
-		m_plane.lock()->Render(Mat4::Identity(), { Resource::ResourceManager::GetInstance()->GetDefaultMaterial() });
 		if (!m_postProcess)
 			return;
-		m_renderer->BindRenderBuffer(this);
+		auto postProcessFramebuffer = m_postProcess.get();
+
+		m_renderer->BindRenderBuffer(postProcessFramebuffer);
 
 		Vec4f clearColor = Core::SceneHolder::GetCurrentScene()->GetCurrentCamera().lock()->GetClearColor();
 		m_renderer->ClearColorAndBuffer(clearColor);
 
+		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
+
+		m_renderer->UnbindRenderBuffer(postProcessFramebuffer);
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)
 	{
+		if (!postProcessShader.lock())
+		{
+			m_postProcess.reset();
+			return;
+		}
 		if (!m_postProcess)
 			m_postProcess = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
+		if (!m_renderMaterial) {
+			m_renderMaterial = std::make_shared<Resource::Material>("RenderMaterial");
+			m_renderMaterial->SetAlbedo(m_renderTexture);
+			m_renderMaterial->p_shouldBeLoaded = true;
+			m_renderMaterial->p_loaded = true;
+			m_renderMaterial->p_hasBeenSent = true;
+		}
+		m_renderMaterial->SetShader(postProcessShader);
 		m_postProcess->m_shader = postProcessShader;
 	}
 

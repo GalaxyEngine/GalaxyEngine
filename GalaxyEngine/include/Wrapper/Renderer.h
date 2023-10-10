@@ -102,6 +102,8 @@ namespace GALAXY
 			virtual void UnbindRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void DeleteRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) {}
+
+			virtual void ActiveDepth(bool active = true) {}
 			
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
 
@@ -183,6 +185,8 @@ namespace GALAXY
 			void UnbindRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void DeleteRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) override;
+
+			void ActiveDepth(bool active = true) override;
 
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
 

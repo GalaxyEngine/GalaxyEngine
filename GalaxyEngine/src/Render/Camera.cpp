@@ -135,6 +135,11 @@ namespace GALAXY {
 		{
 			m_framebuffer->SetPostProcessShader(ppShader);
 		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset"))
+		{
+			m_framebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
+		}
 	}
 
 	Mat4 Render::Camera::GetViewMatrix()
@@ -160,7 +165,7 @@ namespace GALAXY {
 	}
 
 
-	Component::Transform* Render::Camera::GetTransform()	
+	Component::Transform* Render::Camera::GetTransform()
 	{
 		return m_transform.get();
 	}
@@ -220,7 +225,7 @@ namespace GALAXY {
 	void Render::Camera::End()
 	{
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(m_framebuffer);
-		//m_framebuffer->Render();
+		m_framebuffer->Render();
 	}
 
 }

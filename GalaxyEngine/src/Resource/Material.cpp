@@ -83,7 +83,7 @@ namespace GALAXY {
 			{
 				ImGui::OpenPopup("ShaderPopup");
 			}
-			if (auto sha = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Shader>("ShaderPopup"); sha.lock())
+			if (auto sha = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Shader>("ShaderPopup", { Resource::ResourceType::Shader, Resource::ResourceType::PostProcessShader }); sha.lock())
 			{
 				m_shader = sha;
 			}
@@ -132,7 +132,7 @@ namespace GALAXY {
 			int g = (id & 0x0000FF00) >> 8;
 			int b = (id & 0x00FF0000) >> 16;
 			
-			renderer->ShaderSendVec4f(shader->GetLocation("Diffuse"), Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
+			shader->SendVec4f("Diffuse", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
 		}
 		else
 		{
@@ -141,12 +141,12 @@ namespace GALAXY {
 				return;
 			shader->Use();
 
-			renderer->ShaderSendInt(shader->GetLocation("EnableTexture"), m_albedo.lock() ? true : false);
+			shader->SendInt("EnableTexture", m_albedo.lock() ? true : false);
 			if (auto texture = m_albedo.lock()) {
 				texture->Bind(0);
-				renderer->ShaderSendInt(shader->GetLocation("Texture"), 0);
+				shader->SendInt("Texture", 0);
 			}
-			renderer->ShaderSendVec4f(shader->GetLocation("Diffuse"), m_diffuse);
+			shader->SendVec4f("Diffuse", m_diffuse);
 		}
 	}
 

@@ -1,16 +1,11 @@
 #version 330 core
-layout (location = 0) in vec2 aPos;
-layout (location = 1) in vec2 aTexCoords;
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTex;
 
-out vec2 texCoord;
-out vec3 normal;
-out vec3 fragPos;
-out vec3 tangent;
-out vec4 color;
-out vec4 fragPosLight;
+out vec2 uv;
 
 void main()
 {
     gl_Position = vec4(aPos.xy, 0.0, 1.0); 
-    texCoord = aTexCoords;
+    uv = vec2(aTex.x, 1 - aTex.y);
 }  

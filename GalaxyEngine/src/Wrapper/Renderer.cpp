@@ -93,10 +93,10 @@ namespace GALAXY {
 		GLint flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 		//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-			glEnable(GL_DEBUG_OUTPUT);
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-			glDebugMessageCallback(DebugCallback, nullptr);
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(DebugCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
 		//}
 
 		glEnable(GL_DEPTH_TEST);
@@ -427,6 +427,8 @@ namespace GALAXY {
 
 	void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
 	{
+		static float minMaxWidth[2];
+
 		static bool initalized = false;
 		static std::weak_ptr<Resource::Shader> unlitShader;
 		static uint32_t VAO;
@@ -447,12 +449,18 @@ namespace GALAXY {
 			glVertexAttribPointer(0U, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0U);
 			initalized = true;
+
+			// Query the maximum supported line width range
+			glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, minMaxWidth);
 		}
 		if (!unlitShader.lock() || !unlitShader.lock()->HasBeenSent())
 		{
 			unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
 			return;
 		}
+
+		if (lineWidth < minMaxWidth[0] || lineWidth > minMaxWidth[1])
+			lineWidth = 1.f;
 
 		// Bind Position
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -551,6 +559,14 @@ namespace GALAXY {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (GLsizei)size.x, (GLsizei)size.y, 0, GL_RGBA, GL_FLOAT, NULL);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)size.x, (GLsizei)size.y);
 		}
+	}
+
+	void Wrapper::OpenGLRenderer::ActiveDepth(bool active /*= true*/)
+	{
+		if (active)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
 	}
 
 	Vec4f Wrapper::OpenGLRenderer::ReadPixelColor(const Vec2f& mousePos)

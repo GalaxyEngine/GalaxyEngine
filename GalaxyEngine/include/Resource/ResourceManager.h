@@ -58,7 +58,7 @@ namespace GALAXY {
 			void ProcessDataFile(const std::filesystem::path& dataPath);
 
 			template <typename T>
-			[[nodiscard]] inline std::weak_ptr<T> ResourcePopup(const char* popupName);
+			[[nodiscard]] inline std::weak_ptr<T> ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter = {});
 
 			std::filesystem::path GetAssetPath() const { return m_assetPath; }
 			std::filesystem::path GetProjectPath() const { return m_projectPath; }

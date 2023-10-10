@@ -2,15 +2,18 @@
 #include "Resource/ResourceManager.h"
 
 #include "Resource/Texture.h"
+#include "Resource/PostProcessShader.h"
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
+#include "Resource/Mesh.h"
+#include "Resource/Model.h"
 
 namespace GALAXY
 {
 	void Resource::ResourceManager::AddResource(IResource* resource)
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
-			PrintError("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
+			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
 			return;
 		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = std::shared_ptr<IResource>(resource);
@@ -19,7 +22,7 @@ namespace GALAXY
 	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
-			PrintError("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
+			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
 			return;
 		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
@@ -27,16 +30,16 @@ namespace GALAXY
 
 	void Resource::ResourceManager::RemoveResource(IResource* resource)
 	{
-		if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
+		/*if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
 		{
 			it->second->Unload();
-			it->second.reset();
-			m_resources.erase(it);
 		}
 		else
 		{
-			PrintError("Resource %s not found in Resource Manager", resource->GetFileInfo().GetRelativePath().c_str());
-		}
+			PrintError("Resource %s not found in Resource Manager", resource->GetFileInfo().GetRelativePath().string().c_str());
+			return;
+		}*/
+
 	}
 
 	void Resource::ResourceManager::RemoveResource(const std::shared_ptr<IResource>& resource)
@@ -46,10 +49,9 @@ namespace GALAXY
 
 	void Resource::ResourceManager::RemoveResource(const std::filesystem::path& relativePath)
 	{
-		if (auto resource = GetResource<IResource>(relativePath).lock())
-		{
-			RemoveResource(resource.get());
-		}
+		auto it = m_resources[relativePath];
+		m_resources.erase(relativePath);
+		it.reset();
 	}
 
 	bool Resource::ResourceManager::Contains(const std::filesystem::path& fullPath)
@@ -123,7 +125,7 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	[[nodiscard]] inline std::weak_ptr<T> Resource::ResourceManager::ResourcePopup(const char* popupName)
+	[[nodiscard]] inline std::weak_ptr<T> Resource::ResourceManager::ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
 	{
 		if (ImGui::BeginPopup(popupName))
 		{
@@ -133,8 +135,13 @@ namespace GALAXY
 			size_t i = 0;
 			for (const auto& [path, resource] : m_resources)
 			{
-				if (resource->GetFileInfo().GetResourceType() == T::GetResourceType() 
-					&& filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
+				bool typeChecked = false;
+				if (typeFilter.size() > 0)
+					typeChecked = std::find(typeFilter.begin(), typeFilter.end(), resource->GetFileInfo().GetResourceType()) != typeFilter.end();
+				else
+					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
+					
+				if (typeChecked	&& filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str()) 
 					&& resource->p_displayOnInspector)
 				{
 					ImGui::PushID((int)i++);

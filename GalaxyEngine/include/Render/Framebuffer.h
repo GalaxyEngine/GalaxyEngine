@@ -13,6 +13,7 @@ namespace GALAXY
 		class Texture;
 		class Mesh;
 		class PostProcessShader;
+		class Material;
 	}
 	namespace Render
 	{
@@ -25,7 +26,7 @@ namespace GALAXY
 			Framebuffer(Framebuffer&&) noexcept = default;
 			virtual ~Framebuffer();
 
-			std::weak_ptr<GALAXY::Resource::Texture> GetRenderTexture() const { return m_renderTexture; }
+			std::weak_ptr<Resource::Texture> GetRenderTexture() const;
 
 			// Update the size of the Framebuffer each frame
 			void Update(const Vec2i& windowSize);
@@ -41,6 +42,7 @@ namespace GALAXY
 
 			Weak<Resource::PostProcessShader> m_shader;
 			Weak<Resource::Mesh> m_plane;
+			Shared<Resource::Material> m_renderMaterial;
 
 			uint32_t m_renderBuffer = -1;
 			uint32_t m_frameBuffer = -1;

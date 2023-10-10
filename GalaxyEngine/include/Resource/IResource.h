@@ -11,10 +11,10 @@
 namespace GALAXY::Resource {
 	enum class ResourceType
 	{
-		None,
+		None = 0,
 		Texture,
-		PostProcessShader,
 		Shader,
+		PostProcessShader,
 		VertexShader,
 		GeometryShader,
 		FragmentShader,

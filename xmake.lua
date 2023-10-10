@@ -14,6 +14,8 @@ if is_plat("windows") then
         add_cxflags("/ZI")  -- Enable program database (PDB) generation for edit-and-continue debugging
     end
 
+add_cxxflags("-g")
+
 set_languages("c++20")
 
 set_rundir("GalaxyCore")

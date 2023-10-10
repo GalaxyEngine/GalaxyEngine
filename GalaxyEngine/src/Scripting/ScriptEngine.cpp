@@ -137,7 +137,6 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::AddScript(Weak<Resource::Script> script)
 	{
-		PrintError("Add script");
 		m_scripts.push_back(script);
 
 		if (!m_dllLoaded)
