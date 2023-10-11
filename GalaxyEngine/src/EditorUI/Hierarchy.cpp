@@ -67,7 +67,7 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 		{
 			ImGui::SetKeyboardFocusHere();
 		}
-		ImGui::InputText("##InputText", &name);
+		Wrapper::GUI::InputText("##InputText", &name);
 		if (m_renameObject && !m_openRename && !ImGui::IsItemActive())
 		{
 			m_renameObject->m_name = name;

@@ -37,7 +37,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 	//TODO: Add tag & layer
 	ImGui::Checkbox("##", &object->m_active);
 	ImGui::SameLine();
-	ImGui::InputText("##InputName", &object->m_name);
+	Wrapper::GUI::InputText("##InputName", &object->m_name);
 	ImGui::Separator();
 
 	// Transform

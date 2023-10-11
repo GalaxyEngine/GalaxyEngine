@@ -1,5 +1,7 @@
 #pragma once
 #include <GalaxyAPI.h>
+typedef int ImGuiInputTextFlags;
+
 namespace GALAXY {
 	namespace Component { class BaseComponent; }
 	namespace Resource { class Texture; }
@@ -12,6 +14,8 @@ namespace GALAXY {
 			void UnInitalize();
 			void NewFrame();
 			void EndFrame(const std::unique_ptr<Wrapper::Window>& window);
+
+			bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 
 			bool DrawVec3Control(const std::string& label, float* values, float resetValue = 0.0f, bool lockButton = false, float columnWidth = 100.0f);
 

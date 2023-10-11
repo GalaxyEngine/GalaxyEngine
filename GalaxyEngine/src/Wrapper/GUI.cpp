@@ -44,6 +44,7 @@ namespace GALAXY {
 		ImGui::NewFrame();
 	}
 
+
 	void Wrapper::GUI::EndFrame(const std::unique_ptr<Wrapper::Window>& window)
 	{
 		ImGui::Render();
@@ -57,6 +58,37 @@ namespace GALAXY {
 			ImGui::RenderPlatformWindowsDefault();
 			Wrapper::Window::MakeContextCurrent(backup_current_context);
 		}
+	}
+
+	struct InputTextCallback_UserData
+	{
+		std::string* Str;
+	};
+
+	static int InputTextCallback(ImGuiInputTextCallbackData* data)
+	{
+		InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+		{
+			// Resize string callback
+			// If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+			std::string* str = user_data->Str;
+			IM_ASSERT(data->Buf == str->c_str());
+			str->resize(data->BufTextLen);
+			data->Buf = (char*)str->c_str();
+		}
+		return 0;
+	}
+
+
+	bool Wrapper::GUI::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
+	{
+		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+		flags |= ImGuiInputTextFlags_CallbackResize;
+
+		InputTextCallback_UserData cb_user_data;
+		cb_user_data.Str = str;
+		return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 	}
 
 	float Wrapper::GUI::DeltaTime()

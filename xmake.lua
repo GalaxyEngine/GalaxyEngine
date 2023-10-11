@@ -1,6 +1,11 @@
 add_rules("mode.release", "mode.debug")
 add_rules("plugin.vsxmake.autoupdate")
 
+if is_plat("windows") then
+    set_runtimes(is_mode("debug") and "MDd" or "MD")
+    add_cxflags("/ZI")  -- Enable program database (PDB) generation for edit-and-continue debugging
+end
+
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
@@ -10,20 +15,10 @@ add_requires("stb")
 add_defines("ENABLE_MULTITHREAD")
 --add_defines("ENABLE_REFLECTION")
 
-if is_plat("windows") then
-        add_cxflags("/ZI")  -- Enable program database (PDB) generation for edit-and-continue debugging
-    end
-
-add_cxxflags("-g")
-
 set_languages("c++20")
 
 set_rundir("GalaxyCore")
 set_targetdir("GalaxyCore")
-
--- if is_plat("windows") then
---     set_runtimes(is_mode("debug") and "MDd" or "MD")
--- end
 
 -- diable warnings
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
@@ -37,17 +32,6 @@ elseif is_plat("linux") then
 elseif is_plat("macosx") then
     add_frameworks("OpenGL")
 end
-
-function fileExists(path)
-    local file = io.open(path, "r")
-    if file then
-        io.close(file)
-        return true
-    end
-    return false
-end
-
-add_mxflags("-MD")
 
 target("GalaxyEngine")
     set_kind("shared")

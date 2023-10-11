@@ -185,7 +185,7 @@ namespace GALAXY {
 			}
 			ImGui::SameLine();
 			std::string in = m_currentFile->m_info.GetRelativePath().string();
-			ImGui::InputText("search", &in);
+			Wrapper::GUI::InputText("search", &in);
 
 			ImGui::Separator();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0));
@@ -428,7 +428,7 @@ namespace GALAXY {
 			if (ImGui::BeginPopupModal("Create Script"))
 			{
 				static std::string scriptName;
-				ImGui::InputText("Script Name", &scriptName);
+				Wrapper::GUI::InputText("Script Name", &scriptName);
 				if (ImGui::Button("Create") && !scriptName.empty())
 				{
 					Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);

@@ -397,8 +397,8 @@ namespace GALAXY
 
 	template<> void Component::ScriptComponent::DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, std::string* value)
 	{
-		if (value)
-			ImGui::InputText(variable.first.c_str(), value);
+		//if (value)
+			Wrapper::GUI::InputText(variable.first.c_str(), value);
 	}
 
 	template<> void Component::ScriptComponent::DisplayVariableT<Component::BaseComponent*>(const std::pair<std::string, Scripting::VariableData>& variable, Component::BaseComponent** value)
