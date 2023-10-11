@@ -55,6 +55,7 @@ namespace GALAXY
 			std::weak_ptr<class Texture> m_albedo;
 			std::weak_ptr<class Texture> m_normal;
 
+
 		};
 	}
 }

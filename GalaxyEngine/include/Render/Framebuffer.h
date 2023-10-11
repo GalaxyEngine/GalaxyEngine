@@ -32,6 +32,9 @@ namespace GALAXY
 			void Update(const Vec2i& windowSize);
 			void Render();
 
+			void Begin();
+			void End();
+
 			void SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader);
 			Weak<Resource::PostProcessShader> GetPostProcessShader();
 		private:

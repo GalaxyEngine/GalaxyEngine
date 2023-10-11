@@ -13,7 +13,7 @@ namespace GALAXY {
 		static auto renderer = Wrapper::Renderer::GetInstance();
 		if (!m_mesh.lock())
 			return;
-		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials, renderer->ShouldRenderPicking() ? gameObject.lock()->GetIndex() : -1);
+		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials, gameObject.lock()->GetIndex());
 	}
 
 	void Component::MeshComponent::SetMesh(const std::weak_ptr<Resource::Mesh>& mesh)

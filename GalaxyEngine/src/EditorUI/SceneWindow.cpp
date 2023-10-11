@@ -7,6 +7,7 @@
 #include "Core/Input.h"
 
 #include "Render/Camera.h"
+#include "Render/Framebuffer.h"
 
 #include "Resource/Texture.h"
 #include "Resource/ResourceManager.h"
@@ -77,6 +78,7 @@ namespace GALAXY {
 	void EditorUI::SceneWindow::DrawImage()
 	{
 		auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
+		auto outlineRenderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
 
 		float contentWidth = ImGui::GetContentRegionAvail().x;
 		float contentHeight = ImGui::GetContentRegionAvail().y;
@@ -106,8 +108,9 @@ namespace GALAXY {
 		float xPos = (ImGui::GetContentRegionAvail().x - width) * 0.5f;
 		float yPos = (ImGui::GetContentRegionAvail().y - height) * 0.5f;
 
+		auto cursorPos = ImGui::GetCursorPos();
 		// Set the cursor position to center the content horizontally
-		ImGui::SetCursorPos(ImGui::GetCursorPos() + Vec2f(xPos, yPos));
+		ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
 
 		// Get Position to draw a border
 		Vec2f topLeft = ImGui::GetCursorScreenPos();
@@ -117,6 +120,8 @@ namespace GALAXY {
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
 		Wrapper::GUI::TextureImage(renderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
+		/*ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
+		Wrapper::GUI::TextureImage(outlineRenderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });*/
 		if (drawBorder) {
 			auto drawList = ImGui::GetWindowDrawList();
 			drawList->AddRect(topLeft, bottomRight, IM_COL32(50, 50, 50, 255), 2.0f, 0, 5.0f); // Gray border

@@ -19,10 +19,12 @@ namespace GALAXY {
 	{
 		m_transform = std::make_unique<Component::Transform>();
 		m_framebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
+		m_outlineFramebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
 	}
 
 	Render::Camera::~Camera()
 	{
+		delete m_outlineFramebuffer;
 		delete m_framebuffer;
 	}
 
@@ -141,6 +143,23 @@ namespace GALAXY {
 		{
 			m_framebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
 		}
+		if (auto shader = m_outlineFramebuffer->GetPostProcessShader().lock())
+			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
+		else
+			buttonName = "Set Post Process Outline";
+		if (ImGui::Button(buttonName.c_str(), Vec2f(contentWidth, 0)))
+		{
+			ImGui::OpenPopup("PostProcessPopupOutline");
+		}
+		if (auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopupOutline").lock())
+		{
+			m_outlineFramebuffer->SetPostProcessShader(ppShader);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset"))
+		{
+			m_outlineFramebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
+		}
 	}
 
 	Mat4 Render::Camera::GetViewMatrix()
@@ -219,14 +238,12 @@ namespace GALAXY {
 
 	void Render::Camera::Begin()
 	{
-		m_framebuffer->Update(Core::Application::GetInstance().GetWindow()->GetSize());
-		Wrapper::Renderer::GetInstance()->BindRenderBuffer(m_framebuffer);
+		m_framebuffer->Begin();
 	}
 
 	void Render::Camera::End()
 	{
-		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(m_framebuffer);
-		m_framebuffer->Render();
+		m_framebuffer->End();
 	}
 
 }

@@ -47,9 +47,12 @@ namespace GALAXY
 
 			float GetFOV() const { return p_fov; }
 			void SetFOV(float val) { p_fov = val; }
+			class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
 		private:
 			void StartLooking();
 			void StopLooking();
+
+			class Framebuffer* m_outlineFramebuffer = nullptr;
 		protected:
 			float p_fov = 70.f;
 			float p_far = 1000.f;

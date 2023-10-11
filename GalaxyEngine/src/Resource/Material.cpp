@@ -121,20 +121,10 @@ namespace GALAXY {
 	void Resource::Material::SendValues(uint64_t id /*= -1*/)
 	{
 		static auto renderer = Wrapper::Renderer::GetInstance();
-		if (id != -1)
+		auto renderType = renderer->GetRenderType();
+		switch (renderType)
 		{
-			auto shader = m_shader.lock()->GetPickingVariant().lock();
-			if (!shader || !shader->HasBeenSent())
-				return;
-			shader->Use();
-
-			int r = (id & 0x000000FF) >> 0;
-			int g = (id & 0x0000FF00) >> 8;
-			int b = (id & 0x00FF0000) >> 16;
-			
-			shader->SendVec4f("Diffuse", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
-		}
-		else
+		case Render::RenderType::DEFAULT: 
 		{
 			auto shader = m_shader.lock();
 			if (!shader || !shader->HasBeenSent())
@@ -147,6 +137,35 @@ namespace GALAXY {
 				shader->SendInt("Texture", 0);
 			}
 			shader->SendVec4f("Diffuse", m_diffuse);
+		}
+		break;
+		case Render::RenderType::PICKING: 
+		{
+			auto shader = m_shader.lock()->GetPickingVariant().lock();
+			if (!shader || !shader->HasBeenSent())
+				return;
+			shader->Use();
+
+			int r = (id & 0x000000FF) >> 0;
+			int g = (id & 0x0000FF00) >> 8;
+			int b = (id & 0x00FF0000) >> 16;
+
+			shader->SendVec4f("Diffuse", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
+		}
+		break;
+		case Render::RenderType::OUTLINE:
+		{
+			auto shader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
+			if (!shader || !shader->HasBeenSent())
+				return;
+			shader->Use();
+
+			shader->SendInt("EnableTexture", false);
+			shader->SendVec4f("Diffuse", Vec4f(1));
+		}
+			break;
+		default:
+			break;
 		}
 	}
 

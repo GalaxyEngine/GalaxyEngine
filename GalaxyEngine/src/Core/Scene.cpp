@@ -10,6 +10,7 @@
 
 #include "Render/Camera.h"
 #include "Render/Grid.h"
+#include "Render/Framebuffer.h"
 
 #include "Component/MeshComponent.h"
 
@@ -45,6 +46,23 @@ void Scene::Update()
 	if (m_editorCamera->IsVisible()) {
 		SetCurrentCamera(m_editorCamera);
 
+		// Outline 
+		{
+			auto outlineFrameBuffer = m_currentCamera.lock()->GetOutlineFramebuffer();
+			outlineFrameBuffer->Begin();
+
+			renderer->ClearColorAndBuffer(Vec4f(0));
+
+			renderer->SetRenderingType(Render::RenderType::OUTLINE);
+			for (auto& selected : inspector->GetSelected())
+			{
+				selected.lock()->DrawSelfAndChild();
+			}
+			renderer->SetRenderingType(Render::RenderType::DEFAULT);
+			outlineFrameBuffer->End();
+		}
+
+		// Bind Default Framebuffer
 		m_currentCamera.lock()->Begin();
 		renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
 		m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
@@ -55,9 +73,9 @@ void Scene::Update()
 		{
 			renderer->ClearColorAndBuffer(Vec4f(1));
 
-			renderer->RenderingPicking(true);
+			renderer->SetRenderingType(Render::RenderType::PICKING);
 			m_root->DrawSelfAndChild();
-			renderer->RenderingPicking(false);
+			renderer->SetRenderingType(Render::RenderType::DEFAULT);
 
 			// Calculate Mouse Position
 			Vec2i mainWindowSize = window->GetSize();
@@ -86,6 +104,7 @@ void Scene::Update()
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1), 5.f);
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1), 5.f);
 		renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1), 5.f);
+
 		m_currentCamera.lock()->End();
 	}
 }

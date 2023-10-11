@@ -16,6 +16,13 @@ namespace GALAXY
 	namespace Render
 	{
 		class Framebuffer;
+
+		enum class RenderType
+		{
+			DEFAULT,
+			PICKING,
+			OUTLINE
+		};
 	}
 	namespace Wrapper 
 	{
@@ -43,8 +50,8 @@ namespace GALAXY
 			virtual void EnableDebugOutput() {}
 			bool IsInitalized() { return p_initalized; }
 
-			void RenderingPicking(bool value) { p_renderPicking = value; }
-			bool ShouldRenderPicking() const { return p_renderPicking; }
+			void SetRenderingType(Render::RenderType value) { p_renderType = value; }
+			Render::RenderType GetRenderType() const { return p_renderType; }
 
 			virtual void Viewport(const Vec2i& pos, const Vec2i& size) {}
 			virtual void ClearColorAndBuffer(const Vec4f& color) {}
@@ -112,7 +119,7 @@ namespace GALAXY
 
 		protected:
 			bool p_initalized = false;
-			bool p_renderPicking = false;
+			Render::RenderType p_renderType = Render::RenderType::DEFAULT;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};

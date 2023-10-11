@@ -26,7 +26,7 @@ namespace GALAXY {
 		m_index = freeIndex;
 		s_indexArray[m_index] = true;
 
-		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer" + std::to_string(m_index) + ".png");
+		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer_" + std::to_string(m_index) + ".png");
 		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture);
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
@@ -74,6 +74,18 @@ namespace GALAXY {
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
 
 		m_renderer->UnbindRenderBuffer(postProcessFramebuffer);
+	}
+
+	void Render::Framebuffer::Begin()
+	{
+		Update(Core::Application::GetInstance().GetWindow()->GetSize());
+		Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);
+	}
+
+	void Render::Framebuffer::End()
+	{
+		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
+		Render();
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)
