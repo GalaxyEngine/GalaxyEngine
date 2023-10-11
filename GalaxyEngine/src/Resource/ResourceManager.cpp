@@ -57,30 +57,30 @@ namespace GALAXY {
 			GetOrLoad<Texture>(resourcePath);
 			break;
 		case Resource::ResourceType::Shader:
-			AddResource(new Shader(resourcePath));
+			AddResource<Shader>(resourcePath);
 			break;
 		case Resource::ResourceType::PostProcessShader:
-			AddResource(new PostProcessShader(resourcePath));
+			AddResource<PostProcessShader>(resourcePath);
 			break;
 		case Resource::ResourceType::VertexShader:
-			AddResource(new VertexShader(resourcePath));
+			AddResource<VertexShader>(resourcePath);
 			break;
 		case Resource::ResourceType::FragmentShader:
-			AddResource(new FragmentShader(resourcePath));
+			AddResource<FragmentShader>(resourcePath);
 			break;
 		case Resource::ResourceType::Material:
-			AddResource(new Material(resourcePath));
+			AddResource<Material>(resourcePath);
 			break;
 		case Resource::ResourceType::Model:
 #ifndef AUTO_IMPORT_MODEL
-			AddResource(new Model(resourcePath));
+			AddResource<Model>(resourcePath);
 #else
 			{
 				std::filesystem::path dataFilePath = resourcePath.parent_path() / resourcePath.stem();
 				if (!std::filesystem::exists(dataFilePath.wstring() + L".gdata"))
 					GetOrLoad<Model>(resourcePath);
 				else
-					AddResource(new Model(resourcePath));
+					AddResource<Model>(resourcePath);
 			}
 #endif
 			break;
@@ -96,9 +96,9 @@ namespace GALAXY {
 		case Resource::ResourceType::Script:
 		{
 			// Default load all scripts
-			GetOrLoad<Resource::Script>(resourcePath);
+			//GetOrLoad<Resource::Script>(resourcePath);
 		}
-			break;
+		break;
 		default:
 			break;
 		}
@@ -112,7 +112,7 @@ namespace GALAXY {
 		ResourceType type;
 		std::filesystem::path originFilePath;
 
-		while (std::getline(file, line)) 
+		while (std::getline(file, line))
 		{
 			std::istringstream iss(line);
 			std::string token;
@@ -127,10 +127,10 @@ namespace GALAXY {
 			{
 				switch (type)
 				{
-				case Resource::ResourceType::Model: 
+				case Resource::ResourceType::Model:
 				{
 					auto meshPath = Mesh::CreateMeshPath(originFilePath, token);
-					AddResource(new Mesh(meshPath));
+					AddResource<Mesh>(meshPath);
 					break;
 				}
 				}

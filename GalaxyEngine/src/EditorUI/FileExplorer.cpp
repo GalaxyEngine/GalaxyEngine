@@ -6,8 +6,8 @@
 #include "Resource/Script.h"
 #include "Resource/Material.h"
 
-#define FOLDER_ICON_PATH "CoreResources\\icons\\folder.png"
-#define FILE_ICON_PATH "CoreResources\\icons\\file.png"
+#define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"\\icons\\folder.png"
+#define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"\\icons\\file.png"
 
 /* TODO:
 * Drag and Drop (folders, models, ...)
@@ -107,7 +107,7 @@ namespace GALAXY {
 		for (const std::filesystem::directory_entry& entry : dirIt)
 		{
 			m_childrens.push_back(std::make_shared<File>(entry.path()));
-			m_childrens.back()->m_parent = shared_from_this();
+			m_childrens.back()->m_parent = weak_from_this();
 			if (entry.is_directory()) {
 				m_isAnyChildFolder = true;
 				m_childrens.back()->FindAllChildrens();
@@ -174,9 +174,9 @@ namespace GALAXY {
 			ImGui::SameLine();
 
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
-			if (ImGui::Button("Back") && m_currentFile->m_parent)
+			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
 			{
-				SetCurrentFile(m_currentFile->m_parent);
+				SetCurrentFile(m_currentFile->m_parent.lock());
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Reload"))

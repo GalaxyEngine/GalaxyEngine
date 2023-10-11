@@ -120,8 +120,8 @@ namespace GALAXY {
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
 		Wrapper::GUI::TextureImage(renderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
-		/*ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
-		Wrapper::GUI::TextureImage(outlineRenderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });*/
+		ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
+		Wrapper::GUI::TextureImage(outlineRenderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
 		if (drawBorder) {
 			auto drawList = ImGui::GetWindowDrawList();
 			drawList->AddRect(topLeft, bottomRight, IM_COL32(50, 50, 50, 255), 2.0f, 0, 5.0f); // Gray border

@@ -10,23 +10,25 @@
 
 namespace GALAXY
 {
-	void Resource::ResourceManager::AddResource(IResource* resource)
-	{
-		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
-			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
-			delete resource;
-			return;
-		}
-		m_resources[resource->GetFileInfo().GetRelativePath()] = std::shared_ptr<IResource>(resource);
-	}
-
-	void Resource::ResourceManager::AddResource(std::shared_ptr<IResource> resource)
+	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
 			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
 			return;
 		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
+	}
+
+	template<typename T>
+	Weak<T> Resource::ResourceManager::AddResource(const std::filesystem::path& fullPath)
+	{
+		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (m_resources.contains(relativePath)) {
+			PrintWarning("Already Contain %s", relativePath.string().c_str());
+			return Weak<T>();
+		}
+		m_resources[relativePath] = std::make_shared<T>(fullPath);
+		return std::dynamic_pointer_cast<T>(m_resources[relativePath]);
 	}
 
 	void Resource::ResourceManager::RemoveResource(IResource* resource)
@@ -61,21 +63,21 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline std::weak_ptr<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
 	{
 		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		auto resource = m_instance->m_resources.find(relativePath);
 		if (resource == m_instance->m_resources.end())
 		{
 			// if resource is not imported
-			
-			// if the resource does not exist in path and is not a shader (Shaders are not always a file)
-			if (!std::filesystem::exists(fullPath) 
-				&& T::GetResourceType() != Resource::ResourceType::Shader 
-				&& T::GetResourceType() != Resource::ResourceType::PostProcessShader)
-				return std::weak_ptr<T>{};
 
-			m_instance->AddResource(new T(fullPath));
+			// if the resource does not exist in path and is not a shader (Shaders are not always a file)
+			if (!std::filesystem::exists(fullPath)
+				&& T::GetResourceType() != Resource::ResourceType::Shader
+				&& T::GetResourceType() != Resource::ResourceType::PostProcessShader)
+				return Weak<T>{};
+
+			m_instance->AddResource<T>(fullPath);
 			resource = m_instance->m_resources.find(relativePath);
 		}
 		if (resource != m_instance->m_resources.end())
@@ -97,24 +99,24 @@ namespace GALAXY
 			}
 		}
 
-		return std::weak_ptr<T>{};
+		return Weak<T>{};
 	}
 
 	template <typename T>
-	inline std::weak_ptr<T> Resource::ResourceManager::GetResource(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::GetResource(const std::filesystem::path& fullPath)
 	{
 		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_resources.count(relativePath))
 		{
 			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
 		}
-		return std::weak_ptr<T>{};
+		return Weak<T>{};
 	}
 
 	template <typename T>
-	inline std::vector<std::weak_ptr<T>> Resource::ResourceManager::GetAllResources()
+	inline std::vector<Weak<T>> Resource::ResourceManager::GetAllResources()
 	{
-		std::vector<std::weak_ptr<T>> m_resourcesOfType;
+		std::vector<Weak<T>> m_resourcesOfType;
 		for (auto&& resource : m_resources)
 		{
 			if (resource.second->GetFileInfo().GetResourceType() == T::GetResourceType())
@@ -126,7 +128,7 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	[[nodiscard]] inline std::weak_ptr<T> Resource::ResourceManager::ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
+	[[nodiscard]] inline Weak<T> Resource::ResourceManager::ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
 	{
 		if (ImGui::BeginPopup(popupName))
 		{
@@ -141,8 +143,8 @@ namespace GALAXY
 					typeChecked = std::find(typeFilter.begin(), typeFilter.end(), resource->GetFileInfo().GetResourceType()) != typeFilter.end();
 				else
 					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
-					
-				if (typeChecked	&& filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str()) 
+
+				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
 					&& resource->p_displayOnInspector)
 				{
 					ImGui::PushID((int)i++);
@@ -160,23 +162,23 @@ namespace GALAXY
 			}
 			ImGui::EndPopup();
 		}
-		return std::weak_ptr<T>();
+		return Weak<T>();
 	}
 
-	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
+	Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
 		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
 		return GetOrLoad<Resource::Shader>(unlitPath);
 	}
 
-	std::weak_ptr<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
+	Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
 	{
 		if (!m_defaultMaterial.lock())
 			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"\\materials\\DefaultMaterial.mat");
 		return m_defaultMaterial;
 	}
 
-	std::weak_ptr<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+	Weak<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
 	{
 		if (!m_defaultShader.lock())
 			m_defaultShader = GetUnlitShader();

@@ -11,7 +11,7 @@
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
-#define PLANE_PATH "CoreResources\\models\\Plane.obj:Plane"
+#define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\models\\Plane.obj:Plane"
 namespace GALAXY {
 
 	static std::unordered_map<size_t, bool> s_indexArray = {};
@@ -60,7 +60,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Render::Framebuffer::Render()
+	void Render::Framebuffer::RenderPostProcess()
 	{
 		if (!m_postProcess)
 			return;
@@ -68,8 +68,7 @@ namespace GALAXY {
 
 		m_renderer->BindRenderBuffer(postProcessFramebuffer);
 
-		Vec4f clearColor = Core::SceneHolder::GetCurrentScene()->GetCurrentCamera().lock()->GetClearColor();
-		m_renderer->ClearColorAndBuffer(clearColor);
+		m_renderer->ClearColorAndBuffer(m_clearColor);
 
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
 
@@ -85,7 +84,7 @@ namespace GALAXY {
 	void Render::Framebuffer::End()
 	{
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
-		Render();
+		RenderPostProcess();
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)

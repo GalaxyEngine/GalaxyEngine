@@ -34,7 +34,7 @@ namespace GALAXY
 			std::weak_ptr<Resource::Texture> m_icon;
 			std::weak_ptr<Resource::IResource> m_resource;
 
-			std::shared_ptr<File> m_parent;
+			std::weak_ptr<File> m_parent;
 			std::vector<std::shared_ptr<File>> m_childrens;
 
 			bool m_selected = false;

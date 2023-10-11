@@ -72,19 +72,24 @@ namespace GALAXY {
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 
+		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 
+		
+		
 		// Initialize EditorUI
 		m_editorUI = EditorUI::EditorUIManager::GetInstance();
 		m_editorUI->Initialize();
 
+		
 		// Initialize Scripting
 		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
 		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
+		
 	}
 
 	void Core::Application::UpdateResources()

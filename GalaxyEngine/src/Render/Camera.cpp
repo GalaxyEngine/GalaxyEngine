@@ -13,13 +13,17 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
+#define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\PostProcess\\Outline\\outline.ppshader"
+
 namespace GALAXY {
 
 	Render::Camera::Camera()
 	{
 		m_transform = std::make_unique<Component::Transform>();
 		m_framebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
+		m_framebuffer->SetClearColor(p_clearColor);
 		m_outlineFramebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
+		m_outlineFramebuffer->SetPostProcessShader(Resource::ResourceManager::GetOrLoad<Resource::PostProcessShader>(OUTLINE_PATH));
 	}
 
 	Render::Camera::~Camera()
@@ -151,7 +155,8 @@ namespace GALAXY {
 		{
 			ImGui::OpenPopup("PostProcessPopupOutline");
 		}
-		if (auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopupOutline").lock())
+		auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopupOutline");
+		if (ppShader.lock())
 		{
 			m_outlineFramebuffer->SetPostProcessShader(ppShader);
 		}

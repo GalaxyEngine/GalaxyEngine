@@ -30,16 +30,20 @@ namespace GALAXY
 
 			// Update the size of the Framebuffer each frame
 			void Update(const Vec2i& windowSize);
-			void Render();
+			void RenderPostProcess();
 
 			void Begin();
 			void End();
 
-			void SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader);
 			Weak<Resource::PostProcessShader> GetPostProcessShader();
+
+			void SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader);
+			void SetClearColor(GALAXY::Math::Vec4f val) { m_clearColor = val; }
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
+
+			Vec4f m_clearColor = Vec4f(0.0f, 0.0f, 0.0f, 0.0f);
 
 			std::shared_ptr<Framebuffer> m_postProcess;
 

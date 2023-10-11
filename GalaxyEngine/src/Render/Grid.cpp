@@ -9,12 +9,13 @@
 
 #include <glad/glad.h>
 
+#define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\GridShader\\grid.shader"
 namespace GALAXY
 {
 
 	void Render::Grid::Initialize()
 	{
-		m_shader = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Shader>("CoreResources/shaders/GridShader/grid.shader");
+		m_shader = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Shader>(GRID_PATH);
 
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);

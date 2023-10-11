@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-#define PICKING_PATH "CoreResources\\shaders\\PickingShader\\picking.frag"
+#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\PickingShader\\picking.frag"
 namespace GALAXY {
 	void Resource::Shader::Load()
 	{
@@ -83,9 +83,14 @@ namespace GALAXY {
 		auto vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
 		auto fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
 		std::string shaderPath = vertexShader.lock()->GetFileInfo().GetRelativePath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
-		auto shader = Resource::ResourceManager::GetOrLoad<Shader>(shaderPath + ".shader");
+
+		// Add shader before because of mono thread
+		shaderPath = shaderPath + ".shader";
+		auto shader = Resource::ResourceManager::GetInstance()->AddResource<Shader>(shaderPath);
 		shader.lock()->SetFragment(fragShader, shader);
 		shader.lock()->SetVertex(vertexShader, shader);
+
+		Resource::ResourceManager::GetOrLoad<Shader>(shaderPath);
 		return shader;
 	}
 
