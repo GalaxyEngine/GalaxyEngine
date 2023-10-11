@@ -5,6 +5,11 @@
 #include "Wrapper/OBJLoader.h"
 
 namespace GALAXY {
+	Resource::Model::~Model()
+	{
+		m_meshes.clear();
+	}
+
 	void Resource::Model::Load()
 	{
 		if (p_fileInfo.GetExtension() == ".fbx")

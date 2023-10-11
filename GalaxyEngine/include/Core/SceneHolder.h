@@ -14,6 +14,8 @@ namespace GALAXY::Core {
 
 		static Scene* GetCurrentScene();
 
+		void Release();
+
 	private:
 		static std::unique_ptr<SceneHolder> m_instance;
 

@@ -23,6 +23,7 @@ namespace GALAXY {
 
 	Render::Camera::~Camera()
 	{
+		delete m_framebuffer;
 	}
 
 	Vec2f prevMousePos;

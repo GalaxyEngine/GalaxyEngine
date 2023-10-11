@@ -27,7 +27,7 @@ namespace GALAXY {
 		s_indexArray[m_index] = true;
 
 		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer" + std::to_string(m_index) + ".png");
-		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture.get());
+		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture);
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
@@ -38,6 +38,7 @@ namespace GALAXY {
 		Wrapper::Renderer::GetInstance()->DeleteRenderBuffer(this);
 		s_indexArray.erase(m_index);
 		Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture->GetFileInfo().GetRelativePath());
+		m_renderTexture.reset();
 	}
 
 	std::weak_ptr<GALAXY::Resource::Texture> Render::Framebuffer::GetRenderTexture() const

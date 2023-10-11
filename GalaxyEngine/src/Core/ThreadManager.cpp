@@ -65,6 +65,15 @@ Core::ThreadManager* Core::ThreadManager::GetInstance()
 void Core::ThreadManager::Destroy()
 {
 	Terminate();
-	for (int i = 0; i < m_threadList.size(); i++)
-		m_threadList[i].join();
+	// clear threadList
+	while (m_threadList.size() > 0)
+	{
+		for (int i = 0; i < m_threadList.size(); i++) {
+			if (m_threadList[i].joinable())
+			{
+				m_threadList[i].join();
+				m_threadList.erase(m_threadList.begin() + i--);
+			}
+		}
+	}
 }

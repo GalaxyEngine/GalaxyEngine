@@ -7,7 +7,7 @@
 #include "Resource/Texture.h"
 
 namespace GALAXY {
-
+	static bool s_initialized = false;
 	void Wrapper::GUI::Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
 	{
 		// Setup Dear ImGui context
@@ -28,10 +28,13 @@ namespace GALAXY {
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
 		PrintLog("Initalized ImGui %s", IMGUI_VERSION);
+		s_initialized = true;
 	}
 
 	void Wrapper::GUI::UnInitalize()
 	{
+		if (!s_initialized)
+			return;
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();

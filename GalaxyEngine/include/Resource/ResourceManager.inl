@@ -14,12 +14,13 @@ namespace GALAXY
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
 			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
+			delete resource;
 			return;
 		}
 		m_resources[resource->GetFileInfo().GetRelativePath()] = std::shared_ptr<IResource>(resource);
 	}
 
-	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
+	void Resource::ResourceManager::AddResource(std::shared_ptr<IResource> resource)
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
 			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());

@@ -67,6 +67,8 @@ namespace GALAXY {
 		m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
 		std::string filename = projectPath.filename().string();
 		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
+
+		
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 
@@ -140,17 +142,25 @@ namespace GALAXY {
 	void Core::Application::Destroy()
 	{
 		// Cleanup:
-		// Resource Manager
-		m_resourceManager->Release();
+		// Scene Holder
+		if (m_sceneHolder)
+			m_sceneHolder->Release();
 
 		// Thread Manager
-		m_threadManager->Destroy();
+		if (m_threadManager)
+			m_threadManager->Destroy();
+
+		// Resource Manager
+		if (m_resourceManager)
+			m_resourceManager->Release();
 
 		// GUI
 		Wrapper::GUI::UnInitalize();
 
 		// Window
-		m_window->Destroy();
+		if (m_window)
+			m_window->Destroy();
+
 		Wrapper::Window::UnInitialize();
 
 		PrintLog("Application clean-up completed.");

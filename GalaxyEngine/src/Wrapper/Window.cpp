@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 namespace GALAXY {
+	static bool s_initialized = false;
 	Wrapper::Window::~Window()
 	{
 	}
@@ -23,11 +24,14 @@ namespace GALAXY {
 		glfwSetErrorCallback(glfw_error_callback);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+		s_initialized = true;
 		return true;
 	}
 
 	void Wrapper::Window::UnInitialize()
 	{
+		if (!s_initialized)
+			return;
 		glfwTerminate();
 	}
 

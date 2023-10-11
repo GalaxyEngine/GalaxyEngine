@@ -25,7 +25,7 @@ namespace GALAXY {
 			// Add or Replace the Resource to the resource Manager
 			inline void AddResource(IResource* resource);
 
-			inline void AddResource(const std::shared_ptr<IResource>& resource);
+			inline void AddResource(std::shared_ptr<IResource> resource);
 
 			inline bool Contains(const std::filesystem::path& fullPath);
 

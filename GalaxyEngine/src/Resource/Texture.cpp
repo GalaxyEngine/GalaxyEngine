@@ -6,6 +6,8 @@
 Resource::Texture::~Texture()
 {
 	Wrapper::Renderer::GetInstance()->DestroyTexture(this);
+	if (p_shouldBeLoaded && !p_hasBeenSent)
+		Wrapper::ImageLoader::ImageFree(this->m_bytes);
 }
 
 void Resource::Texture::Load()

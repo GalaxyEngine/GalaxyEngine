@@ -17,6 +17,11 @@ namespace GALAXY {
 
 	Resource::ResourceManager::~ResourceManager()
 	{
+		for (auto& resource : m_resources)
+		{
+			resource.second.reset();
+		}
+		m_resources.clear();
 	}
 
 	void Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::path& folder)
@@ -143,7 +148,7 @@ namespace GALAXY {
 
 	void Resource::ResourceManager::Release()
 	{
-		m_instance.release();
+		m_instance.reset();
 	}
 
 }

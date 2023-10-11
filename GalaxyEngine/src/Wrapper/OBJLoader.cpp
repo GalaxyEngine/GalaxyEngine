@@ -17,12 +17,11 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, model.m_meshes[i].name);
 
-		Resource::Mesh* mesh;
-		mesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>(meshFullPath).lock().get();
-
+		std::shared_ptr<Resource::Mesh> sharedMesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>(meshFullPath).lock();
+		Resource::Mesh* mesh = sharedMesh.get();
 		if (!mesh) {
 			// If mesh not in resource manager
-			auto sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
+			sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
 			Resource::ResourceManager::GetInstance()->AddResource(sharedMesh);
 			mesh = sharedMesh.get();
 		}
@@ -35,11 +34,11 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
 
-		outputModel->m_meshes.push_back(std::shared_ptr<Resource::Mesh>(mesh));
+		outputModel->m_meshes.push_back(sharedMesh);
 
 		mesh->SendRequest();
 	}
-	PrintLog("Sucessfuly Loaded Model %s", fullPath.string().c_str());
+	PrintLog("Sucessfully Loaded Model %s", fullPath.string().c_str());
 }
 
 bool Wrapper::OBJLoader::Parse()

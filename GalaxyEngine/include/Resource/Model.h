@@ -18,7 +18,7 @@ namespace GALAXY {
 			Model& operator=(const Model& other) = default;
 			Model(const Model&) = default;
 			Model(Model&&) noexcept = default;
-			virtual ~Model() {}
+			virtual ~Model();
 
 			void Load() override;
 

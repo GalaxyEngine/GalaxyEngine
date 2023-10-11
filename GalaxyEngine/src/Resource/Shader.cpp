@@ -29,7 +29,8 @@ namespace GALAXY {
 					SetVertex(vertexShader, thisShader);
 
 					m_pickingVariant = Create(vertPath, PICKING_PATH);
-					m_pickingVariant.lock()->ShouldBeDisplayOnInspector(false);
+					if (m_pickingVariant.lock())
+						m_pickingVariant.lock()->ShouldBeDisplayOnInspector(false);
 				}
 				else if (line[0] == 'G')
 				{

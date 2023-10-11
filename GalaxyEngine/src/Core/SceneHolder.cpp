@@ -34,3 +34,9 @@ Core::Scene* Core::SceneHolder::GetCurrentScene()
 {
 	return GetInstance()->m_currentScene.get();
 }
+
+void Core::SceneHolder::Release()
+{
+	m_currentScene.reset();
+	m_instance.reset();
+}
