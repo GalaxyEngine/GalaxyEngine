@@ -1,7 +1,6 @@
 #pragma once
 #include <GalaxyAPI.h>
 #include <Maths/Maths.h>
-
 struct GLFWwindow;
 namespace GALAXY::Wrapper
 {
@@ -67,6 +66,10 @@ namespace GALAXY::Wrapper
 		void Close();
 
 		[[nodiscard]] void* GetWindow() { return m_window; }
+
+//#ifdef _WIN32
+		struct HWND GetWindowWIN32();
+//#endif
 
 	private:
 		int CursorModeToAPI(CursorMode mode);

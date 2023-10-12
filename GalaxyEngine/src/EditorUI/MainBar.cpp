@@ -3,6 +3,52 @@
 #include "EditorUI/EditorUIManager.h"
 #include "Core/Application.h"
 
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
+#pragma comment(lib, "Comdlg32.lib")
+std::string SaveDialog(const char* filter)
+{
+#ifdef _WIN32
+	OPENFILENAMEA ofn;
+	CHAR szFile[260] = { 0 };
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = filter;
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	if (GetSaveFileNameA(&ofn) == TRUE)
+	{
+		return ofn.lpstrFile;
+	}
+#endif
+	return std::string();
+}
+
+std::string OpenDialog(const char* filter)
+{
+#ifdef _WIN32
+	OPENFILENAMEA ofn;
+	CHAR szFile[260] = { 0 };
+	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
+	ofn.lStructSize = sizeof(OPENFILENAMEA);
+	ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
+	ofn.lpstrFile = szFile;
+	ofn.nMaxFile = sizeof(szFile);
+	ofn.lpstrFilter = filter;
+	ofn.nFilterIndex = 1;
+	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	if (GetSaveFileNameA(&ofn) == TRUE)
+	{
+		return ofn.lpstrFile;
+	}
+#endif
+	return std::string();
+}
+
 namespace GALAXY 
 {
 	EditorUI::MainBar::MainBar()
@@ -19,6 +65,20 @@ namespace GALAXY
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::MenuItem("Open Scene"))
+				{
+					if (auto path = OpenDialog(".scene"); !path.empty())
+					{
+						//TODO: Load Scene
+					}
+				}
+				if (ImGui::MenuItem("Save Scene"))
+				{
+					if (auto path = SaveDialog(".scene"); !path.empty())
+					{
+						//TODO: Save Scene
+					}
+				}
 				if (ImGui::MenuItem("Exit"))
 				{
 					Core::Application::GetInstance().Exit();
