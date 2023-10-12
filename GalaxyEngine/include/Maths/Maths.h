@@ -28,6 +28,8 @@ namespace GALAXY::Math
 
 		Vec2(T _x, T _y) : x(_x), y(_y) {}
 
+		Vec2(const std::string& str);
+
 		template<typename U>
 		Vec2(const Vec3<U>& a);
 
@@ -100,6 +102,8 @@ namespace GALAXY::Math
 		Vec3(T _x, T _y, T _z) : x(_x), y(_y), z(_z) {}
 
 		explicit Vec3(T xyz) : x(xyz), y(xyz), z(xyz) {}
+
+		Vec3(const std::string& str);
 
 		template<typename U>
 		Vec3(const Vec2<U>& xy, T _z = 0);
@@ -184,6 +188,8 @@ namespace GALAXY::Math
 		Vec4(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
 
 		explicit Vec4(T xyzw) : x(xyzw), y(xyzw), z(xyzw), w(xyzw) {}
+
+		Vec4(const std::string& str);
 
 		template<typename U>
 		Vec4(const Vec2<U>& xy, T _z = 0, T _w = 0);
@@ -372,6 +378,8 @@ namespace GALAXY::Math
 
 		Quat(float a, float b, float c, float d = 1) : x(a), y(b), z(c), w(d) {}
 
+		Quat(const std::string& str);
+
 		template<typename U>
 		Quat(const Vec3<U>& a) : x(a.x), y(a.y), z(a.z), w(1.f) {}
 
@@ -427,7 +435,7 @@ namespace GALAXY::Math
 
 		inline void Print() const;
 
-		inline std::string ToString() const;
+		inline std::string ToString(int precision = 6) const;
 	};
 
 }

@@ -12,6 +12,9 @@ namespace GALAXY {
 
 	void Resource::Model::Load()
 	{
+		if (p_shouldBeLoaded)
+			return;
+		p_shouldBeLoaded = true;
 		if (p_fileInfo.GetExtension() == ".fbx")
 		{
 			m_modelType = Resource::ModelExtension::FBX;

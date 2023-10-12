@@ -25,6 +25,7 @@
 #include "Resource/IResource.h"
 
 #include "Utils/FileInfo.h"
+#include "Utils/Parser.h"
 
 namespace GALAXY {
 #pragma region static
@@ -35,6 +36,38 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
+
+		using namespace Utils;
+
+		{
+			Serializer serializer("tmp.txt");
+			serializer << PAIR::BEGIN_TAB;
+			serializer << PAIR::KEY << "path" << PAIR::VALUE << std::filesystem::path("Test/Test.cpp");
+			serializer << PAIR::KEY << "float" << PAIR::VALUE << 1.f;
+			serializer << PAIR::KEY << "bool" << PAIR::VALUE << false;
+			serializer << PAIR::KEY << "int" << PAIR::VALUE << 5;
+			serializer << PAIR::KEY << "double" << PAIR::VALUE << 89.65;
+			serializer << PAIR::KEY << "Vec2f" << PAIR::VALUE << Vec2f(1.33f, 3.4f);
+			serializer << PAIR::KEY << "Vec3f" << PAIR::VALUE << Vec3f(8.5f, 7, 0.1f);
+			serializer << PAIR::KEY << "Vec4f" << PAIR::VALUE << Vec4f(8.5f, 7, 0.1f, 12);
+			serializer << PAIR::KEY << "Quat" << PAIR::VALUE << Quat(8.5f, 7, 0.1f, 12);
+			serializer << PAIR::END_TAB;
+			serializer.CloseFile();
+
+			Parser parser("file.txt");
+			parser.NewDepth();
+			parser.PrintData();
+			auto path = parser["path"];
+			auto floatV = parser["float"].As<float>();
+			auto intV = parser["int"].As<int>();
+			auto doubleV = parser["double"].As<double>();
+			auto boolV = parser["bool"].As<bool>();
+			auto vector2 = parser["Vec2f"].As<Vec2f>();
+			auto vector3 = parser["Vec3f"].As<Vec3f>();
+			auto vector4 = parser["Vec4f"].As<Vec4f>();
+			auto quat = parser["Quat"].As<Quat>();
+		}
+
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");

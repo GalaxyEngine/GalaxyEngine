@@ -17,6 +17,15 @@ namespace GALAXY::Math {
 #pragma region Vec2
 
 	template<typename T>
+	inline Vec2<T>::Vec2(const std::string& str)
+	{
+		std::istringstream ss(str);
+
+		char discard;
+		ss >> this->x >> discard >> this->y;
+	}
+
+	template<typename T>
 	template<typename U>
 	inline Vec2<T>::Vec2(const Vec2<U>& a)
 	{
@@ -212,6 +221,16 @@ namespace GALAXY::Math {
 #pragma endregion
 
 #pragma region Vec3
+
+	template<typename T>
+	inline Vec3<T>::Vec3(const std::string& str)
+	{
+		std::istringstream ss(str);
+
+		char discard;
+		ss >> this->x >> discard >> this->y >> discard >> this->z;
+	}
+
 	template<typename T>
 	template<typename U>
 	Vec3<T>::Vec3(const Vec2<U>& xy, T _z)
@@ -442,6 +461,14 @@ namespace GALAXY::Math {
 #pragma endregion
 
 #pragma region Vec4
+	template<typename T>
+	inline Vec4<T>::Vec4(const std::string& str)
+	{
+		std::istringstream ss(str);
+
+		char discard;
+		ss >> this->x >> discard >> this->y >> discard >> this->z >> discard >> this->w;
+	}
 
 	template<typename T>
 	template<typename U>
@@ -1068,6 +1095,15 @@ namespace GALAXY::Math {
 #pragma  endregion
 
 #pragma region Quaternion
+
+	inline Quat::Quat(const std::string& str)
+	{
+		std::istringstream ss(str);
+
+		char discard;
+		ss >> this->x >> discard >> this->y >> discard >> this->z >> discard >> this->w;
+	}
+
 	inline Quat Quat::operator+(const Quat& a) const
 	{
 		return Quat(x + a.x, y + a.y, z + a.z, w + a.w);
@@ -1383,9 +1419,12 @@ namespace GALAXY::Math {
 	{
 		printf("Quaternion { %f, %f, %f, %f}\n", x, y, z, w);
 	}
-	inline std::string Quat::ToString() const
+	inline std::string Quat::ToString(int precision) const
 	{
-		return std::to_string(x) + " " + std::to_string(y) + " " + std::to_string(z) + " " + std::to_string(w);
+		std::ostringstream oss;
+		oss << std::fixed << std::setprecision(precision);
+		oss << x << ", " << y << ", " << z << ", " << w;
+		return oss.str();
 	}
 #pragma endregion
 }
