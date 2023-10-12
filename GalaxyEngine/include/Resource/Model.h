@@ -24,13 +24,13 @@ namespace GALAXY {
 
 			static ResourceType GetResourceType() { return ResourceType::Model; }
 		private:
-			void CreateFiles();
+			void CreateDataFiles();
 
 		private:
 
 			friend Wrapper::OBJLoader;
 
-			std::vector<std::shared_ptr<class Mesh>> m_meshes;
+			std::vector<Weak<class Mesh>> m_meshes;
 
 			ModelExtension m_modelType = ModelExtension::OBJ;
 		};

@@ -35,7 +35,7 @@ namespace GALAXY::Debug {
 #ifdef _WIN32
 			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 			sprintf_s(buf2, format, args ...);
-			sprintf_s(buf, "[%02d:%02d:%02d] %s (l:%d): %s", calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec, file, line, buf2);
+			sprintf_s(buf, "[%02d:%02d:%02d] %s (l:%d): %s\n", calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec, file, line, buf2);
 			switch (type)
 			{
 			case Debug::LogType::L_INFO:
@@ -50,7 +50,7 @@ namespace GALAXY::Debug {
 			default:
 				break;
 			}
-			std::cout << buf << '\n';
+			std::cout << buf;
 			SetConsoleTextAttribute(hConsole, 15);
 #else
 			snprintf(buf2, sizeof(buf2), format, args...);

@@ -74,7 +74,8 @@ namespace GALAXY
 			// if the resource does not exist in path and is not a shader (Shaders are not always a file)
 			if (!std::filesystem::exists(fullPath)
 				&& T::GetResourceType() != Resource::ResourceType::Shader
-				&& T::GetResourceType() != Resource::ResourceType::PostProcessShader)
+				&& T::GetResourceType() != Resource::ResourceType::PostProcessShader
+				&& T::GetResourceType() != Resource::ResourceType::Mesh)
 				return Weak<T>{};
 
 			m_instance->AddResource<T>(fullPath);

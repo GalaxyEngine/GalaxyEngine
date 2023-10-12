@@ -22,10 +22,10 @@ namespace GALAXY {
 			Wrapper::OBJLoader::Load(p_fileInfo.GetFullPath(), this);
 		}
 
-		CreateFiles();
+		CreateDataFiles();
 	}
 
-	void Resource::Model::CreateFiles()
+	void Resource::Model::CreateDataFiles()
 	{
 		auto fileWithoutExt = p_fileInfo.GetFullPath().parent_path() / p_fileInfo.GetFileNameNoExtension();
 		std::filesystem::path path = fileWithoutExt.wstring() + L".gdata";
@@ -33,7 +33,7 @@ namespace GALAXY {
 			file << "Origin: " << p_fileInfo.GetRelativePath().string() << std::endl;
 			for (auto& mesh : m_meshes)
 			{
-				file << '\t' << mesh->GetFileInfo().GetFileName() << std::endl;
+				file << '\t' << mesh.lock()->GetFileInfo().GetFileName() << std::endl;
 			}
 			file.close();
 		}

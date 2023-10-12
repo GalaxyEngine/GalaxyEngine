@@ -17,14 +17,15 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, model.m_meshes[i].name);
 
-		std::shared_ptr<Resource::Mesh> sharedMesh = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>(meshFullPath).lock();
-		Resource::Mesh* mesh = sharedMesh.get();
-		if (!mesh) {
+		Weak<Resource::Mesh> meshWeak = Resource::ResourceManager::GetInstance()->GetResource<Resource::Mesh>(meshFullPath);
+		Resource::Mesh* mesh = meshWeak.lock().get();
+		if (!meshWeak.lock()) {
 			// If mesh not in resource manager
-			sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
+			auto sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
 			Resource::ResourceManager::GetInstance()->AddResource(sharedMesh);
 			mesh = sharedMesh.get();
 		}
+
 		mesh->m_positions = model.m_meshes[i].positions;
 		mesh->m_textureUVs = model.m_meshes[i].textureUVs;
 		mesh->m_normals = model.m_meshes[i].normals;
@@ -34,17 +35,16 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
 
-		outputModel->m_meshes.push_back(sharedMesh);
+		outputModel->m_meshes.push_back(meshWeak);
 
 		mesh->SendRequest();
 	}
-	PrintLog("Sucessfully Loaded Model %s", fullPath.string().c_str());
+	PrintLog("Successfully Loaded Model %s", fullPath.string().c_str());
 }
 
 bool Wrapper::OBJLoader::Parse()
 {
 	// TODO support :
-	// quad
 	// color
 	// mtl
 	// submeshes
