@@ -23,6 +23,7 @@ namespace GALAXY::Resource {
 		Material,
 		Data,
 		Script,
+		Scene,
 	};
 
 	class IResource

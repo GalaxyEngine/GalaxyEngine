@@ -1,10 +1,9 @@
 #pragma once
-#include <iostream>
 #include <string>
 #define PI 3.14159265358979323846264f
 #define DegToRad 1/180.f * PI
 #define RadToDeg 180.f / PI
-#define VECTOR2
+
 namespace GALAXY::Math
 {
 	inline bool Approximately(float a, float b, float diff);

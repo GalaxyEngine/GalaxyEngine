@@ -2,6 +2,11 @@
 #include <GalaxyAPI.h>
 #include <Maths/Maths.h>
 struct GLFWwindow;
+
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 namespace GALAXY::Wrapper
 {
 	struct WindowConfig
@@ -67,9 +72,9 @@ namespace GALAXY::Wrapper
 
 		[[nodiscard]] void* GetWindow() { return m_window; }
 
-//#ifdef _WIN32
-		struct HWND GetWindowWIN32();
-//#endif
+#ifdef _WIN32
+		HWND GetWindowWIN32();
+#endif
 
 	private:
 		int CursorModeToAPI(CursorMode mode);

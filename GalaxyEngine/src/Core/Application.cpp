@@ -40,6 +40,7 @@ namespace GALAXY {
 		using namespace Utils;
 
 		{
+			/*
 			Serializer serializer("tmp.txt");
 			serializer << PAIR::BEGIN_TAB;
 			serializer << PAIR::KEY << "path" << PAIR::VALUE << std::filesystem::path("Test/Test.cpp");
@@ -54,7 +55,7 @@ namespace GALAXY {
 			serializer << PAIR::END_TAB;
 			serializer.CloseFile();
 
-			Parser parser("file.txt");
+			Parser parser("tmp.txt");
 			parser.NewDepth();
 			parser.PrintData();
 			auto path = parser["path"];
@@ -66,6 +67,7 @@ namespace GALAXY {
 			auto vector3 = parser["Vec3f"].As<Vec3f>();
 			auto vector4 = parser["Vec4f"].As<Vec4f>();
 			auto quat = parser["Quat"].As<Quat>();
+			*/
 		}
 
 		// Initialize Window Lib

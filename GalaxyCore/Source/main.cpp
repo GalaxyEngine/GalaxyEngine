@@ -5,7 +5,10 @@ using namespace GALAXY;
 #include <crtdbg.h>
 
 #include <cstdlib>
+
+#ifdef _WIN32
 #include <windows.h>
+#endif // _WIN32
 
 
 // Main code

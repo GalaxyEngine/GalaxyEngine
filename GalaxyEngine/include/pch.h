@@ -1,6 +1,10 @@
 #pragma once
 #include <GalaxyAPI.h>
 
+#ifdef _WIN32
+#include <Windows.h>
+#endif
+
 // C++ Headers
 #include <memory>
 #include <stdio.h>
