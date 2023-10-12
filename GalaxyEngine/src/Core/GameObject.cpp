@@ -23,7 +23,11 @@ namespace GALAXY
 
 	std::vector<std::weak_ptr<GameObject>> GameObject::GetChildren()
 	{
-		return m_childs;
+		std::vector<std::weak_ptr<GameObject>> weakPtrVector;
+		for (const auto& sharedPtr : m_childs) {
+			weakPtrVector.push_back(sharedPtr);
+		}
+		return weakPtrVector;
 	}
 
 	std::weak_ptr<GameObject> GameObject::GetChild(uint32_t index)
@@ -33,26 +37,27 @@ namespace GALAXY
 		return std::weak_ptr<GameObject>();
 	}
 
-	void GameObject::AddChild(std::weak_ptr<GameObject> child, uint32_t index /*= -1*/)
+	void GameObject::AddChild(std::shared_ptr<GameObject> child, uint32_t index /*= -1*/)
 	{
 		// Check if child is not null 
-		// and if the gameobject is not already the parent of the new child
-		if (auto lockedChild = child.lock(); lockedChild) {
-			// Check if the object is already on the list
-			if (std::count_if(m_childs.begin(), m_childs.end(), [&](const std::weak_ptr<GameObject>& c)
-				{ return c.lock() == lockedChild; }) == 0)
-			{
-				if (index == -1)
-					m_childs.push_back(child);
-				else
-					m_childs.insert(m_childs.begin() + index, child);
-			}
-			// Check if the current object is already a parent of the child
-			if (lockedChild->m_parent.lock().get() != this)
-			{
-				lockedChild->SetParent(weak_from_this());
-			}
+		// and if the gameObject is not already the parent of the new child
+		if (!child)
+			return;
+		// Check if the object is already on the list
+		if (std::count_if(m_childs.begin(), m_childs.end(), [&](const std::shared_ptr<GameObject>& c)
+			{ return c == child; }) == 0)
+		{
+			if (index == -1)
+				m_childs.push_back(child);
+			else
+				m_childs.insert(m_childs.begin() + index, child);
 		}
+		// Check if the current object is already a parent of the child
+		if (child->m_parent.lock().get() != this)
+		{
+			child->SetParent(weak_from_this());
+		}
+
 	}
 
 	std::weak_ptr<Core::GameObject> GameObject::GetParent()
@@ -69,7 +74,7 @@ namespace GALAXY
 			prevParent->RemoveChild(this);
 		}
 		m_parent = parent;
-		m_parent.lock()->AddChild(weak_from_this());
+		m_parent.lock()->AddChild(shared_from_this());
 	}
 
 	void GameObject::RemoveChild(GameObject* child)
@@ -101,15 +106,7 @@ namespace GALAXY
 
 		for (uint32_t i = 0; i < m_childs.size(); i++)
 		{
-			if (m_childs[i].expired())
-			{
-				m_childs.erase(m_childs.begin() + i);
-				i--;
-			}
-			else
-			{
-				m_childs[i].lock()->UpdateSelfAndChild();
-			}
+			m_childs[i]->UpdateSelfAndChild();
 		}
 	}
 
@@ -123,15 +120,7 @@ namespace GALAXY
 
 		for (uint32_t i = 0; i < m_childs.size(); i++)
 		{
-			if (m_childs[i].expired())
-			{
-				m_childs.erase(m_childs.begin() + i);
-				i--;
-			}
-			else
-			{
-				m_childs[i].lock()->DrawSelfAndChild();
-			}
+			m_childs[i]->DrawSelfAndChild();
 		}
 	}
 
@@ -150,7 +139,7 @@ namespace GALAXY
 	{
 		for (uint32_t i = 0; i < m_childs.size(); i++)
 		{
-			if (m_childs[i].lock().get() == child)
+			if (m_childs[i].get() == child)
 				return i;
 		}
 		// Not found
@@ -224,12 +213,19 @@ namespace GALAXY
 		return {};
 	}
 
+	void GameObject::RemoveFromParent()
+	{
+		if (!m_parent.lock())
+			return;
+		m_parent.lock()->RemoveChild(this);
+	}
+
 	std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
 	{
 		std::vector<Weak<Core::GameObject>> childs = GetChildren();
 		for (auto& child : m_childs)
 		{
-			std::vector<Weak<Core::GameObject>> newChild = child.lock()->GetAllChildren();
+			std::vector<Weak<Core::GameObject>> newChild = child->GetAllChildren();
 			childs.insert(childs.end(), newChild.begin(), newChild.end());
 		}
 		return childs;
@@ -258,7 +254,7 @@ namespace GALAXY
 		serializer << PAIR::BEGIN_TAB;
 		for (auto& child : m_childs)
 		{
-			child.lock()->Serialize(serializer);
+			child->Serialize(serializer);
 		}
 		serializer << PAIR::END_TAB;
 
@@ -295,10 +291,9 @@ namespace GALAXY
 		{
 			parser.NewDepth();
 
-			auto sharedChild = std::make_shared<GameObject>();
-			child = sharedChild;
-			child.lock()->SetParent(weak_from_this());
-			child.lock()->Deserialize(parser);
+			child = std::make_shared<GameObject>();
+			child->SetParent(weak_from_this());
+			child->Deserialize(parser);
 		}
 	}
 }

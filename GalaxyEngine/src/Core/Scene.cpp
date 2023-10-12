@@ -133,6 +133,7 @@ namespace GALAXY
 	{
 		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<GameObject>>& element) {
 			return element.second.get() == object; });
+		shared->second->RemoveFromParent();
 		if (shared != m_objectList.end())
 		{
 			m_objectList.erase(shared);

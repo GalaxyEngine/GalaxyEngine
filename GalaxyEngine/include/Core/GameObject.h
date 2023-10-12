@@ -40,12 +40,14 @@ namespace GALAXY {
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);
 
+			void RemoveFromParent();
+
 			void RemoveComponent(Component::BaseComponent* component);
 
 			// === Setters === //
 			inline void SetName(std::string val);
 
-			void AddChild(std::weak_ptr<GameObject> child, uint32_t index = -1);
+			void AddChild(std::shared_ptr<GameObject> child, uint32_t index = -1);
 
 			// Set the parent to the given GameObject
 			void SetParent(std::weak_ptr<GameObject> parent);
@@ -95,7 +97,7 @@ namespace GALAXY {
 			uint64_t m_id = -1;
 			std::string m_name = "GameObject";
 			std::weak_ptr<GameObject> m_parent;
-			std::vector<std::weak_ptr<GameObject>> m_childs;
+			std::vector<std::shared_ptr<GameObject>> m_childs;
 			std::vector<std::shared_ptr<Component::BaseComponent>> m_components;
 
 			std::unique_ptr<Component::Transform> m_transform;
@@ -103,7 +105,7 @@ namespace GALAXY {
 			// Hierarchy Parameters
 			friend EditorUI::Hierarchy;
 
-			bool m_open = false;
+			bool m_open = true;
 			bool m_selected = false;
 
 			friend EditorUI::Inspector;

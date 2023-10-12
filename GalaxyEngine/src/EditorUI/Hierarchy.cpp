@@ -174,9 +174,9 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 	{
 		for (auto&& child : gameobject->m_childs)
 		{
-			if (!child.lock())
+			if (!child)
 				continue;
-			ImGui::TreePush(child.lock()->m_name.c_str());
+			ImGui::TreePush(child->m_name.c_str());
 			DisplayGameObject(child, index++);
 			ImGui::TreePop();
 		}
@@ -195,7 +195,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 			if (selected.empty())
 			{
 				auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
-				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->AddChild(gameObject);
+				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->AddChild(gameObject.lock());
 				Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject().lock()->m_open = true;
 			}
 			else
@@ -204,7 +204,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 				{
 					auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
 					if (selected[i].lock()) {
-						selected[i].lock()->AddChild(gameObject);
+						selected[i].lock()->AddChild(gameObject.lock());
 						selected[i].lock()->m_open = true;
 					}
 				}
@@ -224,7 +224,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 				{
 					auto parent = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
 					uint32_t childIndex = selected[0].lock()->GetParent().lock()->GetChildIndex(selected[0].lock().get());
-					selected[0].lock()->GetParent().lock()->AddChild(parent, childIndex);
+					selected[0].lock()->GetParent().lock()->AddChild(parent.lock(), childIndex);
 
 					for (int i = 0; i < selected.size(); i++)
 					{
