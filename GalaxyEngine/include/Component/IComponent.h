@@ -4,6 +4,7 @@
 #include <vector>
 
 namespace GALAXY {
+	namespace Utils { class Serializer; class Parser; }
 	namespace Core { class GameObject; }
 	namespace Component {
 
@@ -38,6 +39,9 @@ namespace GALAXY {
 			void RemoveFromGameObject();
 
 			virtual void Reset() {}
+
+			virtual void Serialize(Utils::Serializer& serializer) {}
+			virtual void Deserialize(Utils::Parser& parser) {}
 
 			// === Getters === //
 

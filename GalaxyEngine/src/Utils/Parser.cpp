@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Utils/Parser.h"
+#define MAP_SEPARATOR_BEGIN " ------------- "
+#define MAP_SEPARATOR_END " ============= "
 namespace GALAXY
 {
 #pragma region Serializer
@@ -32,6 +34,12 @@ namespace GALAXY
 		return *this;
 	}
 
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const std::string& value)
+	{
+		*this << value.c_str();
+		return *this;
+	}
+
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const char& value)
 	{
 		std::string stringValue(1, value);
@@ -53,6 +61,13 @@ namespace GALAXY
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const float& value)
+	{
+		std::string stringValue = std::to_string(value);
+		*this << stringValue.c_str();
+		return *this;
+	}
+
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const uint64_t& value)
 	{
 		std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
@@ -129,6 +144,21 @@ namespace GALAXY
 			WriteLine();
 		}
 		break;
+		case Utils::PAIR::TITLE:
+		{
+			AddLine(value);
+		}
+		break;
+		case Utils::PAIR::BEGIN_MAP:
+		{
+			m_file << value << MAP_SEPARATOR_BEGIN << '\n';
+		}
+		break;
+		case Utils::PAIR::END_MAP:
+		{
+			m_file << value << MAP_SEPARATOR_END << '\n';
+		}
+		break;
 		default:
 			break;
 		}
@@ -139,19 +169,22 @@ namespace GALAXY
 	{
 		switch (val)
 		{
-		case PAIR::KEY:
-			m_currentType = val;
-			break;
-		case  PAIR::VALUE:
-			m_currentType = val;
-			break;
 		case PAIR::BEGIN_TAB:
 			PushTab();
 			break;
 		case PAIR::END_TAB:
 			PopTab();
 			break;
+		case PAIR::BEGIN_MAP:
+			m_currentType = val;
+			m_file << MAP_SEPARATOR_BEGIN;
+			break;
+		case PAIR::END_MAP:
+			m_currentType = val;
+			m_file << MAP_SEPARATOR_END;
+			break;
 		default:
+			m_currentType = val;
 			break;
 		}
 	}
@@ -180,22 +213,18 @@ namespace GALAXY
 		}
 
 		std::string line;
-		size_t currentDepth = 0;
 		std::unordered_map<std::string, std::string>* currentMap = nullptr;
-
-		m_valueMap.push_back({});
-		currentMap = &m_valueMap.back();
+		bool ignoreNext = false;
 
 		while (std::getline(m_file, line)) {
-			size_t depth = std::count(line.begin(), line.end(), '\t');
-			if (depth != currentDepth)
+			if (line.find(MAP_SEPARATOR_BEGIN) != std::string::npos)
 			{
-				currentDepth = depth;
 				m_valueMap.push_back({});
 				currentMap = &m_valueMap.back();
+				ignoreNext = true;
 			}
 
-			if (auto pos = line.find("["); pos != std::string::npos)
+			if (size_t pos = line.find("["); pos != std::string::npos)
 			{
 				std::string currentKey = line.substr(pos + 1);
 				currentKey = currentKey.substr(0, currentKey.find_first_of(']'));
@@ -250,6 +279,18 @@ namespace GALAXY
 	double Utils::StringSerializer::As()
 	{
 		return std::stod(m_content);
+	}
+
+	template <>
+	uint64_t Utils::StringSerializer::As()
+	{
+		return std::stoull(m_content);
+	}
+
+	template <>
+	int64_t Utils::StringSerializer::As()
+	{
+		return std::stoll(m_content);
 	}
 
 	template <>

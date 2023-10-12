@@ -73,6 +73,8 @@ namespace GALAXY
 			return ResourceType::Data;
 		else if (ext == ".h" || ext == ".hpp" || ext == ".cpp" || ext == "cc")
 			return ResourceType::Script;
+		else if (ext == ".galaxy")
+			return ResourceType::Scene;
 		else
 			return ResourceType::None;
 	}

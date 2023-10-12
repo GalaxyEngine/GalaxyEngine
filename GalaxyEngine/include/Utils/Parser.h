@@ -2,7 +2,7 @@
 #include "GalaxyAPI.h"
 #include <fstream>
 #include <unordered_map>
-
+using namespace Utils;
 namespace GALAXY
 {
 	namespace Utils
@@ -13,6 +13,9 @@ namespace GALAXY
 			VALUE,
 			BEGIN_TAB,
 			END_TAB,
+			BEGIN_MAP,
+			END_MAP,
+			TITLE,
 		};
 
 		class Serializer
@@ -31,7 +34,9 @@ namespace GALAXY
 
 			inline void PushTab();
 			inline void PopTab();
+
 			inline void AddLine(const std::string& key, const std::string& value);
+			inline void AddLine(const std::string& line);
 
 			void SetCurrentType(Utils::PAIR val);
 

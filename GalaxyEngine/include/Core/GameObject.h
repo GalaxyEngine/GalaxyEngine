@@ -15,6 +15,11 @@ namespace GALAXY {
 	{
 		class ScriptEngine;
 	}
+	namespace Utils
+	{
+		class Serializer;
+		class Parser;
+	}
 	namespace Core {
 		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -81,6 +86,9 @@ namespace GALAXY {
 			// Check if the object given is a parent of the this
 			bool IsAParent(GameObject* object);
 			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
+
+			void Serialize(Utils::Serializer& serializer);
+			void Deserialize(Utils::Parser& parser);
 		private:
 			friend class Scene;
 			friend Scripting::ScriptEngine;

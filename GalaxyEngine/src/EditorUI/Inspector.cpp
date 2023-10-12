@@ -39,6 +39,8 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 	ImGui::Checkbox("##", &object->m_active);
 	ImGui::SameLine();
 	Wrapper::GUI::InputText("##InputName", &object->m_name);
+	ImGui::SameLine();
+	ImGui::TextUnformatted(std::to_string(object->GetIndex()).c_str());
 	ImGui::Separator();
 
 	// Transform

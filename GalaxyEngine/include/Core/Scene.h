@@ -4,6 +4,10 @@
 #include <unordered_map>
 
 namespace GALAXY {
+	namespace Resource
+	{
+		class SceneResource;
+	}
 	namespace Render { 
 		class Camera;
 		class EditorCamera;
@@ -32,6 +36,8 @@ namespace GALAXY {
 				return shared;
 			}
 
+			void AddObject(std::shared_ptr<GameObject> gameObject);
+
 			void RemoveObject(GameObject* object);
 
 			std::weak_ptr<GameObject> GetWithIndex(uint64_t index);
@@ -45,6 +51,16 @@ namespace GALAXY {
 			Mat4& GetVP() { return m_VP; }
 			std::shared_ptr<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
 			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
+
+			void SaveScene(Weak<Resource::SceneResource> sceneResource);
+
+			void SwitchScene(Weak<Resource::SceneResource> sceneResource);
+
+			void Save();
+
+		private:
+			void SwitchSceneUpdate();
+
 		private:
 			std::shared_ptr<Render::EditorCamera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
@@ -54,6 +70,8 @@ namespace GALAXY {
 			std::unordered_map<uint64_t, std::shared_ptr<GameObject>> m_objectList;
 
 			std::shared_ptr<Render::Grid> m_grid;
+
+			Weak<Resource::SceneResource> m_resource;
 		};
 	}
 }

@@ -1,10 +1,13 @@
 #include "pch.h"
 #include "EditorUI/MainBar.h"
 #include "EditorUI/EditorUIManager.h"
-#include "Core/Application.h"
 
-#include <GLFW/glfw3.h>
-#include <GLFW/glfw3native.h>
+#include "Resource/ResourceManager.h"
+#include "Resource/SceneResource.h"
+
+#include "Core/Application.h"
+#include "Core/SceneHolder.h"
+#include "Core/Scene.h"
 
 #pragma comment(lib, "Comdlg32.lib")
 std::string SaveDialog(const char* filter)
@@ -67,16 +70,24 @@ namespace GALAXY
 			{
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (auto path = OpenDialog(".scene"); !path.empty())
+					if (auto path = OpenDialog(".galaxy"); !path.empty())
 					{
-						//TODO: Load Scene
+						auto sceneResource = Resource::ResourceManager::GetOrLoad<Resource::SceneResource>(path);
+
+						Core::SceneHolder::GetCurrentScene()->SwitchScene(sceneResource);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					if (auto path = SaveDialog(".scene"); !path.empty())
+					if (auto path = SaveDialog(".galaxy"); !path.empty())
 					{
-						//TODO: Save Scene
+						if (path.find(".galaxy") == std::string::npos)
+							path = path + ".galaxy";
+
+						auto sceneResource = Resource::SceneResource::Create(path);
+						Core::SceneHolder::GetCurrentScene()->SaveScene(sceneResource);
+
+						sceneResource.lock()->Save();
 					}
 				}
 				if (ImGui::MenuItem("Exit"))

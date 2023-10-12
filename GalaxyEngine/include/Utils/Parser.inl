@@ -8,6 +8,11 @@ namespace GALAXY
 		m_file << m_tab << "[" << key << "] : " << value << '\n';
 	}
 
+	void Utils::Serializer::AddLine(const std::string& line)
+	{
+		m_file << m_tab << line << '\n';
+	}
+
 	void Utils::Serializer::PushTab()
 	{
 		m_tab.push_back('\t');

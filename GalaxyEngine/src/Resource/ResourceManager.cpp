@@ -8,6 +8,7 @@
 #include "Resource/Mesh.h"
 #include "Resource/Script.h"
 #include "Resource/Material.h"
+#include "Resource/SceneResource.h"
 
 #define AUTO_IMPORT_MODEL
 // Automatic import all model that not get a .gdata
@@ -70,6 +71,9 @@ namespace GALAXY {
 			break;
 		case Resource::ResourceType::Material:
 			AddResource<Material>(resourcePath);
+			break;
+		case Resource::ResourceType::Scene:
+			AddResource<SceneResource>(resourcePath);
 			break;
 		case Resource::ResourceType::Model:
 #ifndef AUTO_IMPORT_MODEL
