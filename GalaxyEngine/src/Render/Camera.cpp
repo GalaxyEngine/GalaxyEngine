@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include "Render/Camera.h"
+#include "Render/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Core/Application.h"
@@ -13,110 +14,18 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
-#define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\PostProcess\\Outline\\outline.ppshader"
 
 namespace GALAXY {
 
 	Render::Camera::Camera()
 	{
-		m_transform = std::make_unique<Component::Transform>();
 		m_framebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
 		m_framebuffer->SetClearColor(p_clearColor);
-		m_outlineFramebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
-		m_outlineFramebuffer->SetPostProcessShader(Resource::ResourceManager::GetOrLoad<Resource::PostProcessShader>(OUTLINE_PATH));
 	}
 
 	Render::Camera::~Camera()
 	{
-		delete m_outlineFramebuffer;
 		delete m_framebuffer;
-	}
-
-	Vec2f prevMousePos;
-	void Render::Camera::Update()
-	{
-		if (!EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
-			return;
-		/*TODO:
-		 * change input with input class
-		 * change delta time with Time class
-		*/
-		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
-		float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
-
-		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::Q))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::E))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::R) || Input::IsKeyDown(Key::PAGE_UP))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::F) || Input::IsKeyDown(Key::PAGE_DOWN))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (m_looking)
-		{
-			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
-			float mouseX = delta.x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-			float mouseY = delta.y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-
-			Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-			window->SetMousePosition(prevMousePos);
-
-			if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
-			{
-				mouseX *= -1;
-			}
-
-			m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
-			m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
-		}
-
-		float axis = Input::GetScrollWheelValue();
-		if (axis != 0)
-		{
-			float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
-		}
-
-		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_2))
-		{
-			StartLooking();
-		}
-		else if (Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
-		{
-			StopLooking();
-		}
 	}
 
 	void Render::Camera::DisplayCameraSettings()
@@ -147,29 +56,11 @@ namespace GALAXY {
 		{
 			m_framebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
 		}
-		if (auto shader = m_outlineFramebuffer->GetPostProcessShader().lock())
-			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
-		else
-			buttonName = "Set Post Process Outline";
-		if (ImGui::Button(buttonName.c_str(), Vec2f(contentWidth, 0)))
-		{
-			ImGui::OpenPopup("PostProcessPopupOutline");
-		}
-		auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopupOutline");
-		if (ppShader.lock())
-		{
-			m_outlineFramebuffer->SetPostProcessShader(ppShader);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Reset"))
-		{
-			m_outlineFramebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
-		}
 	}
 
 	Mat4 Render::Camera::GetViewMatrix()
 	{
-		Mat4 out = Mat4::CreateTransformMatrix(m_transform->GetWorldPosition(), m_transform->GetWorldRotation(), Vec3f(1, 1, -1));
+		Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, -1));
 		out = out.CreateInverseMatrix();
 		return out;
 	}
@@ -189,11 +80,6 @@ namespace GALAXY {
 		return projectionMatrix;
 	}
 
-
-	Component::Transform* Render::Camera::GetTransform()
-	{
-		return m_transform.get();
-	}
 	Mat4 Render::Camera::GetViewProjectionMatrix()
 	{
 		return GetProjectionMatrix() * GetViewMatrix();
@@ -204,23 +90,7 @@ namespace GALAXY {
 		return m_framebuffer->GetRenderTexture();
 	}
 
-	void Render::Camera::StartLooking()
-	{
-		m_looking = true;
-		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-		prevMousePos = (Vec2f)ImGui::GetMousePos() - window->GetPosition();
-		window->SetCursorMode(Wrapper::CursorMode::Hidden);
-	}
-
-	void Render::Camera::StopLooking()
-	{
-		m_looking = false;
-		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-		window->SetMousePosition(prevMousePos);
-		window->SetCursorMode(Wrapper::CursorMode::Normal);
-	}
-
-	std::shared_ptr<Render::Camera> Render::Camera::GetEditorCamera()
+	std::shared_ptr<Render::EditorCamera> Render::Camera::GetEditorCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}

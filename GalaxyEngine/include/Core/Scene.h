@@ -6,6 +6,7 @@
 namespace GALAXY {
 	namespace Render { 
 		class Camera;
+		class EditorCamera;
 		class Grid;
 	}
 	namespace Core {
@@ -39,13 +40,13 @@ namespace GALAXY {
 
 			void Update();
 
-			void SetCurrentCamera(const std::weak_ptr<Render::Camera>& camera);
+			void SetCurrentCamera(std::weak_ptr<Render::Camera> camera);
 
 			Mat4& GetVP() { return m_VP; }
-			std::shared_ptr<Render::Camera> GetEditorCamera() const { return m_editorCamera; }
+			std::shared_ptr<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
 			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
 		private:
-			std::shared_ptr<Render::Camera> m_editorCamera;
+			std::shared_ptr<Render::EditorCamera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
 			Mat4 m_VP;
 

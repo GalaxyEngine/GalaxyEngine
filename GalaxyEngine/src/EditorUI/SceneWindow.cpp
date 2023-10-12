@@ -7,6 +7,7 @@
 #include "Core/Input.h"
 
 #include "Render/Camera.h"
+#include "Render/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Resource/Texture.h"

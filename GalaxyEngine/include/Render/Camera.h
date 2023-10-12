@@ -15,18 +15,16 @@ namespace GALAXY
 			Camera(Camera&&) noexcept = default;
 			virtual ~Camera();
 
-			static std::shared_ptr<Camera> GetEditorCamera();
+			static std::shared_ptr<class EditorCamera> GetEditorCamera();
 			static std::weak_ptr<Camera> GetCurrentCamera();
 
 			void Begin();
 
 			void End();
 
-			void Update();
-
 			void DisplayCameraSettings();
 
-			virtual Component::Transform* GetTransform();
+			virtual Component::Transform* GetTransform() = 0;
 
 			void SetSize(const Vec2i& framebufferSize);
 
@@ -47,12 +45,7 @@ namespace GALAXY
 
 			float GetFOV() const { return p_fov; }
 			void SetFOV(float val) { p_fov = val; }
-			class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
-		private:
-			void StartLooking();
-			void StopLooking();
 
-			class Framebuffer* m_outlineFramebuffer = nullptr;
 		protected:
 			float p_fov = 70.f;
 			float p_far = 1000.f;
@@ -65,15 +58,6 @@ namespace GALAXY
 			class Framebuffer* m_framebuffer = nullptr;
 
 		private:
-			float m_movementSpeed = 10.f;
-			float m_fastMovementSpeed = 100.f;
-			float m_freeLookSensitivity = 100.f;
-			float m_zoomSensitivity = 1.f;
-			float m_fastZoomSensitivity = 5.f;
-
-			bool m_looking = false;
-
-			std::unique_ptr<Component::Transform> m_transform;
 
 		};
 	}

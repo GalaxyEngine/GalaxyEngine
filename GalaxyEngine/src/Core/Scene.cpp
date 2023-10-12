@@ -9,6 +9,7 @@
 #include "Resource/ResourceManager.h"
 
 #include "Render/Camera.h"
+#include "Render/EditorCamera.h"
 #include "Render/Grid.h"
 #include "Render/Framebuffer.h"
 
@@ -22,7 +23,7 @@ using namespace Core;
 Scene::Scene()
 {
 	m_root = std::make_shared<GameObject>("Scene");
-	m_editorCamera = std::make_unique<Render::Camera>();
+	m_editorCamera = std::make_unique<Render::EditorCamera>();
 
 	m_grid = std::make_shared<Render::Grid>();
 	m_grid->Initialize();
@@ -48,7 +49,7 @@ void Scene::Update()
 
 		// Outline 
 		{
-			auto outlineFrameBuffer = m_currentCamera.lock()->GetOutlineFramebuffer();
+			auto outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
 			outlineFrameBuffer->Begin();
 
 			renderer->ClearColorAndBuffer(Vec4f(0));
@@ -142,7 +143,7 @@ std::weak_ptr<GameObject> Scene::GetWithIndex(uint64_t index)
 	return std::weak_ptr<GameObject>();
 }
 
-void Scene::SetCurrentCamera(const std::weak_ptr<Render::Camera>& camera)
+void Scene::SetCurrentCamera(std::weak_ptr<Render::Camera> camera)
 {
 	m_currentCamera = camera;
 	m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();

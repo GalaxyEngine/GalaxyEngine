@@ -5,6 +5,7 @@
 #include "Core/SceneHolder.h"
 
 #include "Render/Camera.h"
+#include "Render/EditorCamera.h"
 
 #include "Wrapper/Reflection.h"
 
