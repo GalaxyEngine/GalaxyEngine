@@ -5,7 +5,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
-namespace GALAXY 
+namespace GALAXY
 {
 	namespace Component { class BaseComponent; class ScriptComponent; }
 	namespace Resource { class Script; }
@@ -24,6 +24,20 @@ namespace GALAXY
 			String,
 			Component,
 			GameObject,
+		};
+
+		static std::unordered_map<std::string, VariableType> typeMap = {
+			{"Unknown", VariableType::Unknown},
+			{"bool", VariableType::Bool},
+			{"int", VariableType::Int},
+			{"float", VariableType::Float},
+			{"double", VariableType::Double},
+			{"Vec2f", VariableType::Vector2},
+			{"Vec3f", VariableType::Vector3},
+			{"Vec4f", VariableType::Vector4},
+			{"string", VariableType::String},
+			{"BaseComponent", VariableType::Component},
+			{"GameObject", VariableType::GameObject}
 		};
 
 		struct GALAXY_API VariableData
@@ -71,7 +85,7 @@ namespace GALAXY
 
 			void* GetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName);
 			void SetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
-		
+
 		private:
 			ScriptConstructor GetConstructor(const std::string& className);
 			GetterMethod GetGetter(const std::string& className, const std::string& variableName);

@@ -283,8 +283,10 @@ namespace GALAXY
 					break;
 				}
 			}
-			component->Deserialize(parser);
-			AddComponent(component);
+			if (component) {
+				component->Deserialize(parser);
+				AddComponent(component);
+			}
 		}
 
 		for (auto& child : m_childs)

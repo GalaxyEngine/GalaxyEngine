@@ -298,24 +298,8 @@ namespace GALAXY
 
 	Scripting::VariableType Scripting::ScriptEngine::StringToVariableType(const std::string& typeName)
 	{
-		if (typeName == "bool")
-			return VariableType::Bool;
-		else if (typeName == "int")
-			return VariableType::Int;
-		else if (typeName == "float")
-			return VariableType::Float;
-		else if (typeName == "double")
-			return VariableType::Double;
-		else if (typeName == "Vec2f")
-			return VariableType::Vector2;
-		else if (typeName == "Vec3f")
-			return VariableType::Vector3;
-		else if (typeName == "Vec4f")
-			return VariableType::Vector4;
-		else if (typeName == "string")
-			return VariableType::String;
-		else if (typeName == "GameObject")
-			return VariableType::GameObject;
+		if (typeMap.count(typeName))
+			return typeMap[typeName];
 		else
 		{
 			// Check the names of all components to see if they match.

@@ -9,7 +9,9 @@
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
+#ifdef _WIN32
 #pragma comment(lib, "Comdlg32.lib")
+#endif
 std::string SaveDialog(const char* filter)
 {
 #ifdef _WIN32
@@ -23,6 +25,7 @@ std::string SaveDialog(const char* filter)
 	ofn.lpstrFilter = filter;
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
 	if (GetSaveFileNameA(&ofn) == TRUE)
 	{
 		return ofn.lpstrFile;
@@ -44,6 +47,7 @@ std::string OpenDialog(const char* filter)
 	ofn.lpstrFilter = filter;
 	ofn.nFilterIndex = 1;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+	ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
 	if (GetSaveFileNameA(&ofn) == TRUE)
 	{
 		return ofn.lpstrFile;

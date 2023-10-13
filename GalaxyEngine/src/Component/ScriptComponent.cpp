@@ -7,6 +7,8 @@
 #include "Core/SceneHolder.h"
 #include "Core/Scene.h"
 
+#include "Utils/Parser.h"
+
 #define GETVARIABLE(x)\
 	if (!variable.isAList)\
 		return *GetVariable<x>(variableName);\
@@ -18,6 +20,9 @@
 		SetVariable(variableName, std::any_cast<x>(value));\
 	else\
 		SetVariable(variableName, std::any_cast<std::vector<x>>(value))\
+
+#define GET_VARIABLE(x)\
+		(*GetVariable<x>(variable.first));
 
 namespace GALAXY
 {
@@ -134,6 +139,63 @@ namespace GALAXY
 		if (scriptInstance)
 			return scriptInstance->GetAllVariables();
 		return {};
+	}
+
+	void Component::ScriptComponent::Serialize(Utils::Serializer& serializer)
+	{
+		for (auto& variable : GetAllVariables())
+		{
+			if (variable.second.isAList)
+			{
+				//TODO:
+				//serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << std::any_cast<std::vector<Scripting::VariableData>>(variable.second);
+			}
+			else
+			{
+				switch (variable.second.type)
+				{
+				case Scripting::VariableType::Unknown:
+					break;
+				case Scripting::VariableType::Bool:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(bool);
+					break;
+				case Scripting::VariableType::Int:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(int);
+					break;
+				case Scripting::VariableType::Float:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(float);
+					break;
+				case Scripting::VariableType::Double:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(double);
+					break;
+				case Scripting::VariableType::Vector2:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec2f);
+					break;
+				case Scripting::VariableType::Vector3:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec3f);
+					break;
+				case Scripting::VariableType::Vector4:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec4f);
+					break;
+				case Scripting::VariableType::String:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(std::string);
+					break;
+				case Scripting::VariableType::Component:
+					//TODO:
+					break;
+				case Scripting::VariableType::GameObject:
+					//TODO:
+					break;
+				default:
+					break;
+				}
+			}
+		}
+	}
+
+	void Component::ScriptComponent::Deserialize(Utils::Parser& parser)
+	{
+
 	}
 
 #pragma region ReloadScript

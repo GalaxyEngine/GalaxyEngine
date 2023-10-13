@@ -48,6 +48,9 @@ namespace GALAXY
 
 			std::unordered_map<std::string, Scripting::VariableData> GetAllVariables() const;
 
+			void Serialize(Utils::Serializer& serializer) override;
+			void Deserialize(Utils::Parser& parser) override;
+
 		private:
 			template<typename T> inline void DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable);
 
