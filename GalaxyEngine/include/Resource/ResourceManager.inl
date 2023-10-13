@@ -65,6 +65,8 @@ namespace GALAXY
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
 	{
+		if (fullPath.empty())
+			return {};
 		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		auto resource = m_instance->m_resources.find(relativePath);
 		if (resource == m_instance->m_resources.end())

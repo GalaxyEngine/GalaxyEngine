@@ -25,6 +25,9 @@ namespace GALAXY {
 
 			void SetMesh(const std::weak_ptr<Resource::Mesh>& mesh);
 
+			void Serialize(Utils::Serializer& serializer) override;
+			void Deserialize(Utils::Parser& parser) override;
+
 			void ShowInInspector() override;
 		private:
 			std::weak_ptr<Resource::Mesh> m_mesh;

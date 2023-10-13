@@ -2,44 +2,19 @@
 [Name] : Scene
 [ID] : 18446744073709551615
 [Component Number] : 0
-[Child Number] : 2
+[Child Number] : 1
  ------------- BEGIN GAMEOBJECT ------------- 
 	[Name] : GameObject
 	[ID] : 0
 	[Component Number] : 1
-	[Child Number] : 1
+	[Child Number] : 0
  ------------- BEGIN COMPONENT ------------- 
 		[Name] : Mesh Component
+		[Mesh] : 
+		[Material Count] : 1
+ ------------- BEGIN MATERIAL ------------- 
+			[Material 0] : CoreResources\materials\DefaultMaterial.mat
+ ------------- END MATERIAL ------------- 
  ============= END COMPONENT ============= 
- ------------- BEGIN GAMEOBJECT ------------- 
-		[Name] : GameObject
-		[ID] : 2
-		[Component Number] : 0
-		[Child Number] : 0
- ============= END GAMEOBJECT ============= 
- ============= END GAMEOBJECT ============= 
- ------------- BEGIN GAMEOBJECT ------------- 
-	[Name] : GameObject
-	[ID] : 1
-	[Component Number] : 2
-	[Child Number] : 1
- ------------- BEGIN COMPONENT ------------- 
-		[Name] : Mesh Component
- ============= END COMPONENT ============= 
- ------------- BEGIN COMPONENT ------------- 
-		[Name] : Mesh Component
- ============= END COMPONENT ============= 
- ------------- BEGIN GAMEOBJECT ------------- 
-		[Name] : GameObject
-		[ID] : 3
-		[Component Number] : 0
-		[Child Number] : 1
- ------------- BEGIN GAMEOBJECT ------------- 
-			[Name] : GameObject
-			[ID] : 4
-			[Component Number] : 0
-			[Child Number] : 0
- ============= END GAMEOBJECT ============= 
- ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 
