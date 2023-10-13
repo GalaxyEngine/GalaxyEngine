@@ -9,12 +9,10 @@
 	[Component Number] : 1
 	[Child Number] : 0
  ------------- BEGIN COMPONENT ------------- 
-		[Name] : Mesh Component
-		[Mesh] : CoreResources\models\Cube.obj:Cube
-		[Material Count] : 1
- ------------- BEGIN MATERIAL ------------- 
-			[Material 0] : CoreResources\materials\DefaultMaterial.mat
- ------------- END MATERIAL ------------- 
+		[Name] : ScriptA
+		[intValue] : 5
+		[floatValue] : 5.000000
+		[doubleValue] : 5.000000
  ============= END COMPONENT ============= 
  ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

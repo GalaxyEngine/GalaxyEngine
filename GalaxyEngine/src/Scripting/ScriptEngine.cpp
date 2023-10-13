@@ -97,7 +97,7 @@ namespace GALAXY
 
 			auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
 			auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
-			if (lastTimeCopied < lastTimeDLL) {
+			if (lastTimeCopied > lastTimeDLL) {
 				shouldCopyFiles = false;
 			}
 		}

@@ -67,14 +67,27 @@ namespace GALAXY
 		return *this;
 	}
 
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const uint64_t& value)
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const int& value)
 	{
 		std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const int& value)
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned int& value)
+	{
+		std::string stringValue = std::to_string(value);
+		*this << stringValue.c_str();
+		return *this;
+	}
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const long long& value)
+	{
+		std::string stringValue = std::to_string(value);
+		*this << stringValue.c_str();
+		return *this;
+	}
+
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned long long& value)
 	{
 		std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
@@ -183,6 +196,14 @@ namespace GALAXY
 			m_currentType = val;
 			m_file << MAP_SEPARATOR_END;
 			break;
+		case PAIR::BEGIN_LIST:	
+			//TODO:
+			m_currentType = val;
+			break;
+		case PAIR::END_LIST:
+			//TODO:
+			m_currentType = val;
+			break;
 		default:
 			m_currentType = val;
 			break;
@@ -270,6 +291,12 @@ namespace GALAXY
 	}
 
 	template <>
+	std::string Utils::StringSerializer::As()
+	{
+		return m_content;
+	}
+
+	template <>
 	float Utils::StringSerializer::As()
 	{
 		return std::stof(m_content);
@@ -282,21 +309,27 @@ namespace GALAXY
 	}
 
 	template <>
-	uint64_t Utils::StringSerializer::As()
+	unsigned long long Utils::StringSerializer::As()
 	{
 		return std::stoull(m_content);
 	}
 
 	template <>
-	int64_t Utils::StringSerializer::As()
+	long long Utils::StringSerializer::As()
 	{
 		return std::stoll(m_content);
 	}
 
 	template <>
+	unsigned int Utils::StringSerializer::As()
+	{
+		return std::stoul(m_content);
+	}
+
+	template <>
 	int Utils::StringSerializer::As()
 	{
-		return std::stoi(m_content);
+		return std::stoul(m_content);
 	}
 
 	template <>

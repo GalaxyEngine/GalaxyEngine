@@ -15,6 +15,10 @@ namespace GALAXY
 			END_TAB,
 			BEGIN_MAP,
 			END_MAP,
+			BEGIN_LIST,
+			SIZE_LIST,
+			LIST_VALUE,
+			END_LIST,
 			TITLE,
 		};
 

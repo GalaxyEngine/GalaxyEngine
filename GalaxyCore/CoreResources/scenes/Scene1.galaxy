@@ -9,12 +9,22 @@
 	[Component Number] : 1
 	[Child Number] : 0
  ------------- BEGIN COMPONENT ------------- 
-		[Name] : Mesh Component
-		[Mesh] : 
-		[Material Count] : 1
- ------------- BEGIN MATERIAL ------------- 
-			[Material 0] : CoreResources\materials\DefaultMaterial.mat
- ------------- END MATERIAL ------------- 
+		[Name] : ScriptA
+		[intValue] : 1
+ ------------- intValue ------------- 
+		[0] : 0
+ ============= intValue ============= 
+		[floatValue] : 2
+ ------------- floatValue ------------- 
+		[0] : 0.000000
+		[1] : 0.000000
+ ============= floatValue ============= 
+		[doubleValue] : 3
+ ------------- doubleValue ------------- 
+		[0] : 0.000000
+		[1] : 0.000000
+		[2] : 0.000000
+ ============= doubleValue ============= 
  ============= END COMPONENT ============= 
  ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

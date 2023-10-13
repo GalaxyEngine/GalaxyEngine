@@ -24,6 +24,33 @@
 #define GET_VARIABLE(x)\
 		(*GetVariable<x>(variable.first));
 
+#define GET_VARIABLE_LIST(x)\
+		(*GetVariable<std::vector<x>>(variable.first));
+
+#define SERIALIZE_LIST(x)\
+{\
+	std::vector<x> list = GET_VARIABLE_LIST(x);\
+	serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << list.size();\
+	serializer << Utils::PAIR::BEGIN_MAP << variable.first;\
+	for (size_t i = 0; i < list.size(); i++)\
+	{\
+		x value = list.at(i);\
+		serializer << Utils::PAIR::KEY << std::to_string(i) << Utils::PAIR::VALUE << value;\
+	}\
+	serializer << Utils::PAIR::END_MAP << variable.first;\
+}\
+
+#define DESERIALIZE_LIST(x)\
+{\
+	parser.NewDepth();\
+	std::vector<x> list(parser[variable.first].As<size_t>());\
+	for (size_t i = 0; i < list.size(); i++)\
+	{\
+		list[i] = parser[std::to_string(i)].As<x>();\
+	}\
+	SetVariable(variable.first, list);\
+}
+
 namespace GALAXY
 {
 	std::vector<const char*> Component::ScriptComponent::GetComponentNames() const
@@ -147,8 +174,43 @@ namespace GALAXY
 		{
 			if (variable.second.isAList)
 			{
-				//TODO:
-				//serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << std::any_cast<std::vector<Scripting::VariableData>>(variable.second);
+				switch (variable.second.type)
+				{
+				case Scripting::VariableType::Unknown:
+					break;
+				case Scripting::VariableType::Bool: 
+					SERIALIZE_LIST(bool);
+					break;
+				case Scripting::VariableType::Int:
+					SERIALIZE_LIST(int);
+					break;
+				case Scripting::VariableType::Float:
+					SERIALIZE_LIST(float);
+					break;
+				case Scripting::VariableType::Double:
+					SERIALIZE_LIST(double);
+					break;
+				case Scripting::VariableType::Vector2:
+					SERIALIZE_LIST(Vec2f);
+					break;
+				case Scripting::VariableType::Vector3:
+					SERIALIZE_LIST(Vec3f);
+					break;
+				case Scripting::VariableType::Vector4:
+					SERIALIZE_LIST(Vec4f);
+					break;
+				case Scripting::VariableType::String:
+					SERIALIZE_LIST(std::string);
+					break;
+				case Scripting::VariableType::Component:
+					//TODO:
+					break;
+				case Scripting::VariableType::GameObject:
+					//TODO:
+					break;
+				default:
+					break;
+				}
 			}
 			else
 			{
@@ -195,7 +257,92 @@ namespace GALAXY
 
 	void Component::ScriptComponent::Deserialize(Utils::Parser& parser)
 	{
+		for (auto& variable : GetAllVariables())
+		{
+			if (variable.second.isAList)
+			{
+				//TODO:
+				//serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << std::any_cast<std::vector<Scripting::VariableData>>(variable.second);
 
+				switch (variable.second.type)
+				{
+				case Scripting::VariableType::Unknown:
+					break;
+				case Scripting::VariableType::Bool:
+					DESERIALIZE_LIST(bool);
+					break;
+				case Scripting::VariableType::Int:
+					DESERIALIZE_LIST(int);
+					break;
+				case Scripting::VariableType::Float:
+					DESERIALIZE_LIST(float);
+					break;
+				case Scripting::VariableType::Double:
+					DESERIALIZE_LIST(double);
+					break;
+				case Scripting::VariableType::Vector2:
+					DESERIALIZE_LIST(Vec2f);
+					break;
+				case Scripting::VariableType::Vector3:
+					DESERIALIZE_LIST(Vec3f);
+					break;
+				case Scripting::VariableType::Vector4:
+					DESERIALIZE_LIST(Vec4f);
+					break;
+				case Scripting::VariableType::String:
+					DESERIALIZE_LIST(std::string);
+					break;
+				case Scripting::VariableType::Component:
+					//TODO:
+					break;
+				case Scripting::VariableType::GameObject:
+					//TODO:
+					break;
+				default:
+					break;
+				}
+			}
+			else
+			{
+				switch (variable.second.type)
+				{
+				case Scripting::VariableType::Unknown:
+					break;
+				case Scripting::VariableType::Bool:
+					SetVariable(variable.first, parser[variable.first].As<bool>());
+					break;
+				case Scripting::VariableType::Int:
+					SetVariable(variable.first, parser[variable.first].As<int>());
+					break;
+				case Scripting::VariableType::Float:
+					SetVariable(variable.first, parser[variable.first].As<float>());
+					break;
+				case Scripting::VariableType::Double:
+					SetVariable(variable.first, parser[variable.first].As<double>());
+					break;
+				case Scripting::VariableType::Vector2:
+					SetVariable(variable.first, parser[variable.first].As<Vec2f>());
+					break;
+				case Scripting::VariableType::Vector3:
+					SetVariable(variable.first, parser[variable.first].As<Vec3f>());
+					break;
+				case Scripting::VariableType::Vector4:
+					SetVariable(variable.first, parser[variable.first].As<Vec4f>());
+					break;
+				case Scripting::VariableType::String:
+					SetVariable(variable.first, parser[variable.first]);
+					break;
+				case Scripting::VariableType::Component:
+					//TODO:
+					break;
+				case Scripting::VariableType::GameObject:
+					//TODO:
+					break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
 #pragma region ReloadScript
