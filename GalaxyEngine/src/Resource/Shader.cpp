@@ -9,7 +9,7 @@ namespace GALAXY {
 			return;
 		p_shouldBeLoaded = true;
 		p_renderer = Wrapper::Renderer::GetInstance();
-		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock()) 
+		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock())
 		{
 			SendRequest();
 			return;
@@ -142,6 +142,7 @@ namespace GALAXY {
 
 	int Resource::Shader::GetLocation(const std::string& locationName)
 	{
+		ASSERT(HasBeenSent());
 		if (p_locations.count(locationName))
 		{
 			return p_locations.at(locationName);

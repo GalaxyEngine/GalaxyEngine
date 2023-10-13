@@ -81,6 +81,9 @@ namespace GALAXY {
 		auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
 		auto outlineRenderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
 
+		if (!renderTexture || !outlineRenderTexture)
+			return;
+
 		float contentWidth = ImGui::GetContentRegionAvail().x;
 		float contentHeight = ImGui::GetContentRegionAvail().y;
 

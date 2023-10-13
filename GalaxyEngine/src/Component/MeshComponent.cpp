@@ -36,9 +36,7 @@ namespace GALAXY {
 		serializer << Utils::PAIR::BEGIN_TAB;
 		for (int i = 0; i < m_materials.size(); i++)
 		{
-			serializer << Utils::PAIR::BEGIN_MAP << "BEGIN MATERIAL";
 			serializer << Utils::PAIR::KEY << ("Material " + std::to_string(i)) << Utils::PAIR::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetRelativePath() : "");
-			serializer << Utils::PAIR::BEGIN_MAP << "END MATERIAL";
 		}
 		serializer << Utils::PAIR::END_TAB;
 	}
@@ -50,8 +48,6 @@ namespace GALAXY {
 		size_t materialCount = parser["Material Count"].As<int>();
 		for (size_t i = 0; i < materialCount; i++)
 		{
-			parser.NewDepth();
-
 			std::string materialPath = parser["Material " + std::to_string(i)];
 			Weak<Resource::Material> material = Resource::ResourceManager::GetOrLoad<Resource::Material>(materialPath);
 			m_materials.push_back(material);
@@ -141,7 +137,9 @@ namespace GALAXY {
 		{
 			if (!m_materials[i].lock())
 				continue;
+			ImGui::PushID(i);
 			m_materials[i].lock()->ShowInInspector();
+			ImGui::PopID();
 		}
 	}
 

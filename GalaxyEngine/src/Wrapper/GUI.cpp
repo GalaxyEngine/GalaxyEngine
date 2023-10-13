@@ -303,11 +303,15 @@ namespace GALAXY {
 
 	bool Wrapper::GUI::TextureButton(Resource::Texture* texture, Vec2f size)
 	{
+		if (!texture->HasBeenSent())
+			return false;
 		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size);
 	}
 
 	bool Wrapper::GUI::TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 /*= {0, 0}*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
 	{
+		if (!texture->HasBeenSent())
+			return false;
 		bool pressed = false;
 		Vec2f cursorPos = ImGui::GetCursorPos();
 		int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
@@ -357,6 +361,8 @@ namespace GALAXY {
 
 	void Wrapper::GUI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
 	{
+		if (!texture->HasBeenSent())
+			return;
 		return ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size, (Vec2f)uv0, (Vec2f)uv1);
 	}
 

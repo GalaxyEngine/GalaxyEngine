@@ -105,10 +105,11 @@ namespace GALAXY
 
 			m_root->DrawSelfAndChild();
 
+			
 			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1), 5.f);
 			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1), 5.f);
 			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1), 5.f);
-
+			
 			m_currentCamera.lock()->End();
 		}
 

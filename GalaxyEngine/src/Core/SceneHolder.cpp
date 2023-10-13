@@ -19,15 +19,11 @@ Core::SceneHolder* Core::SceneHolder::GetInstance()
 
 void Core::SceneHolder::Update()
 {
-	if (m_currentScene)
+	if (!m_currentScene)
 	{
-		m_currentScene->Update();
-	}
-	else
-	{
-		// TODO : Temp
 		m_currentScene = std::make_shared<Scene>();
 	}
+	m_currentScene->Update();
 }
 
 Core::Scene* Core::SceneHolder::GetCurrentScene()
