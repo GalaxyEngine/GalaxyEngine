@@ -154,13 +154,22 @@ namespace GALAXY
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(Core::GameObject* value)
 	{
+		if (!value) {
+			this->operator<<(-1);
+			return *this;
+		}
+			;
 		this->operator<<<uint64_t>(value->GetIndex());
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(Component::BaseComponent* value)
 	{
-		std::string pairString = std::to_string(value->gameObject.lock()->GetIndex()) + ", " + std::to_string(value->GetIndex());
+		std::string pairString;
+		if (!value)
+			pairString = std::to_string(-1) + ", " + std::to_string(-1);
+		else
+			pairString = std::to_string(value->gameObject.lock()->GetIndex()) + ", " + std::to_string(value->GetIndex());
 		this->operator<<(pairString);
 		return *this;
 	}

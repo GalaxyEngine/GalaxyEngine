@@ -258,7 +258,6 @@ namespace GALAXY
 		for (auto& child : m_childs)
 		{
 			child->Serialize(serializer);
-			child->m_scene = m_scene;
 		}
 		serializer << PAIR::END_TAB;
 
@@ -298,6 +297,7 @@ namespace GALAXY
 			parser.NewDepth();
 
 			child = std::make_shared<GameObject>();
+			child->m_scene = m_scene;
 			child->SetParent(weak_from_this());
 			child->Deserialize(parser);
 			m_scene->AddObject(child);

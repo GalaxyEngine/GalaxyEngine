@@ -12,7 +12,7 @@ namespace GALAXY {
 	{
 		class SceneResource;
 	}
-	namespace Render { 
+	namespace Render {
 		class Camera;
 		class EditorCamera;
 		class Grid;
@@ -29,7 +29,7 @@ namespace GALAXY {
 
 #pragma region Resource Methods
 			void Load() override;
-			void Save();
+			void Save(const std::filesystem::path& fullPath = "");
 
 			static Weak<Scene> Create(const std::filesystem::path& path);
 

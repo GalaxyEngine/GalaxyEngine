@@ -353,6 +353,8 @@ namespace GALAXY
 			{
 				if (Shared<BaseComponent> component = object->GetComponentWithIndex(IDs.componentID).lock())
 				{
+					// Maybe Todo: Check if component is the same type of the previous one.
+					// So need to write component Name inside scene folder with ids
 					SetVariable(variableName, component.get());
 				}
 			}

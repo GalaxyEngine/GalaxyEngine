@@ -87,8 +87,8 @@ namespace GALAXY
 						if (path.find(".galaxy") == std::string::npos)
 							path = path + ".galaxy";
 
-						auto sceneResource = Resource::Scene::Create(path);
-						sceneResource.lock()->Save();
+						Resource::Scene* scene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+						scene->Save(path);
 					}
 				}
 				if (ImGui::MenuItem("Exit"))

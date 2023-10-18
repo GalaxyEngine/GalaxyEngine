@@ -94,7 +94,7 @@ namespace GALAXY {
 		
 		using namespace Utils;
 
-		{
+		/*{
 			Serializer serializer("tmp.txt");
 			serializer << PAIR::BEGIN_MAP << "Test";
 			serializer << PAIR::KEY << "path" << PAIR::VALUE << std::filesystem::path("Test/Test.cpp");
@@ -127,7 +127,7 @@ namespace GALAXY {
 			auto quat = parser["Quat"].As<Quat>();
 			auto object = parser["Object"].As<uint64_t>();
 			auto component2 = parser["Component"].As<Component::ComponentID>();
-		}
+		}*/
 		return;
 	}
 
