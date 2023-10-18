@@ -8,6 +8,11 @@ namespace GALAXY
 	namespace Debug
 	{
 		enum class LogType;
+		struct LogText
+		{
+			LogType type;
+			std::string text;
+		};
 	}
 	namespace EditorUI
 	{
@@ -32,7 +37,7 @@ namespace GALAXY
 
 			const size_t m_maxText = 200;
 
-			std::deque<std::pair<Debug::LogType, std::string>> m_texts;
+			std::deque<Debug::LogText> m_texts;
 			size_t m_textSelected = -1;
 
 			std::weak_ptr<Resource::Texture> m_infoTexture;

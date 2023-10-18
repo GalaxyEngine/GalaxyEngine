@@ -2,20 +2,22 @@
 #include "Component/IComponent.h"
 #include "Core/GameObject.h"
 
-void Component::BaseComponent::RemoveFromGameObject()
-{
-	if (gameObject.lock())
+namespace GALAXY {
+	void Component::BaseComponent::RemoveFromGameObject()
 	{
-		gameObject.lock()->RemoveComponent(this);
+		if (gameObject.lock())
+		{
+			gameObject.lock()->RemoveComponent(this);
+		}
 	}
-}
 
-Component::BaseComponent::BaseComponent()
-{
+	Component::BaseComponent::BaseComponent()
+	{
 
-}
+	}
 
-std::vector<const char*> Component::BaseComponent::GetComponentNames() const
-{
-	return { BaseComponent::GetComponentName() };
+	std::vector<const char*> Component::BaseComponent::GetComponentNames() const
+	{
+		return { BaseComponent::GetComponentName() };
+	}
 }

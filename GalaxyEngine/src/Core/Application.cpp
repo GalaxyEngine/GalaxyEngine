@@ -80,14 +80,11 @@ namespace GALAXY {
 		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
-
-		
 		
 		// Initialize EditorUI
 		m_editorUI = EditorUI::EditorUIManager::GetInstance();
 		m_editorUI->Initialize();
 
-		
 		// Initialize Scripting
 		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
 		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
@@ -190,6 +187,9 @@ namespace GALAXY {
 	{
 		// Cleanup:
 		// Scene Holder
+		if (m_editorUI)
+			m_editorUI->Release();
+
 		if (m_sceneHolder)
 			m_sceneHolder->Release();
 

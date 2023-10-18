@@ -7,34 +7,21 @@ uniform sampler2D Texture;
 
 void main()
 { 
-    // outline thickness
-    int w = 3;
+    vec4 centerColor = texture(Texture, uv);
 
-    // if the pixel is black (we are on the silhouette)
-    if (texture(Texture, uv).xyz == vec3(0.0f))
-    {
-        vec2 size = 1.0f / textureSize(Texture, 0);
+    float outlineThickness = 5; 
 
-        for (int i = -w; i <= +w; i++)
-        {
-            for (int j = -w; j <= +w; j++)
-            {
-                if (i == 0 && j == 0)
-                {
-                    continue;
-                }
+    // Check the neighboring pixels to see if they are black
+    vec2 offset = outlineThickness / textureSize(Texture, 0);
+    vec4 leftColor = texture(Texture, uv - vec2(offset.x, 0));
+    vec4 rightColor = texture(Texture, uv + vec2(offset.x, 0));
+    vec4 topColor = texture(Texture, uv + vec2(0, offset.y));
+    vec4 bottomColor = texture(Texture, uv - vec2(0, offset.y));
 
-                vec2 offset = vec2(i, j) * size;
-
-                // and if one of the pixel-neighbor is white (we are on the border)
-                if (texture(Texture, uv + offset).xyz == vec3(1.0f))
-                {
-                    FragColor = vec4(vec3(1.0f), 1.0f);
-                    return;
-                }
-            }
-        }
+    // If any of the neighboring pixels are black, draw an outline
+    if (centerColor == vec4(1.0) && (leftColor == vec4(0.0) || rightColor == vec4(0.0) || topColor == vec4(0.0) || bottomColor == vec4(0.0))) {
+        FragColor = vec4(1.0);  // White outline
+    } else {
+        FragColor = vec4(0.0);  // Black background
     }
-
-    discard;
 }

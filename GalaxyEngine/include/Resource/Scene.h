@@ -1,7 +1,10 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Core/GameObject.h"
+
 #include "Resource/IResource.h"
+
+#include "Core/GameObject.h"
+
 #include <unordered_map>
 
 namespace GALAXY {
@@ -37,7 +40,7 @@ namespace GALAXY {
 
 			//TODO : move this to .inl file
 			// Every GameObject should be create via this function
-			template<typename... Args> std::weak_ptr<Core::GameObject> CreateObject(Args&&... args)
+			template<typename... Args> inline std::weak_ptr<Core::GameObject> CreateObject(Args&&... args)
 			{
 				std::shared_ptr<Core::GameObject> shared = std::make_shared<Core::GameObject>(std::forward<Args>(args)...);
 				shared->Initialize();

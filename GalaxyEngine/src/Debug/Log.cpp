@@ -8,5 +8,6 @@ Debug::Log::~Log()
 
 void Debug::Log::AddTextToConsole(LogType type, const std::string& text)
 {
-	EditorUI::EditorUIManager::GetInstance()->GetConsole()->AddText(type, text);
+	if (auto editorUIManager = EditorUI::EditorUIManager::GetInstance())
+		editorUIManager->GetConsole()->AddText(type, text);
 }

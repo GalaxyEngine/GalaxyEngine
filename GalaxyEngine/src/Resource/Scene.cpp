@@ -27,7 +27,7 @@ namespace GALAXY
 {
 	Scene::Scene(const std::filesystem::path& path) : IResource(path)
 	{
-		m_root = std::make_shared<Core::GameObject>(path.filename());
+		m_root = std::make_shared<Core::GameObject>(path.filename().string());
 		m_editorCamera = std::make_unique<Render::EditorCamera>();
 
 		m_grid = std::make_shared<Render::Grid>();
@@ -135,10 +135,12 @@ namespace GALAXY
 	{
 		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
 			return element.second.get() == object; });
-		shared->second->RemoveFromParent();
-		if (shared != m_objectList.end())
-		{
-			m_objectList.erase(shared);
+		if (shared != m_objectList.end()) {
+			shared->second->RemoveFromParent();
+			if (shared != m_objectList.end())
+			{
+				m_objectList.erase(shared);
+			}
 		}
 	}
 

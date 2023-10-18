@@ -20,7 +20,9 @@ namespace GALAXY::EditorUI {
 
 		static EditorUIManager* GetInstance();
 
-		void Initialize();
+		static void Initialize();
+
+		void Release();
 
 		void DrawUI();
 

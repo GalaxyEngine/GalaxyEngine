@@ -41,6 +41,9 @@ namespace GALAXY {
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const std::filesystem::path& fullPath);
 
+			template <typename T>
+			static inline Weak<T> ReloadResource(const std::filesystem::path& fullPath);
+
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
 			[[nodiscard]] inline Weak<T> GetResource(const std::filesystem::path& fullPath);
@@ -76,7 +79,6 @@ namespace GALAXY {
 			std::string m_projectName;
 
 		};
-
 	}
 }
 #include "Resource/ResourceManager.inl" 

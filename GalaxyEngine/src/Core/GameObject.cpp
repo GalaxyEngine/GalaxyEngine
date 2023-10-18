@@ -300,6 +300,7 @@ namespace GALAXY
 			child = std::make_shared<GameObject>();
 			child->SetParent(weak_from_this());
 			child->Deserialize(parser);
+			m_scene->AddObject(child);
 		}
 	}
 }

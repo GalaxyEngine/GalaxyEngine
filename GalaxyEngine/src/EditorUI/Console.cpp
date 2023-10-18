@@ -44,7 +44,7 @@ namespace GALAXY {
 			ImGui::BeginChild("Content", Vec2f(0, size1), true);
 			for (size_t i = 0; i < m_texts.size(); i++)
 			{
-				if (filter.PassFilter(m_texts[i].second.c_str()))
+				if (filter.PassFilter(m_texts[i].text.c_str()))
 					DisplayText(i);
 			}
 			if (m_scrollToBottom)
@@ -60,7 +60,7 @@ namespace GALAXY {
 			{
 				std::string prefix = "";
 				Vec4f color = Vec4f(1);
-				switch (m_texts[m_textSelected].first)
+				switch (m_texts[m_textSelected].type)
 				{
 				case Debug::LogType::L_INFO:
 					prefix = "(Info)";
@@ -74,7 +74,7 @@ namespace GALAXY {
 					prefix = "(Error)";
 					break;
 				}
-				auto currentText = m_texts[m_textSelected].second;
+				auto currentText = m_texts[m_textSelected].text;
 				auto pos = currentText.find("):") + 1;
 				std::string message = currentText.substr(pos + 1);
 				std::string fileLine = currentText.substr(currentText.find_first_of(']') + 2, pos - currentText.find_first_of(']') - 2);
@@ -90,7 +90,7 @@ namespace GALAXY {
 	{
 		ImGui::PushID((int)i);
 		Resource::Texture* tex = nullptr;
-		switch (m_texts[i].first)
+		switch (m_texts[i].type)
 		{
 		case Debug::LogType::L_INFO:
 			if (!m_infoCheckbox)
@@ -117,7 +117,7 @@ namespace GALAXY {
 			Wrapper::GUI::TextureImage(tex, Vec2f(32));
 			ImGui::SameLine();
 		}
-		if (ImGui::Selectable(m_texts[i].second.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, Vec2f(0, 32)))
+		if (ImGui::Selectable(m_texts[i].text.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, Vec2f(0, 32)))
 			m_textSelected = i;
 		ImGui::PopStyleColor();
 		ImGui::PopID();
@@ -150,7 +150,7 @@ namespace GALAXY {
 		{
 			for (size_t i = 0; i < m_texts.size() - m_maxText + 1; i++)
 			{
-				switch (m_texts[i].first)
+				switch (m_texts[i].type)
 				{
 				case Debug::LogType::L_INFO:
 					m_infoNumber--;
@@ -179,7 +179,7 @@ namespace GALAXY {
 			break;
 		}
 
-		m_texts.push_back(std::make_pair(type, text));
+		m_texts.push_back(Debug::LogText(type, text));
 	}
 
 	void EditorUI::Console::Clear()

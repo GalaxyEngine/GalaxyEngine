@@ -106,6 +106,25 @@ namespace GALAXY
 		return Weak<T>{};
 	}
 
+
+	template <typename T>
+	Weak<T> Resource::ResourceManager::ReloadResource(const std::filesystem::path& fullPath)
+	{
+		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (!m_instance->m_resources.count(relativePath)) {
+			PrintError("Resource %s not found in Resource Manager, Failed to reload", relativePath.string().c_str());
+			return {};
+		}
+
+		Shared<IResource> resource = m_instance->m_resources.at(relativePath);
+		resource->p_shouldBeLoaded = false;
+		resource->p_loaded = false;
+		resource->p_hasBeenSent = false;
+
+		return GetOrLoad<T>(fullPath);
+	}
+
+
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::GetResource(const std::filesystem::path& fullPath)
 	{

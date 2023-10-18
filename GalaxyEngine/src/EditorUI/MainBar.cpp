@@ -75,7 +75,7 @@ namespace GALAXY
 				{
 					if (auto path = OpenDialog(".galaxy"); !path.empty())
 					{
-						auto sceneResource = Resource::ResourceManager::GetOrLoad<Resource::Scene>(path);
+						auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
 
 						Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
 					}

@@ -42,8 +42,9 @@ void Core::SceneHolder::SwitchScene(Weak<Resource::Scene> scene)
 
 void Core::SceneHolder::SwitchSceneUpdate()
 {
-	if (m_nextScene)
+	if (m_nextScene && m_nextScene->IsLoaded())
 	{
+		m_currentScene.reset();
 		m_currentScene = m_nextScene;
 		m_nextScene.reset();
 	}

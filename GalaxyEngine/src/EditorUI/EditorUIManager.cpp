@@ -19,7 +19,9 @@ namespace GALAXY {
 
 	void EditorUI::EditorUIManager::Initialize()
 	{
-		m_fileExplorer->Initialize();
+		if (!m_instance)
+			m_instance = std::make_unique<EditorUIManager>();
+		m_instance->m_fileExplorer->Initialize();
 	}
 
 	void EditorUI::EditorUIManager::DrawUI()
@@ -35,8 +37,6 @@ namespace GALAXY {
 
 	EditorUI::EditorUIManager* GALAXY::EditorUI::EditorUIManager::GetInstance()
 	{
-		if (!m_instance)
-			m_instance = std::make_unique<EditorUIManager>();
 		return m_instance.get();
 	}
 
@@ -86,4 +86,10 @@ namespace GALAXY {
 		}
 		ImGui::End();
 	}
+
+	void EditorUI::EditorUIManager::Release()
+	{
+		m_instance.reset();
+	}
+
 }

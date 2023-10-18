@@ -124,7 +124,8 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 	{
 		for (auto& object : m_inspector->GetSelected())
 		{
-			SceneHolder::GetInstance()->GetCurrentScene()->RemoveObject(object.lock().get());
+			Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+			currentScene->RemoveObject(object.lock().get());
 		}
 	}
 
