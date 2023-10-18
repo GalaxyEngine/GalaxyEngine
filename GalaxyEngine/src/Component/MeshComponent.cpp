@@ -137,7 +137,7 @@ namespace GALAXY {
 		{
 			if (!m_materials[i].lock())
 				continue;
-			ImGui::PushID(i);
+			ImGui::PushID((int)i);
 			m_materials[i].lock()->ShowInInspector();
 			ImGui::PopID();
 		}

@@ -118,17 +118,18 @@ namespace GALAXY {
 		}
 	}
 
-	void Resource::Material::SendValues(uint64_t id /*= -1*/)
+	Weak<Resource::Shader> Resource::Material::SendValues(uint64_t id /*= -1*/)
 	{
 		static auto renderer = Wrapper::Renderer::GetInstance();
 		auto renderType = renderer->GetRenderType();
+		Shared<Resource::Shader> shader = {};
 		switch (renderType)
 		{
-		case Render::RenderType::DEFAULT: 
+		case Render::RenderType::DEFAULT:
 		{
-			auto shader = m_shader.lock();
+			shader = m_shader.lock();
 			if (!shader || !shader->HasBeenSent())
-				return;
+				return {};
 			shader->Use();
 
 			shader->SendInt("EnableTexture", m_albedo.lock() ? true : false);
@@ -139,11 +140,11 @@ namespace GALAXY {
 			shader->SendVec4f("Diffuse", m_diffuse);
 		}
 		break;
-		case Render::RenderType::PICKING: 
+		case Render::RenderType::PICKING:
 		{
-			auto shader = m_shader.lock()->GetPickingVariant().lock();
+			shader = m_shader.lock()->GetPickingVariant().lock();
 			if (!shader || !shader->HasBeenSent())
-				return;
+				return {};
 			shader->Use();
 
 			int r = (id & 0x000000FF) >> 0;
@@ -155,18 +156,19 @@ namespace GALAXY {
 		break;
 		case Render::RenderType::OUTLINE:
 		{
-			auto shader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
+			shader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
 			if (!shader || !shader->HasBeenSent())
-				return;
+				return {};
 			shader->Use();
 
 			shader->SendInt("EnableTexture", false);
 			shader->SendVec4f("Diffuse", Vec4f(1));
 		}
-			break;
+		break;
 		default:
 			break;
 		}
+		return shader;
 	}
 
 	Weak<Resource::Material> Resource::Material::Create(const std::filesystem::path& path)

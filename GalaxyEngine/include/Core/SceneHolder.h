@@ -1,24 +1,34 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <memory>
-namespace GALAXY::Core {
-	class Scene;
-	class SceneHolder
+namespace GALAXY {
+	namespace Resource
 	{
-	public:
-		~SceneHolder();
+		class Scene;
+	}
+	namespace Core {
+		class SceneHolder
+		{
+		public:
+			~SceneHolder();
 
-		static SceneHolder* GetInstance();
+			static SceneHolder* GetInstance();
 
-		void Update();
+			void Update();
 
-		static Scene* GetCurrentScene();
+			void SwitchScene(Weak<Resource::Scene> scene);
 
-		void Release();
+			static Resource::Scene* GetCurrentScene();
 
-	private:
-		static std::unique_ptr<SceneHolder> m_instance;
+			void Release();
+		private:
+			void SwitchSceneUpdate();
+		private:
+			static std::unique_ptr<SceneHolder> m_instance;
 
-		std::shared_ptr<Scene> m_currentScene;
-	};
+			Shared<Resource::Scene> m_currentScene;
+
+			Shared<Resource::Scene> m_nextScene;
+		};
+	}
 }

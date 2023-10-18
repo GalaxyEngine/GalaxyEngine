@@ -20,6 +20,10 @@ namespace GALAXY {
 		class Serializer;
 		class Parser;
 	}
+	namespace Resource
+	{
+		class Scene;
+	}
 	namespace Core {
 		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -36,6 +40,10 @@ namespace GALAXY {
 
 			void UpdateSelfAndChild();
 			void DrawSelfAndChild();
+
+			// Call after the sceneLoading to synchronize 
+			// the components and gameObjects find by the id
+			void AfterLoad();
 
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);
@@ -73,8 +81,6 @@ namespace GALAXY {
 
 			// Return the child index in the list of child
 			uint32_t GetChildIndex(GameObject* child);
-			// Return the Component index in the list of components
-			uint32_t GetComponentIndex(Component::BaseComponent* component);
 
 			template<typename T>
 			inline std::vector<Weak<T>> GetComponentsInChildren();
@@ -91,11 +97,17 @@ namespace GALAXY {
 
 			void Serialize(Utils::Serializer& serializer);
 			void Deserialize(Utils::Parser& parser);
+
+			Resource::Scene* GetScene() { return m_scene; }
 		private:
-			friend class Scene;
+			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
+
 			uint64_t m_id = -1;
 			std::string m_name = "GameObject";
+
+			Resource::Scene* m_scene = nullptr;
+
 			std::weak_ptr<GameObject> m_parent;
 			std::vector<std::shared_ptr<GameObject>> m_childs;
 			std::vector<std::shared_ptr<Component::BaseComponent>> m_components;

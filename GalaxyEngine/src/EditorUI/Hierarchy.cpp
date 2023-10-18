@@ -3,7 +3,7 @@
 #include "EditorUI/Hierarchy.h"
 #include "EditorUI/Inspector.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 #include "Core/GameObject.h"
 
 using namespace Core;

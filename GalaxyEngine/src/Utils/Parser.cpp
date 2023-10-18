@@ -1,7 +1,12 @@
 #include "pch.h"
 #include "Utils/Parser.h"
+#include "Core/GameObject.h"
+#include "Core/SceneHolder.h"
+#include "Resource/Scene.h"
+
 #define MAP_SEPARATOR_BEGIN " ------------- "
 #define MAP_SEPARATOR_END " ============= "
+
 namespace GALAXY
 {
 #pragma region Serializer
@@ -30,6 +35,11 @@ namespace GALAXY
 	}
 
 	template<typename T> Utils::Serializer& Utils::Serializer::operator<<(const T& value)
+	{
+		return *this;
+	}
+
+	template<typename T> Utils::Serializer& Utils::Serializer::operator<<(T* value)
 	{
 		return *this;
 	}
@@ -142,6 +152,20 @@ namespace GALAXY
 		return *this;
 	}
 
+	template<> Utils::Serializer& Utils::Serializer::operator<<(Core::GameObject* value)
+	{
+		this->operator<<<uint64_t>(value->GetIndex());
+		return *this;
+	}
+
+	template<> Utils::Serializer& Utils::Serializer::operator<<(Component::BaseComponent* value)
+	{
+		std::string pairString = std::to_string(value->gameObject.lock()->GetIndex()) + ", " + std::to_string(value->GetIndex());
+		this->operator<<(pairString);
+		return *this;
+	}
+
+
 	Utils::Serializer& Utils::Serializer::operator<<(const char* value)
 	{
 		switch (m_currentType)
@@ -195,14 +219,6 @@ namespace GALAXY
 		case PAIR::END_MAP:
 			m_currentType = val;
 			m_file << MAP_SEPARATOR_END;
-			break;
-		case PAIR::BEGIN_LIST:	
-			//TODO:
-			m_currentType = val;
-			break;
-		case PAIR::END_LIST:
-			//TODO:
-			m_currentType = val;
 			break;
 		default:
 			m_currentType = val;
@@ -360,5 +376,24 @@ namespace GALAXY
 	Quat Utils::StringSerializer::As()
 	{
 		return Quat(m_content);
+	}
+
+	template <>
+	Weak<Core::GameObject> Utils::StringSerializer::As()
+	{
+		uint64_t index = As<uint64_t>();
+		return Core::SceneHolder::GetCurrentScene()->GetWithIndex(index);
+	}
+
+	template <>
+	Component::ComponentID Utils::StringSerializer::As()
+	{
+		uint64_t goIndex;
+		uint32_t compIndex;
+		std::stringstream os(m_content);
+		char skipChar;
+		os >> goIndex >> skipChar >> compIndex;
+
+		return Component::ComponentID(goIndex, compIndex);
 	}
 }

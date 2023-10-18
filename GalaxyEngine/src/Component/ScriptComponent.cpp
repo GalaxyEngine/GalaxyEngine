@@ -5,7 +5,7 @@
 #include "Scripting/ScriptInstance.h"
 
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 
 #include "Utils/Parser.h"
 
@@ -243,10 +243,10 @@ namespace GALAXY
 					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(std::string);
 					break;
 				case Scripting::VariableType::Component:
-					//TODO:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Component::BaseComponent*);
 					break;
 				case Scripting::VariableType::GameObject:
-					//TODO:
+					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Core::GameObject*);
 					break;
 				default:
 					break;
@@ -330,17 +330,38 @@ namespace GALAXY
 					SetVariable(variable.first, parser[variable.first].As<Vec4f>());
 					break;
 				case Scripting::VariableType::String:
-					SetVariable(variable.first, parser[variable.first]);
+					SetVariable(variable.first, parser[variable.first].As<std::string>());
 					break;
 				case Scripting::VariableType::Component:
-					//TODO:
+					p_tempComponentIDs[variable.first] = parser[variable.first].As<ComponentID>();
 					break;
 				case Scripting::VariableType::GameObject:
-					//TODO:
+					p_tempGameObjectIDs[variable.first] = parser[variable.first].As<uint64_t>();
 					break;
 				default:
 					break;
 				}
+			}
+		}
+	}
+
+	void Component::ScriptComponent::AfterLoad()
+	{
+		for (auto& [variableName, IDs] : p_tempComponentIDs)
+		{
+			if (auto object = this->gameObject.lock()->GetScene()->GetWithIndex(IDs.gameObjectID).lock())
+			{
+				if (auto component = object->GetComponentWithIndex(IDs.componentID).lock())
+				{
+					SetVariable(variableName, component.get());
+				}
+			}
+		}
+		for (auto& [variableName, ID] : p_tempGameObjectIDs)
+		{
+			if (auto object = this->gameObject.lock()->GetScene()->GetWithIndex(ID).lock())
+			{
+				SetVariable(variableName, object.get());
 			}
 		}
 	}
@@ -510,7 +531,7 @@ namespace GALAXY
 		ComponentInfo info;
 		if (component) {
 			auto gameObjectID = component->gameObject.lock()->GetIndex();
-			auto componentID = component->gameObject.lock()->GetComponentIndex(component);
+			auto componentID = component->GetIndex();
 			info = ComponentInfo(gameObjectID, componentID, std::string(component->GetComponentName()));
 		}
 		return info;

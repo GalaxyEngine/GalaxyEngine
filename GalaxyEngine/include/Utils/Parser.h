@@ -15,10 +15,6 @@ namespace GALAXY
 			END_TAB,
 			BEGIN_MAP,
 			END_MAP,
-			BEGIN_LIST,
-			SIZE_LIST,
-			LIST_VALUE,
-			END_LIST,
 			TITLE,
 		};
 
@@ -33,6 +29,9 @@ namespace GALAXY
 
 			template<typename T>
 			Serializer& operator<<(const T& value);
+
+			template<typename T>
+			Serializer& operator<<(T* value);
 
 			Serializer& operator<<(const char* value);
 

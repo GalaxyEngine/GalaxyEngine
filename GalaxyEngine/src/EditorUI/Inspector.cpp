@@ -89,6 +89,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 		if (open) {
 			ImGui::BeginDisabled(!enable);
 			ImGui::TreePush(object->m_components[i]->GetComponentName());
+			ImGui::Text("ID : %d", object->m_components[i]->GetIndex());
 			object->m_components[i]->ShowInInspector();
 			ImGui::TreePop();
 			ImGui::EndDisabled();
@@ -178,7 +179,7 @@ void EditorUI::Inspector::RightClickPopup()
 		else if (ImGui::Button("Move Up", buttonSize))
 		{
 			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
-			uint32_t index = owner->GetComponentIndex(m_rightClicked.lock().get());
+			uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index - 1);
 
@@ -188,7 +189,7 @@ void EditorUI::Inspector::RightClickPopup()
 		else if (ImGui::Button("Move Down", buttonSize))
 		{
 			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
-			uint32_t index = owner->GetComponentIndex(m_rightClicked.lock().get());
+			uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index + 1);
 

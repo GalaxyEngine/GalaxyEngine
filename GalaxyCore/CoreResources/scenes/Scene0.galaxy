@@ -2,17 +2,5 @@
 [Name] : Scene
 [ID] : 18446744073709551615
 [Component Number] : 0
-[Child Number] : 1
- ------------- BEGIN GAMEOBJECT ------------- 
-	[Name] : GameObject
-	[ID] : 0
-	[Component Number] : 1
-	[Child Number] : 0
- ------------- BEGIN COMPONENT ------------- 
-		[Name] : ScriptA
-		[intValue] : 5
-		[floatValue] : 5.000000
-		[doubleValue] : 5.000000
- ============= END COMPONENT ============= 
- ============= END GAMEOBJECT ============= 
+[Child Number] : 0
  ============= END GAMEOBJECT ============= 

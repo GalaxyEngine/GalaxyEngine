@@ -3,11 +3,10 @@
 #include "EditorUI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
-#include "Resource/SceneResource.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 
 #ifdef _WIN32
 #pragma comment(lib, "Comdlg32.lib")
@@ -76,9 +75,9 @@ namespace GALAXY
 				{
 					if (auto path = OpenDialog(".galaxy"); !path.empty())
 					{
-						auto sceneResource = Resource::ResourceManager::GetOrLoad<Resource::SceneResource>(path);
+						auto sceneResource = Resource::ResourceManager::GetOrLoad<Resource::Scene>(path);
 
-						Core::SceneHolder::GetCurrentScene()->SwitchScene(sceneResource);
+						Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene"))
@@ -88,9 +87,7 @@ namespace GALAXY
 						if (path.find(".galaxy") == std::string::npos)
 							path = path + ".galaxy";
 
-						auto sceneResource = Resource::SceneResource::Create(path);
-						Core::SceneHolder::GetCurrentScene()->SaveScene(sceneResource);
-
+						auto sceneResource = Resource::Scene::Create(path);
 						sceneResource.lock()->Save();
 					}
 				}

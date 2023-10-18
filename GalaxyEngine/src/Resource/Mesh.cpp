@@ -8,7 +8,7 @@
 #include "Resource/Model.h"
 
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 namespace GALAXY {
 
 	Resource::Mesh::Mesh(const std::filesystem::path& fullPath) : IResource(fullPath)
@@ -56,11 +56,13 @@ namespace GALAXY {
 		renderer->BindVertexArray(m_vertexArrayIndex);
 
 		for (size_t i = 0; i < materials.size(); i++) {
-			if (!materials[i].lock() || !materials[i].lock()->GetShader().lock() || !materials[i].lock()->GetShader().lock()->HasBeenSent())
+			if (!materials[i].lock())
 				continue;
-			materials[i].lock()->SendValues(id);
+			auto shader = materials[i].lock()->SendValues(id);
+			if (shader.lock() == nullptr)
+				continue;
 
-			renderer->ShaderSendMat4(materials[i].lock()->GetShader().lock()->GetLocation("MVP"), Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
+			shader.lock()->SendMat4("MVP", Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
 			renderer->DrawArrays(0, m_indices.size() * 3);
 		}
 		renderer->UnbindVertexArray();

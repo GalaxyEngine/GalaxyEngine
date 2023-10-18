@@ -39,6 +39,7 @@ inline void Core::GameObject::AddComponent(std::shared_ptr<T> component)
 	}
 	component->SetGameObject(weak_from_this());
 	m_components.push_back(component);
+	component->p_id = static_cast<uint32_t>(m_components.size() - 1);
 }
 
 template<typename T>

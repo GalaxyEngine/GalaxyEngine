@@ -5,7 +5,7 @@
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 #include "Core/Input.h"
 
 #include "EditorUI/EditorUIManager.h"

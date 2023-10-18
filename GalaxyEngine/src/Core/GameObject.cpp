@@ -2,7 +2,7 @@
 
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 
 #include "Utils/Parser.h"
 
@@ -158,25 +158,12 @@ namespace GALAXY
 
 	void GameObject::RemoveComponent(Component::BaseComponent* component)
 	{
-		for (size_t i = 0; i < m_components.size(); i++)
+		uint32_t index = component->GetIndex();
+		m_components.erase(m_components.begin() + index);
+		for (uint32_t i = index; i < m_components.size(); i++)
 		{
-			if (component == m_components[i].get())
-			{
-				m_components.erase(m_components.begin() + i);
-				return;
-			}
+			m_components[i]->p_id = i;
 		}
-	}
-
-	uint32_t GameObject::GetComponentIndex(Component::BaseComponent* component)
-	{
-		for (uint32_t i = 0; i < m_components.size(); i++)
-		{
-			if (m_components[i].get() == component)
-				return i;
-		}
-		// Not found
-		return -1;
 	}
 
 	void GameObject::ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex)
@@ -186,6 +173,8 @@ namespace GALAXY
 			auto elementToMove = std::move(m_components[prevIndex]);
 			m_components.erase(m_components.begin() + prevIndex);
 			m_components.insert(m_components.begin() + newIndex, std::move(elementToMove));
+			m_components[newIndex]->p_id = newIndex;
+			m_components[prevIndex]->p_id = prevIndex;
 		}
 	}
 
@@ -218,6 +207,20 @@ namespace GALAXY
 		if (!m_parent.lock())
 			return;
 		m_parent.lock()->RemoveChild(this);
+	}
+
+	void GameObject::AfterLoad()
+	{
+		for (auto& component : m_components)
+		{
+			component->AfterLoad();
+			component->p_tempComponentIDs.clear();
+			component->p_tempGameObjectIDs.clear();
+		}
+		for (auto& children : m_childs)
+		{
+			children->AfterLoad();
+		}
 	}
 
 	std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
@@ -255,6 +258,7 @@ namespace GALAXY
 		for (auto& child : m_childs)
 		{
 			child->Serialize(serializer);
+			child->m_scene = m_scene;
 		}
 		serializer << PAIR::END_TAB;
 

@@ -7,7 +7,7 @@
 #include "Wrapper/Window.h"
 
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 
 #include "Render/Framebuffer.h"
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "EditorUI/SceneWindow.h"
 
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 #include "Core/SceneHolder.h"
 #include "Core/Application.h"
 #include "Core/Input.h"

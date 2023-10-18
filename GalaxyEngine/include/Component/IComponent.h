@@ -1,12 +1,20 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <Wrapper/Reflection.h>
+
 #include <vector>
+#include <unordered_map>
 
 namespace GALAXY {
 	namespace Utils { class Serializer; class Parser; }
 	namespace Core { class GameObject; }
 	namespace Component {
+
+		struct ComponentID
+		{
+			uint64_t gameObjectID;
+			uint32_t componentID;
+		};
 
 		class GALAXY_API BaseComponent
 		{
@@ -36,6 +44,8 @@ namespace GALAXY {
 
 			virtual void OnDestroy() {}
 
+			virtual void AfterLoad() {}
+
 			void RemoveFromGameObject();
 
 			virtual void Reset() {}
@@ -51,6 +61,8 @@ namespace GALAXY {
 
 			std::shared_ptr<Core::GameObject> GameObject() { return gameObject.lock(); }
 
+			uint32_t GetIndex() const { return p_id; }
+
 			// === Setters === //
 
 			void SetEnable(bool enable) { p_enable = enable; }
@@ -59,8 +71,15 @@ namespace GALAXY {
 			virtual std::shared_ptr<BaseComponent> Clone() = 0;
 
 		protected:
+			friend Core::GameObject;
+
 			bool p_enable = true;
 
+			uint32_t p_id = -1;
+
+			// De-serialization variables
+			std::unordered_map<std::string, uint64_t> p_tempGameObjectIDs;
+			std::unordered_map<std::string, ComponentID> p_tempComponentIDs;
 		};
 
 		template <typename Derived>
@@ -91,7 +110,7 @@ namespace GALAXY {
 			}
 		private:
 
-		};
+			};
 
+		}
 	}
-}

@@ -51,6 +51,8 @@ namespace GALAXY
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
 
+			void AfterLoad() override;
+
 		private:
 			template<typename T> inline void DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable);
 
@@ -61,6 +63,7 @@ namespace GALAXY
 			void* GetVariableVoid(const std::string& variableName);
 
 			void SetVariableVoid(const std::string& variableName, void* value);
+
 		};
 
 		struct ComponentInfo

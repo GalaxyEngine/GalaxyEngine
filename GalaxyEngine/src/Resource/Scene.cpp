@@ -1,13 +1,13 @@
 #include "pch.h"
 
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 #include "Core/GameObject.h"
 #include "Core/Application.h"
 
 #include "EditorUI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
-#include "Resource/SceneResource.h"
+#include "Resource/Scene.h"
 
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
@@ -16,16 +16,18 @@
 
 #include "Component/MeshComponent.h"
 
+#include "Utils/Parser.h"
+
 #include "Wrapper/Window.h"
 
 #include "Core/Input.h"
 
-using namespace Core;
+using namespace Resource;
 namespace GALAXY
 {
-	Scene::Scene()
+	Scene::Scene(const std::filesystem::path& path) : IResource(path)
 	{
-		m_root = std::make_shared<GameObject>("Scene");
+		m_root = std::make_shared<Core::GameObject>(path.filename());
 		m_editorCamera = std::make_unique<Render::EditorCamera>();
 
 		m_grid = std::make_shared<Render::Grid>();
@@ -87,6 +89,7 @@ namespace GALAXY
 				Vec2f mousePosition = sceneWindow->GetMousePosition();
 				mousePosition = mousePosition * Vec2f(mainWindowSize.x / imageSize.x, mainWindowSize.y / imageSize.y);
 				mousePosition.y = mainWindowSize.y - mousePosition.y;
+				mousePosition.Print();
 
 				Vec4f color = renderer->ReadPixelColor(mousePosition);
 
@@ -112,11 +115,9 @@ namespace GALAXY
 			
 			m_currentCamera.lock()->End();
 		}
-
-		SwitchSceneUpdate();
 	}
 
-	std::weak_ptr<GameObject> Scene::GetRootGameObject() const
+	std::weak_ptr <Core::GameObject> Scene::GetRootGameObject() const
 	{
 		return m_root;
 	}
@@ -130,9 +131,9 @@ namespace GALAXY
 		return index;
 	}
 
-	void Scene::RemoveObject(GameObject* object)
+	void Scene::RemoveObject(Core::GameObject* object)
 	{
-		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<GameObject>>& element) {
+		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
 			return element.second.get() == object; });
 		shared->second->RemoveFromParent();
 		if (shared != m_objectList.end())
@@ -141,13 +142,13 @@ namespace GALAXY
 		}
 	}
 
-	std::weak_ptr<GameObject> Scene::GetWithIndex(uint64_t index)
+	std::weak_ptr<Core::GameObject> Scene::GetWithIndex(uint64_t index)
 	{
 		if (m_objectList.count(index))
 		{
 			return m_objectList.at(index);
 		}
-		return std::weak_ptr<GameObject>();
+		return std::weak_ptr<Core::GameObject>();
 	}
 
 	void Scene::SetCurrentCamera(std::weak_ptr<Render::Camera> camera)
@@ -156,14 +157,7 @@ namespace GALAXY
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
 	}
 
-	void Scene::Save()
-	{
-		if (!m_resource.lock())
-			return;
-		m_resource.lock()->Save();
-	}
-
-	void Scene::AddObject(std::shared_ptr<GameObject> gameObject)
+	void Scene::AddObject(std::shared_ptr<Core::GameObject> gameObject)
 	{
 		if (!m_objectList.count(gameObject->m_id))
 		{
@@ -176,33 +170,39 @@ namespace GALAXY
 		}
 	}
 
-	void Scene::SwitchSceneUpdate()
+#pragma region Resource Methods
+	void Resource::Scene::Load()
 	{
-		if (!m_resource.lock() || !m_resource.lock()->IsLoaded())
+		if (p_shouldBeLoaded)
 			return;
-		m_objectList.clear();
-		m_root.reset();
-		m_root = m_resource.lock()->m_root;
+		p_shouldBeLoaded = true;
 
-		for (auto& child : m_root->GetAllChildren())
-		{
-			AddObject(child.lock());
-		}
-		m_resource.reset();
+		m_root = std::make_shared<Core::GameObject>();
+		m_root->m_scene = this;
+
+		Utils::Parser parser(GetFileInfo().GetFullPath());
+		m_root->Deserialize(parser);
+
+		p_loaded = true;
+
+		m_root->AfterLoad();
 	}
 
-	void Scene::SwitchScene(Weak<Resource::SceneResource> sceneResource)
+	void Scene::Save()
 	{
-		if (!sceneResource.lock())
+		Utils::Serializer serializer(GetFileInfo().GetFullPath());
+
+		if (!m_root)
 			return;
-		m_resource = sceneResource;
-		if (m_resource.lock()->IsLoaded())
-			m_resource.lock()->Reload();
+		m_root->Serialize(serializer);
+		serializer.CloseFile();
 	}
 
-	void Scene::SaveScene(Weak<Resource::SceneResource> sceneResource)
+	Weak<Scene> Scene::Create(const std::filesystem::path& path)
 	{
-		sceneResource.lock().get()->m_root = m_root;
+		Scene scene(path);
+		scene.Save();
+		return Resource::ResourceManager::GetInstance()->GetOrLoad<Scene>(path);
 	}
-
+#pragma endregion
 }

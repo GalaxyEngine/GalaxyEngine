@@ -12,7 +12,7 @@
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 #include "Core/ThreadManager.h"
 
 #define DESTINATION_DLL std::filesystem::path("")
@@ -217,7 +217,7 @@ namespace GALAXY
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
 		Core::SceneHolder* sceneHolder = Core::SceneHolder::GetInstance();
-		Core::Scene* currentScene = sceneHolder->GetCurrentScene();
+		Resource::Scene* currentScene = sceneHolder->GetCurrentScene();
 		Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
 
 		auto childGameObjects = rootGameObject->GetAllChildren();
@@ -242,7 +242,7 @@ namespace GALAXY
 				if (component)
 				{
 					currentReloaderList.emplace_back(component);
-					currentComponentID.push_back(childGameObject->GetComponentIndex(component.get()));
+					currentComponentID.push_back(component->GetIndex());
 
 					// Reload the script and remove it from the game object
 					auto& reload = currentReloaderList.back();

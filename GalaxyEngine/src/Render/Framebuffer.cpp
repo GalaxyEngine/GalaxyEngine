@@ -9,7 +9,7 @@
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Core/Scene.h"
+#include "Resource/Scene.h"
 
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\models\\Plane.obj:Plane"
 namespace GALAXY {

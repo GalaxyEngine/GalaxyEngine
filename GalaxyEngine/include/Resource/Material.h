@@ -24,7 +24,7 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
-			void SendValues(uint64_t id = -1);
+			Weak<Shader> SendValues(uint64_t id = -1);
 
 			static ResourceType GetResourceType() { return ResourceType::Material; }
 

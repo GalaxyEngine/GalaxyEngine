@@ -7,6 +7,7 @@
 #include "Resource/Material.h"
 #include "Resource/Mesh.h"
 #include "Resource/Model.h"
+#include "Resource/Scene.h"
 
 namespace GALAXY
 {
