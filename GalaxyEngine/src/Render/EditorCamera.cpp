@@ -78,16 +78,6 @@ namespace GALAXY
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
 		}
 
-		if (Input::IsKeyDown(Key::R) || Input::IsKeyDown(Key::PAGE_UP))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::F) || Input::IsKeyDown(Key::PAGE_DOWN))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-Vec3f::Up() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
 		if (m_looking)
 		{
 			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);

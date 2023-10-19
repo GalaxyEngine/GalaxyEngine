@@ -4,8 +4,12 @@
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
 
+#include "Resource/Scene.h"
+
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
+
+#include "Editor/Gizmo.h"
 
 #include "Wrapper/Reflection.h"
 
@@ -140,6 +144,9 @@ void EditorUI::Inspector::SetSelected(std::weak_ptr<Core::GameObject> gameObject
 {
 	ClearSelected();
 	AddSelected(gameObject);
+
+	Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
+	gizmo->SetGameObject(gameObject);
 }
 
 void EditorUI::Inspector::ClearSelected()

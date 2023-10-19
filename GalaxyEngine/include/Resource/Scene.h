@@ -17,6 +17,10 @@ namespace GALAXY {
 		class EditorCamera;
 		class Grid;
 	}
+	namespace Editor
+	{
+		class Gizmo;
+	}
 	namespace Resource {
 		class Scene : public IResource
 		{
@@ -36,6 +40,7 @@ namespace GALAXY {
 
 			static ResourceType GetResourceType() { return ResourceType::Scene; }
 #pragma endregion
+
 			void Initialize();
 
 			std::weak_ptr<Core::GameObject> GetRootGameObject() const;
@@ -61,6 +66,8 @@ namespace GALAXY {
 
 			void Release();
 
+			Shared<Editor::Gizmo> GetGizmo() {return m_gizmo; }
+
 		private:
 			std::shared_ptr<Render::EditorCamera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
@@ -69,7 +76,8 @@ namespace GALAXY {
 			std::shared_ptr<Core::GameObject> m_root;
 			std::unordered_map<uint64_t, std::shared_ptr<Core::GameObject>> m_objectList;
 
-			std::shared_ptr<Render::Grid> m_grid;
+			Shared<Render::Grid> m_grid;
+			Shared<Editor::Gizmo> m_gizmo;
 		};
 	}
 }

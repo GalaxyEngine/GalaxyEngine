@@ -14,6 +14,8 @@
 #include "Render/Grid.h"
 #include "Render/Framebuffer.h"
 
+#include "Editor/Gizmo.h"
+
 #include "Component/MeshComponent.h"
 
 #include "Utils/Parser.h"
@@ -33,6 +35,17 @@ namespace GALAXY
 
 	Scene::~Scene()
 	{
+	}
+	
+	void Scene::Initialize()
+	{
+		m_editorCamera = std::make_unique<Render::EditorCamera>();
+
+		m_gizmo = std::make_shared<Editor::Gizmo>();
+
+		m_grid = std::make_shared<Render::Grid>();
+		m_grid->Initialize();
+		p_hasBeenSent = true;
 	}
 
 	void Scene::Update()
@@ -105,10 +118,7 @@ namespace GALAXY
 
 			m_root->DrawSelfAndChild();
 
-			
-			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Right() * 5.f, Vec4f(1, 0, 0, 1), 5.f);
-			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Up() * 5.f, Vec4f(0, 1, 0, 1), 5.f);
-			renderer->DrawLine(Vec3f::Up(), Vec3f::Up() + Vec3f::Forward() * 5.f, Vec4f(0, 0, 1, 1), 5.f);
+			m_gizmo->Draw();
 			
 			m_currentCamera.lock()->End();
 		}
@@ -187,15 +197,6 @@ namespace GALAXY
 	void Scene::Send()
 	{
 		Initialize();
-	}
-
-	void Scene::Initialize()
-	{
-		m_editorCamera = std::make_unique<Render::EditorCamera>();
-
-		m_grid = std::make_shared<Render::Grid>();
-		m_grid->Initialize();
-		p_hasBeenSent = true;
 	}
 
 	void Scene::Save(const std::filesystem::path& fullPath)

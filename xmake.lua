@@ -3,7 +3,6 @@ add_rules("plugin.vsxmake.autoupdate")
 
 if is_plat("windows") then
     set_runtimes(is_mode("debug") and "MDd" or "MD")
-    add_cxflags("/ZI")  -- Enable program database (PDB) generation for edit-and-continue debugging
 end
 
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
