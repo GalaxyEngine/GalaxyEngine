@@ -20,9 +20,9 @@ namespace GALAXY {
 			virtual void Load() override;
 			void Send() override;
 
-			void SetVertex(Weak<VertexShader> vertexShader, Weak<Shader> weak_this);
-			void SetFragment(Weak<FragmentShader> fragmentShader, Weak<Shader> weak_this);
-			void SetGeometry(Weak<GeometryShader> geometryShader, Weak<Shader> weak_this);
+			void SetVertex(Shared<VertexShader> vertexShader, Weak<Shader> weak_this);
+			void SetFragment(Shared<FragmentShader> fragmentShader, Weak<Shader> weak_this);
+			void SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this);
 
 			void Use();
 			int GetLocation(const std::string& locationName);

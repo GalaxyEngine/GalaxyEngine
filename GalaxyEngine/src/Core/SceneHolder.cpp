@@ -1,6 +1,11 @@
 #include "pch.h"
 #include "Core/SceneHolder.h"
+
+#include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
+
+#include "EditorUI/EditorUIManager.h"
+#include "EditorUI/Inspector.h"
 
 std::unique_ptr<Core::SceneHolder> Core::SceneHolder::m_instance;
 
@@ -14,6 +19,7 @@ Core::SceneHolder* Core::SceneHolder::GetInstance()
 	{
 		m_instance = std::make_unique<Core::SceneHolder>();
 		m_instance->m_currentScene = std::make_unique<Resource::Scene>("Scene");
+		m_instance->m_currentScene->Initialize();
 	}
 	return m_instance.get();
 }
@@ -44,7 +50,11 @@ void Core::SceneHolder::SwitchSceneUpdate()
 {
 	if (m_nextScene && m_nextScene->IsLoaded())
 	{
+		EditorUI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
+
+		Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
 		m_currentScene.reset();
+
 		m_currentScene = m_nextScene;
 		m_nextScene.reset();
 	}

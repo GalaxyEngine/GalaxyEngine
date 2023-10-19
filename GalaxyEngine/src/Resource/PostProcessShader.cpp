@@ -19,7 +19,7 @@ namespace GALAXY
 
 		std::weak_ptr<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
 		auto vertexShader = ResourceManager::GetInstance()->GetOrLoad<VertexShader>(VERTEX_PP_PATH);
-		SetVertex(vertexShader, thisShader);
+		SetVertex(vertexShader.lock(), thisShader);
 
 		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
@@ -34,21 +34,21 @@ namespace GALAXY
 					std::filesystem::path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
 					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
-					SetVertex(vertexShader, thisShader);
+					SetVertex(vertexShader.lock(), thisShader);
 				}
 				else if (line[0] == 'G')
 				{
 					std::filesystem::path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
 					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
-					SetGeometry(geometryShader, thisShader);
+					SetGeometry(geometryShader.lock(), thisShader);
 				}
 				else if (line[0] == 'F')
 				{
 					std::filesystem::path fragPath = line.substr(4);
 					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
 					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
-					SetFragment(fragmentShader, thisShader);
+					SetFragment(fragmentShader.lock(), thisShader);
 				}
 			}
 			SendRequest();

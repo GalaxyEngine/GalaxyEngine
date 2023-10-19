@@ -15,7 +15,7 @@ namespace GALAXY
 
 	void Utils::Serializer::PushTab()
 	{
-		m_tab.push_back('\t');
+		m_tab.push_back(' ');
 	}
 
 	void Utils::Serializer::PopTab()

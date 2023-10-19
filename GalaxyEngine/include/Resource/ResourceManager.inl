@@ -34,15 +34,18 @@ namespace GALAXY
 
 	void Resource::ResourceManager::RemoveResource(IResource* resource)
 	{
-		/*if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
+		if (!resource)
+			return;
+		if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
 		{
 			it->second->Unload();
+			m_resources.erase(it);
 		}
 		else
 		{
 			PrintError("Resource %s not found in Resource Manager", resource->GetFileInfo().GetRelativePath().string().c_str());
 			return;
-		}*/
+		}
 
 	}
 

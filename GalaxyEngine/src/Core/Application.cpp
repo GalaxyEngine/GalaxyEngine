@@ -39,7 +39,6 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
-
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");

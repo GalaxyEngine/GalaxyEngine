@@ -39,8 +39,6 @@ namespace GALAXY
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{
-
-
 		if (!EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
 			return;
 		/*TODO:

@@ -27,11 +27,8 @@ namespace GALAXY
 {
 	Scene::Scene(const std::filesystem::path& path) : IResource(path)
 	{
-		m_root = std::make_shared<Core::GameObject>(path.filename().stem().string());
-		m_editorCamera = std::make_unique<Render::EditorCamera>();
-
-		m_grid = std::make_shared<Render::Grid>();
-		m_grid->Initialize();
+		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
+		m_root->m_scene = this;
 	}
 
 	Scene::~Scene()
@@ -179,15 +176,26 @@ namespace GALAXY
 			return;
 		p_shouldBeLoaded = true;
 
-		m_root = std::make_shared<Core::GameObject>();
-		m_root->m_scene = this;
-
 		Utils::Parser parser(GetFileInfo().GetFullPath());
 		m_root->Deserialize(parser);
 
 		p_loaded = true;
-
 		m_root->AfterLoad();
+		SendRequest();
+	}
+
+	void Scene::Send()
+	{
+		Initialize();
+	}
+
+	void Scene::Initialize()
+	{
+		m_editorCamera = std::make_unique<Render::EditorCamera>();
+
+		m_grid = std::make_shared<Render::Grid>();
+		m_grid->Initialize();
+		p_hasBeenSent = true;
 	}
 
 	void Scene::Save(const std::filesystem::path& fullPath)

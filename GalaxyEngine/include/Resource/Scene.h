@@ -29,27 +29,19 @@ namespace GALAXY {
 
 #pragma region Resource Methods
 			void Load() override;
+			void Send() override;
 			void Save(const std::filesystem::path& fullPath = "");
 
 			static Weak<Scene> Create(const std::filesystem::path& path);
 
 			static ResourceType GetResourceType() { return ResourceType::Scene; }
 #pragma endregion
+			void Initialize();
 
 			std::weak_ptr<Core::GameObject> GetRootGameObject() const;
 
-			//TODO : move this to .inl file
 			// Every GameObject should be create via this function
-			template<typename... Args> inline std::weak_ptr<Core::GameObject> CreateObject(Args&&... args)
-			{
-				std::shared_ptr<Core::GameObject> shared = std::make_shared<Core::GameObject>(std::forward<Args>(args)...);
-				shared->Initialize();
-				uint64_t objectIndex = GetFreeIndex();
-				shared->m_scene = this;
-				shared->m_id = objectIndex;
-				m_objectList[objectIndex] = shared;
-				return shared;
-			}
+			template<typename... Args> inline std::weak_ptr<Core::GameObject> CreateObject(Args&&... args);
 
 			void AddObject(std::shared_ptr<Core::GameObject> gameObject);
 
@@ -67,6 +59,8 @@ namespace GALAXY {
 			std::shared_ptr<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
 			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
 
+			void Release();
+
 		private:
 			std::shared_ptr<Render::EditorCamera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
@@ -79,3 +73,4 @@ namespace GALAXY {
 		};
 	}
 }
+#include "Resource/Scene.inl" 
