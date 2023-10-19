@@ -742,7 +742,7 @@ namespace GALAXY::Math {
 
 	inline Mat4 Mat4::CreateProjectionMatrix(float _fov, float _aspect, float _near, float _far)
 	{
-		float tanHalfFov = std::tanf(_fov * DegToRad * 0.5f);
+		float tanHalfFov = std::tan(_fov * DegToRad * 0.5f);
 
 		Mat4 projectionMatrix = Mat4();
 		projectionMatrix[0][0] = 1.0f / (_aspect * tanHalfFov);

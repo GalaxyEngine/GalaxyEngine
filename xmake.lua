@@ -25,14 +25,6 @@ add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to b
 add_defines("_CRT_SECURE_NO_WARNINGS")
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
-if is_plat("windows") then
-    add_links("opengl32")
-elseif is_plat("linux") then
-    add_links("GL")
-elseif is_plat("macosx") then
-    add_frameworks("OpenGL")
-end
-
 target("GalaxyEngine")
     set_kind("shared")
     set_symbols("debug")
@@ -57,7 +49,9 @@ target("GalaxyEngine")
     add_packages("glad")
     add_packages("stb")
 
-
+    if is_plat("mingw") then
+        add_links("comdlg32")
+    end
     --add_packages("rttr")
 target_end()
 

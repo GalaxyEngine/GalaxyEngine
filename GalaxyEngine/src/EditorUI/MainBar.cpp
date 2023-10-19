@@ -73,7 +73,7 @@ namespace GALAXY
 			{
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (auto path = OpenDialog(".galaxy"); !path.empty())
+					if (auto path = OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
 
@@ -82,7 +82,7 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					if (auto path = SaveDialog(".galaxy"); !path.empty())
+					if (auto path = SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						if (path.find(".galaxy") == std::string::npos)
 							path = path + ".galaxy";

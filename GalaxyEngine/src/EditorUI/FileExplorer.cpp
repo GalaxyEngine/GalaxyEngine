@@ -176,7 +176,8 @@ namespace GALAXY {
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
 			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
 			{
-				SetCurrentFile(m_currentFile->m_parent.lock());
+				std::shared_ptr<GALAXY::EditorUI::File> parent = m_currentFile->m_parent.lock();
+				SetCurrentFile(parent);
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Reload"))
@@ -442,9 +443,6 @@ namespace GALAXY {
 			ImGui::EndPopup();
 		}
 	}
-#ifdef _WIN32
-#include <shlobj_core.h>
-#endif
 
 	void EditorUI::FileExplorer::ShowInExplorer(const std::vector<std::shared_ptr<File>>& files, bool select)
 	{

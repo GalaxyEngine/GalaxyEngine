@@ -110,7 +110,7 @@ namespace GALAXY {
 
 	void Resource::ResourceManager::ProcessDataFile(const std::filesystem::path& dataPath)
 	{
-		auto& file = Utils::FileSystem::OpenFile(dataPath);
+		std::fstream file = Utils::FileSystem::OpenFile(dataPath);
 		std::string line;
 		bool process = false;
 		ResourceType type;

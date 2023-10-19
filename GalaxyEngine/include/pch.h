@@ -5,12 +5,14 @@
 #include <Windows.h>
 #endif
 
-// C++ Headers
+// C/C++ Headers
 #include <memory>
 #include <stdio.h>
 #include <filesystem>
 #include <fstream>
 #include <algorithm>
+#include <chrono>
+#include <thread>
 
 // Galaxy Headers
 #include <Debug/Log.h>

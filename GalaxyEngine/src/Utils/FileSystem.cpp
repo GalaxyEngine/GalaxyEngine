@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Utils/FileSystem.h"
+
 namespace GALAXY {
 	std::fstream Utils::FileSystem::OpenFile(const std::filesystem::path& path)
 	{

@@ -5,6 +5,7 @@
 
 #include <unordered_map>
 #include <any>
+#include <optional>
 
 namespace GALAXY
 {
