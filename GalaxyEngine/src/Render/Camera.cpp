@@ -14,8 +14,8 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
-
-namespace GALAXY {
+namespace GALAXY
+{
 
 	Render::Camera::Camera()
 	{
@@ -58,14 +58,14 @@ namespace GALAXY {
 		}
 	}
 
-	Mat4 Render::Camera::GetViewMatrix()
+	Mat4 Render::Camera::GetViewMatrix() const
 	{
 		Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, -1));
 		out = out.CreateInverseMatrix();
 		return out;
 	}
 
-	Mat4 Render::Camera::GetProjectionMatrix()
+	Mat4 Render::Camera::GetProjectionMatrix() const
 	{
 		float tanHalfFov = std::tan(p_fov * DegToRad * 0.5f);
 
@@ -80,9 +80,28 @@ namespace GALAXY {
 		return projectionMatrix;
 	}
 
-	Mat4 Render::Camera::GetViewProjectionMatrix()
+	Mat4 Render::Camera::GetViewProjectionMatrix() const
 	{
 		return GetProjectionMatrix() * GetViewMatrix();
+	}
+
+	Vec2f Render::Camera::ToViewport(const Vec2f &pos) const
+	{
+		return {(float)(2.0f * pos.x) / (float)GetScreenResolution().x - 1.0f, (float)1.0f - (2.0f * pos.y) / (float)GetScreenResolution().y};
+	}
+
+	Vec2i Render::Camera::GetScreenResolution() const
+	{
+		return EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
+	}
+
+	Vec3f Render::Camera::UnProject(const Vec3f &point) const
+	{
+		Vec4f mousePosition = Vec4f( ToViewport(point) , 1.f, 1.f );
+		Mat4 invVP = GetViewProjectionMatrix().CreateInverseMatrix();
+		Vec3f position = GetTransform()->GetWorldPosition();
+		Vec4f pos = (invVP * mousePosition);
+		return position + (invVP * mousePosition) * point.z;
 	}
 
 	std::weak_ptr<Resource::Texture> Render::Camera::GetRenderTexture()
@@ -100,7 +119,7 @@ namespace GALAXY {
 		return Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
 	}
 
-	void Render::Camera::SetSize(const Vec2i& framebufferSize)
+	void Render::Camera::SetSize(const Vec2i &framebufferSize)
 	{
 		p_framebufferSize = framebufferSize;
 		p_aspectRatio = (float)p_framebufferSize.x / (float)p_framebufferSize.y;

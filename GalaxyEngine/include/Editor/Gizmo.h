@@ -27,6 +27,8 @@ namespace GALAXY
 			Wrapper::Renderer* m_renderer = nullptr;
 
 			Weak<Core::GameObject> m_object = {};
+
+			Vec3f m_firstClickPosition;
 		};
 	}
 }

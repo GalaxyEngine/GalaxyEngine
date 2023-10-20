@@ -145,7 +145,7 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 		}
 
 		ImGui::SetDragDropPayload("GAMEOBJECTS", indices.data(), indices.size() * sizeof(uint64_t));
-		ImGui::Text("Size : %d", indices.size());
+		ImGui::Text("Size : %d", (int)indices.size());
 		ImGui::EndDragDropSource();
 	}
 	if (ImGui::BeginDragDropTarget()) {
@@ -202,7 +202,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 			}
 			else
 			{
-				for (int i = 0; i < selected.size(); i++)
+				for (size_t i = 0; i < selected.size(); i++)
 				{
 					auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
 					if (selected[i].lock()) {
@@ -228,7 +228,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 					uint32_t childIndex = selected[0].lock()->GetParent().lock()->GetChildIndex(selected[0].lock().get());
 					selected[0].lock()->GetParent().lock()->AddChild(parent.lock(), childIndex);
 
-					for (int i = 0; i < selected.size(); i++)
+					for (size_t i = 0; i < selected.size(); i++)
 					{
 						selected[i].lock()->SetParent(parent);
 					}
@@ -252,7 +252,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 
 			if (ImGui::Button("Delete", buttonSize))
 			{
-				for (int i = 0; i < selected.size(); i++)
+				for (size_t i = 0; i < selected.size(); i++)
 				{
 					Core::SceneHolder::GetInstance()->GetCurrentScene()->RemoveObject(selected[i].lock().get());
 					ImGui::CloseCurrentPopup();

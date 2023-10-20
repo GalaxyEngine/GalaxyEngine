@@ -220,6 +220,7 @@ namespace GALAXY::Math
 		inline bool operator!=(const Vec4& b) const;
 
 		inline T& operator[](const size_t a);
+		inline const T& operator[](const size_t a) const;
 
 		friend inline std::ostream& operator<<(std::ostream& os, const Vec4<T>& vec)
 		{

@@ -4,6 +4,10 @@
 #include "Component/Transform.h"
 namespace GALAXY
 {
+	namespace Resource
+	{
+		class Texture;
+	}
 	namespace Render
 	{
 		class Camera
@@ -24,16 +28,20 @@ namespace GALAXY
 
 			void DisplayCameraSettings();
 
-			virtual Component::Transform* GetTransform() = 0;
+			virtual Component::Transform* GetTransform() const = 0;
 
 			void SetSize(const Vec2i& framebufferSize);
 
 			virtual bool IsVisible();
 
-			Mat4 GetViewMatrix();
-			Mat4 GetProjectionMatrix();
-			Mat4 GetViewProjectionMatrix();
+			Mat4 GetViewMatrix() const;
+			Mat4 GetProjectionMatrix() const;
+			Mat4 GetViewProjectionMatrix() const;
 			Vec4f GetClearColor() const { return p_clearColor; }
+
+			virtual Vec2i GetScreenResolution() const;
+			Vec2f ToViewport(const Vec2f& pos) const;
+			Vec3f UnProject(const Vec3f& point) const;
 
 			std::weak_ptr<Resource::Texture> GetRenderTexture();
 

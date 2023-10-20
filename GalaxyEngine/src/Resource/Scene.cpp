@@ -85,6 +85,8 @@ namespace GALAXY
 
 			m_editorCamera->Update();
 
+			static Vec3f cameraPosition = Vec3f::Zero();
+			static Vec3f clickPosition = Vec3f::Zero();
 			if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1) && sceneWindow->IsHovered())
 			{
 				renderer->ClearColorAndBuffer(Vec4f(1));
@@ -111,7 +113,13 @@ namespace GALAXY
 					inspector->ClearSelected();
 
 				renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
+
+				cameraPosition = m_editorCamera->GetTransform()->GetLocalPosition();
+				clickPosition = m_editorCamera->UnProject({ sceneWindow->GetMousePosition() , 100.f});
+				cameraPosition.Print();
+				clickPosition.Print();
 			}
+			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(1, 0, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGrid())
 				m_grid->Draw();

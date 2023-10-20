@@ -576,6 +576,11 @@ namespace GALAXY::Math {
 	}
 
 	template<typename T>
+m	inline const T& Vec4<T>::operator[](const size_t a) const {
+		return *((&x) + a);
+	}
+
+	template<typename T>
 	inline T Vec4<T>::LengthSquared() const {
 		return (x * x + y * y + z * z + w * w);
 	}

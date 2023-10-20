@@ -31,7 +31,7 @@ namespace GALAXY
 		delete m_outlineFramebuffer;
 	}
 
-	Component::Transform* Render::EditorCamera::GetTransform()
+	Component::Transform* Render::EditorCamera::GetTransform() const
 	{
 		return m_transform.get();
 	}
@@ -81,8 +81,8 @@ namespace GALAXY
 		if (m_looking)
 		{
 			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
-			float mouseX = delta.x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-			float mouseY = delta.y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
+			float mouseX = delta.x * m_freeLookSensitivity* 0.016f;
+			float mouseY = delta.y * m_freeLookSensitivity* 0.016f;
 
 			Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 			window->SetMousePosition(prevMousePos);
