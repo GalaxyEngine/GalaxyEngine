@@ -8,6 +8,10 @@ namespace GALAXY
 	{
 		class Texture;
 	}
+	namespace Physic
+	{
+		struct Ray;
+	}
 	namespace Render
 	{
 		class Camera
@@ -38,6 +42,7 @@ namespace GALAXY
 			Mat4 GetProjectionMatrix() const;
 			Mat4 GetViewProjectionMatrix() const;
 			Vec4f GetClearColor() const { return p_clearColor; }
+			Physic::Ray ScreenPointToRay(const Vec3f& point);
 
 			virtual Vec2i GetScreenResolution() const;
 			Vec2f ToViewport(const Vec2f& pos) const;

@@ -119,13 +119,14 @@ namespace GALAXY
 				cameraPosition.Print();
 				clickPosition.Print();
 			}
-			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(1, 0, 0, 1), 4.f);
+			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGrid())
 				m_grid->Draw();
 
 			m_root->DrawSelfAndChild();
 
+			m_gizmo->Update();
 			m_gizmo->Draw();
 			
 			m_currentCamera.lock()->End();

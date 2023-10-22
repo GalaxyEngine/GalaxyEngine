@@ -14,6 +14,8 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
+#include "Editor/Gizmo.h"
+
 namespace GALAXY
 {
 
@@ -85,8 +87,14 @@ namespace GALAXY
 		return GetProjectionMatrix() * GetViewMatrix();
 	}
 
-	Vec2f Render::Camera::ToViewport(const Vec2f &pos) const
-	{
+   Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f &point)
+   {		
+		Vec3f position = GetTransform()->GetWorldPosition();
+      return Physic::Ray(position, position - UnProject({point.x, point.y, p_far}));
+   }
+
+   Vec2f Render::Camera::ToViewport(const Vec2f &pos) const
+   {
 		return {(float)(2.0f * pos.x) / (float)GetScreenResolution().x - 1.0f, (float)1.0f - (2.0f * pos.y) / (float)GetScreenResolution().y};
 	}
 

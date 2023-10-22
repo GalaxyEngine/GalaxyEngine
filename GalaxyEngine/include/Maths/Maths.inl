@@ -576,7 +576,7 @@ namespace GALAXY::Math {
 	}
 
 	template<typename T>
-m	inline const T& Vec4<T>::operator[](const size_t a) const {
+	inline const T& Vec4<T>::operator[](const size_t a) const {
 		return *((&x) + a);
 	}
 
