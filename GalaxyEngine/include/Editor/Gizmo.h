@@ -57,10 +57,13 @@ namespace GALAXY
 			void Update();
 			void Draw();
 
+			inline bool IsGizmoClicked() { return m_gizmoClicked; }
+
 			void SetGameObject(Weak<Core::GameObject> object);
+
 		private:
-			void HandleAxis(const Physic::Ray &mouseRay);
-			float CalculateRayDistance(const Physic::Ray &mouseRay, int index);
+			void HandleAxis(Physic::Ray &mouseRay);
+			float CalculateRayDistance(Physic::Ray &mouseRay, int index);
 
 		private:
 			Wrapper::Renderer *m_renderer = nullptr;
@@ -72,7 +75,7 @@ namespace GALAXY
 			GizmoAxis m_axis = GizmoAxis::None;
 			GizmoMode m_mode = GizmoMode::World;
 
-			float m_gizmoLength = 100.f;
+			float m_gizmoLength = 1.f;
 
 			Vec3f m_gizmoCenter;
 			Vec3f m_gizmoScale;
@@ -81,6 +84,8 @@ namespace GALAXY
 
 			Vec3f m_startPosition;
 			Vec3f m_currentPosition;
+
+			bool m_gizmoClicked = false;
 		};
 	}
 }

@@ -111,6 +111,7 @@ namespace GALAXY
 			virtual void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) {}
 
 			virtual void ActiveDepth(bool active = true) {}
+			virtual void SetDepthRange(float _near, float _far) {}
 			
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
 
@@ -194,6 +195,7 @@ namespace GALAXY
 			void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) override;
 
 			void ActiveDepth(bool active = true) override;
+			void SetDepthRange(float _near, float _far) override;
 
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
 

@@ -85,6 +85,8 @@ namespace GALAXY
 
 			m_editorCamera->Update();
 
+			m_gizmo->Update();
+
 			static Vec3f cameraPosition = Vec3f::Zero();
 			static Vec3f clickPosition = Vec3f::Zero();
 			if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1) && sceneWindow->IsHovered())
@@ -101,23 +103,21 @@ namespace GALAXY
 				Vec2f mousePosition = sceneWindow->GetMousePosition();
 				mousePosition = mousePosition * Vec2f(mainWindowSize.x / imageSize.x, mainWindowSize.y / imageSize.y);
 				mousePosition.y = mainWindowSize.y - mousePosition.y;
-				mousePosition.Print();
-
+			
 				Vec4f color = renderer->ReadPixelColor(mousePosition);
 
 				uint64_t pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
 				if (auto gameObject = GetWithIndex(pickedID).lock())
 					inspector->SetSelected(gameObject);
-				else
+				else if (!m_gizmo->IsGizmoClicked())
 					inspector->ClearSelected();
 
 				renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
 
-				cameraPosition = m_editorCamera->GetTransform()->GetLocalPosition();
-				clickPosition = m_editorCamera->UnProject({ sceneWindow->GetMousePosition() , 100.f});
-				cameraPosition.Print();
-				clickPosition.Print();
+				auto ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
+				cameraPosition = ray.origin;
+				clickPosition = ray.direction * ray.scale;
 			}
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
@@ -125,8 +125,6 @@ namespace GALAXY
 				m_grid->Draw();
 
 			m_root->DrawSelfAndChild();
-
-			m_gizmo->Update();
 			m_gizmo->Draw();
 			
 			m_currentCamera.lock()->End();

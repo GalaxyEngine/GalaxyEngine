@@ -90,7 +90,9 @@ namespace GALAXY
    Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f &point)
    {		
 		Vec3f position = GetTransform()->GetWorldPosition();
-      return Physic::Ray(position, position - UnProject({point.x, point.y, p_far}));
+		Vec3f unprojectPoint = UnProject({point.x, point.y, p_far});
+		Vec3f direction = (unprojectPoint - position).GetNormalize();
+      return Physic::Ray(position, direction, p_far);
    }
 
    Vec2f Render::Camera::ToViewport(const Vec2f &pos) const

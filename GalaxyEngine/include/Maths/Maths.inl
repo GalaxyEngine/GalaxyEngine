@@ -46,7 +46,9 @@ namespace GALAXY::Math {
 	template<typename U>
 	inline Vec2<T> Vec2<T>::operator=(const Vec2<U>& a)
 	{
-		return { static_cast<T>(a.x), static_cast<T>(a.y) };
+		x = static_cast<T>(a.x);
+		y = static_cast<T>(a.y);
+		return *this;
 	}
 
 	template<typename T>

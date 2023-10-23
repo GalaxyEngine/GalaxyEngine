@@ -571,6 +571,12 @@ namespace GALAXY {
 			glDisable(GL_DEPTH_TEST);
 	}
 
+	
+	void Wrapper::OpenGLRenderer::SetDepthRange(float _near, float _far)
+	{
+		glDepthRange((double)_near, (double)_far);
+	}
+
 	Vec4f Wrapper::OpenGLRenderer::ReadPixelColor(const Vec2f& mousePos)
 	{
 		unsigned char data[4];

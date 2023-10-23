@@ -73,7 +73,7 @@ namespace GALAXY {
 
 	Vec2f EditorUI::SceneWindow::GetMousePosition() const
 	{
-		return Input::GetMousePosition() - m_imagePosition;
+		return (Vec2i)(Input::GetMousePosition() - m_imagePosition);
 	}
 
 	void EditorUI::SceneWindow::DrawImage()
@@ -119,7 +119,7 @@ namespace GALAXY {
 		// Get Position to draw a border
 		Vec2f topLeft = ImGui::GetCursorScreenPos();
 
-		m_imagePosition = ImGui::GetWindowPos() - Core::Application::GetInstance().GetWindow()->GetPosition().ToFloat() + ImGui::GetCursorPos();
+		m_imagePosition = (Vec2i)((Vec2f)ImGui::GetWindowPos() - Core::Application::GetInstance().GetWindow()->GetPosition().ToFloat() + (Vec2f)ImGui::GetCursorPos());
 
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
