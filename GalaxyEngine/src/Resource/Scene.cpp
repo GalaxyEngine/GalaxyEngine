@@ -117,7 +117,7 @@ namespace GALAXY
 
 				auto ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
 				cameraPosition = ray.origin;
-				clickPosition = ray.direction * ray.scale;
+				clickPosition = ray.origin + ray.direction * ray.scale;
 			}
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 

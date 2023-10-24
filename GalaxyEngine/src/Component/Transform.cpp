@@ -234,22 +234,24 @@ Vec3f Component::Transform::TransformDirection(Vec3f direction)
 
 void Component::Transform::SetWorldPosition(const Vec3f& worldPosition)
 {
-	//TEMP
+	//TODO :
 	SetLocalPosition(worldPosition);
 }
 
 void Component::Transform::SetWorldRotation(const Quat& worldRotation)
 {
-	//TEMP
+	//TODO :
 	SetLocalRotation(worldRotation);
 }
 
 void Component::Transform::SetWorldRotation(const Vec3f& worldRotation)
 {
-
+	//TODO :
+	SetLocalRotation(worldRotation);
 }
 
 void Component::Transform::SetWorldScale(const Vec3f& worldScale)
 {
-
+	//TODO :
+	SetLocalScale(worldScale);
 }

@@ -157,6 +157,9 @@ void EditorUI::Inspector::ClearSelected()
 			object->m_selected = false;
 	}
 	m_selectedGameObject.clear();
+
+	Shared<Editor::Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
+	gizmo->SetGameObject({});
 }
 
 std::vector<std::weak_ptr<Core::GameObject>> EditorUI::Inspector::GetSelected()

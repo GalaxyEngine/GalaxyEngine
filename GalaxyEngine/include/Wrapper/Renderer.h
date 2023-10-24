@@ -117,6 +117,7 @@ namespace GALAXY
 
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
+			virtual void DrawWiredCube(const Vec3f& pos, const Vec3f& size, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 
 		protected:
 			bool p_initalized = false;

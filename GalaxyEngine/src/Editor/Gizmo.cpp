@@ -29,6 +29,7 @@ namespace GALAXY
 
    void Editor::Gizmo::Update()
    {
+      static EditorUI::SceneWindow* sceneWindow = EditorUI::EditorUIManager::GetInstance()->GetSceneWindow();
       if (!m_object.lock() || !EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
          return;
 
@@ -39,7 +40,8 @@ namespace GALAXY
 
       if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1))
       {
-         Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->ScreenPointToRay(Vec3f{Input::GetMousePosition(), 0});
+         Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->ScreenPointToRay(sceneWindow->GetMousePosition());
+         cameraRay.direction.Print();
          switch (m_type)
          {
             case GizmoType::Translation:
@@ -63,10 +65,9 @@ namespace GALAXY
          }
       }
       // TODO : Translate, Rotate, Scale
-      return;
       if (Input::IsMouseButtonDown(MouseButton::BUTTON_1))
       {
-         Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->ScreenPointToRay(Vec3f{Input::GetMousePosition(), 0});
+         Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->ScreenPointToRay(sceneWindow->GetMousePosition());
          switch (m_type)
          {
             case GizmoType::Translation:
@@ -90,7 +91,7 @@ namespace GALAXY
 
                m_currentPosition = m_translateRays[i].origin + m_translateRays[i].direction * m_translateRays[i].scale;
 
-               // m_transform->SetWorldPosition(m_gizmoScale - m_startPosition + m_currentPosition);
+               m_transform->SetWorldScale(m_gizmoScale - m_startPosition + m_currentPosition);
                break;
             }
          default:
@@ -109,9 +110,18 @@ namespace GALAXY
       switch (m_type)
          {
             case GizmoType::Scale:
+            {
+               m_renderer->SetDepthRange(0.00f, 0.01f);
+               const Vec3f cubesScale = Vec3f(0.1f);
+               m_renderer->DrawWiredCube(transform->GetWorldPosition() + transform->GetRight() * m_gizmoLength, cubesScale, Vec4f(1, 0, 0, 1), 3.f);
+               m_renderer->DrawWiredCube(transform->GetWorldPosition() + transform->GetUp() * m_gizmoLength, cubesScale, Vec4f(0, 1, 0, 1), 3.f);
+               m_renderer->DrawWiredCube(transform->GetWorldPosition() + transform->GetForward() * m_gizmoLength, cubesScale, Vec4f(0, 0, 1, 1), 3.f);  
+            }
             case GizmoType::Translation:
             {
                m_renderer->SetDepthRange(0.00f, 0.01f);
+               m_renderer->DrawWiredCube(m_startPosition, Vec3f(0.01f), Vec4f(1.f, 1.f, 0.f, 1.f), 4.f);
+               m_renderer->DrawWiredCube(m_currentPosition, Vec3f(0.01f), Vec4f(1.f), 4.f);
                m_renderer->DrawLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetRight() * m_gizmoLength, Vec4f(1, 0, 0, 1), 3.f);
                m_renderer->DrawLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetUp() * m_gizmoLength, Vec4f(0, 1, 0, 1), 3.f);
                m_renderer->DrawLine(transform->GetWorldPosition(), transform->GetWorldPosition() + transform->GetForward() * m_gizmoLength, Vec4f(0, 0, 1, 1), 3.f);       
@@ -133,7 +143,8 @@ namespace GALAXY
    void Editor::Gizmo::SetGameObject(Weak<Core::GameObject> object)
    {
 		m_object = object;
-		m_transform = m_object.lock()->Transform();
+      if (m_object.lock())
+		   m_transform = m_object.lock()->Transform();
    }
 
    float ClosestDistanceBetweenLines(Physic::Ray& l1, Physic::Ray& l2)
@@ -181,8 +192,8 @@ namespace GALAXY
             m_startPosition = m_translateRays[i].origin + m_translateRays[i].direction * m_translateRays[i].scale;
          }
       }
-      PrintLog("Closest axis : %d", (int)m_axis);
-      if (m_startPosition.Distance(m_object.lock()->Transform()->GetWorldPosition()) > m_gizmoLength || distance > 1.f)
+
+      if (m_startPosition.Distance(m_object.lock()->Transform()->GetWorldPosition()) > m_gizmoLength || distance > 0.25f)
       {   
          m_axis = GizmoAxis::None;
          m_gizmoClicked = false;
