@@ -41,7 +41,8 @@ target("GalaxyEngine")
     add_headerfiles("GalaxyEngine/include/**.h");
     add_headerfiles("GalaxyEngine/include/**.inl");
     add_files("GalaxyEngine/src/**.cpp")
-
+    set_pcxxheader("GalaxyEngine/include/pch.h")
+    
     -- Packages --
     add_packages("glfw")
     add_packages("imgui")

@@ -117,7 +117,7 @@ float AngleBetweenVectorsInAxis(Vec3f vector1, Vec3f vector2, Vec3f axis)
 
 	// Calculate the sign of the angle using the cross product of the two vectors and the custom axis
 	Vec3f crossProduct = vector1.Cross(vector2);
-	float sign = crossProduct.Dot(axis) >= 0 ? 1 : -1;
+	float sign = crossProduct.Dot(axis) >= 0 ? 1.f : -1.f;
 
 	// Calculate the final angle using the sign and the angle in the plane perpendicular to the custom axis
 	float angle = sign * angleInPlane;
