@@ -34,8 +34,9 @@ namespace GALAXY {
 		m_instance->EnableDebugOutput();
 	}
 
-   void Wrapper::Renderer::DrawWiredCube(const Vec3f &pos, const Vec3f &size, Vec4f color, float lineWidth)
-   {    // Define the eight vertices of the cube
+   void Wrapper::Renderer::DrawWireCube(const Vec3f &pos, const Vec3f &size, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+   {    
+		// Define the eight vertices of the cube
 		Vec3f vertices[8];
 		vertices[0] = pos + Vec3f(-size.x, -size.y, -size.z);
 		vertices[1] = pos + Vec3f(size.x, -size.y, -size.z);
@@ -58,10 +59,60 @@ namespace GALAXY {
 		DrawLine(vertices[0], vertices[4], color, lineWidth);
 		DrawLine(vertices[1], vertices[5], color, lineWidth);
 		DrawLine(vertices[2], vertices[6], color, lineWidth);
-		DrawLine(vertices[3], vertices[7], color, lineWidth);	
+		DrawLine(vertices[3], vertices[7], color, lineWidth);
    }
 	
-	// OpenGL Renderer
+   void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+   {
+	   // Define the eight vertices of the cube
+	   Vec3f vertices[8];
+	   vertices[0] = pos + rotation * Vec3f(-size.x, -size.y, -size.z);
+	   vertices[1] = pos + rotation * Vec3f(size.x, -size.y, -size.z);
+	   vertices[2] = pos + rotation * Vec3f(size.x, size.y, -size.z);
+	   vertices[3] = pos + rotation * Vec3f(-size.x, size.y, -size.z);
+	   vertices[4] = pos + rotation * Vec3f(-size.x, -size.y, size.z);
+	   vertices[5] = pos + rotation * Vec3f(size.x, -size.y, size.z);
+	   vertices[6] = pos + rotation * Vec3f(size.x, size.y, size.z);
+	   vertices[7] = pos + rotation * Vec3f(-size.x, size.y, size.z);
+
+	   // Draw the edges of the cube
+	   DrawLine(vertices[0], vertices[1], color, lineWidth);
+	   DrawLine(vertices[1], vertices[2], color, lineWidth);
+	   DrawLine(vertices[2], vertices[3], color, lineWidth);
+	   DrawLine(vertices[3], vertices[0], color, lineWidth);
+	   DrawLine(vertices[4], vertices[5], color, lineWidth);
+	   DrawLine(vertices[5], vertices[6], color, lineWidth);
+	   DrawLine(vertices[6], vertices[7], color, lineWidth);
+	   DrawLine(vertices[7], vertices[4], color, lineWidth);
+	   DrawLine(vertices[0], vertices[4], color, lineWidth);
+	   DrawLine(vertices[1], vertices[5], color, lineWidth);
+	   DrawLine(vertices[2], vertices[6], color, lineWidth);
+	   DrawLine(vertices[3], vertices[7], color, lineWidth);
+   }
+
+   void Wrapper::Renderer::DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments /*= 32*/, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+   {
+	   Vec3f temp = (normal.x < normal.z) ? Vec3f::Right() : Vec3f::Forward();
+	   Vec3f forward = normal.Cross(temp).GetNormalize();
+	   Vec3f right = forward.Cross(normal).GetNormalize();
+
+	   Vec3f prevPt = pos + (forward * radius);
+	   float angleStep = (PI * 2.f) / numSegments;
+	   for (int i = 0; i < numSegments; i++)
+	   {
+		   float angle = (i == numSegments - 1) ? 0.f : (i + 1) * angleStep;
+
+		   Vec3f nextPtLocal = Vec3f(std::sinf(angle), 0.f, std::cosf(angle)) * radius;
+
+		   Vec3f nextPt = pos + (right * nextPtLocal.x) + (forward * nextPtLocal.z);
+
+		   DrawLine(prevPt, nextPt, color, lineWidth);
+
+		   prevPt = nextPt;
+	   }
+   }
+
+   // OpenGL Renderer
    Wrapper::OpenGLRenderer::OpenGLRenderer() {}
 
 	Wrapper::OpenGLRenderer::~OpenGLRenderer() {}

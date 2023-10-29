@@ -20,10 +20,12 @@ namespace GALAXY
 			void SetResources();
 
 			Vec2f GetMousePosition() const;
-			Vec2f GetImageSize() const { return m_imageSize; }
 
-			bool IsVisible() const { return m_visible; }
-			bool IsHovered() const { return m_isHovered; }
+			inline Vec2f GetImageSize() const { return m_imageSize; }
+
+			inline bool IsVisible() const { return m_visible; }
+			inline bool IsHovered() const { return m_isHovered; }
+			inline bool IsFocused() const { return m_isFocused; }
 		private:
 			friend class MainBar;
 
@@ -31,6 +33,7 @@ namespace GALAXY
 
 			bool m_visible = true;
 			bool m_isHovered = false;
+			bool m_isFocused = false;
 
 			Vec2i m_imagePosition = 0;
 			Vec2i m_imageSize = 0;

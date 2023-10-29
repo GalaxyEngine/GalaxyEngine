@@ -41,67 +41,6 @@ namespace GALAXY
 	{
 		if (!EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
 			return;
-		/*TODO:
-		 * change input with input class
-		 * change delta time with Time class
-		*/
-		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
-		float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
-
-		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::Q))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (Input::IsKeyDown(Key::E))
-		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * Wrapper::GUI::DeltaTime()));
-		}
-
-		if (m_looking)
-		{
-			auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
-			float mouseX = delta.x * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-			float mouseY = delta.y * m_freeLookSensitivity * Wrapper::GUI::DeltaTime();
-
-			Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-			window->SetMousePosition(prevMousePos);
-
-			if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
-			{
-				mouseX *= -1;
-			}
-
-			m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
-			m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
-		}
-
-		float axis = Input::GetScrollWheelValue();
-		if (axis != 0)
-		{
-			float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
-		}
 
 		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_2))
 		{
@@ -110,6 +49,70 @@ namespace GALAXY
 		else if (Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
 		{
 			StopLooking();
+		}
+
+		if (!m_looking)
+			return;
+		/*TODO:
+		 * change input with input class
+		 * change delta time with Time class
+		*/
+		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
+		float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
+
+		const float deltaTime = Wrapper::GUI::DeltaTime();
+
+		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * deltaTime));
+		}
+
+		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * deltaTime));
+		}
+
+		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * deltaTime));
+		}
+
+		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * movementSpeed * deltaTime));
+		}
+
+		if (Input::IsKeyDown(Key::Q))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * movementSpeed * deltaTime));
+		}
+
+		if (Input::IsKeyDown(Key::E))
+		{
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * deltaTime));
+		}
+
+		auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
+		float mouseX = delta.x * m_freeLookSensitivity * deltaTime;
+		float mouseY = delta.y * m_freeLookSensitivity * deltaTime;
+
+		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		window->SetMousePosition(prevMousePos);
+
+		if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
+		{
+			mouseX *= -1;
+		}
+
+		m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
+		m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
+
+
+		float axis = Input::GetScrollWheelValue();
+		if (axis != 0)
+		{
+			float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
 		}
 	}
 

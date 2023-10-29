@@ -153,7 +153,7 @@ namespace GALAXY::Math
 
 		inline T Dot(const Vec3& a) const;
 
-		inline T Cross(const Vec3& a) const;
+		inline Vec3 Cross(const Vec3& a) const;
 
 		inline T Distance(const Vec3& a) const;
 

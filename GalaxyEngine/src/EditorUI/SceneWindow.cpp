@@ -10,6 +10,8 @@
 #include "Render/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
+#include "Editor/Gizmo.h"
+
 #include "Resource/Texture.h"
 #include "Resource/ResourceManager.h"
 
@@ -25,6 +27,7 @@ namespace GALAXY {
 			return;
 		if (m_visible = ImGui::Begin("Scene", &p_open))
 		{
+			m_isFocused = ImGui::IsWindowFocused();
 			m_isHovered = ImGui::IsWindowHovered();
 			SetResources();
 			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;
@@ -49,6 +52,12 @@ namespace GALAXY {
 			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
 				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGrid());
+				Shared<Editor::Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
+				int value = (int)gizmo->GetGizmoMode();
+				if (ImGui::Combo("Gizmo Mode", &value, Editor::SerializeSpaceEnum()))
+				{
+					gizmo->SetGizmoMode((Editor::Space)value);
+				}
 				ImGui::EndPopup();
 			}
 			ImGui::Separator();

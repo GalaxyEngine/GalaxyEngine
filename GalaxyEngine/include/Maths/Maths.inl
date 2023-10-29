@@ -374,7 +374,7 @@ namespace GALAXY::Math {
 	}
 
 	template<typename T>
-	T Vec3<T>::Cross(const Vec3& a) const
+	Vec3<T> Vec3<T>::Cross(const Vec3& a) const
 	{
 		return { (y * a.z) - (z * a.y), (z * a.x) - (x * a.z), (x * a.y) - (y * a.x) };
 	}

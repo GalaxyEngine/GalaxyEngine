@@ -6,6 +6,7 @@ namespace GALAXY
 {
 	enum class Key : int
 	{
+		NONE = 0,
 		SPACE = 32,
 		APOSTROPHE = 39,
 		COMMA = 44,

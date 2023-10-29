@@ -20,6 +20,8 @@ namespace GALAXY
 			Component::Transform* GetTransform() const override;
 
 			class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
+
+			inline bool IsLooking() { return m_looking; }
 		private:
 
 			void StartLooking();
