@@ -20,6 +20,7 @@ namespace GALAXY {
 	namespace Editor
 	{
 		class Gizmo;
+		class ActionManager;
 	}
 	namespace Resource {
 		class Scene : public IResource
@@ -61,20 +62,24 @@ namespace GALAXY {
 			void SetCurrentCamera(std::weak_ptr<Render::Camera> camera);
 
 			Mat4& GetVP() { return m_VP; }
-			std::shared_ptr<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
+			Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
 			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
 
 			void Release();
 
-			Shared<Editor::Gizmo> GetGizmo() {return m_gizmo; }
+			inline Shared<Editor::Gizmo> GetGizmo() { return m_gizmo; }
+
+			inline Shared<Editor::ActionManager> GetActionManager() { return m_actionManager; }
 
 		private:
-			std::shared_ptr<Render::EditorCamera> m_editorCamera;
+			Shared<Render::EditorCamera> m_editorCamera;
 			std::weak_ptr<Render::Camera> m_currentCamera;
 			Mat4 m_VP;
 
-			std::shared_ptr<Core::GameObject> m_root;
-			std::unordered_map<uint64_t, std::shared_ptr<Core::GameObject>> m_objectList;
+			Shared<Core::GameObject> m_root;
+			std::unordered_map<uint64_t, Shared<Core::GameObject>> m_objectList;
+
+			Shared<Editor::ActionManager> m_actionManager;
 
 			Shared<Render::Grid> m_grid;
 			Shared<Editor::Gizmo> m_gizmo;

@@ -15,6 +15,7 @@
 #include "Render/Framebuffer.h"
 
 #include "Editor/Gizmo.h"
+#include "Editor/ActionManager.h"
 
 #include "Component/MeshComponent.h"
 
@@ -46,6 +47,9 @@ namespace GALAXY
 		m_grid = std::make_shared<Render::Grid>();
 		m_grid->Initialize();
 		p_hasBeenSent = true;
+
+
+		m_actionManager = std::make_shared<Editor::ActionManager>();
 	}
 
 	void Scene::Update()
@@ -58,6 +62,8 @@ namespace GALAXY
 		EditorUI::EditorUIManager::GetInstance()->DrawUI();
 
 		m_root->UpdateSelfAndChild();
+
+		m_actionManager->Update();
 
 		if (m_editorCamera->IsVisible()) {
 			SetCurrentCamera(m_editorCamera);

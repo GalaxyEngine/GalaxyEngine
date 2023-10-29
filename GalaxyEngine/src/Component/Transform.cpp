@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "Component/Transform.h"
+
+#include "Resource/Scene.h"
+
 #include "Core/GameObject.h"
+#include "Core/SceneHolder.h"
+
+#include "Editor/ActionManager.h"
 
 Component::Transform::Transform()
 {
@@ -172,8 +178,29 @@ void Component::Transform::ShowInInspector()
 	Vec3f position = m_localPosition;
 	Vec3f rotation = m_localEulerRotation;
 	Vec3f scale = m_localScale;
+	static Vec3f previousPosition;
+	static bool previousTrue = false;
+	if (Wrapper::GUI::DrawVec3Control("Position", &position.x))
+	{
+		previousTrue = true;
+		previousPosition = m_localPosition;
+	}
+	else if (previousTrue)
+	{
+		//TODO : Improve this
+		previousTrue = false;
+		Editor::Action action(
+			[this, localPosition = position]()
+			{
+				SetLocalPosition(localPosition);
+			},
+			[this, localPosition = previousPosition]()
+			{
+				SetLocalPosition(localPosition);
+			});
 
-	Wrapper::GUI::DrawVec3Control("Position", &position.x);
+		Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
+	}
 	Wrapper::GUI::DrawVec3Control("Rotation", &rotation.x);
 	Wrapper::GUI::DrawVec3Control("Scale", &scale.x, 1.f, true);
 
