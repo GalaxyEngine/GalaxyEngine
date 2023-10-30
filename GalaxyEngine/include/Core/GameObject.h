@@ -73,7 +73,7 @@ namespace GALAXY {
 			inline uint64_t GetIndex() const;
 
 			Component::Transform* Transform() { return m_transform.get(); }
-			std::weak_ptr<GameObject> GetParent();
+			Weak<GameObject> GetParent();
 
 			std::vector<std::weak_ptr<GameObject>> GetChildren();
 			std::vector<std::weak_ptr<GameObject>> GetAllChildren();
@@ -98,7 +98,9 @@ namespace GALAXY {
 			void Serialize(Utils::Serializer& serializer);
 			void Deserialize(Utils::Parser& parser);
 
-			Resource::Scene* GetScene() { return m_scene; }
+			inline void SetHierarchyOpen(bool val) { m_open = val; }
+
+			inline Resource::Scene* GetScene() { return m_scene; }
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
@@ -108,9 +110,9 @@ namespace GALAXY {
 
 			Resource::Scene* m_scene = nullptr;
 
-			std::weak_ptr<GameObject> m_parent;
-			std::vector<std::shared_ptr<GameObject>> m_childs;
-			std::vector<std::shared_ptr<Component::BaseComponent>> m_components;
+			Weak<GameObject> m_parent;
+			std::vector<Shared<GameObject>> m_childs;
+			std::vector<Shared<Component::BaseComponent>> m_components;
 
 			std::unique_ptr<Component::Transform> m_transform;
 

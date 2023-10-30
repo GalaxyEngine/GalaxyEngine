@@ -261,7 +261,7 @@ namespace GALAXY {
 
 			ImGui::SameLine();
 			if (ImGui::DragFloat("##Z", &values[2], 0.1f, 0.0f, 0.0f, "%.2f"))
-				stillEditing = true;;
+				stillEditing = true;
 			ImGui::PopItemWidth();
 
 			ImGui::PopStyleVar();

@@ -9,11 +9,18 @@ namespace GALAXY
 		class Action
 		{
 		public:
+			inline Action() {}
 			inline Action(const std::function<void()>& doFunc, const std::function<void()>& undoFunc) : doAction(doFunc), undoAction(undoFunc) {}
 			inline Action& operator=(const Action& other) = default;
 			inline Action(const Action&) = default;
 			inline Action(Action&&) noexcept = default;
 			inline virtual ~Action() {}
+
+			inline void Bind(const std::function<void()>& doFunc, const std::function<void()>& undoFunc)
+			{
+				doAction = doFunc;
+				undoAction = undoFunc;
+			}
 
 			inline void Do() { doAction(); }
 			inline void Undo() { undoAction(); }

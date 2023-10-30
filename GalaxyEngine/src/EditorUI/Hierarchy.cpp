@@ -2,9 +2,13 @@
 #include "EditorUI/EditorUIManager.h"
 #include "EditorUI/Hierarchy.h"
 #include "EditorUI/Inspector.h"
+
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 #include "Core/GameObject.h"
+
+#include "Resource/Scene.h"
+
+#include "Editor/ActionManager.h"
 
 using namespace Core;
 void EditorUI::Hierarchy::Draw()
@@ -81,7 +85,7 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 		// Multi Select
 		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 			m_inspector->AddSelected(weakGO);
-		// already selected and not in muti select -> rename
+		// already selected and not in multi select -> rename
 		else if (gameobject->m_selected && m_inspector->GetSelected().size() == 1)
 		{
 			SetRename(gameobject);
@@ -170,7 +174,7 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 		ImGui::EndDragDropTarget();
 	}
 
-	// Do the same for all childs
+	// Do the same for all children
 	if (gameobject->m_open)
 	{
 		for (auto&& child : gameobject->m_childs)
@@ -185,6 +189,52 @@ void EditorUI::Hierarchy::DisplayGameObject(std::weak_ptr<GameObject> weakGO, ui
 	ImGui::PopID();
 }
 
+void CreateGameObject(const std::vector<Weak<Core::GameObject>>& selected)
+{
+	Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+	if (selected.empty())
+	{
+		auto createObject = [currentScene = currentScene]() {
+			Weak<Core::GameObject> gameObject = currentScene->CreateObject();
+			currentScene->GetRootGameObject().lock()->AddChild(gameObject.lock());
+			currentScene->GetRootGameObject().lock()->SetHierarchyOpen(true);
+			};
+
+		createObject();
+		Editor::Action action(
+			createObject,
+			[currentScene = currentScene]()
+			{
+				currentScene->RevertObject();
+			});
+
+		currentScene->GetActionManager()->AddAction(action);
+	}
+	else
+	{
+		auto createObjects = [selected = selected, currentScene = currentScene]() {
+			for (size_t i = 0; i < selected.size(); i++)
+			{
+				Weak<Core::GameObject> gameObject = currentScene->CreateObject();
+				if (selected[i].lock()) {
+					selected[i].lock()->AddChild(gameObject.lock());
+					selected[i].lock()->SetHierarchyOpen(true);
+				}
+			}
+			};
+
+		createObjects();
+		Editor::Action action(
+			createObjects,
+			[number = selected.size(), currentScene = currentScene]()
+			{
+				currentScene->RevertObject(number);
+			});
+		currentScene->GetActionManager()->AddAction(action);
+
+	}
+}
+
 void EditorUI::Hierarchy::RightClickPopup()
 {
 	if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
@@ -193,24 +243,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 		Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 		if (ImGui::Button("Create GameObject", buttonSize))
 		{
-			if (selected.empty())
-			{
-				Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
-				auto gameObject = currentScene->CreateObject();
-				currentScene->GetRootGameObject().lock()->AddChild(gameObject.lock());
-				currentScene->GetRootGameObject().lock()->m_open = true;
-			}
-			else
-			{
-				for (size_t i = 0; i < selected.size(); i++)
-				{
-					auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
-					if (selected[i].lock()) {
-						selected[i].lock()->AddChild(gameObject.lock());
-						selected[i].lock()->m_open = true;
-					}
-				}
-			}
+			CreateGameObject(selected);
 			ImGui::CloseCurrentPopup();
 		}
 

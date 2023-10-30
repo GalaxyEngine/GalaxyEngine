@@ -1,20 +1,20 @@
 #pragma once
 #include "Core/GameObject.h"
 
-std::string Core::GameObject::GetName() const
+inline std::string Core::GameObject::GetName() const
 {
 	return m_name;
 }
 
 
-uint64_t Core::GameObject::GetIndex() const
+inline uint64_t Core::GameObject::GetIndex() const
 {
 	return m_id;
 }
 
-void Core::GameObject::SetName(std::string val)
+inline void Core::GameObject::SetName(std::string val)
 {
-	m_name = val;
+	m_name = std::move(val);
 }
 
 template<typename T>

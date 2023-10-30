@@ -44,32 +44,30 @@ namespace GALAXY {
 
 			void Initialize();
 
-			std::weak_ptr<Core::GameObject> GetRootGameObject() const;
+			void Update();
 
 			// Every GameObject should be create via this function
-			template<typename... Args> inline std::weak_ptr<Core::GameObject> CreateObject(Args&&... args);
+			template<typename... Args> 
+			inline std::weak_ptr<Core::GameObject> CreateObject(Args&&... args);
 
-			void AddObject(std::shared_ptr<Core::GameObject> gameObject);
+			inline void AddObject(std::shared_ptr<Core::GameObject> gameObject);
 
-			void RemoveObject(Core::GameObject* object);
-
-			std::weak_ptr<Core::GameObject> GetWithIndex(uint64_t index);
-
-			uint64_t GetFreeIndex();
-
-			void Update();
+			inline void RemoveObject(Core::GameObject* object);
 
 			void SetCurrentCamera(std::weak_ptr<Render::Camera> camera);
 
-			Mat4& GetVP() { return m_VP; }
-			Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
-			std::weak_ptr<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
+			inline void RevertObject(size_t number = 1);
 
-			void Release();
+			std::weak_ptr<Core::GameObject> GetWithIndex(uint64_t index);
+			uint64_t GetFreeIndex();
+			inline std::weak_ptr<Core::GameObject> GetRootGameObject() const { return m_root; }
+			inline Mat4& GetVP() { return m_VP; }
+			inline Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
+			inline Weak<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
+			inline Shared<Editor::Gizmo> GetGizmo() const { return m_gizmo; }
+			inline Shared<Editor::ActionManager> GetActionManager() const { return m_actionManager; }
 
-			inline Shared<Editor::Gizmo> GetGizmo() { return m_gizmo; }
-
-			inline Shared<Editor::ActionManager> GetActionManager() { return m_actionManager; }
+		private:
 
 		private:
 			Shared<Render::EditorCamera> m_editorCamera;
@@ -83,6 +81,8 @@ namespace GALAXY {
 
 			Shared<Render::Grid> m_grid;
 			Shared<Editor::Gizmo> m_gizmo;
+
+			std::vector<Weak<Core::GameObject>> m_lastAdded;
 		};
 	}
 }

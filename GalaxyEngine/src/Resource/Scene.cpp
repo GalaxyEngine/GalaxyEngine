@@ -137,59 +137,10 @@ namespace GALAXY
 		}
 	}
 
-	std::weak_ptr <Core::GameObject> Scene::GetRootGameObject() const
-	{
-		return m_root;
-	}
-
-	uint64_t Scene::GetFreeIndex()
-	{
-		uint64_t index = 0;
-		while (m_objectList.find(index) != m_objectList.end()) {
-			index++;
-		}
-		return index;
-	}
-
-	void Scene::RemoveObject(Core::GameObject* object)
-	{
-		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
-			return element.second.get() == object; });
-		if (shared != m_objectList.end()) {
-			shared->second->RemoveFromParent();
-			if (shared != m_objectList.end())
-			{
-				m_objectList.erase(shared);
-			}
-		}
-	}
-
-	std::weak_ptr<Core::GameObject> Scene::GetWithIndex(uint64_t index)
-	{
-		if (m_objectList.count(index))
-		{
-			return m_objectList.at(index);
-		}
-		return std::weak_ptr<Core::GameObject>();
-	}
-
 	void Scene::SetCurrentCamera(std::weak_ptr<Render::Camera> camera)
 	{
 		m_currentCamera = camera;
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
-	}
-
-	void Scene::AddObject(std::shared_ptr<Core::GameObject> gameObject)
-	{
-		if (!m_objectList.count(gameObject->m_id))
-		{
-			m_objectList[gameObject->m_id] = gameObject;
-		}
-		else
-		{
-			gameObject->m_id = GetFreeIndex();
-			m_root->AddChild(gameObject);
-		}
 	}
 
 #pragma region Resource Methods

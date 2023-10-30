@@ -110,6 +110,8 @@ namespace GALAXY
 
 			void HandleRotation(Physic::Ray& mouseRay, const Vec3f& position);
 
+			void HandleAction();
+
 		private:
 			Wrapper::Renderer* m_renderer = nullptr;
 

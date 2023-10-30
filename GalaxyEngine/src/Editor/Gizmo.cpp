@@ -1,16 +1,23 @@
 #include "pch.h"
+
 #include "Editor/Gizmo.h"
+#include "Editor/Action.h"
+#include "Editor/ActionManager.h"
 
 #include "Core/Input.h"
 #include "Core/GameObject.h"
+#include "Core/SceneHolder.h"
 
 #include "Component/Transform.h"
+
+#include "Resource/Scene.h"
 
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
 
 #include "EditorUI/EditorUIManager.h"
 #include "EditorUI/SceneWindow.h"
+
 #pragma region MathMethods
 float ClosestDistanceBetweenLines(Physic::Ray& l1, Physic::Ray& l2)
 {
@@ -217,8 +224,13 @@ namespace GALAXY
 		break;
 		}
 
-		if (Input::IsMouseButtonReleased(MouseButton::BUTTON_1))
+		if (Input::IsMouseButtonReleased(MouseButton::BUTTON_1)) {
+			if (m_gizmoClicked)
+			{
+				HandleAction();
+			}
 			m_gizmoClicked = false;
+		}
 
 		if (!sceneWindow->IsHovered())
 			return;
@@ -425,6 +437,54 @@ namespace GALAXY
 		{
 			m_gizmoClicked = true;
 		}
+	}
+
+	void Editor::Gizmo::HandleAction()
+	{
+		Editor::Action action;
+		switch (m_type)
+		{
+		case GizmoType::Translation:
+		{
+			action.Bind(
+				[this, position = m_transform->GetWorldPosition()]()
+				{
+					m_transform->SetWorldPosition(position);
+				},
+				[this, position = m_gizmoCenter]()
+				{
+					m_transform->SetWorldPosition(position);
+				});
+			break;
+		}
+		case GizmoType::Rotation:
+		{
+			action.Bind(
+				[this, rotation = m_transform->GetWorldRotation()]()
+				{
+					m_transform->SetWorldRotation(rotation);
+				},
+				[this, rotation = m_gizmoRotation]()
+				{
+					m_transform->SetWorldRotation(rotation);
+				});
+			break;
+		}
+		case GizmoType::Scale:
+		{
+			action.Bind(
+				[this, rotation = m_transform->GetWorldScale()]()
+				{
+					m_transform->SetWorldScale(rotation);
+				},
+				[this, rotation = m_gizmoScale]()
+				{
+					m_transform->SetWorldScale(rotation);
+				});
+			break;
+		}
+		}
+		Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 	}
 
 }
