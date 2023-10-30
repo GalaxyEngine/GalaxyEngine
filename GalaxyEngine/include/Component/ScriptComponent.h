@@ -21,17 +21,12 @@ namespace GALAXY
 			ScriptComponent(ScriptComponent&&) noexcept = default;
 			virtual ~ScriptComponent() {}
 
-			virtual const char* GetComponentName() const override
-			{
-				return "Script Component";
-			}
-
-			virtual std::vector<const char*> GetComponentNames() const override;
+			inline virtual const char* GetComponentName() const override { return "Script Component"; }
 
 			virtual void ShowInInspector() override;
 
 			template<typename T>
-			T* GetVariable(const std::string& variableName)
+			inline T* GetVariable(const std::string& variableName)
 			{
 				auto value = reinterpret_cast<T*>(GetVariableVoid(variableName));
 				return value;
@@ -41,13 +36,13 @@ namespace GALAXY
 			void SetVariable(const std::string& variableName, std::any value);
 
 			template<typename T>
-			void SetVariable(const std::string& variableName, T value)
+			inline void SetVariable(const std::string& variableName, T value)
 			{
 				T* newValue = &value;
 				SetVariableVoid(variableName, newValue);
 			}
 
-			std::unordered_map<std::string, Scripting::VariableData> GetAllVariables() const;
+			UMap<std::string, Scripting::VariableData> GetAllVariables() const;
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
@@ -100,10 +95,9 @@ namespace GALAXY
 
 			std::string m_scriptName;
 
-			std::unordered_map<std::string, ComponentInfo> m_missingComponentRefs;
+			UMap<std::string, ComponentInfo> m_missingComponentRefs;
 
-			std::unordered_map<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
-			
+			UMap<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
 		};
 	}
 }

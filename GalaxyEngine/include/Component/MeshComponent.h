@@ -12,28 +12,23 @@ namespace GALAXY {
 			MeshComponent() {}
 			~MeshComponent() {}
 
-			const char* GetComponentName() const override { return "Mesh Component"; }
-
-			virtual std::vector<const char*> GetComponentNames() const override\
-			{
-				auto vector = BaseComponent::GetComponentNames();
-				vector.insert(vector.end(), MeshComponent::GetComponentName());
-				return vector;
-			}
+			inline const char* GetComponentName() const override { return "Mesh Component"; }
 
 			void OnDraw() override;
 
-			void SetMesh(const std::weak_ptr<Resource::Mesh>& mesh);
+			inline void SetMesh(const Weak<Resource::Mesh>& mesh);
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
 
 			void ShowInInspector() override;
 		private:
-			std::weak_ptr<Resource::Mesh> m_mesh;
-			std::vector<std::weak_ptr<Resource::Material>> m_materials;
+			Weak<Resource::Mesh> m_mesh;
+
+			List<Weak<Resource::Material>> m_materials;
 
 			REFLECTION_FRIEND
 		};
 	}
 }
+#include "Component/MeshComponent.inl" 

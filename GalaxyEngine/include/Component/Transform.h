@@ -23,10 +23,10 @@ namespace GALAXY {
 			void OnUpdate() override;
 			void ForceUpdate();
 
-			void ComputeModelMatrix();
-			void ComputeModelMatrix(const Mat4& parentMatrix);
+			inline void ComputeModelMatrix();
+			inline void ComputeModelMatrix(const Mat4& parentMatrix);
 
-			const char* GetComponentName() const override { return "Transform"; }
+			inline const char* GetComponentName() const override { return "Transform"; }
 
 			void ShowInInspector() override;
 
@@ -36,36 +36,36 @@ namespace GALAXY {
 			void SetWorldRotation(const Vec3f& worldRotation);
 			void SetWorldScale(const Vec3f& worldScale);
 
-			void SetLocalPosition(const Vec3f& localPosition);
-			void SetLocalRotation(const Quat& localRotation);
-			void SetLocalRotation(const Vec3f& localRotation);
-			void SetLocalScale(const Vec3f& localScale);
+			inline void SetLocalPosition(const Vec3f& localPosition);
+			inline void SetLocalRotation(const Quat& localRotation);
+			inline void SetLocalRotation(const Vec3f& localRotation);
+			inline void SetLocalScale(const Vec3f& localScale);
 
 			// === Getters === //
 			Vec3f GetWorldPosition() const;
 			Quat  GetWorldRotation() const;
 			Vec3f GetWorldEulerRotation() const;
 			Vec3f GetWorldScale() const;
-			Mat4  GetModelMatrix() const;
+			inline Mat4  GetModelMatrix() const;
 
-			Vec3f GetLocalPosition() const;
-			Quat  GetLocalRotation() const;
-			Vec3f GetLocalEulerRotation() const;
-			Vec3f GetLocalScale() const;
-			Mat4  GetLocalMatrix() const;
+			inline Vec3f GetLocalPosition() const;
+			inline Quat  GetLocalRotation() const;
+			inline Vec3f GetLocalEulerRotation() const;
+			inline Vec3f GetLocalScale() const;
+			inline Mat4  GetLocalMatrix() const;
 
-			Vec3f GetForward() const;
-			Vec3f GetRight() const;
-			Vec3f GetUp() const;
+			inline Vec3f GetForward() const;
+			inline Vec3f GetRight() const;
+			inline Vec3f GetUp() const;
 
 			// === Other Methods === //
-			Vec3f TransformDirection(Vec3f direction);
+			inline Vec3f TransformDirection(Vec3f direction);
 
-			void RotateAround(Vec3f axis, float angle);
+			inline void RotateAround(Vec3f axis, float angle);
 
-			void RotateAround(Vec3f point, Vec3f axis, float angle);
+			inline void RotateAround(Vec3f point, Vec3f axis, float angle);
 
-			void Rotate(Vec3f axis, float angle, Space relativeTo = Space::Local);
+			inline void Rotate(Vec3f axis, float angle, Space relativeTo = Space::Local);
 
 		private:
 			Math::Mat4     m_modelMatrix = Math::Mat4(1);
@@ -73,9 +73,11 @@ namespace GALAXY {
 			Math::Quat	   m_localRotation = Math::Quat();
 			Math::Vec3f    m_localEulerRotation = Math::Vec3f();
 			Math::Vec3f    m_localScale = Math::Vec3f(1);
+
 			bool m_dirty = true;
 
 			//REFLECTION_FRIEND
 		};
 	}
 }
+#include "Component/Transform.inl" 

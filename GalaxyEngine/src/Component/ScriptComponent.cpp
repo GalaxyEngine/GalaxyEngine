@@ -53,13 +53,6 @@
 
 namespace GALAXY
 {
-	std::vector<const char*> Component::ScriptComponent::GetComponentNames() const
-	{
-		auto vector = BaseComponent::GetComponentNames();
-		vector.insert(vector.end(), ScriptComponent::GetComponentName());
-		return vector;
-	}
-
 	void Component::ScriptComponent::ShowInInspector()
 	{
 		auto variables = GetAllVariables();

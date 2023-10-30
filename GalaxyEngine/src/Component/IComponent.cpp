@@ -16,8 +16,4 @@ namespace GALAXY {
 
 	}
 
-	std::vector<const char*> Component::BaseComponent::GetComponentNames() const
-	{
-		return { BaseComponent::GetComponentName() };
-	}
 }

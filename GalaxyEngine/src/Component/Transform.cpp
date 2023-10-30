@@ -18,57 +18,6 @@ namespace GALAXY
 
 	}
 
-	void Component::Transform::SetLocalPosition(const Vec3f& localPosition)
-	{
-		m_dirty = true;
-		m_localPosition = localPosition;
-	}
-
-	void Component::Transform::SetLocalRotation(const Quat& localRotation)
-	{
-		m_dirty = true;
-		m_localRotation = localRotation;
-		m_localEulerRotation = localRotation.ToEuler();
-	}
-
-	void Component::Transform::SetLocalRotation(const Vec3f& localRotation)
-	{
-		m_dirty = true;
-		m_localEulerRotation = localRotation;
-		m_localRotation = localRotation.ToQuaternion();
-	}
-
-	void Component::Transform::SetLocalScale(const Vec3f& localScale)
-	{
-		m_dirty = true;
-		m_localScale = localScale;
-	}
-
-	Vec3f Component::Transform::GetLocalPosition() const
-	{
-		return m_localPosition;
-	}
-
-	Quat Component::Transform::GetLocalRotation() const
-	{
-		return m_localRotation;
-	}
-
-	Vec3f Component::Transform::GetLocalEulerRotation() const
-	{
-		return m_localEulerRotation;
-	}
-
-	Vec3f Component::Transform::GetLocalScale() const
-	{
-		return m_localScale;
-	}
-
-	Mat4 Component::Transform::GetLocalMatrix() const
-	{
-		return Mat4::CreateTransformMatrix(m_localPosition, m_localRotation, m_localScale);
-	}
-
 	Vec3f Component::Transform::GetWorldPosition() const
 	{
 		if (gameObject.lock() && gameObject.lock()->GetParent().lock())
@@ -93,21 +42,6 @@ namespace GALAXY
 		}
 	}
 
-	Vec3f Component::Transform::GetUp() const
-	{
-		return GetWorldRotation() * Vec3f::Up();
-	}
-
-	Vec3f Component::Transform::GetRight() const
-	{
-		return GetWorldRotation() * Vec3f::Right();
-	}
-
-	Vec3f Component::Transform::GetForward() const
-	{
-		return GetWorldRotation() * Vec3f::Forward();
-	}
-
 	void Component::Transform::OnUpdate()
 	{
 		if (!m_dirty)
@@ -130,23 +64,6 @@ namespace GALAXY
 				child.lock()->Transform()->ForceUpdate();
 			}
 		}
-	}
-
-	void Component::Transform::ComputeModelMatrix(const Mat4& parentMatrix)
-	{
-		m_modelMatrix = GetLocalMatrix() * parentMatrix;
-		m_dirty = false;
-	}
-
-	void Component::Transform::ComputeModelMatrix()
-	{
-		m_modelMatrix = GetLocalMatrix();
-		m_dirty = false;
-	}
-
-	Mat4 Component::Transform::GetModelMatrix() const
-	{
-		return m_modelMatrix;
 	}
 
 	Vec3f Component::Transform::GetWorldScale() const
@@ -266,48 +183,6 @@ namespace GALAXY
 			SetLocalRotation(rotation);
 			SetLocalScale(scale);
 		}
-	}
-
-	void Component::Transform::Rotate(Vec3f axis, float angle, Space relativeTo /*= Space::Local*/)
-	{
-		if (relativeTo == Space::Local)
-			RotateAround(TransformDirection(axis), angle);
-		else
-			RotateAround(axis, angle);
-	}
-
-	void Component::Transform::RotateAround(Vec3f point, Vec3f axis, float angle)
-	{
-		Quat q = Quat::AngleAxis(angle, axis);
-		Vec3f dif = GetWorldPosition() - point;
-		dif = q * dif;
-		SetWorldPosition(point + dif);
-		Quat worldRotation = GetWorldRotation();
-		SetWorldRotation(worldRotation * worldRotation.GetInverse() * q * worldRotation);
-	}
-
-	void Component::Transform::RotateAround(Vec3f axis, float angle)
-	{
-		Quat rotation = Quat::AngleAxis(angle, axis);
-
-		Vec3f pivot = GetWorldPosition();
-		Vec3f relativePosition = Vec3f::Zero();
-
-		// Rotate the relative position
-		relativePosition = rotation * relativePosition;
-
-		// Update the object's position
-		SetWorldPosition(pivot + relativePosition);
-
-		// Update the object's rotation
-		Quat worldRotation = GetWorldRotation();
-		Quat rot = worldRotation * worldRotation.GetInverse() * rotation * worldRotation;
-		SetWorldRotation(rot);
-	}
-
-	Vec3f Component::Transform::TransformDirection(Vec3f direction)
-	{
-		return GetWorldRotation() * direction;
 	}
 
 	void Component::Transform::SetWorldPosition(const Vec3f& worldPosition)

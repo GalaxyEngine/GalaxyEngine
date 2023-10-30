@@ -21,13 +21,6 @@ namespace GALAXY {
 		m_mesh.lock()->Render(gameObject.lock()->Transform()->GetModelMatrix(), m_materials, gameObject.lock()->GetIndex());
 	}
 
-	void Component::MeshComponent::SetMesh(const std::weak_ptr<Resource::Mesh>& mesh)
-	{
-		if (!mesh.lock())
-			return;
-		m_mesh = mesh;
-	}
-
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
 		serializer << Utils::PAIR::KEY << "Mesh" << Utils::PAIR::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetRelativePath() : "");

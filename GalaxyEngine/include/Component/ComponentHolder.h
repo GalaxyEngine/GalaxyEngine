@@ -1,6 +1,5 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include <vector>
 #include <memory>
 
 namespace GALAXY::Component
@@ -22,10 +21,10 @@ namespace GALAXY::Component
 		template<typename T>
 		static inline void UnregisterComponent(T* component);
 
-		static std::vector<std::shared_ptr<BaseComponent>>& GetList() { return m_componentList; }
+		static List<Shared<BaseComponent>>& GetList() { return m_componentList; }
 
 	private:
-		static std::vector<std::shared_ptr<BaseComponent>> m_componentList;
+		static List<Shared<BaseComponent>> m_componentList;
 	};
 
 }
