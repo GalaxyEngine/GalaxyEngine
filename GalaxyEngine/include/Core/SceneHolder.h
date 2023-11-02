@@ -16,7 +16,7 @@ namespace GALAXY {
 
 			void Update();
 
-			void SwitchScene(Weak<Resource::Scene> scene);
+			inline void SwitchScene(Weak<Resource::Scene> scene);
 
 			static Resource::Scene* GetCurrentScene();
 
@@ -24,7 +24,7 @@ namespace GALAXY {
 		private:
 			void SwitchSceneUpdate();
 		private:
-			static std::unique_ptr<SceneHolder> m_instance;
+			static Unique<SceneHolder> m_instance;
 
 			Shared<Resource::Scene> m_currentScene;
 
@@ -32,3 +32,4 @@ namespace GALAXY {
 		};
 	}
 }
+#include "Core/SceneHolder.inl" 

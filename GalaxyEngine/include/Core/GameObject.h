@@ -1,8 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/Transform.h"
-#include <memory>
-#include <vector>
 #include <string>
 
 namespace GALAXY {
@@ -29,11 +27,11 @@ namespace GALAXY {
 		{
 		public:
 			GameObject();
-			GameObject(const std::string& name);
+			GameObject(String name);
 			GameObject& operator=(const GameObject& other) = default;
 			GameObject(const GameObject&) = default;
 			GameObject(GameObject&&) noexcept = default;
-			virtual ~GameObject() {}
+			virtual ~GameObject();
 
 			// Main Methods
 			void Initialize();
@@ -41,30 +39,29 @@ namespace GALAXY {
 			void UpdateSelfAndChild();
 			void DrawSelfAndChild();
 
-			// Call after the sceneLoading to synchronize 
-			// the components and gameObjects find by the id
-			void AfterLoad();
-
 			void RemoveChild(GameObject* child);
 			void RemoveChild(uint32_t index);
 
 			void RemoveFromParent();
 
+			// This method is to use when you need to destroy over all a gameObject and all its children
+			void Destroy();
+
 			void RemoveComponent(Component::BaseComponent* component);
 
 			// === Setters === //
-			inline void SetName(std::string val);
+			inline void SetName(String val);
 
-			void AddChild(std::shared_ptr<GameObject> child, uint32_t index = -1);
+			void AddChild(Shared<GameObject> child, uint32_t index = -1);
 
 			// Set the parent to the given GameObject
-			void SetParent(std::weak_ptr<GameObject> parent);
+			void SetParent(Weak<GameObject> parent);
 
 			template<typename T>
-			inline std::weak_ptr<T> AddComponent();
+			inline Weak<T> AddComponent();
 
 			template<typename T>
-			inline void AddComponent(std::shared_ptr<T> component);
+			inline void AddComponent(Shared<T> component);
 
 			void ChangeComponentIndex(uint32_t prevIndex, uint32_t newIndex);
 
@@ -72,28 +69,28 @@ namespace GALAXY {
 			inline std::string GetName() const;
 			inline uint64_t GetIndex() const;
 
-			Component::Transform* Transform() { return m_transform.get(); }
-			Weak<GameObject> GetParent();
+			inline Component::Transform* GetTransform() { return m_transform.get(); }
+			inline Core::GameObject* GetParent() { return m_parent.lock().get(); }
 
-			std::vector<std::weak_ptr<GameObject>> GetChildren();
-			std::vector<std::weak_ptr<GameObject>> GetAllChildren();
-			std::weak_ptr<GameObject> GetChild(uint32_t index);
+			inline List<Weak<GameObject>> GetChildren();
+			List<Weak<GameObject>> GetAllChildren();
+			inline Weak<GameObject> GetChild(uint32_t index);
 
 			// Return the child index in the list of child
 			uint32_t GetChildIndex(GameObject* child);
 
 			template<typename T>
-			inline std::vector<Weak<T>> GetComponentsInChildren();
+			inline List<Weak<T>> GetComponentsInChildren();
 			template<typename T>
-			inline std::vector<Weak<T>> GetComponents();
+			inline List<Weak<T>> GetComponents();
 
 			Weak<Component::BaseComponent> GetComponentWithIndex(uint32_t index);
 
-			Component::BaseComponent* GetComponentWithName(const std::string& componentName);
+			Component::BaseComponent* GetComponentWithName(const String& componentName);
 
 			// Check if the object given is a parent of the this
-			bool IsAParent(GameObject* object);
-			bool IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings);
+			inline bool IsAParent(GameObject* object);
+			bool IsSibling(const List<Weak<GameObject>>& siblings);
 
 			void Serialize(Utils::Serializer& serializer);
 			void Deserialize(Utils::Parser& parser);
@@ -101,6 +98,10 @@ namespace GALAXY {
 			inline void SetHierarchyOpen(bool val) { m_open = val; }
 
 			inline Resource::Scene* GetScene() { return m_scene; }
+
+			// Call after the sceneLoading to synchronize 
+			// the components and gameObjects find by the id
+			void AfterLoad();
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
@@ -111,8 +112,8 @@ namespace GALAXY {
 			Resource::Scene* m_scene = nullptr;
 
 			Weak<GameObject> m_parent;
-			std::vector<Shared<GameObject>> m_childs;
-			std::vector<Shared<Component::BaseComponent>> m_components;
+			List<Shared<GameObject>> m_childs;
+			List<Shared<Component::BaseComponent>> m_components;
 
 			std::unique_ptr<Component::Transform> m_transform;
 
@@ -127,12 +128,12 @@ namespace GALAXY {
 
 		private:
 			template<typename T>
-			inline std::vector<Shared<T>> GetComponentsPrivate();
+			inline List<Shared<T>> GetComponentsPrivate();
 			template<typename T>
-			inline std::vector<Shared<T>> GetComponentsInChildrenPrivate();
+			inline List<Shared<T>> GetComponentsInChildrenPrivate();
 
 			template<typename T>
-			inline void AddComponent(std::shared_ptr<T> component, uint32_t index);
+			inline void AddComponent(Shared<T> component, uint32_t index);
 		};
 	}
 }

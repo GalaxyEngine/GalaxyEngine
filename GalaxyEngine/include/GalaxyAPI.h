@@ -20,6 +20,7 @@ template <typename T, typename U>
 using Map = std::map<T, U>;
 template <typename T, typename U>
 using UMap = std::unordered_map<T, U>;
+using String = std::string;
 
 
 #ifdef GALAXY_EXPORTS

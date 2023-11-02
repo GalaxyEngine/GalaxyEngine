@@ -3,7 +3,6 @@
 
 #include <Wrapper/Window.h>
 
-#include <memory>
 #include <deque>
 #include <filesystem>
 
@@ -15,6 +14,8 @@ namespace GALAXY
 	namespace Scripting { class ScriptEngine; }
 	namespace Core 
 	{
+		class ThreadManager;
+		class SceneHolder;
 		class GALAXY_API Application
 		{
 		public:
@@ -26,13 +27,13 @@ namespace GALAXY
 			void Update();
 			void Destroy();
 
-			void AddResourceToSend(const std::filesystem::path& fullPath);
+			inline void AddResourceToSend(const std::filesystem::path& fullPath);
 
 			void UpdateResources();
 
-			Wrapper::Window* GetWindow() { return m_window.get(); }
+			inline Wrapper::Window* GetWindow() { return m_window.get(); }
 
-			bool* GetDrawGrid() { return &m_drawGrid; }
+			inline bool* GetDrawGridPtr() { return &m_drawGrid; }
 
 			void Exit();
 
@@ -41,12 +42,14 @@ namespace GALAXY
 
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
-			class ThreadManager* m_threadManager = nullptr;
-			class SceneHolder* m_sceneHolder = nullptr;
+
+			Core::ThreadManager* m_threadManager = nullptr;
+			Core::SceneHolder* m_sceneHolder = nullptr;
+
 			EditorUI::EditorUIManager* m_editorUI = nullptr;
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;
 
-			std::unique_ptr<Wrapper::Window> m_window;
+			Unique<Wrapper::Window> m_window;
 
 			std::deque<std::filesystem::path> m_resourceToSend;
 
@@ -54,3 +57,4 @@ namespace GALAXY
 		};
 	}
 }
+#include "Core/Application.inl" 

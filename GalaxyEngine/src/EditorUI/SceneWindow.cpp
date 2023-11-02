@@ -51,7 +51,7 @@ namespace GALAXY {
 			}
 			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
-				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGrid());
+				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGridPtr());
 				Shared<Editor::Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 				int value = (int)gizmo->GetGizmoMode();
 				if (ImGui::Combo("Gizmo Mode", &value, Editor::SerializeSpaceEnum()))
@@ -80,7 +80,7 @@ namespace GALAXY {
 		}
 	}
 
-	Vec2f EditorUI::SceneWindow::GetMousePosition() const
+	Math::Vec2f EditorUI::SceneWindow::GetMousePosition() const
 	{
 		return (Vec2i)(Input::GetMousePosition() - m_imagePosition);
 	}

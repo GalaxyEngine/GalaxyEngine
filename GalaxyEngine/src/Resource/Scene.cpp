@@ -28,7 +28,7 @@
 using namespace Resource;
 namespace GALAXY
 {
-	Scene::Scene(const std::filesystem::path& path) : IResource(path)
+	Scene::Scene(const Path& path) : IResource(path)
 	{
 		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
 		m_root->m_scene = this;
@@ -127,7 +127,7 @@ namespace GALAXY
 			}
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
-			if (*Core::Application::GetInstance().GetDrawGrid())
+			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
 			m_root->DrawSelfAndChild();
@@ -137,7 +137,7 @@ namespace GALAXY
 		}
 	}
 
-	void Scene::SetCurrentCamera(std::weak_ptr<Render::Camera> camera)
+	void Scene::SetCurrentCamera(Weak<Render::Camera> camera)
 	{
 		m_currentCamera = camera;
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
@@ -163,7 +163,7 @@ namespace GALAXY
 		Initialize();
 	}
 
-	void Scene::Save(const std::filesystem::path& fullPath)
+	void Scene::Save(const Path& fullPath)
 	{
 		Utils::Serializer serializer(fullPath.empty() ? p_fileInfo.GetFullPath() : fullPath);
 
@@ -173,7 +173,7 @@ namespace GALAXY
 		serializer.CloseFile();
 	}
 
-	Weak<Scene> Scene::Create(const std::filesystem::path& path)
+	Weak<Scene> Scene::Create(const Path& path)
 	{
 		Scene scene(path);
 		scene.Save();

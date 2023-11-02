@@ -23,8 +23,8 @@ namespace GALAXY
 			Camera(Camera&&) noexcept = default;
 			virtual ~Camera();
 
-			static std::shared_ptr<class EditorCamera> GetEditorCamera();
-			static std::weak_ptr<Camera> GetCurrentCamera();
+			static Shared<class EditorCamera> GetEditorCamera();
+			static Weak<Camera> GetCurrentCamera();
 
 			void Begin();
 
@@ -32,32 +32,32 @@ namespace GALAXY
 
 			void DisplayCameraSettings();
 
-			virtual Component::Transform* GetTransform() const = 0;
+			inline virtual Component::Transform* GetTransform() const = 0;
 
-			void SetSize(const Vec2i& framebufferSize);
+			inline void SetSize(const Vec2i& framebufferSize);
 
 			virtual bool IsVisible();
 
-			Mat4 GetViewMatrix() const;
-			Mat4 GetProjectionMatrix() const;
-			Mat4 GetViewProjectionMatrix() const;
-			Vec4f GetClearColor() const { return p_clearColor; }
+			inline Mat4 GetViewMatrix() const;
+			inline Mat4 GetProjectionMatrix() const;
+			inline Mat4 GetViewProjectionMatrix() const;
+			inline Vec4f GetClearColor() const { return p_clearColor; }
 			Physic::Ray ScreenPointToRay(const Vec3f& point);
 
 			virtual Vec2i GetScreenResolution() const;
-			Vec2f ToViewport(const Vec2f& pos) const;
-			Vec3f UnProject(const Vec3f& point) const;
+			inline Vec2f ToViewport(const Vec2f& pos) const;
+			inline Vec3f UnProject(const Vec3f& point) const;
 
-			std::weak_ptr<Resource::Texture> GetRenderTexture();
+			Weak<Resource::Texture> GetRenderTexture();
 
-			float GetFar() const { return p_far; }
-			void SetFar(float val) { p_far = val; }
+			inline float GetFar() const { return p_far; }
+			inline void SetFar(float val) { p_far = val; }
 
-			float GetNear() const { return p_near; }
-			void SetNear(float val) { p_near = val; }
+			inline float GetNear() const { return p_near; }
+			inline void SetNear(float val) { p_near = val; }
 
-			float GetFOV() const { return p_fov; }
-			void SetFOV(float val) { p_fov = val; }
+			inline float GetFOV() const { return p_fov; }
+			inline void SetFOV(float val) { p_fov = val; }
 
 		protected:
 			float p_fov = 70.f;
@@ -75,3 +75,4 @@ namespace GALAXY
 		};
 	}
 }
+#include "Render/Camera.inl" 

@@ -11,7 +11,7 @@
 #include "Resource/Scene.h"
 namespace GALAXY {
 
-	Resource::Mesh::Mesh(const std::filesystem::path& fullPath) : IResource(fullPath)
+	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
 	{
 		p_fileInfo.m_resourceType = GetResourceType();
 		std::string fullPathString = p_fileInfo.m_fullPath.string();
@@ -68,7 +68,7 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 	}
 
-	std::filesystem::path Resource::Mesh::CreateMeshPath(const std::filesystem::path& modelPath, const std::filesystem::path& fileName)
+	Path Resource::Mesh::CreateMeshPath(const Path& modelPath, const Path& fileName)
 	{
 		return modelPath.wstring() + L":" + fileName.wstring();
 	}

@@ -6,7 +6,7 @@
 namespace GALAXY 
 {
 
-	Resource::PostProcessShader::PostProcessShader(const std::filesystem::path& fullPath) : Shader(fullPath)
+	Resource::PostProcessShader::PostProcessShader(const Path& fullPath) : Shader(fullPath)
 	{
 		p_renderer = Wrapper::Renderer::GetInstance();
 	}
@@ -31,21 +31,21 @@ namespace GALAXY
 			while (std::getline(file, line)) {
 				if (line[0] == 'V')
 				{
-					std::filesystem::path vertPath = line.substr(4);
+					Path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
 					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
 					SetVertex(vertexShader.lock(), thisShader);
 				}
 				else if (line[0] == 'G')
 				{
-					std::filesystem::path geomPath = line.substr(4);
+					Path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
 					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
 					SetGeometry(geometryShader.lock(), thisShader);
 				}
 				else if (line[0] == 'F')
 				{
-					std::filesystem::path fragPath = line.substr(4);
+					Path fragPath = line.substr(4);
 					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
 					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
 					SetFragment(fragmentShader.lock(), thisShader);

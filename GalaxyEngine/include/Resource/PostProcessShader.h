@@ -8,11 +8,11 @@ namespace GALAXY
 		class PostProcessShader : public Shader
 		{
 		public:
-			PostProcessShader(const std::filesystem::path& fullPath);
+			PostProcessShader(const Path& fullPath);
 
 			void Load() override;
 
-			static ResourceType GetResourceType() { return ResourceType::PostProcessShader; }
+			static inline ResourceType GetResourceType() { return ResourceType::PostProcessShader; }
 		};
 	}
 }

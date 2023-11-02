@@ -6,8 +6,8 @@ namespace GALAXY::EditorUI {
 	public:
 		~EditorWindow() {}
 
-		bool IsOpen() const { return p_open; }
-		void SetOpen(bool value) { p_open = value; };
+		inline bool IsOpen() const { return p_open; }
+		inline void SetOpen(bool value) { p_open = value; };
 
 		virtual void Initialize() {}
 		virtual void Draw() {}

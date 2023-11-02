@@ -21,13 +21,13 @@ public:\
 		{ \
 			return typeid(*this).name() + 6;\
 		}\
-	virtual std::vector<const char*> GetComponentNames() const override\
+	virtual List<const char*> GetComponentNames() const override\
 	{\
 		auto vector = Super::GetComponentNames();\
 		vector.insert(vector.end(), x::GetComponentName());\
 		return vector;\
 	}\
-	virtual std::shared_ptr<Component::BaseComponent> Clone() override {\
+	virtual Shared<Component::BaseComponent> Clone() override {\
 		return std::make_shared<x>(*dynamic_cast<x*>(this));\
 	}\
 private:

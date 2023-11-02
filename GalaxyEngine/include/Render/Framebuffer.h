@@ -35,10 +35,10 @@ namespace GALAXY
 			void Begin();
 			void End();
 
-			Weak<Resource::PostProcessShader> GetPostProcessShader();
+			inline Weak<Resource::PostProcessShader> GetPostProcessShader();
 
 			void SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader);
-			void SetClearColor(GALAXY::Math::Vec4f val) { m_clearColor = val; }
+			inline void SetClearColor(GALAXY::Math::Vec4f val) { m_clearColor = val; }
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;

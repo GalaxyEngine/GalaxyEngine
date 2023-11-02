@@ -150,6 +150,7 @@ namespace GALAXY
 
 	void Editor::Gizmo::Update()
 	{
+		//TODO : Fix bug on scaling when the object is rotated
 		if (!m_object.lock())
 			return;
 
@@ -305,7 +306,12 @@ namespace GALAXY
 
 				Vec3f NewScale = m_gizmoScale - localRotation * (m_startPosition - m_currentPosition);
 
-				m_transform->SetWorldScale(NewScale);
+				Vec3f axisVector = Vec3f();
+				axisVector[i] = NewScale[i];
+				axisVector[(i + 1) % 3] = m_gizmoScale[(i + 1) % 3];
+				axisVector[(i + 2) % 3] = m_gizmoScale[(i + 2) % 3];
+
+				m_transform->SetWorldScale(axisVector);
 				break;
 			}
 			}
@@ -353,7 +359,7 @@ namespace GALAXY
 			} 
 			if (m_gizmoClicked)
 			{
-				Vec3f position = m_object.lock()->Transform()->GetWorldPosition();
+				Vec3f position = m_object.lock()->GetTransform()->GetWorldPosition();
 				m_renderer->DrawLine(position, m_currentPosition, Vec4f(1), 3.f);
 				m_renderer->DrawLine(position, m_startPosition, Vec4f(1), 3.f);
 			}
@@ -377,7 +383,7 @@ namespace GALAXY
 	{
 		m_object = object;
 		if (m_object.lock())
-			m_transform = m_object.lock()->Transform();
+			m_transform = m_object.lock()->GetTransform();
 	}
 
 	void Editor::Gizmo::HandleAxis(Physic::Ray& mouseRay)
@@ -397,7 +403,7 @@ namespace GALAXY
 			}
 		}
 
-		if (m_startPosition.Distance(m_object.lock()->Transform()->GetWorldPosition()) > m_gizmoLength || distance > 0.25f)
+		if (m_startPosition.Distance(m_object.lock()->GetTransform()->GetWorldPosition()) > m_gizmoLength || distance > 0.25f)
 		{
 			m_axis = GizmoAxis::None;
 			m_gizmoClicked = false;

@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include <unordered_map>
+
 struct GLFW;
 namespace GALAXY
 {
@@ -176,9 +176,9 @@ namespace GALAXY
 
 		static GLFWwindow* m_window;
 
-		static std::unordered_map<int, bool> m_keyPressed;
-		static std::unordered_map<int, bool> m_keyDown;
-		static std::unordered_map<int, bool> m_keyRelease;
+		static UMap<int, bool> m_keyPressed;
+		static UMap<int, bool> m_keyDown;
+		static UMap<int, bool> m_keyRelease;
 		static float m_scrollValue;
 		static Vec2f m_mouseDragDelta;
 	};

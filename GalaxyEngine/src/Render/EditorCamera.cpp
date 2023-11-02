@@ -31,11 +31,6 @@ namespace GALAXY
 		delete m_outlineFramebuffer;
 	}
 
-	Component::Transform* Render::EditorCamera::GetTransform() const
-	{
-		return m_transform.get();
-	}
-
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{

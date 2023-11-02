@@ -16,7 +16,7 @@ namespace GALAXY
 		class File : public std::enable_shared_from_this<File>
 		{
 		public:
-			File(const std::filesystem::path& path);
+			File(const Path& path);
 			File& operator=(const File& other) = default;
 			File(const File&) = default;
 			File(File&&) noexcept = default;
@@ -31,11 +31,11 @@ namespace GALAXY
 			friend class FileExplorer;
 
 			Utils::FileInfo m_info;
-			std::weak_ptr<Resource::Texture> m_icon;
-			std::weak_ptr<Resource::IResource> m_resource;
+			Weak<Resource::Texture> m_icon;
+			Weak<Resource::IResource> m_resource;
 
-			std::weak_ptr<File> m_parent;
-			std::vector<std::shared_ptr<File>> m_childrens;
+			Weak<File> m_parent;
+			List<Shared<File>> m_childrens;
 
 			bool m_selected = false;
 			bool m_isAnyChildFolder = false;
@@ -51,28 +51,29 @@ namespace GALAXY
 
 			void Draw() override;
 
-			void AddFileSelected(std::shared_ptr<File>& child);
-			void RemoveFileSelected(std::shared_ptr<File>& child);
+			void AddFileSelected(Shared<File>& child);
+			void RemoveFileSelected(Shared<File>& child);
 
 		private:
 			void ClearSelected();
-			void SetCurrentFile(std::shared_ptr<File>& file);
+
+			void SetCurrentFile(Shared<File>& file);
 
 			void RightClickWindow();
 
-			void ShowInExplorer(const std::vector<std::shared_ptr<File>>& files, bool select);
+			void ShowInExplorer(const List<Shared<File>>& files, bool select);
 
 			void ReloadContent();
 		private:
 			friend class MainBar;
 
-			std::filesystem::path m_workingDirectory = ASSET_FOLDER_NAME;
+			Path m_workingDirectory = ASSET_FOLDER_NAME;
 
-			std::shared_ptr<File> m_mainFile;
-			std::shared_ptr<File> m_currentFile;
+			Shared<File> m_mainFile;
+			Shared<File> m_currentFile;
 
-			std::vector<std::shared_ptr<File>> m_selectedFiles;
-			std::vector<std::shared_ptr<File>> m_rightClickedFiles ;
+			List<Shared<File>> m_selectedFiles;
+			List<Shared<File>> m_rightClickedFiles ;
 		};
 	}
 }

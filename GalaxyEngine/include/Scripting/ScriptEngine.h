@@ -1,10 +1,11 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include <unordered_map>
 #include <filesystem>
+
 #ifdef _WIN32
 #include <windows.h>
 #endif
+
 namespace GALAXY
 {
 	namespace Component { class BaseComponent; class ScriptComponent; }
@@ -26,7 +27,8 @@ namespace GALAXY
 			GameObject,
 		};
 
-		static std::unordered_map<std::string, VariableType> typeMap = {
+		static UMap<std::string, VariableType> typeMap = 
+		{
 			{"Unknown", VariableType::Unknown},
 			{"bool", VariableType::Bool},
 			{"int", VariableType::Int},

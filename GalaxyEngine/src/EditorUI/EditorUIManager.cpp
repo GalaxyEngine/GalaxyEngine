@@ -5,7 +5,7 @@
 #include "EditorUI/Hierarchy.h"
 
 namespace GALAXY {
-	std::unique_ptr<EditorUI::EditorUIManager> EditorUI::EditorUIManager::m_instance;
+	Unique<EditorUI::EditorUIManager> EditorUI::EditorUIManager::m_instance;
 
 	EditorUI::EditorUIManager::EditorUIManager()
 	{
@@ -31,11 +31,11 @@ namespace GALAXY {
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
 		m_inspector->Draw();
-		m_console->Draw();
 		m_fileExplorer->Draw();
+		m_console->Draw();
 	}
 
-	EditorUI::EditorUIManager* GALAXY::EditorUI::EditorUIManager::GetInstance()
+	EditorUI::EditorUIManager* EditorUI::EditorUIManager::GetInstance()
 	{
 		return m_instance.get();
 	}

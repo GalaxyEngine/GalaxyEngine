@@ -19,7 +19,7 @@ namespace GALAXY::Core {
 
 		void Terminate() { m_terminate = true; }
 
-		template <typename F, typename... A> void AddTask(F&& task, A&&... args)
+		template <typename F, typename... A> inline void AddTask(F&& task, A&&... args)
 		{
 			std::function<void()> task_function = [task = std::forward<F>(task), args = std::make_tuple(std::forward<A>(args)...)]() mutable {
 				std::apply(task, args);

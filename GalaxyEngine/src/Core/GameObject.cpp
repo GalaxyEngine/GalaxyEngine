@@ -16,35 +16,34 @@ namespace GALAXY
 		m_transform = std::make_unique<Component::Transform>();
 	}
 
-	GameObject::GameObject(const std::string& name) : GameObject()
+	GameObject::GameObject(String name) : GameObject()
 	{
-		m_name = name;
+		SetName(name);
 	}
 
-	std::vector<std::weak_ptr<GameObject>> GameObject::GetChildren()
+	Core::GameObject::~GameObject()
 	{
-		std::vector<std::weak_ptr<GameObject>> weakPtrVector;
-		for (const auto& sharedPtr : m_childs) {
-			weakPtrVector.push_back(sharedPtr);
+		PrintError("GameObject \"%s\" deleted !", m_name.c_str());
+	}
+
+	void GameObject::Destroy()
+	{
+		for (size_t i = 0; i < m_childs.size(); i++)
+		{
+			m_childs[i]->Destroy();
 		}
-		return weakPtrVector;
+		RemoveFromParent();
+		GetScene()->RemoveObject(this);
 	}
 
-	std::weak_ptr<GameObject> GameObject::GetChild(uint32_t index)
-	{
-		if (index < m_childs.size())
-			return m_childs.at(index);
-		return std::weak_ptr<GameObject>();
-	}
-
-	void GameObject::AddChild(std::shared_ptr<GameObject> child, uint32_t index /*= -1*/)
+	void GameObject::AddChild(Shared<GameObject> child, uint32_t index /*= -1*/)
 	{
 		// Check if child is not null 
 		// and if the gameObject is not already the parent of the new child
 		if (!child)
 			return;
 		// Check if the object is already on the list
-		if (std::count_if(m_childs.begin(), m_childs.end(), [&](const std::shared_ptr<GameObject>& c)
+		if (std::count_if(m_childs.begin(), m_childs.end(), [&](const Shared<GameObject>& c)
 			{ return c == child; }) == 0)
 		{
 			if (index == -1)
@@ -60,16 +59,11 @@ namespace GALAXY
 
 	}
 
-	std::weak_ptr<Core::GameObject> GameObject::GetParent()
-	{
-		return m_parent;
-	}
-
-	void GameObject::SetParent(std::weak_ptr<GameObject> parent)
+	void GameObject::SetParent(Weak<GameObject> parent)
 	{
 		if (!parent.lock())
 			return;
-		if (std::shared_ptr<GameObject> prevParent = m_parent.lock())
+		if (Shared<GameObject> prevParent = m_parent.lock())
 		{
 			prevParent->RemoveChild(this);
 		}
@@ -79,7 +73,7 @@ namespace GALAXY
 
 	void GameObject::RemoveChild(GameObject* child)
 	{
-		m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [&](const std::weak_ptr<GameObject>& c) {
+		m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [&](const Weak<GameObject>& c) {
 			return c.lock().get() == child;
 			}), m_childs.end());
 	}
@@ -92,7 +86,7 @@ namespace GALAXY
 
 	void GameObject::Initialize()
 	{
-		m_transform->gameObject = shared_from_this();
+		m_transform->SetGameObject(shared_from_this());
 	}
 
 	void GameObject::UpdateSelfAndChild()
@@ -124,17 +118,6 @@ namespace GALAXY
 		}
 	}
 
-
-
-	bool GameObject::IsAParent(GameObject* object)
-	{
-		if (object == this)
-			return true;
-		else if (m_parent.lock())
-			return m_parent.lock()->IsAParent(object);
-		return false;
-	}
-
 	uint32_t GameObject::GetChildIndex(GameObject* child)
 	{
 		for (uint32_t i = 0; i < m_childs.size(); i++)
@@ -146,11 +129,11 @@ namespace GALAXY
 		return -1;
 	}
 
-	bool GameObject::IsSibling(const std::vector<std::weak_ptr<GameObject>>& siblings)
+	bool GameObject::IsSibling(const List<Weak<GameObject>>& siblings)
 	{
 		for (size_t i = 0; i < siblings.size(); i++)
 		{
-			if (siblings[i].lock()->GetParent().lock() != this->GetParent().lock())
+			if (siblings[i].lock()->GetParent() != this->GetParent())
 				return false;
 		}
 		return true;
@@ -178,7 +161,7 @@ namespace GALAXY
 		}
 	}
 
-	Component::BaseComponent* GameObject::GetComponentWithName(const std::string& componentName)
+	Component::BaseComponent* GameObject::GetComponentWithName(const String& componentName)
 	{
 		for (auto component : m_components)
 		{
@@ -223,12 +206,12 @@ namespace GALAXY
 		}
 	}
 
-	std::vector<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
+	List<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
 	{
-		std::vector<Weak<Core::GameObject>> childs = GetChildren();
+		List<Weak<Core::GameObject>> childs = GetChildren();
 		for (auto& child : m_childs)
 		{
-			std::vector<Weak<Core::GameObject>> newChild = child->GetAllChildren();
+			List<Weak<Core::GameObject>> newChild = child->GetAllChildren();
 			childs.insert(childs.end(), newChild.begin(), newChild.end());
 		}
 		return childs;
@@ -276,7 +259,7 @@ namespace GALAXY
 		{
 			parser.NewDepth();
 			Shared<Component::BaseComponent> component;
-			std::string componentNameString = parser["Name"];
+			String componentNameString = parser["Name"];
 			const char* componentName = componentNameString.c_str();
 			for (auto& componentInstance : Component::ComponentHolder::GetList())
 			{

@@ -11,7 +11,7 @@
 
 namespace GALAXY
 {
-	void Resource::ResourceManager::AddResource(const std::shared_ptr<IResource>& resource)
+	inline void Resource::ResourceManager::AddResource(const Shared<IResource>& resource)
 	{
 		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
 			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
@@ -21,9 +21,9 @@ namespace GALAXY
 	}
 
 	template<typename T>
-	Weak<T> Resource::ResourceManager::AddResource(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::AddResource(const Path& fullPath)
 	{
-		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_resources.contains(relativePath)) {
 			PrintWarning("Already Contain %s", relativePath.string().c_str());
 			return Weak<T>();
@@ -32,7 +32,7 @@ namespace GALAXY
 		return std::dynamic_pointer_cast<T>(m_resources[relativePath]);
 	}
 
-	void Resource::ResourceManager::RemoveResource(IResource* resource)
+	inline void Resource::ResourceManager::RemoveResource(IResource* resource)
 	{
 		if (!resource)
 			return;
@@ -49,29 +49,29 @@ namespace GALAXY
 
 	}
 
-	void Resource::ResourceManager::RemoveResource(const std::shared_ptr<IResource>& resource)
+	inline void Resource::ResourceManager::RemoveResource(const Shared<IResource>& resource)
 	{
 		RemoveResource(resource.get());
 	}
 
-	void Resource::ResourceManager::RemoveResource(const std::filesystem::path& relativePath)
+	inline void Resource::ResourceManager::RemoveResource(const Path& relativePath)
 	{
 		auto it = m_resources[relativePath];
 		m_resources.erase(relativePath);
 		it.reset();
 	}
 
-	bool Resource::ResourceManager::Contains(const std::filesystem::path& fullPath)
+	inline bool Resource::ResourceManager::Contains(const Path& fullPath)
 	{
 		return m_resources.contains(fullPath);
 	}
 
 	template <typename T>
-	inline Weak<T> Resource::ResourceManager::GetOrLoad(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::GetOrLoad(const Path& fullPath)
 	{
 		if (fullPath.empty())
 			return {};
-		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		auto resource = m_instance->m_resources.find(relativePath);
 		if (resource == m_instance->m_resources.end())
 		{
@@ -111,9 +111,9 @@ namespace GALAXY
 
 
 	template <typename T>
-	Weak<T> Resource::ResourceManager::ReloadResource(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::ReloadResource(const Path& fullPath)
 	{
-		std::filesystem::path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.count(relativePath)) {
 			PrintError("Resource %s not found in Resource Manager, Failed to reload", relativePath.string().c_str());
 			return {};
@@ -129,7 +129,7 @@ namespace GALAXY
 
 
 	template <typename T>
-	inline Weak<T> Resource::ResourceManager::GetResource(const std::filesystem::path& fullPath)
+	inline Weak<T> Resource::ResourceManager::GetResource(const Path& fullPath)
 	{
 		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_resources.count(relativePath))
@@ -191,20 +191,28 @@ namespace GALAXY
 		return Weak<T>();
 	}
 
-	Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
+	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
 		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
 		return GetOrLoad<Resource::Shader>(unlitPath);
 	}
 
-	Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
+	inline Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
 	{
 		if (!m_defaultMaterial.lock())
 			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"\\materials\\DefaultMaterial.mat");
 		return m_defaultMaterial;
 	}
 
-	Weak<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
+	inline Resource::ResourceManager* Resource::ResourceManager::GetInstance()
+	{
+		if (m_instance == nullptr) {
+			m_instance = std::make_unique<ResourceManager>();
+		}
+		return m_instance.get();
+	}
+
+	inline Weak<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
 	{
 		if (!m_defaultShader.lock())
 			m_defaultShader = GetUnlitShader();

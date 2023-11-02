@@ -5,9 +5,9 @@
 namespace GALAXY {
 	void Component::BaseComponent::RemoveFromGameObject()
 	{
-		if (gameObject.lock())
+		if (Shared<Core::GameObject> gameObject = GetGameObject())
 		{
-			gameObject.lock()->RemoveComponent(this);
+			gameObject->RemoveComponent(this);
 		}
 	}
 

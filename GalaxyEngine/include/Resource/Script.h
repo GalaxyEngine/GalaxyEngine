@@ -9,7 +9,7 @@ namespace GALAXY
 		class Script : public IResource
 		{
 		public:
-			Script(const std::filesystem::path& fullPath) : IResource(fullPath) {}
+			Script(const Path& fullPath) : IResource(fullPath) {}
 			Script& operator=(const Script& other) = default;
 			Script(const Script&) = default;
 			Script(Script&&) noexcept = default;
@@ -19,11 +19,11 @@ namespace GALAXY
 
 			void Unload() override;
 
-			static Weak<Script> Create(const std::filesystem::path& path);
+			static Weak<Script> Create(const Path& path);
 
-			static void OpenScript(const std::filesystem::path& path);
+			static void OpenScript(const Path& path);
 
-			static ResourceType GetResourceType() { return ResourceType::Script; }
+			static inline ResourceType GetResourceType() { return ResourceType::Script; }
 
 		private:
 

@@ -17,9 +17,11 @@ namespace GALAXY
 
 			void Update();
 
-			Component::Transform* GetTransform() const override;
+			inline Component::Transform* GetTransform() const override {
+				return m_transform.get();
+			}
 
-			class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
+			inline class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
 
 			inline bool IsLooking() { return m_looking; }
 		private:

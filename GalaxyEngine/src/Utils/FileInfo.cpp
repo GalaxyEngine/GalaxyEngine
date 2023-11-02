@@ -5,7 +5,7 @@
 #include "Resource/IResource.h"
 namespace GALAXY
 {
-	Utils::FileInfo::FileInfo(const std::filesystem::path& path)
+	Utils::FileInfo::FileInfo(const Path& path)
 	{
 		m_exist = std::filesystem::exists(path);
 
@@ -22,15 +22,15 @@ namespace GALAXY
 		}
 	}
 
-	std::filesystem::path Utils::FileInfo::ToPath(std::filesystem::path path)
+	Path Utils::FileInfo::ToPath(Path path)
 	{
-		std::filesystem::path canonicalPath = std::filesystem::weakly_canonical(path);
+		Path canonicalPath = std::filesystem::weakly_canonical(path);
 		// Temp Try to remove this line :
 		// return canonicalPath.make_preferred();
 		return canonicalPath;
 	}
 
-	std::filesystem::path Utils::FileInfo::ToRelativePath(std::filesystem::path path)
+	Path Utils::FileInfo::ToRelativePath(Path path)
 	{
 		path = ToPath(path);
 		if (auto relative = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath()); !relative.empty() && relative.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
@@ -50,8 +50,9 @@ namespace GALAXY
 		}
 	}
 
-	Resource::ResourceType Utils::FileInfo::GetTypeFromExtension(const std::filesystem::path& ext)
+	Resource::ResourceType Utils::FileInfo::GetTypeFromExtension(const Path& ext)
 	{
+		// TODO: Replace with map
 		using namespace Resource;
 		if (ext == ".jpg" || ext == ".png" || ext == ".jpeg")
 			return ResourceType::Texture;

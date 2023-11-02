@@ -41,11 +41,6 @@ void Core::SceneHolder::Release()
 	m_instance.reset();
 }
 
-void Core::SceneHolder::SwitchScene(Weak<Resource::Scene> scene)
-{
-	m_nextScene = scene.lock();
-}
-
 void Core::SceneHolder::SwitchSceneUpdate()
 {
 	if (m_nextScene && m_nextScene->IsLoaded())

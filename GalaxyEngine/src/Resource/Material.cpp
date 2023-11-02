@@ -5,7 +5,7 @@
 
 namespace GALAXY {
 
-	Resource::Material::Material(const std::filesystem::path& fullPath) : IResource(fullPath)
+	Resource::Material::Material(const Path& fullPath) : IResource(fullPath)
 	{
 		m_shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
 	}

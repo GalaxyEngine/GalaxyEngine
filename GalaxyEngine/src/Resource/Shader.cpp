@@ -16,7 +16,7 @@ namespace GALAXY {
 		}
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
-			std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
+			Weak<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
 			// Parse .shader file
 			std::string line;
@@ -25,7 +25,7 @@ namespace GALAXY {
 				{
 					std::filesystem::path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
-					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
+					Weak<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
 					SetVertex(vertexShader.lock(), thisShader);
 
 					m_pickingVariant = Create(vertPath, PICKING_PATH);
@@ -36,14 +36,14 @@ namespace GALAXY {
 				{
 					std::filesystem::path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
-					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
+					Weak<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
 					SetGeometry(geometryShader.lock(), thisShader);
 				}
 				else if (line[0] == 'F')
 				{
 					std::filesystem::path fragPath = line.substr(4);
 					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
-					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
+					Weak<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
 					SetFragment(fragmentShader.lock(), thisShader);
 				}
 			}
@@ -80,8 +80,13 @@ namespace GALAXY {
 	{
 		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
 			return Weak<Resource::Shader>();
-		auto vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
-		auto fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+		Weak<VertexShader> vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
+		Weak<FragmentShader> fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+
+		// temporary add this to check if it's work to not expire the shader
+		Shared<VertexShader>  LockVertex = vertexShader.lock();
+		Shared <FragmentShader> LockFrag = fragShader.lock();
+
 		std::string shaderPath = vertexShader.lock()->GetFileInfo().GetRelativePath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
 
 		// Add shader before because of mono thread
@@ -95,11 +100,11 @@ namespace GALAXY {
 	}
 
 	// === Base Shader === //
-	void Resource::BaseShader::AddShader(std::weak_ptr<Shader> shader)
+	void Resource::BaseShader::AddShader(Weak<Shader> shader)
 	{
 		if (!shader.lock())
 			return;
-		uint64_t count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const std::weak_ptr<Shader>& wp) {
+		uint64_t count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const Weak<Shader>& wp) {
 			return !wp.expired() && !wp.owner_before(shader) && !shader.owner_before(wp);
 			});
 		if (count == 0)

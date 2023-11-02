@@ -25,11 +25,11 @@ namespace GALAXY {
 		m_resources.clear();
 	}
 
-	void Resource::ResourceManager::ImportAllFilesInFolder(const std::filesystem::path& folder)
+	void Resource::ResourceManager::ImportAllFilesInFolder(const Path& folder)
 	{
 		if (!std::filesystem::exists(folder))
 			return;
-		auto dirIt = std::filesystem::directory_iterator(folder);
+		std::filesystem::directory_iterator dirIt = std::filesystem::directory_iterator(folder);
 		for (const std::filesystem::directory_entry& entry : dirIt) {
 			if (entry.is_directory())
 			{
@@ -42,11 +42,11 @@ namespace GALAXY {
 		}
 	}
 
-	void Resource::ResourceManager::ImportResource(const std::filesystem::path& resourcePath)
+	void Resource::ResourceManager::ImportResource(const Path& resourcePath)
 	{
 		if (!resourcePath.has_extension())
 			return;
-		auto extension = resourcePath.extension();
+		Path extension = resourcePath.extension();
 		ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension);
 		switch (type)
 		{
@@ -80,7 +80,7 @@ namespace GALAXY {
 			AddResource<Model>(resourcePath);
 #else
 			{
-				std::filesystem::path dataFilePath = resourcePath.parent_path() / resourcePath.stem();
+				Path dataFilePath = resourcePath.parent_path() / resourcePath.stem();
 				if (!std::filesystem::exists(dataFilePath.wstring() + L".gdata"))
 					GetOrLoad<Model>(resourcePath);
 				else
@@ -108,13 +108,13 @@ namespace GALAXY {
 		}
 	}
 
-	void Resource::ResourceManager::ProcessDataFile(const std::filesystem::path& dataPath)
+	void Resource::ResourceManager::ProcessDataFile(const Path& dataPath)
 	{
 		std::fstream file = Utils::FileSystem::OpenFile(dataPath);
 		std::string line;
 		bool process = false;
 		ResourceType type;
-		std::filesystem::path originFilePath;
+		Path originFilePath;
 
 		while (std::getline(file, line))
 		{
@@ -140,14 +140,6 @@ namespace GALAXY {
 				}
 			}
 		}
-	}
-
-	Resource::ResourceManager* Resource::ResourceManager::GetInstance()
-	{
-		if (m_instance == nullptr) {
-			m_instance = std::make_unique<ResourceManager>();
-		}
-		return m_instance.get();
 	}
 
 	void Resource::ResourceManager::Release()

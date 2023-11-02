@@ -15,7 +15,7 @@ namespace GALAXY {
 		class Shader : public IResource
 		{
 		public:
-			Shader(const std::filesystem::path& fullPath) : IResource(fullPath) {}
+			Shader(const Path& fullPath) : IResource(fullPath) {}
 
 			virtual void Load() override;
 			void Send() override;
@@ -41,11 +41,11 @@ namespace GALAXY {
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
 
-			static Weak<Shader> Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath);
+			static Weak<Shader> Create(const Path& vertPath, const Path& fragPath);
 
 			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
 		protected:
-			std::unordered_map<std::string, int> p_locations = {};
+			UMap<std::string, int> p_locations = {};
 
 			Wrapper::Renderer* p_renderer = nullptr;
 
@@ -62,13 +62,13 @@ namespace GALAXY {
 		class BaseShader : public IResource
 		{
 		public:
-			BaseShader(const std::filesystem::path& fullPath) : IResource(fullPath) {}
+			BaseShader(const Path& fullPath) : IResource(fullPath) {}
 
 			virtual void Load() override;
-			void AddShader(std::weak_ptr<Shader> shader);
+			void AddShader(Weak<Shader> shader);
 		protected:
-			std::vector<std::weak_ptr<Shader>> p_shader = {};
-			std::string p_content = "";
+			List<Weak<Shader>> p_shader = {};
+			String p_content = "";
 			uint32_t m_id = -1;
 		private:
 		};
@@ -76,12 +76,12 @@ namespace GALAXY {
 		class VertexShader : public BaseShader
 		{
 		public:
-			VertexShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
+			VertexShader(const Path& fullPath) : BaseShader(fullPath) {}
 
 			void Send() override;
 
 			// Get the enum with the class
-			static ResourceType GetResourceType() { return ResourceType::VertexShader; }
+			static inline ResourceType GetResourceType() { return ResourceType::VertexShader; }
 		protected:
 
 		private:
@@ -92,10 +92,10 @@ namespace GALAXY {
 		class GeometryShader : public BaseShader
 		{
 		public:
-			GeometryShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
+			GeometryShader(const Path& fullPath) : BaseShader(fullPath) {}
 
 			// Get the enum with the class
-			static ResourceType GetResourceType() { return ResourceType::GeometryShader; }
+			static inline ResourceType GetResourceType() { return ResourceType::GeometryShader; }
 		protected:
 
 		private:
@@ -106,12 +106,12 @@ namespace GALAXY {
 		class FragmentShader : public BaseShader
 		{
 		public:
-			FragmentShader(const std::filesystem::path& fullPath) : BaseShader(fullPath) {}
+			FragmentShader(const Path& fullPath) : BaseShader(fullPath) {}
 
 			void Send() override;
 
 			// Get the enum with the class
-			static ResourceType GetResourceType() { return ResourceType::FragmentShader; }
+			static inline ResourceType GetResourceType() { return ResourceType::FragmentShader; }
 		protected:
 
 		private:

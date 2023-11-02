@@ -4,7 +4,7 @@
 #include "Core/Application.h"
 
 namespace GALAXY {
-	Resource::IResource::IResource(const std::filesystem::path& fullPath)
+	Resource::IResource::IResource(const Path& fullPath)
 	{
 		ASSERT(!fullPath.empty());
 		p_fileInfo = Utils::FileInfo(fullPath);

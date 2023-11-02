@@ -40,9 +40,9 @@ namespace GALAXY
 			std::deque<Debug::LogText> m_texts;
 			size_t m_textSelected = -1;
 
-			std::weak_ptr<Resource::Texture> m_infoTexture;
-			std::weak_ptr<Resource::Texture> m_warningTexture;
-			std::weak_ptr<Resource::Texture> m_errorTexture;
+			Weak<Resource::Texture> m_infoTexture;
+			Weak<Resource::Texture> m_warningTexture;
+			Weak<Resource::Texture> m_errorTexture;
 
 			size_t m_infoNumber = 0;
 			size_t m_warningNumber = 0;

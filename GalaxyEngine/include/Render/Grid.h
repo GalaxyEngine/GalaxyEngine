@@ -17,14 +17,15 @@ namespace GALAXY
 			Grid(Grid&&) noexcept = default;
 			virtual ~Grid() {}
 
-			std::weak_ptr<Resource::Shader> m_shader;
-
 			void Initialize();
 			
 			void Draw();
 
 		private:
-			uint32_t vao, vbo;
+
+			Weak<Resource::Shader> m_shader;
+
+			uint32_t m_vao, m_vbo;
 
 		};
 	}

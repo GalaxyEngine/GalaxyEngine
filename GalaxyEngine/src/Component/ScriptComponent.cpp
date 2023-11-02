@@ -342,7 +342,7 @@ namespace GALAXY
 	{
 		for (auto& [variableName, IDs] : p_tempComponentIDs)
 		{
-			if (Shared<Core::GameObject> object = this->gameObject.lock()->GetScene()->GetWithIndex(IDs.gameObjectID).lock())
+			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithIndex(IDs.gameObjectID).lock())
 			{
 				if (Shared<BaseComponent> component = object->GetComponentWithIndex(IDs.componentID).lock())
 				{
@@ -354,7 +354,7 @@ namespace GALAXY
 		}
 		for (auto& [variableName, ID] : p_tempGameObjectIDs)
 		{
-			if (Shared<Core::GameObject> object = this->gameObject.lock()->GetScene()->GetWithIndex(ID).lock())
+			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithIndex(ID).lock())
 			{
 				SetVariable(variableName, object.get());
 			}
@@ -525,7 +525,7 @@ namespace GALAXY
 		auto component = std::any_cast<Component::BaseComponent*>(value);
 		ComponentInfo info;
 		if (component) {
-			auto gameObjectID = component->gameObject.lock()->GetIndex();
+			auto gameObjectID = component->GetGameObject()->GetIndex();
 			auto componentID = component->GetIndex();
 			info = ComponentInfo(gameObjectID, componentID, std::string(component->GetComponentName()));
 		}

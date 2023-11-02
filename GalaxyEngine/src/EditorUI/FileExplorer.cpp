@@ -25,7 +25,7 @@ namespace fs = std::filesystem;
 namespace GALAXY {
 
 #pragma region File
-	EditorUI::File::File(const std::filesystem::path& path)
+	EditorUI::File::File(const Path& path)
 	{
 		m_resource = Resource::ResourceManager::GetInstance()->GetResource<Resource::IResource>(path);
 		if (m_resource.lock())
@@ -176,7 +176,7 @@ namespace GALAXY {
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
 			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
 			{
-				std::shared_ptr<GALAXY::EditorUI::File> parent = m_currentFile->m_parent.lock();
+				Shared<GALAXY::EditorUI::File> parent = m_currentFile->m_parent.lock();
 				SetCurrentFile(parent);
 			}
 			ImGui::SameLine();
@@ -290,7 +290,7 @@ namespace GALAXY {
 
 	}
 
-	void EditorUI::FileExplorer::AddFileSelected(std::shared_ptr<File>& child)
+	void EditorUI::FileExplorer::AddFileSelected(Shared<File>& child)
 	{
 		if (std::count(m_selectedFiles.begin(), m_selectedFiles.end(), child) > 0)
 			return;
@@ -298,7 +298,7 @@ namespace GALAXY {
 		m_selectedFiles.push_back(child);
 	}
 
-	void EditorUI::FileExplorer::RemoveFileSelected(std::shared_ptr<File>& child)
+	void EditorUI::FileExplorer::RemoveFileSelected(Shared<File>& child)
 	{
 		for (size_t i = 0; i < m_selectedFiles.size(); i++) {
 			if (m_selectedFiles[i] == child) {
@@ -317,7 +317,7 @@ namespace GALAXY {
 		m_selectedFiles.clear();
 	}
 
-	void EditorUI::FileExplorer::SetCurrentFile(std::shared_ptr<File>& file)
+	void EditorUI::FileExplorer::SetCurrentFile(Shared<File>& file)
 	{
 		m_currentFile = file;
 		ClearSelected();
@@ -403,7 +403,7 @@ namespace GALAXY {
 			{
 				ShowInExplorer(!m_rightClickedFiles.empty() ?
 					m_rightClickedFiles :
-					std::vector<std::shared_ptr<File>>{ m_currentFile }, !m_rightClickedFiles.empty());
+					std::vector<Shared<File>>{ m_currentFile }, !m_rightClickedFiles.empty());
 				quitPopup();
 			}
 			if (ImGui::Button("New Folder", buttonSize))
@@ -444,7 +444,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::FileExplorer::ShowInExplorer(const std::vector<std::shared_ptr<File>>& files, bool select)
+	void EditorUI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, bool select)
 	{
 #ifdef _WIN32
 		

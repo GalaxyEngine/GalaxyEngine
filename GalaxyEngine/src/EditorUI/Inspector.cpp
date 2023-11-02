@@ -30,7 +30,7 @@ void EditorUI::Inspector::Draw()
 
 void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 {
-	if (!object->GetParent().lock())
+	if (!object->GetParent())
 	{
 		Render::Camera::GetEditorCamera()->GetTransform()->ShowInInspector();
 		if (ImGui::Button("Print Camera Datas")) {
@@ -126,10 +126,10 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 }
 
 
-void EditorUI::Inspector::AddSelected(std::weak_ptr<Core::GameObject> gameObject)
+void EditorUI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 {
 	auto it = std::remove_if(m_selectedGameObject.begin(), m_selectedGameObject.end(),
-		[&](const std::weak_ptr<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); });
+		[&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); });
 	if (it != m_selectedGameObject.end()) {
 		m_selectedGameObject.erase(it);
 		gameObject.lock()->m_selected = false;
@@ -140,7 +140,7 @@ void EditorUI::Inspector::AddSelected(std::weak_ptr<Core::GameObject> gameObject
 	}
 }
 
-void EditorUI::Inspector::SetSelected(std::weak_ptr<Core::GameObject> gameObject)
+void EditorUI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
 {
 	ClearSelected();
 	AddSelected(gameObject);
@@ -162,7 +162,7 @@ void EditorUI::Inspector::ClearSelected()
 	gizmo->SetGameObject({});
 }
 
-std::vector<std::weak_ptr<Core::GameObject>> EditorUI::Inspector::GetSelected()
+List<Weak<Core::GameObject>> EditorUI::Inspector::GetSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{
@@ -188,7 +188,7 @@ void EditorUI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Move Up", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
+			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
 			uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index - 1);
@@ -198,7 +198,7 @@ void EditorUI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Move Down", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->gameObject.lock().get();
+			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
 			uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index + 1);

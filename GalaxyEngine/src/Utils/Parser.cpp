@@ -169,7 +169,7 @@ namespace GALAXY
 		if (!value)
 			pairString = std::to_string(-1) + ", " + std::to_string(-1);
 		else
-			pairString = std::to_string(value->gameObject.lock()->GetIndex()) + ", " + std::to_string(value->GetIndex());
+			pairString = std::to_string(value->GetGameObject()->GetIndex()) + ", " + std::to_string(value->GetIndex());
 		this->operator<<(pairString);
 		return *this;
 	}

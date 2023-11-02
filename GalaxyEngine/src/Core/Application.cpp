@@ -212,12 +212,6 @@ namespace GALAXY {
 		PrintLog("Application clean-up completed.");
 	}
 
-	void Core::Application::AddResourceToSend(const std::filesystem::path& fullPath)
-	{
-		if (!std::count(m_resourceToSend.begin(), m_resourceToSend.end(), fullPath))
-			m_resourceToSend.push_back(fullPath);
-	}
-
 	void Core::Application::Exit()
 	{
 		m_window->Close();

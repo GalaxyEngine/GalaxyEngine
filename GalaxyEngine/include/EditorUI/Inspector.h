@@ -14,23 +14,21 @@ namespace GALAXY {
 
 			void ShowGameObject(Core::GameObject* object);
 
-			void ShowGameObjects();
+			void AddSelected(Weak<Core::GameObject> gameObject);
 
-			void AddSelected(std::weak_ptr<Core::GameObject> gameObject);
-
-			void SetSelected(std::weak_ptr<Core::GameObject> gameObject);
+			void SetSelected(Weak<Core::GameObject> gameObject);
 
 			void ClearSelected();
 
 			void RightClickPopup();
 			
-			std::vector<std::weak_ptr<Core::GameObject>> GetSelected();
+			List<Weak<Core::GameObject>> GetSelected();
 		private:
 			friend class MainBar;
 
-			std::vector<std::weak_ptr<Core::GameObject>> m_selectedGameObject;
+			List<Weak<Core::GameObject>> m_selectedGameObject;
 
-			std::weak_ptr<Component::BaseComponent> m_rightClicked;
+			Weak<Component::BaseComponent> m_rightClicked;
 
 		};
 	}

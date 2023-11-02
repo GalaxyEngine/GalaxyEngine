@@ -17,9 +17,6 @@ namespace GALAXY {
 		class GALAXY_API BaseComponent
 		{
 		public:
-			Weak<Core::GameObject> gameObject = Weak<Core::GameObject>();
-
-		public:
 			BaseComponent();
 			BaseComponent& operator=(const BaseComponent& other) = default;
 			BaseComponent(const BaseComponent&) = default;
@@ -74,9 +71,9 @@ namespace GALAXY {
 
 			inline bool IsEnable() const { return p_enable; }
 
-			inline virtual void SetGameObject(Weak<Core::GameObject> object) { gameObject = object; }
+			inline virtual void SetGameObject(Weak<Core::GameObject> object) { p_gameObject = object; }
 
-			inline Shared<Core::GameObject> GameObject() { return gameObject.lock(); }
+			inline Shared<Core::GameObject> GetGameObject() { return p_gameObject.lock(); }
 
 			inline uint32_t GetIndex() const { return p_id; }
 
@@ -88,6 +85,8 @@ namespace GALAXY {
 
 		protected:
 			friend Core::GameObject;
+
+			Weak<Core::GameObject> p_gameObject = Weak<Core::GameObject>();
 
 			bool p_enable = true;
 

@@ -49,7 +49,7 @@ CLASS(%s)
 		p_loaded = false;
 	}
 
-	Weak<Resource::Script> Resource::Script::Create(const std::filesystem::path& path)
+	Weak<Resource::Script> Resource::Script::Create(const Path& path)
 	{
 		std::ofstream hFile(path.string() + ".h");
 		auto className = path.filename();
@@ -89,7 +89,7 @@ CLASS(%s)
 		return TRUE; // Continue enumerating windows
 	}
 
-	void Resource::Script::OpenScript(const std::filesystem::path& path)
+	void Resource::Script::OpenScript(const Path& path)
 	{
 		// Find the Visual Studio window by its class name or window title
 		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string() + " - Microsoft Visual Studio";

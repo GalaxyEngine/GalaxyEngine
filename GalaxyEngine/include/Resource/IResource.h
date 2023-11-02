@@ -29,7 +29,7 @@ namespace GALAXY::Resource {
 	class IResource
 	{
 	public:
-		IResource(const std::filesystem::path& fullPath);
+		IResource(const Path& fullPath);
 		IResource& operator=(const IResource& other) = default;
 		IResource(const IResource&) = default;
 		IResource(IResource&&) noexcept = default;
@@ -40,16 +40,16 @@ namespace GALAXY::Resource {
 		virtual void ShowInInspector() {}
 		virtual void Unload() {}
 
-		bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
-		bool IsLoaded() const { return p_loaded.load(); }
-		bool HasBeenSent() const { return p_hasBeenSent.load(); }
+		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
+		inline bool IsLoaded() const { return p_loaded.load(); }
+		inline bool HasBeenSent() const { return p_hasBeenSent.load(); }
 
 		void SendRequest();
 
 		void ShouldBeDisplayOnInspector(bool val) { p_displayOnInspector = val; }
 
-		std::string GetName() { return p_fileInfo.GetFileName(); }
-		Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
+		inline std::string GetName() { return p_fileInfo.GetFileName(); }
+		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 	protected:
 		friend class ResourceManager;
 
