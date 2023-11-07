@@ -15,6 +15,10 @@
 #include "Resource/Scene.h"
 #include "Core/ThreadManager.h"
 
+#ifdef __linux__
+#include <dlfcn.h>
+#endif
+
 #define DESTINATION_DLL std::filesystem::path("")
 
 namespace GALAXY
@@ -38,6 +42,8 @@ namespace GALAXY
 
 	std::string GetLastErrorAsString()
 	{
+		std::string message = "";
+#ifdef _WIN32
 		//Get the error message ID, if any.
 		DWORD errorMessageID = ::GetLastError();
 		if (errorMessageID == 0) {
@@ -52,10 +58,11 @@ namespace GALAXY
 			NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
 		//Copy the error message into a std::string.
-		std::string message(messageBuffer, size);
+		message = std::string(messageBuffer, size);
 
 		//Free the Win32's string's buffer.
 		LocalFree(messageBuffer);
+#endif
 
 		return message;
 	}
@@ -69,7 +76,14 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
-		auto dllPathName = dllPath / (dllName + ".dll");
+		std::string extension = "";
+#if defined(_WIN32)
+		extension = ".dll";
+#elif defined(__linux__)
+		extension = ".so";
+#endif
+
+		auto dllPathName = dllPath / (dllName + extension);
 		auto pdbPathName = dllPath / (dllName + ".pdb");
 		auto libPathName = dllPath / (dllName + ".lib");
 
@@ -84,35 +98,46 @@ namespace GALAXY
 
 		if (!std::filesystem::exists(dllPathName))
 		{
-			PrintError("Failed to load project DLL : file not %s exist", dllPathName.string().c_str());
+			PrintError("Failed to load project DLL: file not %s exist", dllPathName.string().c_str());
 			return;
 		}
 
-		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + ".dll");
+		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + extension);
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
 
 		bool shouldCopyFiles = true;
-		if (std::filesystem::exists(copiedDllPath)) {
-
+		if (std::filesystem::exists(copiedDllPath))
+		{
 			auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
 			auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
-			if (lastTimeCopied > lastTimeDLL) {
+			if (lastTimeCopied > lastTimeDLL)
+			{
 				shouldCopyFiles = false;
 			}
 		}
-		if (shouldCopyFiles) {
+
+		if (shouldCopyFiles)
+		{
 			auto threadManager = Core::ThreadManager::GetInstance();
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, libPathName, copiedLibPath);
 
-			while (copiedFile != 3) {}
+			while (copiedFile != 3)
+			{
+			}
 			copiedFile = 0;
 		}
+
 		auto dllLoad = copiedDllPath.string();
+		bool loaded = false;
+
+#if defined(_WIN32)
 		m_hDll = LoadLibrary(dllLoad.c_str());
-		if (m_hDll != NULL) {
+
+		if (m_hDll != NULL)
+		{
 			PrintLog("Loading Project %s", dllName.c_str());
 
 			for (auto& script : m_scripts)
@@ -122,10 +147,24 @@ namespace GALAXY
 			m_dllLoaded = true;
 			PrintLog("Loaded Project %s", dllName.c_str());
 		}
-		else {
+		else
+		{
 			PrintError("Failed to load project DLL : %s", GetLastErrorAsString().c_str());
 		}
+#elif defined(__linux__)
+		// Linux-specific code
+		m_hDll = dlopen(dllLoad.c_str(), RTLD_LAZY);
+		if (m_hDll)
+		{
+			loaded = true;
+		}
+		else
+		{
+			PrintError("Failed to load project DLL: %s", dlerror());
+		}
+#endif
 	}
+
 
 	void Scripting::ScriptEngine::UnloadDLL()
 	{

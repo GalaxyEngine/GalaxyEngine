@@ -5,9 +5,7 @@
 #include <cstdio>
 
 #ifdef _WIN32
-#define NOMINMAX
 #include <windows.h>
-#else
 #endif
 
 #define MAX_LOG_SIZE 1024

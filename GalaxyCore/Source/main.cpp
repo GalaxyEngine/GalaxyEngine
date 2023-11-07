@@ -1,13 +1,10 @@
 #include <Core/Application.h>
 
 using namespace GALAXY;
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-
-#include <cstdlib>
 
 #ifdef _WIN32
-#include <windows.h>
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
 #endif // _WIN32
 
 
@@ -34,11 +31,13 @@ void Main(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
+#ifdef _WIN32
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 	//  TODO: Remove Comments To Break on leaks
 	// |
 	// V
 	//_CrtSetBreakAlloc(863);
+#endif
 	Main(argc, argv);
 	return 0;
 }

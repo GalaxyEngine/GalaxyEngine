@@ -2,6 +2,7 @@
 #include <GalaxyAPI.h>
 
 #ifdef _WIN32
+#define NOMINMAX
 #include <Windows.h>
 #endif
 

@@ -23,10 +23,12 @@ using UMap = std::unordered_map<T, U>;
 using String = std::string;
 
 
-#ifdef GALAXY_EXPORTS
+#if defined(_WIN32) && defined(GALAXY_EXPORTS)
 #define GALAXY_API __declspec(dllexport)
-#else
+#elif defined(_WIN32)
 #define GALAXY_API __declspec(dllimport)
+#else
+#define GALAXY_API
 #endif
 
 #ifdef GALAXY_EXPORTS
