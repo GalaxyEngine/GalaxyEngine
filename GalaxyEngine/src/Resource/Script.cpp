@@ -72,6 +72,7 @@ CLASS(%s)
 		return Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".h");
 	}
 
+#ifdef _WIN32
 	BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 		char windowTitle[256];
 		GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle));
@@ -88,9 +89,11 @@ CLASS(%s)
 
 		return TRUE; // Continue enumerating windows
 	}
+#endif
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
+#ifdef _WIN32
 		// Find the Visual Studio window by its class name or window title
 		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string() + " - Microsoft Visual Studio";
 
@@ -119,7 +122,8 @@ CLASS(%s)
 			const std::string commandLineArgs = "\"" + path.string() + "\" /command \"Edit.OpenFile " + newPath + "\"";
 			HINSTANCE result = ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
 		}
-
+#else
+#endif
 	}
 
 }

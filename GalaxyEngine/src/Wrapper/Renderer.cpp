@@ -102,7 +102,7 @@ namespace GALAXY {
 	   {
 		   float angle = (i == numSegments - 1) ? 0.f : (i + 1) * angleStep;
 
-		   Vec3f nextPtLocal = Vec3f(std::sinf(angle), 0.f, std::cosf(angle)) * radius;
+		   Vec3f nextPtLocal = Vec3f(std::sin(angle), 0.f, std::cos(angle)) * radius;
 
 		   Vec3f nextPt = pos + (right * nextPtLocal.x) + (forward * nextPtLocal.z);
 

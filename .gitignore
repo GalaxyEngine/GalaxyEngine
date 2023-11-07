@@ -9,10 +9,12 @@ CMakeLists.txt
 
 GalaxyCore/GalaxyEngine.*
 GalaxyCore/GalaxyCore.*
+GalaxyCore/GalaxyCore
 compile.*
 
 
 *.dll
+*.so
 *.pdb
 *.lib
 /.vscode

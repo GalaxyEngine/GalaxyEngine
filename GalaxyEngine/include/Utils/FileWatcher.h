@@ -2,6 +2,7 @@
 #include "GalaxyAPI.h"
 #include <functional>
 #include <chrono>
+#include <optional>
 namespace GALAXY
 {
 	namespace Utils

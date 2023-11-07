@@ -170,7 +170,11 @@ namespace GALAXY
 	{
 		if (m_dllLoaded && m_hDll != NULL)
 		{
+#if defined(_WIN32)
 			FreeLibrary(m_hDll);
+#elif defined(__linux__)
+			dlclose(m_hDll);
+#endif
 		}
 	}
 
@@ -392,19 +396,31 @@ namespace GALAXY
 
 	Scripting::ScriptConstructor Scripting::ScriptEngine::GetConstructor(const std::string& className)
 	{
+#ifdef _WIN32
 		return (ScriptConstructor)(GetProcAddress(m_hDll, ("Create_" + className).c_str()));
+#elif defined(__linux__)
+		return (ScriptConstructor)dlsym(m_hDll, ("Create_" + className).c_str());
+#endif
 	}
 
 	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)
 	{
 		std::string getterMethodName = ("Get_" + className + '_' + variableName).c_str();
+#ifdef _WIN32
 		return (GetterMethod)(GetProcAddress(m_hDll, getterMethodName.c_str()));
+#elif defined(__linux__)
+		return (GetterMethod)dlsym(m_hDll, getterMethodName.c_str());
+#endif
 	}
 
 	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName)
 	{
 		std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
+#ifdef _WIN32
 		return (SetterMethod)(GetProcAddress(m_hDll, setterMethodName.c_str()));
+#elif defined(__linux__)
+		return (SetterMethod)dlsym(m_hDll, setterMethodName.c_str());
+#endif
 	}
 
 	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName)

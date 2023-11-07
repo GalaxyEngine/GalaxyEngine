@@ -1,8 +1,14 @@
 #include "pch.h"
 #include "Wrapper/Window.h"
+
+#ifdef _WIN32
 #define GLFW_EXPOSE_NATIVE_WIN32
+#endif
 #include <GLFW/glfw3.h>
+
+#ifdef _WIN32
 #include <GLFW/glfw3native.h>
+#endif
 
 namespace GALAXY {
 	static bool s_initialized = false;
@@ -208,12 +214,12 @@ namespace GALAXY {
 		glfwSetWindowShouldClose(glfwWindow, true);
 	}
 
-//#ifdef _WIN32
+#ifdef _WIN32
 	HWND Wrapper::Window::GetWindowWIN32()
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		return glfwGetWin32Window(glfwWindow);
 	}
-//#endif
+#endif
 
 }

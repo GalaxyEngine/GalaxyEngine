@@ -93,7 +93,7 @@ float ClosestDistanceLineCircle(const Physic::Ray& line, const Circle& c, Vec3f&
 
 float Angle(Vec3f from, Vec3f to)
 {
-	float denominator = (float)std::sqrtf(from.LengthSquared() * to.LengthSquared());
+	float denominator = (float)std::sqrt(from.LengthSquared() * to.LengthSquared());
 	if (denominator < 1e-15F)
 		return 0.f;
 
@@ -223,6 +223,8 @@ namespace GALAXY
 			}
 		}
 		break;
+		default:
+			break;
 		}
 
 		if (Input::IsMouseButtonReleased(MouseButton::BUTTON_1)) {
@@ -259,6 +261,8 @@ namespace GALAXY
 				HandleAxis(cameraRay);
 				break;
 			}
+			default:
+				break;
 			}
 		}
 		// TODO : Translate, Rotate, Scale
@@ -314,6 +318,8 @@ namespace GALAXY
 				m_transform->SetWorldScale(axisVector);
 				break;
 			}
+			default:
+				break;
 			}
 		}
 	}
@@ -489,6 +495,8 @@ namespace GALAXY
 				});
 			break;
 		}
+		default:
+			break;
 		}
 		Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 	}

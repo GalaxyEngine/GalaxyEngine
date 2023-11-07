@@ -1,5 +1,4 @@
-#pragma once
-#include "Render/FrameBuffer.h"
+#include "Framebuffer.h"
 namespace GALAXY 
 {
 	Weak<Resource::PostProcessShader> Render::Framebuffer::GetPostProcessShader()

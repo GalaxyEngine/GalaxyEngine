@@ -312,7 +312,9 @@ namespace GALAXY
 	template <typename T>
 	T Utils::StringSerializer::As()
 	{
-		return static_cast<T>(m_content);
+		// return static_cast<T>(m_content);
+		PrintError("Error with parsing type as");
+		return T();
 	}
 
 	template <>
