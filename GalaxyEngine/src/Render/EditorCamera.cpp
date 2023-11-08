@@ -13,7 +13,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
-#define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\PostProcess\\Outline\\outline.ppshader"
+#define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PostProcess/Outline/outline.ppshader"
 
 namespace GALAXY
 {
@@ -87,12 +87,16 @@ namespace GALAXY
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * deltaTime));
 		}
 
-		auto delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right, 0.01f);
+		Vec2f mousePos = Input::GetMousePosition();
+		Vec2f delta = mousePos - prevMousePos;
+
 		float mouseX = delta.x * m_freeLookSensitivity * deltaTime;
 		float mouseY = delta.y * m_freeLookSensitivity * deltaTime;
 
 		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		window->SetMousePosition(prevMousePos);
+
+		prevMousePos = Input::GetMousePosition();
 
 		if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
 		{

@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\PickingShader\\picking.frag"
-namespace GALAXY {
+#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/PickingShader/picking.frag"
+namespace GALAXY
+{
 	void Resource::Shader::Load()
 	{
 		if (p_shouldBeLoaded)
@@ -20,7 +21,8 @@ namespace GALAXY {
 
 			// Parse .shader file
 			std::string line;
-			while (std::getline(file, line)) {
+			while (std::getline(file, line))
+			{
 				if (line[0] == 'V')
 				{
 					std::filesystem::path vertPath = line.substr(4);
@@ -60,23 +62,26 @@ namespace GALAXY {
 
 	void Resource::Shader::SetVertex(Shared<VertexShader> vertexShader, Weak<Shader> weak_this)
 	{
+		ASSERT(vertexShader != nullptr);
 		std::get<0>(p_subShaders) = vertexShader;
 		vertexShader->AddShader(weak_this);
 	}
 
 	void Resource::Shader::SetFragment(Shared<FragmentShader> fragmentShader, Weak<Shader> weak_this)
 	{
+		ASSERT(fragmentShader != nullptr);
 		std::get<2>(p_subShaders) = fragmentShader;
 		fragmentShader->AddShader(weak_this);
 	}
 
 	void Resource::Shader::SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this)
 	{
+		ASSERT(geometryShader != nullptr);
 		std::get<1>(p_subShaders) = geometryShader;
 		geometryShader->AddShader(weak_this);
 	}
 
-	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
+	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path &vertPath, const std::filesystem::path &fragPath)
 	{
 		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
 			return Weak<Resource::Shader>();
@@ -84,8 +89,8 @@ namespace GALAXY {
 		Weak<FragmentShader> fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
 
 		// temporary add this to check if it's work to not expire the shader
-		Shared<VertexShader>  LockVertex = vertexShader.lock();
-		Shared <FragmentShader> LockFrag = fragShader.lock();
+		Shared<VertexShader> LockVertex = vertexShader.lock();
+		Shared<FragmentShader> LockFrag = fragShader.lock();
 
 		std::string shaderPath = vertexShader.lock()->GetFileInfo().GetRelativePath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
 
@@ -104,13 +109,19 @@ namespace GALAXY {
 	{
 		if (!shader.lock())
 			return;
-		uint64_t count = std::count_if(p_shader.begin(), p_shader.end(), [&shader](const Weak<Shader>& wp) {
-			return !wp.expired() && !wp.owner_before(shader) && !shader.owner_before(wp);
-			});
-		if (count == 0)
+		size_t size = p_shader.size();
+		if (size > 0)
 		{
-			p_shader.push_back(shader);
+			for (auto &&_shader : p_shader)
+			{
+				if (!_shader.lock())
+					continue;
+				if (_shader.lock() == shader.lock())
+					return;
+			}
 		}
+
+		p_shader.push_back(shader.lock());
 	}
 
 	void GALAXY::Resource::BaseShader::Load()
@@ -122,7 +133,6 @@ namespace GALAXY {
 		p_loaded = true;
 		SendRequest();
 	}
-
 
 	// === Vertex === //
 	void Resource::VertexShader::Send()
@@ -145,7 +155,7 @@ namespace GALAXY {
 		p_renderer->UseShader(this);
 	}
 
-	int Resource::Shader::GetLocation(const std::string& locationName)
+	int Resource::Shader::GetLocation(const std::string &locationName)
 	{
 		ASSERT(HasBeenSent());
 		if (p_locations.count(locationName))

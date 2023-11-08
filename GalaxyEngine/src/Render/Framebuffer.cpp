@@ -11,7 +11,7 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
-#define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"\\models\\Plane.obj:Plane"
+#define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Plane.obj:Plane"
 namespace GALAXY {
 
 	static std::unordered_map<size_t, bool> s_indexArray = {};

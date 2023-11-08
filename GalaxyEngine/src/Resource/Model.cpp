@@ -34,7 +34,7 @@ namespace GALAXY {
 		std::filesystem::path path = fileWithoutExt.wstring() + L".gdata";
 		std::ofstream file = Utils::FileSystem::GenerateFile(path);
 		if (file.is_open()) {
-			file << "Origin: " << p_fileInfo.GetRelativePath().string() << std::endl;
+			file << "Origin: " << p_fileInfo.GetRelativePath().generic_string() << std::endl;
 			for (auto& mesh : m_meshes)
 			{
 				file << '\t' << mesh.lock()->GetFileInfo().GetFileName() << std::endl;

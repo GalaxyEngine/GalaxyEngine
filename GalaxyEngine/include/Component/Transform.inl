@@ -106,6 +106,8 @@ namespace GALAXY
 
 	inline void Component::Transform::RotateAround(Vec3f axis, float angle)
 	{
+		if (angle == 0.0f)
+			return;
 		Quat rotation = Quat::AngleAxis(angle, axis);
 
 		Vec3f pivot = GetWorldPosition();

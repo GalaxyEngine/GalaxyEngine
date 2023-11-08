@@ -67,7 +67,7 @@ namespace GALAXY {
 			virtual void Load() override;
 			void AddShader(Weak<Shader> shader);
 		protected:
-			List<Weak<Shader>> p_shader = {};
+			List<Weak<Shader>> p_shader;
 			String p_content = "";
 			uint32_t m_id = -1;
 		private:

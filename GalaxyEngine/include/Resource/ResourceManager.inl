@@ -193,14 +193,14 @@ namespace GALAXY
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
-		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\UnlitShader\\unlit.shader";
+		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"/shaders/UnlitShader/unlit.shader";
 		return GetOrLoad<Resource::Shader>(unlitPath);
 	}
 
 	inline Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
 	{
 		if (!m_defaultMaterial.lock())
-			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"\\materials\\DefaultMaterial.mat");
+			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"/materials/DefaultMaterial.mat");
 		return m_defaultMaterial;
 	}
 

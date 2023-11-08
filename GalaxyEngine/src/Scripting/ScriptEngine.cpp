@@ -98,7 +98,7 @@ namespace GALAXY
 
 		if (!std::filesystem::exists(dllPathName))
 		{
-			PrintError("Failed to load project DLL: file not %s exist", dllPathName.string().c_str());
+			PrintError("Failed to load project DLL: file %s not exist", dllPathName.string().c_str());
 			return;
 		}
 

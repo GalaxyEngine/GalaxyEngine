@@ -9,7 +9,7 @@
 
 #include <glad/glad.h>
 
-#define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME"\\shaders\\GridShader\\grid.shader"
+#define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/GridShader/grid.shader"
 namespace GALAXY
 {
 

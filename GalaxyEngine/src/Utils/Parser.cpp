@@ -84,7 +84,7 @@ namespace GALAXY
 		return *this;
 	}
 
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned int& value)
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned long& value)
 	{
 		std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
@@ -348,7 +348,7 @@ namespace GALAXY
 	}
 
 	template <>
-	unsigned int Utils::StringSerializer::As()
+	unsigned long Utils::StringSerializer::As()
 	{
 		return std::stoul(m_content);
 	}

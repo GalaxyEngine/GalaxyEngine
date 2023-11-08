@@ -65,9 +65,9 @@ namespace GALAXY {
 		std::ofstream matFile(p_fileInfo.GetFullPath());
 		if (matFile.is_open())
 		{
-			matFile << "Shader : " << (m_shader.lock() ? m_shader.lock()->GetFileInfo().GetRelativePath().string() : std::string("None")) + '\n';
-			matFile << "Albedo : " << (m_albedo.lock() ? m_albedo.lock()->GetFileInfo().GetRelativePath().string() : std::string("None")) + '\n';
-			matFile << "Normal : " << (m_normal.lock() ? m_normal.lock()->GetFileInfo().GetRelativePath().string() : std::string("None")) + '\n';
+			matFile << "Shader : " << (m_shader.lock() ? m_shader.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
+			matFile << "Albedo : " << (m_albedo.lock() ? m_albedo.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
+			matFile << "Normal : " << (m_normal.lock() ? m_normal.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
 			matFile << "Ambient : " << m_ambient << '\n';
 			matFile << "Diffuse : " << m_diffuse << '\n';
 			matFile << "Specular : " << m_specular << '\n';

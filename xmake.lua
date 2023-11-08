@@ -50,6 +50,7 @@ target("GalaxyEngine")
     add_packages("stb")
 
     if is_plat("mingw") then
+        -- for file dialog in Windows mingw
         add_links("comdlg32")
     end
     --add_packages("rttr")

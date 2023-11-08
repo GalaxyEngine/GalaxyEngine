@@ -11,14 +11,18 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
+	//TODO :
+	// * Add the open file explorer on linux
+	// * Check dynamic loading on linux
+
 	auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
 
-	std::filesystem::path projectPath = "D:\\Code\\Moteurs\\ProjectTest\\ProjectTest.gProject";
-	//std::filesystem::path projectPath = "D:\\Code\\Test Projects\\Project\\Project.gProject";
+	std::filesystem::path projectPath = "D:/Code/Moteurs/ProjectTest/ProjectTest.gProject";
+	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Resource/PostProcessShader.h"
 #include "Resource/ResourceManager.h"
-#define VERTEX_PP_PATH "CoreResources\\shaders\\PostProcess\\postprocess.vert"
+#define VERTEX_PP_PATH "CoreResources/shaders/PostProcess/postprocess.vert"
 
 namespace GALAXY 
 {

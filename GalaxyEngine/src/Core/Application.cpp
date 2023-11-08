@@ -127,7 +127,6 @@ namespace GALAXY {
 			auto object = parser["Object"].As<uint64_t>();
 			auto component2 = parser["Component"].As<Component::ComponentID>();
 		}*/
-		return;
 	}
 
 	void Core::Application::UpdateResources()

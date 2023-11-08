@@ -168,14 +168,19 @@ namespace GALAXY {
 
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, bool physicalPos /*= false*/)
 	{
+    	GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
+		int cursorMode;
+		cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!physicalPos)
-			glfwSetCursorPos(static_cast<GLFWwindow*>(m_window), pos.x, pos.y);
+			glfwSetCursorPos(window, pos.x, pos.y);
 		else
 		{
 			Vec2i windowPos;
-			glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &windowPos.x, &windowPos.y);
-			glfwSetCursorPos(static_cast<GLFWwindow*>(m_window), (double)(pos.x - windowPos.x), (double)(pos.y - windowPos.y));
+			glfwGetWindowPos(window, &windowPos.x, &windowPos.y);
+			glfwSetCursorPos(window, (double)(pos.x - windowPos.x), (double)(pos.y - windowPos.y));
 		}
+		// glfwSetInputMode(window, GLFW_CURSOR, cursorMode);
 	}
 
 	int Wrapper::Window::CursorModeToAPI(CursorMode mode)

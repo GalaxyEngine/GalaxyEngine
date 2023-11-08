@@ -6,8 +6,8 @@
 #include "Resource/Script.h"
 #include "Resource/Material.h"
 
-#define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"\\icons\\folder.png"
-#define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"\\icons\\file.png"
+#define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/folder.png"
+#define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/file.png"
 
 /* TODO:
 * Drag and Drop (folders, models, ...)

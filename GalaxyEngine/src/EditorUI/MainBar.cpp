@@ -10,6 +10,7 @@
 
 #ifdef _WIN32
 #pragma comment(lib, "Comdlg32.lib")
+#elif defined(__linux__)
 #endif
 std::string SaveDialog(const char* filter)
 {
@@ -29,6 +30,8 @@ std::string SaveDialog(const char* filter)
 	{
 		return ofn.lpstrFile;
 	}
+#elif defined(__linux__)
+//todo : make a custom file explorer for linux
 #endif
 	return std::string();
 }
@@ -51,6 +54,8 @@ std::string OpenDialog(const char* filter)
 	{
 		return ofn.lpstrFile;
 	}
+#elif defined(__linux__)
+//todo : make a custom file explorer for linux
 #endif
 	return std::string();
 }
