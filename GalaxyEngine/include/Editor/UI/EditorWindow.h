@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-namespace GALAXY::EditorUI {
+namespace GALAXY::Editor::UI {
 	class EditorWindow
 	{
 	public:

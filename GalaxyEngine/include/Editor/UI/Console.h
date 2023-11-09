@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "EditorUI/EditorWindow.h"
+#include "Editor/UI/EditorWindow.h"
 #include <deque>
 
 namespace GALAXY 
@@ -14,7 +14,7 @@ namespace GALAXY
 			std::string text;
 		};
 	}
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class Console : public EditorWindow
 		{
@@ -58,4 +58,4 @@ namespace GALAXY
 		};
 	}
 }
-#include "EditorUI/Console.inl" 
+#include "Editor/UI/Console.inl" 

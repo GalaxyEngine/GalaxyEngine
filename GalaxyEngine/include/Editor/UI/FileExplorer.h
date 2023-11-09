@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "EditorUI/EditorWindow.h"
+#include "Editor/UI/EditorWindow.h"
 
 #include "Utils/FileInfo.h"
 
@@ -11,7 +11,7 @@ namespace GALAXY
 	{
 		class Texture;
 	}
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class File : public std::enable_shared_from_this<File>
 		{
@@ -77,4 +77,4 @@ namespace GALAXY
 		};
 	}
 }
-#include "EditorUI/FileExplorer.inl" 
+#include "Editor/UI/FileExplorer.inl" 

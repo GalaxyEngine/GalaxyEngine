@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "EditorUI/EditorUIManager.h"
-#include "EditorUI/Hierarchy.h"
-#include "EditorUI/Inspector.h"
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Hierarchy.h"
+#include "Editor/UI/Inspector.h"
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
@@ -11,10 +11,10 @@
 #include "Editor/ActionManager.h"
 
 using namespace Core;
-void EditorUI::Hierarchy::Draw()
+void Editor::UI::Hierarchy::Draw()
 {
 	if (!m_inspector)
-		m_inspector = EditorUI::EditorUIManager::GetInstance()->GetInspector();
+		m_inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
 	if (!p_open)
 		return;
 	if (ImGui::Begin("Hierarchy"))
@@ -32,7 +32,7 @@ void EditorUI::Hierarchy::Draw()
 	ImGui::End();
 }
 
-void EditorUI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t index /* = 0*/)
+void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t index /* = 0*/)
 {
 	GameObject* gameobject = weakGO.lock().get();
 	if (!gameobject)
@@ -238,7 +238,7 @@ void CreateGameObject(const List<Weak<Core::GameObject>>& selected)
 	}
 }
 
-void EditorUI::Hierarchy::RightClickPopup()
+void Editor::UI::Hierarchy::RightClickPopup()
 {
 	if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
 	{
@@ -300,7 +300,7 @@ void EditorUI::Hierarchy::RightClickPopup()
 	}
 }
 
-void EditorUI::Hierarchy::SetRename(Core::GameObject* gameObject)
+void Editor::UI::Hierarchy::SetRename(Core::GameObject* gameObject)
 {
 	m_renameObject = gameObject;
 	m_openRename = true;

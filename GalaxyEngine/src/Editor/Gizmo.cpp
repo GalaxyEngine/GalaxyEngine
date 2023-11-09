@@ -15,8 +15,8 @@
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
 
-#include "EditorUI/EditorUIManager.h"
-#include "EditorUI/SceneWindow.h"
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/SceneWindow.h"
 
 #pragma region MathMethods
 float ClosestDistanceBetweenLines(Physic::Ray& l1, Physic::Ray& l2)
@@ -154,7 +154,7 @@ namespace GALAXY
 		if (!m_object.lock())
 			return;
 
-		static EditorUI::SceneWindow* sceneWindow = EditorUI::EditorUIManager::GetInstance()->GetSceneWindow();
+		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 
 		if (!Render::Camera::GetEditorCamera()->IsLooking())
 		{

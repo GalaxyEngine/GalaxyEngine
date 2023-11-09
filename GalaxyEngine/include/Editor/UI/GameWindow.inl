@@ -1,5 +1,5 @@
 #pragma once
-#include "EditorUI/FileExplorer.h"
+#include "Editor/UI/GameWindow.h"
 namespace GALAXY 
 {
 }

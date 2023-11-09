@@ -8,7 +8,7 @@
 #include "Resource/Scene.h"
 #include "Core/Input.h"
 
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
@@ -34,7 +34,7 @@ namespace GALAXY
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{
-		if (!EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
+		if (!Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
 			return;
 
 		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_2))

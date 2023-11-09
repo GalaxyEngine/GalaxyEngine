@@ -4,7 +4,7 @@
 #include "Core/GameObject.h"
 #include "Core/Application.h"
 
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
@@ -56,10 +56,10 @@ namespace GALAXY
 	{
 		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		static Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-		static EditorUI::Inspector* inspector = EditorUI::EditorUIManager::GetInstance()->GetInspector();
-		static EditorUI::SceneWindow* sceneWindow = EditorUI::EditorUIManager::GetInstance()->GetSceneWindow();
+		static Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
+		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 
-		EditorUI::EditorUIManager::GetInstance()->DrawUI();
+		Editor::UI::EditorUIManager::GetInstance()->DrawUI();
 
 		m_root->UpdateSelfAndChild();
 

@@ -1,13 +1,13 @@
 #include "pch.h"
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/EditorUIManager.h"
 
-#include "EditorUI/SceneWindow.h"
-#include "EditorUI/Hierarchy.h"
+#include "Editor/UI/SceneWindow.h"
+#include "Editor/UI/Hierarchy.h"
 
 namespace GALAXY {
-	Unique<EditorUI::EditorUIManager> EditorUI::EditorUIManager::m_instance;
+	Unique<Editor::UI::EditorUIManager> Editor::UI::EditorUIManager::m_instance;
 
-	EditorUI::EditorUIManager::EditorUIManager()
+	Editor::UI::EditorUIManager::EditorUIManager()
 	{
 		m_mainBar = std::make_unique<MainBar>();
 		m_sceneWindow = std::make_unique<SceneWindow>();
@@ -15,18 +15,20 @@ namespace GALAXY {
 		m_inspector = std::make_unique<Inspector>();
 		m_console = std::make_unique<Console>();
 		m_fileExplorer = std::make_unique<FileExplorer>();
+		m_fileDialog = std::make_unique<FileDialog>();
 	}
 
-	void EditorUI::EditorUIManager::Initialize()
+	void Editor::UI::EditorUIManager::Initialize()
 	{
 		if (!m_instance)
 			m_instance = std::make_unique<EditorUIManager>();
 		m_instance->m_fileExplorer->Initialize();
 	}
 
-	void EditorUI::EditorUIManager::DrawUI()
+	void Editor::UI::EditorUIManager::DrawUI()
 	{
 		DrawMainDock();
+		m_fileDialog->Draw();
 		m_mainBar->Draw();
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
@@ -35,12 +37,12 @@ namespace GALAXY {
 		m_console->Draw();
 	}
 
-	EditorUI::EditorUIManager* EditorUI::EditorUIManager::GetInstance()
+	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::GetInstance()
 	{
 		return m_instance.get();
 	}
 
-	void EditorUI::EditorUIManager::DrawMainDock()
+	void Editor::UI::EditorUIManager::DrawMainDock()
 	{
 		static bool opt_fullscreen = true;
 		static bool opt_padding = false;
@@ -87,7 +89,7 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void EditorUI::EditorUIManager::Release()
+	void Editor::UI::EditorUIManager::Release()
 	{
 		m_instance.reset();
 	}

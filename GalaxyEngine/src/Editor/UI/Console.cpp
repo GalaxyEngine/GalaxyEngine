@@ -1,14 +1,14 @@
 #include "pch.h"
-#include "EditorUI/Console.h"
+#include "Editor/UI/Console.h"
 
 #include "Resource/ResourceManager.h"
 
 namespace GALAXY {
-	EditorUI::Console::~Console()
+	Editor::UI::Console::~Console()
 	{
 	}
 
-	void EditorUI::Console::Draw()
+	void Editor::UI::Console::Draw()
 	{
 		if (!p_open)
 			return;
@@ -86,7 +86,7 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void EditorUI::Console::DisplayText(size_t i)
+	void Editor::UI::Console::DisplayText(size_t i)
 	{
 		ImGui::PushID((int)i);
 		Resource::Texture* tex = nullptr;
@@ -123,7 +123,7 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	void EditorUI::Console::SetResources()
+	void Editor::UI::Console::SetResources()
 	{
 		if (m_resourcesLoaded)
 			return;
@@ -143,7 +143,7 @@ namespace GALAXY {
 		m_resourcesLoaded = m_infoTexture.lock() && m_warningTexture.lock() && m_errorTexture.lock();
 	}
 
-	void EditorUI::Console::AddText(Debug::LogType type, std::string text)
+	void Editor::UI::Console::AddText(Debug::LogType type, std::string text)
 	{
 		m_scrollToBottom = true;
 		if (m_texts.size() > m_maxText)
@@ -182,7 +182,7 @@ namespace GALAXY {
 		m_texts.push_back(Debug::LogText(type, text));
 	}
 
-	void EditorUI::Console::Clear()
+	void Editor::UI::Console::Clear()
 	{
 		m_texts.clear();
 		m_textSelected = -1;

@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "EditorUI/EditorWindow.h"
+#include "Editor/UI/EditorWindow.h"
 
 namespace GALAXY
 {
@@ -8,7 +8,7 @@ namespace GALAXY
 	{
 		class Texture;
 	}
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class SceneWindow : public EditorWindow
 		{

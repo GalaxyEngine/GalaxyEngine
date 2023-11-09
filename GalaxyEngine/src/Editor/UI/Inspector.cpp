@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "EditorUI/Inspector.h"
+#include "Editor/UI/Inspector.h"
 
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
@@ -13,7 +13,7 @@
 
 #include "Wrapper/Reflection.h"
 
-void EditorUI::Inspector::Draw()
+void Editor::UI::Inspector::Draw()
 {
 	if (!p_open)
 		return;
@@ -28,7 +28,7 @@ void EditorUI::Inspector::Draw()
 	ImGui::End();
 }
 
-void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
+void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 {
 	if (!object->GetParent())
 	{
@@ -126,7 +126,7 @@ void EditorUI::Inspector::ShowGameObject(Core::GameObject* object)
 }
 
 
-void EditorUI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
+void Editor::UI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 {
 	auto it = std::remove_if(m_selectedGameObject.begin(), m_selectedGameObject.end(),
 		[&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); });
@@ -140,7 +140,7 @@ void EditorUI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 	}
 }
 
-void EditorUI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
+void Editor::UI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
 {
 	ClearSelected();
 	AddSelected(gameObject);
@@ -149,7 +149,7 @@ void EditorUI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
 	gizmo->SetGameObject(gameObject);
 }
 
-void EditorUI::Inspector::ClearSelected()
+void Editor::UI::Inspector::ClearSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{
@@ -162,7 +162,7 @@ void EditorUI::Inspector::ClearSelected()
 	gizmo->SetGameObject({});
 }
 
-List<Weak<Core::GameObject>> EditorUI::Inspector::GetSelected()
+List<Weak<Core::GameObject>> Editor::UI::Inspector::GetSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{
@@ -175,7 +175,7 @@ List<Weak<Core::GameObject>> EditorUI::Inspector::GetSelected()
 	return m_selectedGameObject;
 }
 
-void EditorUI::Inspector::RightClickPopup()
+void Editor::UI::Inspector::RightClickPopup()
 {
 	if (m_rightClicked.lock() && ImGui::BeginPopup("RightClickPopup"))
 	{

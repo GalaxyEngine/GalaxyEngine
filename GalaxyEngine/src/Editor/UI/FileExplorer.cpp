@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "EditorUI/FileExplorer.h"
+#include "Editor/UI/FileExplorer.h"
 
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
@@ -25,7 +25,7 @@ namespace fs = std::filesystem;
 namespace GALAXY {
 
 #pragma region File
-	EditorUI::File::File(const Path& path)
+	Editor::UI::File::File(const Path& path)
 	{
 		m_resource = Resource::ResourceManager::GetInstance()->GetResource<Resource::IResource>(path);
 		if (m_resource.lock())
@@ -83,7 +83,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::File::FindChildrens()
+	void Editor::UI::File::FindChildrens()
 	{
 		auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
 		for (const std::filesystem::directory_entry& entry : dirIt)
@@ -96,7 +96,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::File::FindAllChildrens()
+	void Editor::UI::File::FindAllChildrens()
 	{
 		if (!std::filesystem::exists(m_info.GetFullPath()))
 		{
@@ -115,7 +115,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::File::DisplayOnExplorer()
+	void Editor::UI::File::DisplayOnExplorer()
 	{
 		if (m_info.isDirectory())
 		{
@@ -137,11 +137,11 @@ namespace GALAXY {
 
 #pragma endregion
 
-	EditorUI::FileExplorer::FileExplorer()
+	Editor::UI::FileExplorer::FileExplorer()
 	{
 	}
 
-	void EditorUI::FileExplorer::Initialize()
+	void Editor::UI::FileExplorer::Initialize()
 	{
 		m_workingDirectory = Resource::ResourceManager::GetInstance()->GetAssetPath();
 		m_mainFile = std::make_shared<File>(m_workingDirectory);
@@ -150,7 +150,7 @@ namespace GALAXY {
 		m_currentFile = m_mainFile;
 	}
 
-	void EditorUI::FileExplorer::Draw()
+	void Editor::UI::FileExplorer::Draw()
 	{
 		if (!p_open) {
 			return;
@@ -176,7 +176,7 @@ namespace GALAXY {
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
 			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
 			{
-				Shared<GALAXY::EditorUI::File> parent = m_currentFile->m_parent.lock();
+				Shared<GALAXY::Editor::UI::File> parent = m_currentFile->m_parent.lock();
 				SetCurrentFile(parent);
 			}
 			ImGui::SameLine();
@@ -290,7 +290,7 @@ namespace GALAXY {
 
 	}
 
-	void EditorUI::FileExplorer::AddFileSelected(Shared<File>& child)
+	void Editor::UI::FileExplorer::AddFileSelected(Shared<File>& child)
 	{
 		if (std::count(m_selectedFiles.begin(), m_selectedFiles.end(), child) > 0)
 			return;
@@ -298,7 +298,7 @@ namespace GALAXY {
 		m_selectedFiles.push_back(child);
 	}
 
-	void EditorUI::FileExplorer::RemoveFileSelected(Shared<File>& child)
+	void Editor::UI::FileExplorer::RemoveFileSelected(Shared<File>& child)
 	{
 		for (size_t i = 0; i < m_selectedFiles.size(); i++) {
 			if (m_selectedFiles[i] == child) {
@@ -308,7 +308,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::FileExplorer::ClearSelected()
+	void Editor::UI::FileExplorer::ClearSelected()
 	{
 		for (auto& selectedFile : m_selectedFiles)
 		{
@@ -317,13 +317,13 @@ namespace GALAXY {
 		m_selectedFiles.clear();
 	}
 
-	void EditorUI::FileExplorer::SetCurrentFile(Shared<File>& file)
+	void Editor::UI::FileExplorer::SetCurrentFile(Shared<File>& file)
 	{
 		m_currentFile = file;
 		ClearSelected();
 	}
 
-	void EditorUI::FileExplorer::RightClickWindow()
+	void Editor::UI::FileExplorer::RightClickWindow()
 	{
 		if (ImGui::BeginPopup("RightClickPopup"))
 		{
@@ -444,7 +444,7 @@ namespace GALAXY {
 		}
 	}
 
-	void EditorUI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, bool select)
+	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, bool select)
 	{
 #ifdef _WIN32
 		
@@ -488,7 +488,7 @@ namespace GALAXY {
 #endif
 	}
 
-	void EditorUI::FileExplorer::ReloadContent()
+	void Editor::UI::FileExplorer::ReloadContent()
 	{
 		m_currentFile->m_childrens.clear();
 		m_currentFile->FindAllChildrens();

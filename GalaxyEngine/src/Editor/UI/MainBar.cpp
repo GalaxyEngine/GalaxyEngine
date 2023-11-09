@@ -1,6 +1,6 @@
 #include "pch.h"
-#include "EditorUI/MainBar.h"
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/MainBar.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 
@@ -62,15 +62,15 @@ std::string OpenDialog(const char* filter)
 
 namespace GALAXY 
 {
-	EditorUI::MainBar::MainBar()
+	Editor::UI::MainBar::MainBar()
 	{
 	}
 
-	EditorUI::MainBar::~MainBar()
+	Editor::UI::MainBar::~MainBar()
 	{
 	}
 
-	void EditorUI::MainBar::Draw()
+	void Editor::UI::MainBar::Draw()
 	{
 		if (ImGui::BeginMainMenuBar())
 		{

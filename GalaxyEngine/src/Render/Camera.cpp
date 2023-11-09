@@ -9,7 +9,7 @@
 #include "Resource/Scene.h"
 #include "Core/Input.h"
 
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
@@ -70,7 +70,7 @@ namespace GALAXY
 
 	Vec2i Render::Camera::GetScreenResolution() const
 	{
-		return EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
+		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
 	}
 
 	std::weak_ptr<Resource::Texture> Render::Camera::GetRenderTexture()
@@ -90,7 +90,7 @@ namespace GALAXY
 
 	bool Render::Camera::IsVisible()
 	{
-		return EditorUI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
+		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
 	}
 
 	void Render::Camera::Begin()

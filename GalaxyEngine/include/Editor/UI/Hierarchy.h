@@ -1,9 +1,9 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "EditorUI/EditorWindow.h"
+#include "Editor/UI/EditorWindow.h"
 namespace GALAXY {
 	namespace Core { class GameObject; }
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class Hierarchy : public EditorWindow
 		{

@@ -18,7 +18,7 @@
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
 
-#include "EditorUI/EditorUIManager.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Component/ComponentHolder.h"
 #include "Component/MeshComponent.h"
@@ -80,8 +80,8 @@ namespace GALAXY {
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
-		// Initialize EditorUI
-		m_editorUI = EditorUI::EditorUIManager::GetInstance();
+		// Initialize Editor::UI
+		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
 		m_editorUI->Initialize();
 
 		// Initialize Scripting

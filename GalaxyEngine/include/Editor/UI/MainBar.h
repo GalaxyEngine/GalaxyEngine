@@ -2,7 +2,7 @@
 #include "GalaxyAPI.h"
 namespace GALAXY 
 {
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class MainBar
 		{

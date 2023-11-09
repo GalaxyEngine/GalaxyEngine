@@ -1,14 +1,15 @@
 #pragma once
 #include "GalaxyAPI.h"
 
-#include "EditorUI/MainBar.h"
-#include "EditorUI/Hierarchy.h"
-#include "EditorUI/Inspector.h"
-#include "EditorUI/SceneWindow.h"
-#include "EditorUI/Console.h"
-#include "EditorUI/FileExplorer.h"
+#include "Editor/UI/MainBar.h"
+#include "Editor/UI/Hierarchy.h"
+#include "Editor/UI/Inspector.h"
+#include "Editor/UI/SceneWindow.h"
+#include "Editor/UI/Console.h"
+#include "Editor/UI/FileExplorer.h"
+#include "Editor/UI/FileDialog.h"
 
-namespace GALAXY::EditorUI {
+namespace GALAXY::Editor::UI {
 	class EditorUIManager
 	{
 	public:
@@ -34,6 +35,7 @@ namespace GALAXY::EditorUI {
 		inline SceneWindow* GetSceneWindow() const { return m_sceneWindow.get(); }
 		inline Console* GetConsole() const { return m_console.get(); }
 		inline FileExplorer* GetFileExplorer() const { return m_fileExplorer.get(); }
+		inline FileDialog* GetFileDialog() const { return m_fileDialog.get(); }
 	private:
 		static Unique<EditorUIManager> m_instance;
 		Unique<MainBar> m_mainBar;
@@ -42,5 +44,6 @@ namespace GALAXY::EditorUI {
 		Unique<SceneWindow> m_sceneWindow;
 		Unique<Console> m_console;
 		Unique<FileExplorer> m_fileExplorer;
+		Unique<FileDialog> m_fileDialog;
 	};
 }

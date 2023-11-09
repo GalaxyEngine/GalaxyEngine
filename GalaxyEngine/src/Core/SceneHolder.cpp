@@ -4,8 +4,8 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
 
-#include "EditorUI/EditorUIManager.h"
-#include "EditorUI/Inspector.h"
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Inspector.h"
 
 std::unique_ptr<Core::SceneHolder> Core::SceneHolder::m_instance;
 
@@ -45,7 +45,7 @@ void Core::SceneHolder::SwitchSceneUpdate()
 {
 	if (m_nextScene && m_nextScene->IsLoaded())
 	{
-		EditorUI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
+		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
 
 		Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
 		m_currentScene.reset();

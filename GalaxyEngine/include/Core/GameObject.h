@@ -4,7 +4,7 @@
 #include <string>
 
 namespace GALAXY {
-	namespace EditorUI
+	namespace Editor::UI
 	{
 		class Hierarchy;
 		class Inspector;
@@ -118,12 +118,12 @@ namespace GALAXY {
 			std::unique_ptr<Component::Transform> m_transform;
 
 			// Hierarchy Parameters
-			friend EditorUI::Hierarchy;
+			friend Editor::UI::Hierarchy;
 
 			bool m_open = true;
 			bool m_selected = false;
 
-			friend EditorUI::Inspector;
+			friend Editor::UI::Inspector;
 			bool m_active = true;
 
 		private:

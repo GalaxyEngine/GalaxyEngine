@@ -3,4 +3,4 @@
 namespace GALAXY 
 {
 }
-#include "EditorUI/GameWindow.inl" 
+#include "Editor/UI/GameWindow.inl" 

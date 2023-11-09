@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "EditorUI/SceneWindow.h"
+#include "Editor/UI/SceneWindow.h"
 
 #include "Resource/Scene.h"
 #include "Core/SceneHolder.h"
@@ -17,11 +17,11 @@
 
 namespace GALAXY {
 
-	EditorUI::SceneWindow::~SceneWindow()
+	Editor::UI::SceneWindow::~SceneWindow()
 	{
 	}
 
-	void EditorUI::SceneWindow::Draw()
+	void Editor::UI::SceneWindow::Draw()
 	{
 		if (!p_open)
 			return;
@@ -68,7 +68,7 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void EditorUI::SceneWindow::SetResources()
+	void Editor::UI::SceneWindow::SetResources()
 	{
 		if (!m_settingsIcon.lock())
 		{
@@ -80,12 +80,12 @@ namespace GALAXY {
 		}
 	}
 
-	Math::Vec2f EditorUI::SceneWindow::GetMousePosition() const
+	Math::Vec2f Editor::UI::SceneWindow::GetMousePosition() const
 	{
 		return (Vec2i)(Input::GetMousePosition() - m_imagePosition);
 	}
 
-	void EditorUI::SceneWindow::DrawImage()
+	void Editor::UI::SceneWindow::DrawImage()
 	{
 		auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
 		auto outlineRenderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
