@@ -5,15 +5,16 @@
 #include "Resource/IResource.h"
 namespace GALAXY
 {
-	Utils::FileInfo::FileInfo(const Path& path)
+	Utils::FileInfo::FileInfo(const Path& path, bool createRelativePath/* = true*/)
 	{
 		m_exist = std::filesystem::exists(path);
 
 		m_fullPath = ToPath(path);
-		m_relativePath = ToRelativePath(m_fullPath);
+		if (createRelativePath)
+			m_relativePath = ToRelativePath(m_fullPath);
 		m_fileName = m_fullPath.filename().string();
 		m_fileNameNoExtension = m_fileName.substr(0, m_fileName.find_last_of('.'));
-		m_extension = m_relativePath.extension();
+		m_extension = m_fullPath.extension();
 		m_resourceType = GetTypeFromExtension(m_extension);
 
 		if (!m_exist)

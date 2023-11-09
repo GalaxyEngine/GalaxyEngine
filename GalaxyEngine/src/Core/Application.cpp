@@ -81,8 +81,8 @@ namespace GALAXY {
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
 		// Initialize Editor::UI
+		Editor::UI::EditorUIManager::Initialize();
 		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
-		m_editorUI->Initialize();
 
 		// Initialize Scripting
 		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
@@ -90,43 +90,6 @@ namespace GALAXY {
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
-		
-		using namespace Utils;
-
-		/*{
-			Serializer serializer("tmp.txt");
-			serializer << PAIR::BEGIN_MAP << "Test";
-			serializer << PAIR::KEY << "path" << PAIR::VALUE << std::filesystem::path("Test/Test.cpp");
-			serializer << PAIR::KEY << "float" << PAIR::VALUE << 1.f;
-			serializer << PAIR::KEY << "bool" << PAIR::VALUE << false;
-			serializer << PAIR::KEY << "int" << PAIR::VALUE << 5;
-			serializer << PAIR::KEY << "double" << PAIR::VALUE << 89.65;
-			serializer << PAIR::KEY << "Vec2f" << PAIR::VALUE << Vec2f(1.33f, 3.4f);
-			serializer << PAIR::KEY << "Vec3f" << PAIR::VALUE << Vec3f(8.5f, 7, 0.1f);
-			serializer << PAIR::KEY << "Vec4f" << PAIR::VALUE << Vec4f(8.5f, 7, 0.1f, 12);
-			serializer << PAIR::KEY << "Quat" << PAIR::VALUE << Quat(8.5f, 7, 0.1f, 12);
-
-			Weak<Core::GameObject> go = Core::SceneHolder::GetCurrentScene()->CreateObject("Test");
-			Weak<Component::MeshComponent> component = go.lock()->AddComponent<Component::MeshComponent>();
-			serializer << PAIR::KEY << "Object" << PAIR::VALUE << go.lock().get();
-			serializer << PAIR::KEY << "Component" << PAIR::VALUE << dynamic_cast<Component::BaseComponent*>(component.lock().get());
-			serializer << PAIR::END_MAP << "Test";
-			serializer.CloseFile();
-
-			Parser parser("tmp.txt");
-			parser.PrintData();
-			auto path = parser["path"];
-			auto floatV = parser["float"].As<float>();
-			auto intV = parser["int"].As<int>();
-			auto doubleV = parser["double"].As<double>();
-			auto boolV = parser["bool"].As<bool>();
-			auto vector2 = parser["Vec2f"].As<Vec2f>();
-			auto vector3 = parser["Vec3f"].As<Vec3f>();
-			auto vector4 = parser["Vec4f"].As<Vec4f>();
-			auto quat = parser["Quat"].As<Quat>();
-			auto object = parser["Object"].As<uint64_t>();
-			auto component2 = parser["Component"].As<Component::ComponentID>();
-		}*/
 	}
 
 	void Core::Application::UpdateResources()
@@ -137,18 +100,20 @@ namespace GALAXY {
 		{
 			auto resourcePath = m_resourceToSend.front();
 			std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
-			if (resource.expired())
-			{
-				PrintError("Failed to send resource %s", resourcePath.c_str());
-				m_resourceToSend.pop_front();
-			}
-			else if (auto resourceFound = resource.lock())
+
+			if (auto resourceFound = resource.lock())
 			{
 				TrySendResource(resourceFound, resourcePath);
 			}
 			else if (auto resourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
 			{
+				PrintLog("Send temp resource %s", resourcePath.string().c_str());
 				TrySendResource(resourceFound, resourcePath);
+			}
+			else
+			{
+				PrintError("Failed to send resource %s", resourcePath.string().c_str());
+				m_resourceToSend.pop_front();
 			}
 		}
 	}
@@ -164,7 +129,6 @@ namespace GALAXY {
 
 	void Core::Application::Update()
 	{
-		auto resourceTest = m_resourceManager->TemporaryLoad<Resource::Texture>("C://Users//romai//Pictures//Shrek_(character).png");
 		while (!m_window->ShouldClose())
 		{
 			Wrapper::Window::PollEvent();
@@ -180,10 +144,6 @@ namespace GALAXY {
 			//BEGINDRAW
 			m_sceneHolder->Update();
 			//ENDDRAW
-
-			ImGui::Begin("Test");
-			Wrapper::GUI::TextureImage(resourceTest.get(), Vec2f(32));
-			ImGui::End();
 
 			// Rendering
 			Wrapper::GUI::EndFrame(m_window);

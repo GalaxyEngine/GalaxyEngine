@@ -23,6 +23,11 @@ namespace GALAXY {
 			resource.second.reset();
 		}
 		m_resources.clear();
+		for (auto& resource : m_temporaryResources)
+		{
+			resource.second.reset();
+		}
+		m_temporaryResources.clear();
 	}
 
 	void Resource::ResourceManager::ImportAllFilesInFolder(const Path& folder)

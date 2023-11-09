@@ -114,18 +114,25 @@ namespace GALAXY
 	{
 		if (fullPath.empty())
 			return {};
+
+		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+
+		if (m_instance->m_resources.contains(relativePath))
+		{
+			// If is inside resource list, then return the resource from this list
+			return GetOrLoad<T>(fullPath).lock();
+		}
+
 		Shared<T> resourceShared;
 		auto resource = m_instance->m_temporaryResources.find(fullPath);
-		bool found = (resource == m_instance->m_temporaryResources.end());
-		if (resource == m_instance->m_temporaryResources.end())
+		if (resource == m_instance->m_temporaryResources.end() || resource->second.expired())
 		{
 			// if resource is not imported
 			resourceShared = std::make_shared<T>(fullPath);
 			m_instance->m_temporaryResources[fullPath] = resourceShared;
-			found = true;
 			resource = m_instance->m_temporaryResources.find(fullPath);
 		}
-		if (found)
+		if (resource != m_instance->m_temporaryResources.end())
 		{
 			// Load the resource if not loaded.
 			if (!resource->second.lock()->p_shouldBeLoaded)

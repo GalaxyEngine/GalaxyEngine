@@ -7,17 +7,55 @@ namespace GALAXY
 {
 	namespace Editor::UI
 	{
+
+		class TmpFile
+		{
+		public:
+			TmpFile(const Path& path);
+			TmpFile& operator=(const TmpFile& other) = default;
+			TmpFile(const TmpFile&) = default;
+			TmpFile(TmpFile&&) noexcept = default;
+			virtual ~TmpFile();
+
+			void FindChildrens();
+
+			inline void SetSelected(Shared<TmpFile> file) 
+			{ 
+				if (m_selectedFile)
+					m_selectedFile->m_selected = false;
+				m_selectedFile = file; 
+				m_selectedFile->m_selected = true;
+			}
+		private:
+			friend class FileDialog;
+
+			Utils::FileInfo m_info;
+
+			Shared<Resource::Texture> m_icon;
+
+			List<Shared<TmpFile>> m_childrens;
+
+			Shared<TmpFile> m_selectedFile;
+
+			bool m_selected = false;
+		};
+
 		class FileDialog : public EditorWindow
 		{
 		public:
+			FileDialog();
+			~FileDialog();
 
 			void Draw();
 
 			inline Path GetCurrentPath() const { return m_currentPath; }
-			inline void SetCurrentPath(Path val) { m_currentPath = val; }
+			void SetCurrentPath(Path val);
 		private:
 			Path m_currentPath = std::filesystem::current_path();
 
+			Shared<TmpFile> m_currentFile;
+
+			std::string m_search;
 		};
 	}
 }

@@ -301,7 +301,8 @@ namespace GALAXY {
 
 	void Wrapper::OpenGLRenderer::DestroyTexture(Resource::Texture* texture)
 	{
-		glDeleteTextures(1, &texture->m_id);
+		if (texture->HasBeenSent())
+			glDeleteTextures(1, &texture->m_id);
 	}
 
 	uint32_t Wrapper::OpenGLRenderer::TextureFilteringToAPI(Resource::TextureFiltering filtering)

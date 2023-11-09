@@ -5,7 +5,7 @@
 #include "Utils/FileInfo.h"
 
 #include <filesystem>
-namespace GALAXY 
+namespace GALAXY
 {
 	namespace Resource
 	{
@@ -29,6 +29,7 @@ namespace GALAXY
 
 		private:
 			friend class FileExplorer;
+			friend class FileDialog;
 
 			Utils::FileInfo m_info;
 			Weak<Resource::Texture> m_icon;
@@ -73,7 +74,7 @@ namespace GALAXY
 			Shared<File> m_currentFile;
 
 			List<Shared<File>> m_selectedFiles;
-			List<Shared<File>> m_rightClickedFiles ;
+			List<Shared<File>> m_rightClickedFiles;
 		};
 	}
 }

@@ -361,7 +361,7 @@ namespace GALAXY {
 
 	void Wrapper::GUI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
 	{
-		if (!texture->HasBeenSent())
+		if (!texture || !texture->HasBeenSent())
 			return;
 		return ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size, (Vec2f)uv0, (Vec2f)uv1);
 	}

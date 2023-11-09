@@ -25,7 +25,7 @@ namespace GALAXY
 		{
 		public:
 			FileInfo() {}
-			FileInfo(const Path& path);
+			FileInfo(const Path& path, bool createRelativePath = true);
 			~FileInfo() {}
 
 			static Path ToPath(Path path);
