@@ -142,19 +142,29 @@ namespace GALAXY {
 				PrintError("Failed to send resource %s", resourcePath.c_str());
 				m_resourceToSend.pop_front();
 			}
-			else
+			else if (auto resourceFound = resource.lock())
 			{
-				if (!resource.lock()->HasBeenSent())
-					resource.lock()->Send();
-				m_resourceToSend.pop_front();
-				if (!resource.lock()->HasBeenSent())
-					m_resourceToSend.push_back(resourcePath);
+				TrySendResource(resourceFound, resourcePath);
+			}
+			else if (auto resourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
+			{
+				TrySendResource(resourceFound, resourcePath);
 			}
 		}
 	}
 
+	void Core::Application::TrySendResource(Shared<Resource::IResource> resource, const std::filesystem::path& resourcePath)
+	{
+		if (!resource->HasBeenSent())
+			resource->Send();
+		m_resourceToSend.pop_front();
+		if (!resource->HasBeenSent())
+			m_resourceToSend.push_back(resourcePath);
+	}
+
 	void Core::Application::Update()
 	{
+		auto resourceTest = m_resourceManager->TemporaryLoad<Resource::Texture>("C://Users//romai//Pictures//Shrek_(character).png");
 		while (!m_window->ShouldClose())
 		{
 			Wrapper::Window::PollEvent();
@@ -170,6 +180,10 @@ namespace GALAXY {
 			//BEGINDRAW
 			m_sceneHolder->Update();
 			//ENDDRAW
+
+			ImGui::Begin("Test");
+			Wrapper::GUI::TextureImage(resourceTest.get(), Vec2f(32));
+			ImGui::End();
 
 			// Rendering
 			Wrapper::GUI::EndFrame(m_window);

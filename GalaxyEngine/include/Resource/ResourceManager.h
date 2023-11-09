@@ -42,11 +42,18 @@ namespace GALAXY {
 			static inline Weak<T> GetOrLoad(const Path& fullPath);
 
 			template <typename T>
+			static inline Shared<T> TemporaryLoad(const Path& fullPath);
+
+			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
 			[[nodiscard]] inline Weak<T> GetResource(const Path& fullPath);
+
+			// Get The Resource, return null if the type is wrong
+			template <typename T>
+			[[nodiscard]] inline Shared<T> GetTemporaryResource(const Path& fullPath);
 
 			template <typename T>
 			[[nodiscard]] inline std::vector<Weak<T>> GetAllResources();
@@ -70,6 +77,7 @@ namespace GALAXY {
 			static Unique<Resource::ResourceManager> m_instance;
 
 			UMap<Path, Shared<IResource>> m_resources;
+			UMap<Path, Weak<IResource>> m_temporaryResources;
 
 			Weak<class Material> m_defaultMaterial;
 			Weak<class Shader> m_defaultShader;
@@ -79,6 +87,7 @@ namespace GALAXY {
 			String m_projectName;
 
 		};
+
 	}
 }
 #include "Resource/ResourceManager.inl" 

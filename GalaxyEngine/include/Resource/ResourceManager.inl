@@ -109,6 +109,43 @@ namespace GALAXY
 		return Weak<T>{};
 	}
 
+	template <typename T>
+	inline Shared<T> Resource::ResourceManager::TemporaryLoad(const Path& fullPath)
+	{
+		if (fullPath.empty())
+			return {};
+		Shared<T> resourceShared;
+		auto resource = m_instance->m_temporaryResources.find(fullPath);
+		bool found = (resource == m_instance->m_temporaryResources.end());
+		if (resource == m_instance->m_temporaryResources.end())
+		{
+			// if resource is not imported
+			resourceShared = std::make_shared<T>(fullPath);
+			m_instance->m_temporaryResources[fullPath] = resourceShared;
+			found = true;
+			resource = m_instance->m_temporaryResources.find(fullPath);
+		}
+		if (found)
+		{
+			// Load the resource if not loaded.
+			if (!resource->second.lock()->p_shouldBeLoaded)
+			{
+#ifdef ENABLE_MULTITHREAD
+				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.lock().get());
+#else
+				resource->second->Load();
+#endif // ENABLE_MULTITHREAD
+
+				return std::dynamic_pointer_cast<T>(resource->second.lock());
+			}
+			else
+			{
+				return std::dynamic_pointer_cast<T>(resource->second.lock());
+			}
+		}
+
+		return {};
+	}
 
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::ReloadResource(const Path& fullPath)
@@ -127,7 +164,6 @@ namespace GALAXY
 		return GetOrLoad<T>(fullPath);
 	}
 
-
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::GetResource(const Path& fullPath)
 	{
@@ -137,6 +173,23 @@ namespace GALAXY
 			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
 		}
 		return Weak<T>{};
+	}
+
+	template <typename T>
+	inline Shared<T> Resource::ResourceManager::GetTemporaryResource(const Path& fullPath)
+	{
+		if (m_temporaryResources.count(fullPath))
+		{
+			auto resource = m_temporaryResources.at(fullPath);
+			if (resource.expired()) 
+			{
+				m_temporaryResources.erase(fullPath);
+				return nullptr;
+			}
+				
+			return std::dynamic_pointer_cast<T>(resource.lock());
+		}
+		return nullptr;
 	}
 
 	template <typename T>

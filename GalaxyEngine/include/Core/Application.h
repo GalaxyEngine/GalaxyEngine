@@ -8,7 +8,7 @@
 
 namespace GALAXY
 {
-	namespace Resource	{ class ResourceManager; }
+	namespace Resource { class ResourceManager; class IResource; }
 	namespace Wrapper { class Window; class Renderer; }
 	namespace Editor::UI { class EditorUIManager; }
 	namespace Scripting { class ScriptEngine; }
@@ -30,6 +30,8 @@ namespace GALAXY
 			inline void AddResourceToSend(const std::filesystem::path& fullPath);
 
 			void UpdateResources();
+
+			void TrySendResource(Shared<Resource::IResource> resource, const std::filesystem::path& resourcePath);
 
 			inline Wrapper::Window* GetWindow() { return m_window.get(); }
 
