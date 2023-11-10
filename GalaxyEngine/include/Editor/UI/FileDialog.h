@@ -52,18 +52,42 @@ namespace GALAXY
 			FileDialog();
 			~FileDialog();
 
-			void Draw(FileDialogType fileDialogType);
+			void Draw();
 
-			void DrawPanel(ImGuiTextFilter& filter);
+			void Exit();
+
+			void DrawPanel(ImGuiTextFilter& textFilter);
 
 			inline Path GetCurrentPath() const { return m_currentPath; }
+
 			void SetCurrentPath(Path val);
+			inline void SetInitialized(bool val) { m_initialized = val; }
+
+			inline void SetFileDialogType(FileDialogType val) { m_fileDialogType = val; }
+			inline std::string GetOutput() const { return m_output; }
+			inline FileDialogType GetFileDialogType() const { return m_fileDialogType; }
+
+			static void OpenFileDialog(FileDialogType fileDialogType, std::string filter = "");
+
+			static bool Initialized();
 		private:
 			Path m_currentPath = std::filesystem::current_path();
+
+			FileDialogType m_fileDialogType;
 
 			Shared<TmpFile> m_currentFile;
 
 			std::string m_search;
+
+			std::string m_output;
+
+			bool m_initialized = false;
+
+			std::string m_filter;
+
+			std::string m_fileName;
+
+			bool m_exited = false;
 		};
 	}
 }

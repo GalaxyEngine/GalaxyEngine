@@ -28,7 +28,7 @@ namespace GALAXY {
 	void Editor::UI::EditorUIManager::DrawUI()
 	{
 		DrawMainDock();
-		m_fileDialog->Draw(FileDialogType::Open);
+		m_fileDialog->Draw();
 		m_mainBar->Draw();
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();

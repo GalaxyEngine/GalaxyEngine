@@ -12,6 +12,10 @@ namespace GALAXY
 
 			void Draw();
 
+			void SaveScene(std::string path);
+
+			void OpenScene(const std::string& path);
+
 		private:
 
 		};

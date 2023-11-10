@@ -2,6 +2,7 @@
 
 #include "Editor/UI/FileDialog.h"
 #include "Editor/UI/FileExplorer.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
@@ -57,6 +58,7 @@ namespace GALAXY
 
 	Editor::UI::FileDialog::FileDialog()
 	{
+		SetOpen(false);
 		SetCurrentPath(std::filesystem::current_path());
 	}
 
@@ -64,7 +66,7 @@ namespace GALAXY
 	{
 	}
 
-	void Editor::UI::FileDialog::Draw(FileDialogType fileDialogType)
+	void Editor::UI::FileDialog::Draw()
 	{
 		if (!p_open)
 			return;
@@ -92,17 +94,45 @@ namespace GALAXY
 
 			ImGui::SameLine();
 
-			static ImGuiTextFilter filter;
-			filter.Draw("Search");
+			static ImGuiTextFilter textFilter;
+			textFilter.Draw("Search");
 
-			DrawPanel(filter);
+			DrawPanel(textFilter);
 			ImGui::Separator();
 
-			static std::string filename;
-			Wrapper::GUI::InputText("File Name", &filename);
+			Wrapper::GUI::InputText("File Name", &m_fileName);
+			ImGui::SameLine();
+			bool buttonClicked = false;
+			switch (m_fileDialogType)
+			{
+			case FileDialogType::Open:
+				buttonClicked = ImGui::Button("Open");
+				break;
+			case FileDialogType::Save:
+				buttonClicked = ImGui::Button("Save");
+				break;
+			default:
+				break;
+			}
+			if (buttonClicked)
+				Exit();
 
+			if (!m_filter.empty()) {
+				ImGui::TextUnformatted(m_filter.c_str());
+			}
 		}
 		ImGui::End();
+
+		if (!p_open && !m_exited)
+		{
+			m_initialized = false;
+			m_output = "";
+			m_fileName = "";
+		}
+		else if (m_exited)
+		{
+			m_exited = false;
+		}
 	}
 
 	void Editor::UI::FileDialog::SetCurrentPath(Path val)
@@ -112,17 +142,24 @@ namespace GALAXY
 		m_currentFile->FindChildrens();
 	}
 
-	void Editor::UI::FileDialog::DrawPanel(ImGuiTextFilter& filter)
+	void Editor::UI::FileDialog::DrawPanel(ImGuiTextFilter& textFilter)
 	{
 		ImGui::BeginChild("Content Panel", ImGui::GetContentRegionAvail() - Vec2f(0, 50));
-		const int iconSize = 128;
+		const int iconSize = 86;
 		const int textLength = 10;
 		const int space = 15;
+
+		static ImGuiTextFilter filterExtension;
+		if (!m_filter.empty()) {
+			strcpy(filterExtension.InputBuf, m_filter.c_str());
+			filterExtension.Build();
+		}
 		for (int i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
 		{
 			const auto& file = m_currentFile->m_childrens[i];
 
-			if (!filter.PassFilter(file->m_info.GetFileName().c_str()))
+			bool passExtensionFilter = (!filterExtension.PassFilter(file->m_info.GetExtension().string().c_str()) && !file->m_info.isDirectory());
+			if (!textFilter.PassFilter(file->m_info.GetFileName().c_str()) || passExtensionFilter)
 				continue;
 
 			ImGui::PushID((int)i);
@@ -134,6 +171,8 @@ namespace GALAXY
 				if (file->m_selected || !file->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 				{
 					m_currentFile->SetSelected(file);
+					if (!file->m_info.isDirectory())
+						m_fileName = file->m_info.GetFileName();
 				}
 			}
 			Vec2f selectedCursorPos = ImGui::GetCursorPos();
@@ -144,6 +183,10 @@ namespace GALAXY
 				{
 					SetCurrentPath(file->m_info.GetFullPath());
 					break;
+				}
+				else
+				{
+					Exit();
 				}
 			}
 			else if (ImGui::IsItemHovered())
@@ -182,6 +225,36 @@ namespace GALAXY
 			ImGui::PopID();
 		}
 		ImGui::EndChild();
+	}
+
+	void Editor::UI::FileDialog::Exit()
+	{
+		std::string finalFilePath = (m_currentFile->m_info.GetFullPath() / m_fileName).generic_string();
+		m_output = finalFilePath;
+		SetOpen(false);
+		m_exited = true;
+	}
+
+	void Editor::UI::FileDialog::OpenFileDialog(FileDialogType fileDialogType, std::string filter /*= ""*/)
+	{
+		static Editor::UI::FileDialog* fileDialog = Editor::UI::EditorUIManager::GetInstance()->GetFileDialog();
+		// Refresh file dialog
+		if (!fileDialog->m_initialized) {
+			fileDialog->SetCurrentPath(std::filesystem::current_path());
+			fileDialog->SetFileDialogType(fileDialogType);
+			fileDialog->SetOpen(true);
+			fileDialog->m_output = "";
+			fileDialog->SetInitialized(true);
+			if (filter == "All")
+				filter = "";
+			fileDialog->m_filter = std::move(filter);
+		}
+	}
+
+	bool Editor::UI::FileDialog::Initialized()
+	{
+		static Editor::UI::FileDialog* fileDialog = Editor::UI::EditorUIManager::GetInstance()->GetFileDialog();
+		return fileDialog->m_initialized;
 	}
 
 }

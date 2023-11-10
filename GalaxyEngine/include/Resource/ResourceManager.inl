@@ -150,7 +150,6 @@ namespace GALAXY
 				return std::dynamic_pointer_cast<T>(resource->second.lock());
 			}
 		}
-
 		return {};
 	}
 
@@ -159,8 +158,8 @@ namespace GALAXY
 	{
 		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.count(relativePath)) {
-			PrintError("Resource %s not found in Resource Manager, Failed to reload", relativePath.string().c_str());
-			return {};
+			PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
+			return GetOrLoad<T>(fullPath);
 		}
 
 		Shared<IResource> resource = m_instance->m_resources.at(relativePath);

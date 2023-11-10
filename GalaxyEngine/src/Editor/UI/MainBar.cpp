@@ -12,9 +12,11 @@
 #pragma comment(lib, "Comdlg32.lib")
 #elif defined(__linux__)
 #endif
+#define HANDLE_FILE_DIALOG
+
 std::string SaveDialog(const char* filter)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
 	OPENFILENAMEA ofn;
 	CHAR szFile[260] = { 0 };
 	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
@@ -30,15 +32,15 @@ std::string SaveDialog(const char* filter)
 	{
 		return ofn.lpstrFile;
 	}
-#elif defined(__linux__)
-//todo : make a custom file explorer for linux
+#elif defined(HANDLE_FILE_DIALOG)
+	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Save, filter);
 #endif
-	return std::string();
+	return "";
 }
 
 std::string OpenDialog(const char* filter)
 {
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
 	OPENFILENAMEA ofn;
 	CHAR szFile[260] = { 0 };
 	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
@@ -52,15 +54,17 @@ std::string OpenDialog(const char* filter)
 	ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
 	if (GetSaveFileNameA(&ofn) == TRUE)
 	{
-		return ofn.lpstrFile;
+		if (ofn.lpstrFile != NULL)
+			return ofn.lpstrFile;
+		return "";
 	}
-#elif defined(__linux__)
-//todo : make a custom file explorer for linux
+#elif defined(HANDLE_FILE_DIALOG)
+	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Open, filter);
 #endif
-	return std::string();
+	return "";
 }
 
-namespace GALAXY 
+namespace GALAXY
 {
 	Editor::UI::MainBar::MainBar()
 	{
@@ -72,6 +76,7 @@ namespace GALAXY
 
 	void Editor::UI::MainBar::Draw()
 	{
+		static auto editorInstance = EditorUIManager::GetInstance();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -80,20 +85,14 @@ namespace GALAXY
 				{
 					if (auto path = OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
 					{
-						auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
-
-						Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
+						OpenScene(path);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
 					if (auto path = SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
 					{
-						if (path.find(".galaxy") == std::string::npos)
-							path = path + ".galaxy";
-
-						Resource::Scene* scene = Core::SceneHolder::GetInstance()->GetCurrentScene();
-						scene->Save(path);
+						SaveScene(path);
 					}
 				}
 				if (ImGui::MenuItem("Exit"))
@@ -108,7 +107,6 @@ namespace GALAXY
 			}
 			if (ImGui::BeginMenu("Window"))
 			{
-				static auto editorInstance = EditorUIManager::GetInstance();
 				ImGui::MenuItem("Hierarchy", NULL, &editorInstance->GetHierarchy()->p_open);
 				ImGui::MenuItem("Inspector", NULL, &editorInstance->GetInspector()->p_open);
 				ImGui::MenuItem("SceneWindow", NULL, &editorInstance->GetSceneWindow()->p_open);
@@ -118,6 +116,39 @@ namespace GALAXY
 			}
 			ImGui::EndMainMenuBar();
 		}
+#ifdef HANDLE_FILE_DIALOG
+		// Handle FileDialog
+		if (!FileDialog::Initialized())
+			return;
+		static FileDialog* fileDialog = editorInstance->GetFileDialog();
+		if (auto path = fileDialog->GetOutput(); !path.empty())
+		{
+			if (fileDialog->GetFileDialogType() == FileDialogType::Open) {
+				OpenScene(path);
+			}
+			else
+			{
+				SaveScene(path);
+			}
+			fileDialog->SetInitialized(false);
+		}
+#endif
+	}
+
+	void Editor::UI::MainBar::OpenScene(const std::string& path)
+	{
+		auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
+
+		Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
+	}
+
+	void Editor::UI::MainBar::SaveScene(std::string path)
+	{
+		if (path.find(".galaxy") == std::string::npos)
+			path = path + ".galaxy";
+
+		Resource::Scene* scene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+		scene->Save(path);
 	}
 
 }
