@@ -40,13 +40,21 @@ namespace GALAXY
 			bool m_selected = false;
 		};
 
+		enum class FileDialogType
+		{
+			Open,
+			Save
+		};
+
 		class FileDialog : public EditorWindow
 		{
 		public:
 			FileDialog();
 			~FileDialog();
 
-			void Draw();
+			void Draw(FileDialogType fileDialogType);
+
+			void DrawPanel(ImGuiTextFilter& filter);
 
 			inline Path GetCurrentPath() const { return m_currentPath; }
 			void SetCurrentPath(Path val);

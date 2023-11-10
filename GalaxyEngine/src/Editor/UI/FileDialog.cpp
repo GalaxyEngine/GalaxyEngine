@@ -64,13 +64,18 @@ namespace GALAXY
 	{
 	}
 
-	void Editor::UI::FileDialog::Draw()
+	void Editor::UI::FileDialog::Draw(FileDialogType fileDialogType)
 	{
 		if (!p_open)
 			return;
 
 		if (ImGui::Begin("File Dialog", &p_open))
 		{
+			if (ImGui::Button("Refresh"))
+			{
+				SetCurrentPath(m_currentPath);
+			}
+			ImGui::SameLine();
 			if (ImGui::Button("<|"))
 			{
 				Path parentPath = m_currentPath.parent_path();
@@ -90,77 +95,12 @@ namespace GALAXY
 			static ImGuiTextFilter filter;
 			filter.Draw("Search");
 
-			ImGui::BeginChild("Content Panel");
-			const int iconSize = 128;
-			const int textLength = 10;
-			const int space = 15;
-			int i = 0;
-			for (int i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
-			{
-				const auto& file = m_currentFile->m_childrens[i];
+			DrawPanel(filter);
+			ImGui::Separator();
 
-				if (!filter.PassFilter(file->m_info.GetFileName().c_str()))
-					continue;
+			static std::string filename;
+			Wrapper::GUI::InputText("File Name", &filename);
 
-				ImGui::PushID((int)i);
-
-				Vec2f cursorPos = ImGui::GetCursorPos();
-
-				// Handle file selection logic
-				if (ImGui::Selectable("##select", &file->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(iconSize))) {
-					if (file->m_selected || !file->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-					{
-						m_currentFile->SetSelected(file);
-					}
-				}
-				Vec2f selectedCursorPos = ImGui::GetCursorPos();
-
-				// Handle double-click to open the file
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-					if (file->m_info.isDirectory())
-					{
-						SetCurrentPath(file->m_info.GetFullPath());
-						break;
-					}
-				}
-				else if (ImGui::IsItemHovered())
-				{
-					ImGui::SetTooltip(file->m_info.GetFileName().c_str());
-				}
-
-				// Positioning for the file icon and text
-				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
-				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
-
-				ImGui::BeginGroup();
-				Wrapper::GUI::TextureImage(file->m_icon.get(), Vec2f(iconSize - 24));
-
-				// Truncate and display file name
-				size_t length = file->m_info.GetFileName().length();
-				std::string fileName = file->m_info.GetFileName();
-				if (length > textLength + 3) {
-					fileName = fileName.substr(0, textLength);
-					fileName.append("...");
-				}
-				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2) + iconSize / 2, iconSize - 24 + 5);
-				ImGui::SetCursorPos(cursorPos + TextPos);
-				ImGui::TextUnformatted(fileName.c_str());
-				ImGui::EndGroup();
-
-
-				if (ImGui::GetWindowWidth() - (j + 1) * (iconSize + space) > iconSize) {
-					ImGui::SameLine(static_cast<float>((j + 1) * (iconSize + space)));
-					j++;
-				}
-				else
-				{
-					j = 0;
-					ImGui::Dummy(Vec2f{ 0, space / 2 + 2 });
-				}
-
-				ImGui::PopID();
-			}
-			ImGui::EndChild();
 		}
 		ImGui::End();
 	}
@@ -170,6 +110,78 @@ namespace GALAXY
 		m_currentPath = val;
 		m_currentFile = std::make_shared<TmpFile>(val);
 		m_currentFile->FindChildrens();
+	}
+
+	void Editor::UI::FileDialog::DrawPanel(ImGuiTextFilter& filter)
+	{
+		ImGui::BeginChild("Content Panel", ImGui::GetContentRegionAvail() - Vec2f(0, 50));
+		const int iconSize = 128;
+		const int textLength = 10;
+		const int space = 15;
+		for (int i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
+		{
+			const auto& file = m_currentFile->m_childrens[i];
+
+			if (!filter.PassFilter(file->m_info.GetFileName().c_str()))
+				continue;
+
+			ImGui::PushID((int)i);
+
+			Vec2f cursorPos = ImGui::GetCursorPos();
+
+			// Handle file selection logic
+			if (ImGui::Selectable("##select", &file->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(iconSize))) {
+				if (file->m_selected || !file->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				{
+					m_currentFile->SetSelected(file);
+				}
+			}
+			Vec2f selectedCursorPos = ImGui::GetCursorPos();
+
+			// Handle double-click to open the file
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+				if (file->m_info.isDirectory())
+				{
+					SetCurrentPath(file->m_info.GetFullPath());
+					break;
+				}
+			}
+			else if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip(file->m_info.GetFileName().c_str());
+			}
+
+			// Positioning for the file icon and text
+			ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
+
+			ImGui::BeginGroup();
+			Wrapper::GUI::TextureImage(file->m_icon.get(), Vec2f(iconSize - 24));
+
+			// Truncate and display file name
+			size_t length = file->m_info.GetFileName().length();
+			std::string fileName = file->m_info.GetFileName();
+			if (length > textLength + 3) {
+				fileName = fileName.substr(0, textLength);
+				fileName.append("...");
+			}
+			Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2) + iconSize / 2, iconSize - 24 + 5);
+			ImGui::SetCursorPos(cursorPos + TextPos);
+			ImGui::TextUnformatted(fileName.c_str());
+			ImGui::EndGroup();
+
+			if (ImGui::GetWindowWidth() - (j + 1) * (iconSize + space) > iconSize) {
+				ImGui::SameLine(static_cast<float>((j + 1) * (iconSize + space)));
+				j++;
+			}
+			else
+			{
+				j = 0;
+				ImGui::Dummy(Vec2f{ 0, space / 2 + 2 });
+			}
+
+			ImGui::PopID();
+		}
+		ImGui::EndChild();
 	}
 
 }
