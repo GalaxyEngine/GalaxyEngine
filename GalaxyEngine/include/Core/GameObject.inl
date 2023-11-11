@@ -7,9 +7,13 @@ namespace GALAXY {
 	}
 
 
-	inline uint64_t Core::GameObject::GetIndex() const
+	inline Core::UUID Core::GameObject::GetUUID() const
 	{
-		return m_id;
+		return m_UUID;
+	}
+	inline uint64_t Core::GameObject::GetSceneGraphID() const
+	{
+		return m_sceneGraphID;
 	}
 
 	inline List<Weak<Core::GameObject>> Core::GameObject::GetChildren()

@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 
+#include <Core/UUID.h>
+
 #include <Wrapper/Reflection.h>
 
 namespace GALAXY {
@@ -10,7 +12,7 @@ namespace GALAXY {
 
 		struct ComponentID
 		{
-			uint64_t gameObjectID;
+			Core::UUID gameObjectID;
 			uint32_t componentID;
 		};
 

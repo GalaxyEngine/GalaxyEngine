@@ -222,7 +222,7 @@ namespace GALAXY
 		serializer << PAIR::BEGIN_MAP << "BEGIN GAMEOBJECT";
 
 		serializer << PAIR::KEY << "Name" << PAIR::VALUE << m_name;
-		serializer << PAIR::KEY << "ID" << PAIR::VALUE << m_id;
+		serializer << PAIR::KEY << "UUID" << PAIR::VALUE << m_UUID;
 
 		serializer << PAIR::KEY << "Component Number" << PAIR::VALUE << m_components.size();
 		serializer << PAIR::KEY << "Child Number" << PAIR::VALUE << m_childs.size();
@@ -250,7 +250,7 @@ namespace GALAXY
 	void GameObject::Deserialize(Utils::Parser& parser)
 	{
 		m_name = parser["Name"];
-		m_id = parser["ID"].As<uint64_t>();
+		m_UUID = parser["UUID"].As<uint64_t>();
 
 		size_t componentNumber = parser["Component Number"].As<size_t>();
 		m_childs.resize(parser["Child Number"].As<size_t>());

@@ -67,7 +67,7 @@ namespace GALAXY
 			inline std::string GetOutput() const { return m_output; }
 			inline FileDialogType GetFileDialogType() const { return m_fileDialogType; }
 
-			static void OpenFileDialog(FileDialogType fileDialogType, std::string filter = "");
+			static void OpenFileDialog(FileDialogType fileDialogType, std::string filter = "", const Path& initialDir = std::filesystem::current_path());
 
 			static bool Initialized();
 		private:

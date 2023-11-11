@@ -3,6 +3,8 @@
 #include "IComponent.h"
 #include "Scripting/ScriptEngine.h"
 
+#include "Core/UUID.h"
+
 #include <unordered_map>
 #include <any>
 #include <optional>
@@ -64,7 +66,7 @@ namespace GALAXY
 
 		struct ComponentInfo
 		{
-			uint64_t gameObjectID = -1;
+			Core::UUID gameObjectID = -1;
 			uint32_t componentID = -1;
 			std::string componentName = "";
 			std::optional<size_t> indexOnList;

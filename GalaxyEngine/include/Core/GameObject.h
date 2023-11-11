@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/Transform.h"
+#include "Core/UUID.h"
 #include <string>
 
 namespace GALAXY {
@@ -67,7 +68,8 @@ namespace GALAXY {
 
 			// === Getters === //
 			inline std::string GetName() const;
-			inline uint64_t GetIndex() const;
+			inline UUID GetUUID() const;
+			inline uint64_t GetSceneGraphID() const;
 
 			inline Component::Transform* GetTransform() { return m_transform.get(); }
 			inline Core::GameObject* GetParent() { return m_parent.lock().get(); }
@@ -106,7 +108,8 @@ namespace GALAXY {
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
 
-			uint64_t m_id = -1;
+			UUID m_UUID;
+			uint64_t m_sceneGraphID = 0;
 			std::string m_name = "GameObject";
 
 			Resource::Scene* m_scene = nullptr;

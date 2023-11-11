@@ -235,12 +235,12 @@ namespace GALAXY
 		m_exited = true;
 	}
 
-	void Editor::UI::FileDialog::OpenFileDialog(FileDialogType fileDialogType, std::string filter /*= ""*/)
+	void Editor::UI::FileDialog::OpenFileDialog(FileDialogType fileDialogType, std::string filter /*= ""*/, const Path& initialDir /*= std::filesystem::current_path()*/)
 	{
 		static Editor::UI::FileDialog* fileDialog = Editor::UI::EditorUIManager::GetInstance()->GetFileDialog();
 		// Refresh file dialog
 		if (!fileDialog->m_initialized) {
-			fileDialog->SetCurrentPath(std::filesystem::current_path());
+			fileDialog->SetCurrentPath(initialDir);
 			fileDialog->SetFileDialogType(fileDialogType);
 			fileDialog->SetOpen(true);
 			fileDialog->m_output = "";

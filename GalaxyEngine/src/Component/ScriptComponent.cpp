@@ -342,7 +342,7 @@ namespace GALAXY
 	{
 		for (auto& [variableName, IDs] : p_tempComponentIDs)
 		{
-			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithIndex(IDs.gameObjectID).lock())
+			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithUUID(IDs.gameObjectID).lock())
 			{
 				if (Shared<BaseComponent> component = object->GetComponentWithIndex(IDs.componentID).lock())
 				{
@@ -354,7 +354,7 @@ namespace GALAXY
 		}
 		for (auto& [variableName, ID] : p_tempGameObjectIDs)
 		{
-			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithIndex(ID).lock())
+			if (Shared<Core::GameObject> object = this->GetGameObject()->GetScene()->GetWithUUID(ID).lock())
 			{
 				SetVariable(variableName, object.get());
 			}
@@ -497,7 +497,7 @@ namespace GALAXY
 			return;
 		for (auto& refs : m_missingComponentRefs)
 		{
-			auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(refs.second.componentID);
+			Weak<Core::GameObject> gameObject = Core::SceneHolder::GetCurrentScene()->GetWithUUID(refs.second.gameObjectID);
 			if (!gameObject.lock())
 				continue;
 			// Check if component exist and the same type of the previous one
@@ -525,7 +525,7 @@ namespace GALAXY
 		auto component = std::any_cast<Component::BaseComponent*>(value);
 		ComponentInfo info;
 		if (component) {
-			auto gameObjectID = component->GetGameObject()->GetIndex();
+			auto gameObjectID = component->GetGameObject()->GetUUID();
 			auto componentID = component->GetIndex();
 			info = ComponentInfo(gameObjectID, componentID, std::string(component->GetComponentName()));
 		}
@@ -534,10 +534,10 @@ namespace GALAXY
 
 	std::any Component::ReloadScript::ConvertGameObjectToID(const std::any& value)
 	{
-		uint64_t id = -1;
+		Core::UUID id = -1;
 		if (auto gameObject = std::any_cast<Core::GameObject*>(value))
 		{
-			id = gameObject->GetIndex();
+			id = gameObject->GetUUID();
 		}
 		return id;
 	}
@@ -545,7 +545,7 @@ namespace GALAXY
 	bool Component::ReloadScript::ConvertInfoToComponent(std::any& value)
 	{
 		ComponentInfo info = std::any_cast<ComponentInfo>(value);
-		auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(info.gameObjectID);
+		auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithUUID(info.gameObjectID);
 		if (!gameObject.lock())
 			return true;
 		// Check if component exist and the same type of the previous one
@@ -565,7 +565,7 @@ namespace GALAXY
 	std::any Component::ReloadScript::ConvertIDToGameObject(const std::any& value)
 	{
 		uint64_t index = std::any_cast<uint64_t>(value);
-		if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithIndex(index).lock())
+		if (auto gameObject = Core::SceneHolder::GetCurrentScene()->GetWithUUID(index).lock())
 			return gameObject.get();
 		return nullptr;
 	}
@@ -650,7 +650,7 @@ namespace GALAXY
 				}
 				for (size_t i = 0; i < indices.size(); i++) {
 					// Get the gameobject with the indices
-					std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
+					std::weak_ptr<Core::GameObject> payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[i]);
 					if (auto component = payloadGameObject.lock()->GetComponentWithName(variable.second.typeName))
 					{
 						// Get Component of the good type with the name
@@ -686,7 +686,7 @@ namespace GALAXY
 					indices.assign(payloadData, payloadData + payloadSize);
 				}
 				// Get the gameobject with the first index
-				*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[0]).lock().get();
+				*value = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[0]).lock().get();
 			}
 			ImGui::EndDragDropTarget();
 		}

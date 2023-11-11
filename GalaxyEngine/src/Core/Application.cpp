@@ -69,7 +69,7 @@ namespace GALAXY {
 		m_resourceManager = Resource::ResourceManager::GetInstance();
 		m_resourceManager->m_projectPath = projectPath.parent_path();
 		m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
-		std::string filename = projectPath.filename().string();
+		std::string filename = projectPath.filename().generic_string();
 		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
 
 		

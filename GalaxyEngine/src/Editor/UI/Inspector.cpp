@@ -44,7 +44,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	ImGui::SameLine();
 	Wrapper::GUI::InputText("##InputName", &object->m_name);
 	ImGui::SameLine();
-	ImGui::TextUnformatted(std::to_string(object->GetIndex()).c_str());
+	ImGui::TextUnformatted(std::to_string(object->GetUUID()).c_str());
 	ImGui::Separator();
 
 	// Transform

@@ -6,11 +6,9 @@ namespace GALAXY
 	{
 		std::shared_ptr<Core::GameObject> shared = std::make_shared<Core::GameObject>(std::forward<Args>(args)...);
 		shared->Initialize();
-		uint64_t objectIndex = GetFreeIndex();
 		shared->m_scene = this;
-		shared->m_id = objectIndex;
 
-		m_objectList[objectIndex] = shared;
+		m_objectList[shared->m_UUID] = shared;
 
 		m_lastAdded.push_back(shared);
 
@@ -19,13 +17,13 @@ namespace GALAXY
 
 	inline void Resource::Scene::AddObject(std::shared_ptr<Core::GameObject> gameObject)
 	{
-		if (!m_objectList.count(gameObject->m_id))
+		if (!m_objectList.count(gameObject->m_UUID))
 		{
-			m_objectList[gameObject->m_id] = gameObject;
+			m_objectList[gameObject->m_UUID] = gameObject;
 		}
 		else
 		{
-			gameObject->m_id = GetFreeIndex();
+			gameObject->m_UUID = Core::UUID();
 			m_root->AddChild(gameObject);
 		}
 	}
@@ -52,21 +50,26 @@ namespace GALAXY
 		}
 	}
 
-	inline uint64_t Resource::Scene::GetFreeIndex()
+	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithSceneGraphID(uint64_t index)
 	{
-		uint64_t index = 0;
-		while (m_objectList.find(index) != m_objectList.end()) {
-			index++;
+		for (auto& [id, object]:m_objectList)
+		{
+			if (object->GetSceneGraphID() == index)
+			{
+				return object;
+			}
 		}
-		return index;
+		return {};
 	}
 
-	inline Weak<Core::GameObject> Resource::Scene::GetWithIndex(uint64_t index)
+	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithUUID(Core::UUID uuid)
 	{
-		if (m_objectList.count(index))
+		if (m_objectList.count(uuid))
 		{
-			return m_objectList.at(index);
+			return m_objectList.at(uuid);
 		}
-		return Weak<Core::GameObject>();
+		return {};
 	}
+
+
 }

@@ -104,6 +104,13 @@ namespace GALAXY
 		return *this;
 	}
 
+	template<> Utils::Serializer& Utils::Serializer::operator<<(const Core::UUID& value)
+	{
+		std::string stringValue = std::to_string(value);
+		*this << stringValue.c_str();
+		return *this;
+	}
+
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const double& value)
 	{
 		std::string stringValue = std::to_string(value);
@@ -159,7 +166,7 @@ namespace GALAXY
 			return *this;
 		}
 			;
-		this->operator<<<uint64_t>(value->GetIndex());
+		this->operator<<<uint64_t>(value->GetUUID());
 		return *this;
 	}
 
@@ -169,7 +176,7 @@ namespace GALAXY
 		if (!value)
 			pairString = std::to_string(-1) + ", " + std::to_string(-1);
 		else
-			pairString = std::to_string(value->GetGameObject()->GetIndex()) + ", " + std::to_string(value->GetIndex());
+			pairString = std::to_string(value->GetGameObject()->GetUUID()) + ", " + std::to_string(value->GetIndex());
 		this->operator<<(pairString);
 		return *this;
 	}
@@ -393,7 +400,7 @@ namespace GALAXY
 	Weak<Core::GameObject> Utils::StringSerializer::As()
 	{
 		uint64_t index = As<uint64_t>();
-		return Core::SceneHolder::GetCurrentScene()->GetWithIndex(index);
+		return Core::SceneHolder::GetCurrentScene()->GetWithUUID(index);
 	}
 
 	template <>

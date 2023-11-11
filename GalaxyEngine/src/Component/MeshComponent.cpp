@@ -18,7 +18,7 @@ namespace GALAXY {
 		static auto renderer = Wrapper::Renderer::GetInstance();
 		if (!m_mesh.lock())
 			return;
-		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetIndex());
+		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
 	}
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)

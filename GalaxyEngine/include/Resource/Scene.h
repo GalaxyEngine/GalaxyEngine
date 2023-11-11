@@ -5,6 +5,7 @@
 
 #include "Core/GameObject.h"
 
+
 #include <unordered_map>
 
 namespace GALAXY {
@@ -58,8 +59,11 @@ namespace GALAXY {
 
 			inline void RevertObject(size_t number = 1);
 
-			inline Weak<Core::GameObject> GetWithIndex(uint64_t index);
-			inline uint64_t GetFreeIndex();
+
+			// Return the GameObject with the index given in scene Graph
+			inline Weak<Core::GameObject> Resource::Scene::GetWithSceneGraphID(uint64_t index);
+			// Return the GameObject with the uuid given
+			inline Weak<Core::GameObject> GetWithUUID(Core::UUID uuid);
 			inline Weak<Core::GameObject> GetRootGameObject() const { return m_root; }
 			inline Mat4& GetVP() { return m_VP; }
 			inline Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
@@ -75,7 +79,7 @@ namespace GALAXY {
 			Mat4 m_VP;
 
 			Shared<Core::GameObject> m_root;
-			UMap<uint64_t, Shared<Core::GameObject>> m_objectList;
+			UMap<Core::UUID, Shared<Core::GameObject>> m_objectList;
 
 			Shared<Editor::ActionManager> m_actionManager;
 

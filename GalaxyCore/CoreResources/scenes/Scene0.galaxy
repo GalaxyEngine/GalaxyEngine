@@ -1,6 +1,18 @@
  ------------- BEGIN GAMEOBJECT ------------- 
 [Name] : Scene
-[ID] : 18446744073709551615
+[UUID] : 3517327405959171129
 [Component Number] : 0
-[Child Number] : 0
+[Child Number] : 1
+ ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : GameObject
+ [UUID] : 16765624337911890685
+ [Component Number] : 1
+ [Child Number] : 0
+ ------------- BEGIN COMPONENT ------------- 
+  [Name] : Mesh Component
+  [Mesh] : CoreResources\models\Cube.obj:Cube
+  [Material Count] : 1
+   [Material 0] : CoreResources\materials\DefaultMaterial.mat
+ ============= END COMPONENT ============= 
+ ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

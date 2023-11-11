@@ -12,7 +12,7 @@ namespace GALAXY {
 
 			void Draw() override;
 
-			void DisplayGameObject(Weak<Core::GameObject> weakGO, uint32_t index = 0);
+			void DisplayGameObject(Weak<Core::GameObject> weakGO, uint64_t index = 0);
 
 			void RightClickPopup();
 

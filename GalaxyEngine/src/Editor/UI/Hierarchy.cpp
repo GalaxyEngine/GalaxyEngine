@@ -32,13 +32,14 @@ void Editor::UI::Hierarchy::Draw()
 	ImGui::End();
 }
 
-void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t index /* = 0*/)
+void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t index /* = 0*/)
 {
 	GameObject* gameobject = weakGO.lock().get();
 	if (!gameobject)
 		return;
 
-	ImGui::PushID(index);
+	gameobject->m_sceneGraphID = index;
+	ImGui::PushID((int)index);
 	// Display arrow button
 	if (gameobject->m_childs.size() > 0) {
 		if (!gameobject->m_open) {
@@ -144,11 +145,11 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t 
 			List<Weak<Core::GameObject>> selected = m_inspector->GetSelected();
 			for (size_t i = 0; i < selected.size(); i++)
 			{
-				indices.push_back(selected[i].lock()->m_id);
+				indices.push_back(selected[i].lock()->GetSceneGraphID());
 			}
 		}
 		else {
-			indices.push_back(gameobject->m_id);
+			indices.push_back(gameobject->GetSceneGraphID());
 		}
 
 		ImGui::SetDragDropPayload("GAMEOBJECTS", indices.data(), indices.size() * sizeof(uint64_t));
@@ -166,7 +167,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t 
 				indices.assign(payloadData, payloadData + payloadSize);
 			}
 			for (size_t i = 0; i < indices.size(); i++) {
-				Weak<GameObject> payloadGameObject = SceneHolder::GetInstance()->GetCurrentScene()->GetWithIndex(indices[i]);
+				Weak<GameObject> payloadGameObject = SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[i]);
 				if (payloadGameObject.lock() && payloadGameObject.lock()->m_parent.lock() && !gameobject->IsAParent(payloadGameObject.lock().get()))
 				{
 					payloadGameObject.lock()->SetParent(weakGO);
@@ -185,7 +186,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint32_t 
 			if (!child)
 				continue;
 			ImGui::TreePush(child->m_name.c_str());
-			DisplayGameObject(child, index++);
+			DisplayGameObject(child, ++index);
 			ImGui::TreePop();
 		}
 	}

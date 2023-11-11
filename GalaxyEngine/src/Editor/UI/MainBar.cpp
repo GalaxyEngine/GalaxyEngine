@@ -11,8 +11,8 @@
 #ifdef _WIN32
 #pragma comment(lib, "Comdlg32.lib")
 #elif defined(__linux__)
-#endif
 #define HANDLE_FILE_DIALOG
+#endif
 
 std::string SaveDialog(const char* filter)
 {
@@ -33,7 +33,7 @@ std::string SaveDialog(const char* filter)
 		return ofn.lpstrFile;
 	}
 #elif defined(HANDLE_FILE_DIALOG)
-	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Save, filter);
+	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Save, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
 #endif
 	return "";
 }
@@ -59,7 +59,7 @@ std::string OpenDialog(const char* filter)
 		return "";
 	}
 #elif defined(HANDLE_FILE_DIALOG)
-	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Open, filter);
+	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Open, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
 #endif
 	return "";
 }
@@ -83,14 +83,14 @@ namespace GALAXY
 			{
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (auto path = OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
+					if (std::string path = OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						OpenScene(path);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					if (auto path = SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
+					if (std::string path = SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						SaveScene(path);
 					}

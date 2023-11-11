@@ -114,7 +114,7 @@ namespace GALAXY
 
 				uint64_t pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
-				if (auto gameObject = GetWithIndex(pickedID).lock())
+				if (Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
 					inspector->SetSelected(gameObject);
 				else if (!m_gizmo->IsGizmoClicked())
 					inspector->ClearSelected();
