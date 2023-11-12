@@ -1,9 +1,12 @@
 #include "pch.h"
+
 #include "Wrapper/OBJLoader.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Material.h"
+
 #include "Core/Application.h"
 
 void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
@@ -24,6 +27,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 			auto sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
 			Resource::ResourceManager::GetInstance()->AddResource(sharedMesh);
 			mesh = sharedMesh.get();
+			meshWeak = sharedMesh;
 		}
 
 		mesh->m_positions = model.m_meshes[i].positions;
@@ -31,6 +35,12 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		mesh->m_normals = model.m_meshes[i].normals;
 		mesh->m_indices = model.m_meshes[i].indices;
 		mesh->m_finalVertices = model.m_meshes[i].finalVertices;
+		for (int j = 0; j < model.m_meshes[i].subMeshes.size(); j++) {
+			Resource::SubMesh subMesh;
+			subMesh.startIndex = model.m_meshes[i].subMeshes[j].startIndex;
+			subMesh.count = model.m_meshes[i].subMeshes[j].count;
+			mesh->m_subMeshes.push_back(subMesh);
+		}
 
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
@@ -54,6 +64,12 @@ bool Wrapper::OBJLoader::Parse()
 		return false;
 	}
 
+	auto endSubMesh = [this](OBJMesh& mesh) {
+		std::vector<OBJSubMesh>& subMeshes = mesh.subMeshes;
+		if (subMeshes.size() > 0)
+			subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
+		};
+
 	bool quadOBJ = false;
 	OBJMesh currentMesh;
 	std::string line;
@@ -64,6 +80,7 @@ bool Wrapper::OBJLoader::Parse()
 
 		if (token == "o" || token == "g")
 		{
+			endSubMesh(currentMesh);
 			if (!currentMesh.name.empty()) {
 				m_meshes.push_back(currentMesh);
 			}
@@ -76,6 +93,14 @@ bool Wrapper::OBJLoader::Parse()
 			iss >> mtlPath;
 			mtlPath = m_path.parent_path() / mtlPath;
 			ReadMtl(mtlPath);
+		}
+		if (token == "usemtl")
+		{
+			endSubMesh(currentMesh);
+			OBJSubMesh subMesh = OBJSubMesh();
+			subMesh.startIndex = currentMesh.indices.size();
+
+			currentMesh.subMeshes.push_back(subMesh);
 		}
 		if (token == "v")
 		{
@@ -94,7 +119,7 @@ bool Wrapper::OBJLoader::Parse()
 		{
 			Vec3f normal;
 			iss >> normal.x >> normal.y >> normal.z;
-			
+
 			currentMesh.normals.push_back(normal);
 		}
 		else if (token == "f")
@@ -113,6 +138,7 @@ bool Wrapper::OBJLoader::Parse()
 		}
 	}
 	if (!currentMesh.name.empty()) {
+		endSubMesh(currentMesh);
 		m_meshes.push_back(currentMesh);
 	}
 
@@ -234,6 +260,14 @@ bool Wrapper::OBJLoader::ReadMtl(const std::filesystem::path& mtlPath)
 		return false;
 	}
 
+	auto endMaterial = [&](std::shared_ptr<Resource::Material> material)
+		{
+			if (material && !material->p_fileInfo.Exist())
+			{
+				material->Save();
+			}
+	};
+
 	std::string line;
 	std::shared_ptr<Resource::Material> currentMaterial;
 	while (std::getline(file, line)) {
@@ -243,11 +277,23 @@ bool Wrapper::OBJLoader::ReadMtl(const std::filesystem::path& mtlPath)
 		// Ambient
 		if (token == "newmtl")
 		{
+			endMaterial(currentMaterial);
 			std::string name;
 			iss >> name;
 			const std::filesystem::path& matFullPath = mtlPath.parent_path() / name.append(".mat");
-			currentMaterial = std::make_shared<Resource::Material>(matFullPath);
-			Resource::ResourceManager::GetInstance()->AddResource(currentMaterial);
+			if (currentMaterial = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Material>(matFullPath).lock())
+			{
+				// file .mat already exists, so skip this one to go to the next material
+				while (std::getline(file, line))
+					if (line.empty() || line == "\n" || line == "\0")
+						break;
+				continue;
+			}
+			else
+			{
+				currentMaterial = std::make_shared<Resource::Material>(matFullPath);
+				Resource::ResourceManager::GetInstance()->AddResource(currentMaterial);
+			}
 		}
 		if (token == "Ka")
 		{
@@ -286,5 +332,6 @@ bool Wrapper::OBJLoader::ReadMtl(const std::filesystem::path& mtlPath)
 			currentMaterial->m_albedo = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(texPath);
 		}
 	}
+	endMaterial(currentMaterial);
 	return true;
 }

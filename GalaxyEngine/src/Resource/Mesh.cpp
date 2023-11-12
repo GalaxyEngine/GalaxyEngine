@@ -56,14 +56,14 @@ namespace GALAXY {
 		renderer->BindVertexArray(m_vertexArrayIndex);
 
 		for (size_t i = 0; i < materials.size(); i++) {
-			if (!materials[i].lock())
+			if (!materials[i].lock() && i < m_subMeshes.size())
 				continue;
 			auto shader = materials[i].lock()->SendValues(id);
 			if (shader.lock() == nullptr)
 				continue;
 
 			shader.lock()->SendMat4("MVP", Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
-			renderer->DrawArrays(0, m_indices.size() * 3);
+			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
 		}
 		renderer->UnbindVertexArray();
 	}

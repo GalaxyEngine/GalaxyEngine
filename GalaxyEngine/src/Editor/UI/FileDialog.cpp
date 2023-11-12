@@ -55,7 +55,6 @@ namespace GALAXY
 
 #pragma endregion
 
-
 	Editor::UI::FileDialog::FileDialog()
 	{
 		SetOpen(false);

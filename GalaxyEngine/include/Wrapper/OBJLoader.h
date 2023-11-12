@@ -14,9 +14,16 @@ namespace GALAXY
 		public:
 			static void Load(const std::filesystem::path& fullPath, Resource::Model* outputModel);
 		private:
+			struct OBJSubMesh
+			{
+				size_t startIndex = -1;
+				size_t count = -1;
+			};
+
 			struct OBJMesh
 			{
 				std::filesystem::path name;
+				std::vector<OBJSubMesh> subMeshes;
 				std::vector<Vec3f> positions;
 				std::vector<Vec2f> textureUVs;
 				std::vector<Vec3f> normals;

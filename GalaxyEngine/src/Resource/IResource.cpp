@@ -17,8 +17,8 @@ namespace GALAXY {
 
 	void Resource::IResource::SendRequest()
 	{
-		Core::ThreadManager::GetInstance()->Lock();
+		Core::ThreadManager::Lock();
 		Core::Application::GetInstance().AddResourceToSend(p_fileInfo.GetFullPath());
-		Core::ThreadManager::GetInstance()->Unlock();
+		Core::ThreadManager::Unlock();
 	}
 }

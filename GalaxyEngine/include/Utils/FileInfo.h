@@ -40,6 +40,7 @@ namespace GALAXY
 			inline Resource::ResourceType GetResourceType() const { return m_resourceType; }
 
 			inline bool isDirectory() { return std::filesystem::is_directory(m_fullPath); }
+			inline bool Exist() { return std::filesystem::exists(m_fullPath); }
 		private:
 			friend Resource::IResource;
 			friend Resource::Mesh;

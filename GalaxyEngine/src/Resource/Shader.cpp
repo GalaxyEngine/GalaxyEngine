@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
-#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/PickingShader/picking.frag"
+#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PickingShader/picking.frag"
 namespace GALAXY
 {
 	void Resource::Shader::Load()
@@ -81,7 +81,7 @@ namespace GALAXY
 		geometryShader->AddShader(weak_this);
 	}
 
-	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path &vertPath, const std::filesystem::path &fragPath)
+	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
 	{
 		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
 			return Weak<Resource::Shader>();
@@ -112,7 +112,7 @@ namespace GALAXY
 		size_t size = p_shader.size();
 		if (size > 0)
 		{
-			for (auto &&_shader : p_shader)
+			for (auto&& _shader : p_shader)
 			{
 				if (!_shader.lock())
 					continue;
@@ -155,7 +155,7 @@ namespace GALAXY
 		p_renderer->UseShader(this);
 	}
 
-	int Resource::Shader::GetLocation(const std::string &locationName)
+	int Resource::Shader::GetLocation(const std::string& locationName)
 	{
 		ASSERT(HasBeenSent());
 		if (p_locations.count(locationName))

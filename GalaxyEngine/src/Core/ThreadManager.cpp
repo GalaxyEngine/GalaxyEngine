@@ -43,14 +43,14 @@ void Core::ThreadManager::ThreadLoop()
 
 void Core::ThreadManager::Lock()
 {
-	while (!m_mutex.try_lock()) {}
+	while (!m_instance->m_mutex.try_lock()) {}
 }
 
 void Core::ThreadManager::Unlock()
 {
 #pragma warning(push)
 #pragma warning(disable: 26110)
-	m_mutex.unlock();
+	m_instance->m_mutex.unlock();
 #pragma warning(pop)  
 }
 

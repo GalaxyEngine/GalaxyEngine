@@ -26,7 +26,6 @@ add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
 target("GalaxyEngine")
     set_kind("shared")
-    set_symbols("debug")
 
     -- set include dirs
     add_includedirs("GalaxyEngine/include")

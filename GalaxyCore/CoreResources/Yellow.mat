@@ -1,0 +1,6 @@
+Shader : CoreResources/shaders/UnlitShader/unlit.shader
+Albedo : None
+Normal : None
+Ambient : 1 1 1 1
+Diffuse : 0.8 0.774697 0 1
+Specular : 0.5 0.5 0.5 1

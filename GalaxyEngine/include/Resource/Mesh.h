@@ -6,6 +6,11 @@ namespace GALAXY
 	namespace Wrapper { class OBJLoader; }
 	namespace Resource
 	{
+		struct SubMesh {
+			size_t startIndex = -1;
+			size_t count = -1;
+		};
+
 		class Mesh : public IResource
 		{
 		public:
@@ -35,6 +40,7 @@ namespace GALAXY
 			std::vector<Vec3f> m_normals;
 			std::vector<Vec3i> m_indices;
 			std::vector<float> m_finalVertices;
+			std::vector<SubMesh> m_subMeshes;
 
 			uint32_t m_vertexArrayIndex = -1;
 			uint32_t m_vertexBufferIndex = -1;

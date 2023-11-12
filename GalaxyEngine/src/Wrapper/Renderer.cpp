@@ -503,7 +503,7 @@ namespace GALAXY {
 
 	void Wrapper::OpenGLRenderer::DrawArrays(size_t start, size_t count)
 	{
-		glDrawArrays(GL_TRIANGLES, 0, (GLsizei)count);
+		glDrawArrays(GL_TRIANGLES, (GLsizei)start, (GLsizei)count);
 	}
 
 	void Wrapper::OpenGLRenderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)

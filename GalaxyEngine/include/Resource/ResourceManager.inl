@@ -76,7 +76,6 @@ namespace GALAXY
 		if (resource == m_instance->m_resources.end())
 		{
 			// if resource is not imported
-
 			// if the resource does not exist in path and is not a shader (Shaders are not always a file)
 			if (!std::filesystem::exists(fullPath)
 				&& T::GetResourceType() != Resource::ResourceType::Shader

@@ -30,8 +30,8 @@ namespace GALAXY::Core {
 			}
 		}
 
-		void Lock();
-		void Unlock();
+		static void Lock();
+		static void Unlock();
 
 		static ThreadManager* GetInstance();
 
