@@ -15,12 +15,27 @@ namespace GALAXY {
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-		// TODO : Parse Material File
+		if (p_fileInfo.GetResourceType() == Resource::ResourceType::Materials)
+		{
+
+		}
+		else
+		{
+			bool sucess = LoadMatFile();
+			if (!sucess)
+				return;
+		}
+
+		p_loaded = true;
+	}
+
+	bool Resource::Material::LoadMatFile()
+	{
 		std::ifstream matFile(p_fileInfo.GetFullPath());
 		if (!matFile.is_open())
 		{
 			PrintError("Failed to load Material %s", p_fileInfo.GetFullPath().string().c_str());
-			return;
+			return false;
 		}
 
 		std::string line;
@@ -31,13 +46,16 @@ namespace GALAXY {
 				std::string value = line.substr(pos + 3);
 
 				if (key == "Shader") {
-					m_shader = ResourceManager::GetOrLoad<Shader>(value);
+					if (value != NONE_RESOURCE)
+						m_shader = ResourceManager::GetOrLoad<Shader>(value);
 				}
 				else if (key == "Albedo") {
-					m_albedo = ResourceManager::GetOrLoad<Texture>(value);
+					if (value != NONE_RESOURCE)
+						m_albedo = ResourceManager::GetOrLoad<Texture>(value);
 				}
 				else if (key == "Normal") {
-					m_normal = ResourceManager::GetOrLoad<Texture>(value);
+					if (value != NONE_RESOURCE)
+						m_normal = ResourceManager::GetOrLoad<Texture>(value);
 				}
 				else if (key == "Ambient") {
 					std::istringstream iss(value);
@@ -55,19 +73,22 @@ namespace GALAXY {
 		}
 
 		matFile.close();
+		return true;
+	}
 
-		p_loaded = true;
+	bool Resource::Material::LoadMTLFile()
+	{
+		return false;
 	}
 
 	void Resource::Material::Save()
 	{
-		// TODO : Save Material File
 		std::ofstream matFile(p_fileInfo.GetFullPath());
 		if (matFile.is_open())
 		{
-			matFile << "Shader : " << (m_shader.lock() ? m_shader.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
-			matFile << "Albedo : " << (m_albedo.lock() ? m_albedo.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
-			matFile << "Normal : " << (m_normal.lock() ? m_normal.lock()->GetFileInfo().GetRelativePath().generic_string() : std::string("None")) + '\n';
+			matFile << "Shader : " << (m_shader.lock() ? m_shader.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
+			matFile << "Albedo : " << (m_albedo.lock() ? m_albedo.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
+			matFile << "Normal : " << (m_normal.lock() ? m_normal.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
 			matFile << "Ambient : " << m_ambient << '\n';
 			matFile << "Diffuse : " << m_diffuse << '\n';
 			matFile << "Specular : " << m_specular << '\n';

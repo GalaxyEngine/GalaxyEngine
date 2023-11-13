@@ -58,7 +58,6 @@ namespace GALAXY
 	Editor::UI::FileDialog::FileDialog()
 	{
 		SetOpen(false);
-		SetCurrentPath(std::filesystem::current_path());
 	}
 
 	Editor::UI::FileDialog::~FileDialog()

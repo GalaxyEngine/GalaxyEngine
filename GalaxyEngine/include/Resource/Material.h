@@ -20,6 +20,10 @@ namespace GALAXY
 
 			void Load() override;
 
+			bool LoadMatFile();
+
+			bool LoadMTLFile();
+
 			void Save();
 
 			void ShowInInspector() override;
@@ -43,7 +47,7 @@ namespace GALAXY
 			inline void SetAlbedo(Weak<class Texture> val) { m_albedo = val; }
 			inline void SetShader(Weak<class Shader> val) { m_shader = val; }
 		private:
-			friend Wrapper::OBJLoader;
+			friend Wrapper::MTLLoader;
 			friend Render::Framebuffer;
 
 			Weak<class Shader> m_shader;

@@ -1,0 +1,6 @@
+Shader : CoreResources/shaders/UnlitShader/unlit.shader
+Albedo : CoreResources/textures/Prop_Radio.png
+Normal : None
+Ambient : 1 1 1 1
+Diffuse : 0 0 0 1
+Specular : 0.2 0.2 0.2 1

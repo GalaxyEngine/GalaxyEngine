@@ -64,6 +64,7 @@ namespace GALAXY {
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);
+			bool CheckForDataFile(const Path& resourcePath);
 
 			void ProcessDataFile(const Path& dataPath);
 

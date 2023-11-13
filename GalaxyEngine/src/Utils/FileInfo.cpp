@@ -3,10 +3,43 @@
 
 #include "Resource/ResourceManager.h"
 #include "Resource/IResource.h"
+
+std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap =
+{
+	{".jpg",		Resource::ResourceType::Texture},
+	{".png",		Resource::ResourceType::Texture},
+	{".jpeg",		Resource::ResourceType::Texture},
+	{".obj",		Resource::ResourceType::Model},
+	{".fbx",		Resource::ResourceType::Model},
+	{".shader",		Resource::ResourceType::Shader},
+	{".vert",		Resource::ResourceType::VertexShader},
+	{".vs",			Resource::ResourceType::VertexShader},
+	{".vsh",		Resource::ResourceType::VertexShader},
+	{".glslv",		Resource::ResourceType::VertexShader},
+	{".frag",		Resource::ResourceType::FragmentShader},
+	{".fs",			Resource::ResourceType::FragmentShader},
+	{".fsh",		Resource::ResourceType::FragmentShader},
+	{".glslf",		Resource::ResourceType::FragmentShader},
+	{".geom",		Resource::ResourceType::GeometryShader},
+	{".gs",			Resource::ResourceType::GeometryShader},
+	{".gsh",		Resource::ResourceType::GeometryShader},
+	{".glslg",		Resource::ResourceType::GeometryShader},
+	{".mat",		Resource::ResourceType::Material},
+	{".mtl",		Resource::ResourceType::Materials},
+	{".gdata",		Resource::ResourceType::Data},
+	{".h",			Resource::ResourceType::Script},
+	{".hpp",		Resource::ResourceType::Script},
+	{".cpp",		Resource::ResourceType::Script},
+	{".cc",			Resource::ResourceType::Script},
+	{".galaxy",		Resource::ResourceType::Scene},
+	{".ppshader",	Resource::ResourceType::PostProcessShader},
+};
+
 namespace GALAXY
 {
 	Utils::FileInfo::FileInfo(const Path& path, bool createRelativePath/* = true*/)
 	{
+		createRelativePath |= path == NONE_RESOURCE;
 		m_exist = std::filesystem::exists(path);
 
 		m_fullPath = ToPath(path);
@@ -53,31 +86,8 @@ namespace GALAXY
 
 	Resource::ResourceType Utils::FileInfo::GetTypeFromExtension(const Path& ext)
 	{
-		// TODO: Replace with map
-		using namespace Resource;
-		if (ext == ".jpg" || ext == ".png" || ext == ".jpeg")
-			return ResourceType::Texture;
-		else if (ext == ".obj" || ext == ".fbx")
-			return ResourceType::Model;
-		else if (ext == ".shader")
-			return ResourceType::Shader;
-		else if (ext == ".ppshader")
-			return ResourceType::PostProcessShader;
-		else if (ext == ".vert" || ext == "vs" || ext == "vsh" || ext == "glslv")
-			return ResourceType::VertexShader;
-		else if (ext == ".geom" || ext == "gs" || ext == "gsh" || ext == "glslg")
-			return ResourceType::GeometryShader;
-		else if (ext == ".frag" || ext == "fs" || ext == "fsh" || ext == "glslf")
-			return ResourceType::FragmentShader;
-		else if (ext == ".mat")
-			return ResourceType::Material;
-		else if (ext == ".gdata")
-			return ResourceType::Data;
-		else if (ext == ".h" || ext == ".hpp" || ext == ".cpp" || ext == "cc")
-			return ResourceType::Script;
-		else if (ext == ".galaxy")
-			return ResourceType::Scene;
-		else
-			return ResourceType::None;
+		if (resourceFromExtensionMap.contains(ext.string()))
+			return resourceFromExtensionMap[ext.string()];
+		return Resource::ResourceType::None;
 	}
 }

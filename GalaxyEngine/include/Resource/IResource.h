@@ -21,6 +21,7 @@ namespace GALAXY::Resource {
 		Model,
 		Mesh,
 		Material,
+		Materials,
 		Data,
 		Script,
 		Scene,

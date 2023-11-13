@@ -1,4 +1,7 @@
 #include "pch.h"
+
+#include "Wrapper/MTLLoader.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
@@ -10,7 +13,7 @@
 #include "Resource/Material.h"
 #include "Resource/Scene.h"
 
-#define AUTO_IMPORT_MODEL
+#define AUTO_IMPORT
 // Automatic import all model that not get a .gdata
 
 namespace GALAXY {
@@ -81,18 +84,17 @@ namespace GALAXY {
 			AddResource<Scene>(resourcePath);
 			break;
 		case Resource::ResourceType::Model:
-#ifndef AUTO_IMPORT_MODEL
-			AddResource<Model>(resourcePath);
+		{
+#ifdef AUTO_IMPORT
+			if (!CheckForDataFile(resourcePath))
+				GetOrLoad<Model>(resourcePath);
+			else
+				AddResource<Model>(resourcePath);
 #else
-			{
-				Path dataFilePath = resourcePath.parent_path() / resourcePath.stem();
-				if (!std::filesystem::exists(dataFilePath.wstring() + L".gdata"))
-					GetOrLoad<Model>(resourcePath);
-				else
-					AddResource<Model>(resourcePath);
-			}
+			AddResource<Model>(resourcePath);
 #endif
 			break;
+		}
 		case Resource::ResourceType::Data:
 		{
 			if (!Utils::FileSystem::FileExistNoExtension(resourcePath)) {
@@ -111,6 +113,22 @@ namespace GALAXY {
 		default:
 			break;
 		}
+	}
+
+	bool Resource::ResourceManager::CheckForDataFile(const Path& resourcePath)
+	{
+		Path dataFilePath = resourcePath.parent_path() / (resourcePath.stem().string() + ".gdata");
+
+		bool exist = std::filesystem::exists(dataFilePath);
+		if (!exist)
+			return false;
+
+		auto dataFileTime = std::filesystem::last_write_time(dataFilePath);
+		auto ResourceFileTime = std::filesystem::last_write_time(resourcePath);
+
+		if (dataFileTime > ResourceFileTime)
+			return true;
+		return false;
 	}
 
 	void Resource::ResourceManager::ProcessDataFile(const Path& dataPath)
