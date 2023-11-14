@@ -11,6 +11,13 @@ namespace GALAXY {
 			FBX
 		};
 
+		struct BoundingBox
+		{
+			Vec3f min;
+			Vec3f max;
+			Vec3f center;
+		};
+
 		class Model : public IResource
 		{
 		public:
@@ -23,14 +30,19 @@ namespace GALAXY {
 			void Load() override;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
+		
+			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
 		private:
 			void CreateDataFiles();
 
+			void ComputeBoundingBox();
 		private:
 
 			friend Wrapper::OBJLoader;
 
 			std::vector<Weak<class Mesh>> m_meshes;
+
+			BoundingBox m_boundingBox;
 
 			ModelExtension m_modelType = ModelExtension::OBJ;
 		};

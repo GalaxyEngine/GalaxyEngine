@@ -48,8 +48,11 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		outputModel->m_meshes.push_back(meshWeak);
 
+		mesh->m_model = outputModel;
 		mesh->SendRequest();
 	}
+	outputModel->ComputeBoundingBox();
+
 	PrintLog("Successfully Loaded Model %s", fullPath.string().c_str());
 }
 
@@ -57,21 +60,24 @@ bool Wrapper::OBJLoader::Parse()
 {
 	// TODO support :
 	// color
-	// mtl
-	// submeshes
 	std::ifstream file(m_path);
 	if (!file.is_open()) {
 		PrintError("Failed to open OBJ file %s", m_path.string().c_str());
 		return false;
 	}
 
-	auto endSubMesh = [this](OBJMesh& mesh) {
-		std::vector<OBJSubMesh>& subMeshes = mesh.subMeshes;
-		if (subMeshes.size() > 0)
-			subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
-		};
-
 	bool quadOBJ = false;
+
+	auto endSubMesh = [&](OBJMesh& mesh) {
+		std::vector<OBJSubMesh>& subMeshes = mesh.subMeshes;
+		if (subMeshes.size() > 0) {
+			if (!quadOBJ)
+				subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
+			else
+				subMeshes.back().count = (size_t)(mesh.indices.size() * 1.5f - subMeshes.back().startIndex);
+		}
+	};
+
 	OBJMesh currentMesh;
 	std::string line;
 	while (std::getline(file, line)) {
@@ -125,6 +131,13 @@ bool Wrapper::OBJLoader::Parse()
 		}
 		else if (token == "f")
 		{
+			if (currentMesh.subMeshes.empty())
+			{
+				OBJSubMesh subMesh = OBJSubMesh();
+				subMesh.startIndex = currentMesh.indices.size();
+				currentMesh.subMeshes.push_back(subMesh);
+			}
+
 			std::string indexStr;
 			while (iss >> indexStr) {
 				Vec3i indices = ParseFaceIndex(indexStr);

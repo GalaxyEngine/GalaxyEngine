@@ -62,6 +62,34 @@ namespace GALAXY {
 		DrawLine(vertices[3], vertices[7], color, lineWidth);
    }
 	
+   void Wrapper::Renderer::DrawWireCubeMinMax(const Vec3f& min, const Vec3f& max, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+   {
+	   // Define the eight vertices of the cube
+	   Vec3f vertices[8];
+	   vertices[0] = min;
+	   vertices[1] = Vec3f(max.x, min.y, min.z);
+	   vertices[2] = Vec3f(max.x, max.y, min.z);
+	   vertices[3] = Vec3f(min.x, max.y, min.z);
+	   vertices[4] = Vec3f(min.x, min.y, max.z);
+	   vertices[5] = Vec3f(max.x, min.y, max.z);
+	   vertices[6] = max;
+	   vertices[7] = Vec3f(min.x, max.y, max.z);
+
+	   // Draw the edges of the cube
+	   DrawLine(vertices[0], vertices[1], color, lineWidth);
+	   DrawLine(vertices[1], vertices[2], color, lineWidth);
+	   DrawLine(vertices[2], vertices[3], color, lineWidth);
+	   DrawLine(vertices[3], vertices[0], color, lineWidth);
+	   DrawLine(vertices[4], vertices[5], color, lineWidth);
+	   DrawLine(vertices[5], vertices[6], color, lineWidth);
+	   DrawLine(vertices[6], vertices[7], color, lineWidth);
+	   DrawLine(vertices[7], vertices[4], color, lineWidth);
+	   DrawLine(vertices[0], vertices[4], color, lineWidth);
+	   DrawLine(vertices[1], vertices[5], color, lineWidth);
+	   DrawLine(vertices[2], vertices[6], color, lineWidth);
+	   DrawLine(vertices[3], vertices[7], color, lineWidth);
+   }
+
    void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
    {
 	   // Define the eight vertices of the cube

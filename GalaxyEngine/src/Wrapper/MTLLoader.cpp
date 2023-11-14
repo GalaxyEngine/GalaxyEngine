@@ -88,6 +88,7 @@ namespace GALAXY
 			}
 		}
 		endMaterial(currentMaterial);
+		return true;
 	}
 
 }

@@ -56,7 +56,7 @@ namespace GALAXY {
 		renderer->BindVertexArray(m_vertexArrayIndex);
 
 		for (size_t i = 0; i < materials.size(); i++) {
-			if (!materials[i].lock() && i < m_subMeshes.size())
+			if (!materials[i].lock() || i >= m_subMeshes.size())
 				continue;
 			auto shader = materials[i].lock()->SendValues(id);
 			if (shader.lock() == nullptr)
@@ -73,4 +73,25 @@ namespace GALAXY {
 		return modelPath.wstring() + L":" + fileName.wstring();
 	}
 
+	void Resource::Mesh::ComputeBoundingBox()
+	{
+		ASSERT(!m_positions.empty());
+		for (const auto& vertex : m_positions) {
+			m_boundingBox.min.x = std::min(m_boundingBox.min.x, vertex.x);
+			m_boundingBox.min.y = std::min(m_boundingBox.min.y, vertex.y);
+			m_boundingBox.min.z = std::min(m_boundingBox.min.z, vertex.z);
+
+			m_boundingBox.max.x = std::max(m_boundingBox.max.x, vertex.x);
+			m_boundingBox.max.y = std::max(m_boundingBox.max.y, vertex.y);
+			m_boundingBox.max.z = std::max(m_boundingBox.max.z, vertex.z);
+		}
+		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
+	}
+
+	void Resource::Mesh::DrawBoundingBox()
+	{
+		BoundingBox box = GetBoundingBox();
+		auto instance = Wrapper::Renderer::GetInstance();
+		instance->DrawWireCubeMinMax(box.max, box.min, Vec4f(1, 0, 0, 1), 5.f);
+	}
 }

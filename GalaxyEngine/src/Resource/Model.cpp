@@ -43,4 +43,24 @@ namespace GALAXY {
 		}
 		//todo : fix this
 	}
+
+	void Resource::Model::ComputeBoundingBox()
+	{
+		for (auto& weakMesh : m_meshes)
+		{
+			Shared<Resource::Mesh> mesh = weakMesh.lock();
+			mesh->ComputeBoundingBox();
+
+			m_boundingBox.min.x = std::min(m_boundingBox.min.x, mesh->m_boundingBox.min.x);
+			m_boundingBox.min.y = std::min(m_boundingBox.min.y, mesh->m_boundingBox.min.y);
+			m_boundingBox.min.z = std::min(m_boundingBox.min.z, mesh->m_boundingBox.min.z);
+
+			m_boundingBox.max.x = std::max(m_boundingBox.max.x, mesh->m_boundingBox.max.x);
+			m_boundingBox.max.y = std::max(m_boundingBox.max.y, mesh->m_boundingBox.max.y);
+			m_boundingBox.max.z = std::max(m_boundingBox.max.z, mesh->m_boundingBox.max.z);
+		}
+
+		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
+	}
+
 }

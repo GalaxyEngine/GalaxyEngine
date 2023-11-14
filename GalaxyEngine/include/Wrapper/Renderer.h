@@ -117,7 +117,8 @@ namespace GALAXY
 
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
-			virtual void DrawWireCube(const Vec3f& pos, const Vec3f& size,const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			virtual void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			virtual void DrawWireCubeMinMax(const Vec3f& min, const Vec3f& max, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 			virtual void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 			virtual void DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 

@@ -19,6 +19,9 @@ namespace GALAXY {
 		if (!m_mesh.lock())
 			return;
 		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
+
+		if (m_drawBoundingBox)
+			m_mesh.lock()->DrawBoundingBox();
 	}
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
@@ -50,6 +53,7 @@ namespace GALAXY {
 	void Component::MeshComponent::ShowInInspector()
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x / 2.f, 0 };
+		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
 		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str(): "Empty", buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");

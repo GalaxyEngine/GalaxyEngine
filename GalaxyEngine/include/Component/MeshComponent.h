@@ -27,6 +27,8 @@ namespace GALAXY {
 
 			List<Weak<Resource::Material>> m_materials;
 
+			bool m_drawBoundingBox = false;
+
 			REFLECTION_FRIEND
 		};
 	}

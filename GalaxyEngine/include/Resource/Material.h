@@ -5,7 +5,7 @@ namespace GALAXY
 {
 	namespace Wrapper
 	{
-		class OBJLoader;
+		class MTLLoader;
 	}
 	namespace Render { class Framebuffer; }
 	namespace Resource {

@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "IResource.h"
+#include "Model.h"
+
 namespace GALAXY 
 {
 	namespace Wrapper { class OBJLoader; }
@@ -25,13 +27,21 @@ namespace GALAXY
 
 			void Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials, uint64_t id = -1);
 
+			void DrawBoundingBox();
+
 			static inline ResourceType GetResourceType() { return ResourceType::Mesh; }
 
 			static Path CreateMeshPath(const Path& modelPath, const Path& fileName);
-
+			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
+		private:
+			void ComputeBoundingBox();
 		private:
 			friend Wrapper::OBJLoader;
 			friend class Model;
+
+			BoundingBox m_boundingBox;
+
+			Model* m_model = nullptr;
 
 			Path m_modelPath;
 

@@ -25,6 +25,7 @@ add_defines("_CRT_SECURE_NO_WARNINGS")
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
 target("GalaxyEngine")
+    set_symbols("debug")
     set_kind("shared")
 
     -- set include dirs
