@@ -21,7 +21,7 @@ namespace GALAXY {
 		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
 
 		if (m_drawBoundingBox)
-			m_mesh.lock()->DrawBoundingBox();
+			m_mesh.lock()->DrawBoundingBox(GetGameObject()->GetTransform());
 	}
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)

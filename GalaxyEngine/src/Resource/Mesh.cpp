@@ -6,9 +6,12 @@
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
 #include "Resource/Model.h"
+#include "Resource/Scene.h"
 
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
+
+#include "Component/Transform.h"
+
 namespace GALAXY {
 
 	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
@@ -88,10 +91,15 @@ namespace GALAXY {
 		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
 	}
 
-	void Resource::Mesh::DrawBoundingBox()
+	void Resource::Mesh::DrawBoundingBox(Component::Transform* transform)
 	{
 		BoundingBox box = GetBoundingBox();
 		auto instance = Wrapper::Renderer::GetInstance();
-		instance->DrawWireCubeMinMax(box.max, box.min, Vec4f(1, 0, 0, 1), 5.f);
+
+		instance->DrawWireCube(transform->GetWorldPosition() + box.center, Vec3f(
+			(box.max.x - box.min.x) / 2.0f,
+			(box.max.y - box.min.y) / 2.0f,
+			(box.max.z - box.min.z) / 2.0f
+		) * transform->GetWorldScale(), transform->GetWorldRotation(), Vec4f(1, 0, 0, 1), 5.f);
 	}
 }

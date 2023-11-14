@@ -6,6 +6,7 @@
 namespace GALAXY 
 {
 	namespace Wrapper { class OBJLoader; }
+	namespace Component { class Transform; }
 	namespace Resource
 	{
 		struct SubMesh {
@@ -27,7 +28,7 @@ namespace GALAXY
 
 			void Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials, uint64_t id = -1);
 
-			void DrawBoundingBox();
+			void DrawBoundingBox(Component::Transform* transform);
 
 			static inline ResourceType GetResourceType() { return ResourceType::Mesh; }
 

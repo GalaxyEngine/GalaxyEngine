@@ -433,7 +433,7 @@ namespace GALAXY
 						auto listOfInfo = std::any_cast<std::vector<ComponentInfo>>(variableValue.first);
 						std::vector<Component::BaseComponent*> listOfComponent(listOfInfo.size());
 						// Go trough all componentInfo
-						for (int i = 0; i < listOfComponent.size(); i++)
+						for (size_t i = 0; i < listOfComponent.size(); i++)
 						{
 							Component::BaseComponent* component;
 							std::any value = listOfInfo[i];

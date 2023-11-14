@@ -34,6 +34,11 @@ namespace GALAXY
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{
+		if (IsLooking() && Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
+		{
+			StopLooking();
+		}
+
 		if (!Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
 			return;
 
@@ -41,15 +46,11 @@ namespace GALAXY
 		{
 			StartLooking();
 		}
-		else if (Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
-		{
-			StopLooking();
-		}
 
 		if (!m_looking)
 			return;
-		/*TODO:
-		 * change input with input class
+		/*
+		TODO:
 		 * change delta time with Time class
 		*/
 		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
