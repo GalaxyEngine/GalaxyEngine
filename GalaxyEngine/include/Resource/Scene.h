@@ -61,7 +61,7 @@ namespace GALAXY {
 
 
 			// Return the GameObject with the index given in scene Graph
-			inline Weak<Core::GameObject> Resource::Scene::GetWithSceneGraphID(uint64_t index);
+			inline Weak<Core::GameObject> GetWithSceneGraphID(uint64_t index);
 			// Return the GameObject with the uuid given
 			inline Weak<Core::GameObject> GetWithUUID(Core::UUID uuid);
 			inline Weak<Core::GameObject> GetRootGameObject() const { return m_root; }

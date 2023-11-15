@@ -1,5 +1,10 @@
 #pragma once
 #include "Utils/OS.h"
+
+#ifdef __linux__
+#include <dlfcn.h>
+#endif
+
 namespace GALAXY 
 {
 

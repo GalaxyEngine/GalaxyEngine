@@ -10,15 +10,15 @@
  [Child Number] : 0
  ------------- BEGIN COMPONENT ------------- 
   [Name] : Mesh Component
-  [Mesh] : CoreResources\rubix1x1.obj:Rubix
+  [Mesh] : CoreResources/rubix1x1.obj:Rubix
   [Material Count] : 7
-   [Material 0] : CoreResources\Border.mat
-   [Material 1] : CoreResources\Blue.mat
-   [Material 2] : CoreResources\Red.mat
-   [Material 3] : CoreResources\Yellow.mat
-   [Material 4] : CoreResources\Lime.mat
-   [Material 5] : CoreResources\Orange.mat
-   [Material 6] : CoreResources\White.mat
+   [Material 0] : CoreResources/Border.mat
+   [Material 1] : CoreResources/Blue.mat
+   [Material 2] : CoreResources/Red.mat
+   [Material 3] : CoreResources/Yellow.mat
+   [Material 4] : CoreResources/Lime.mat
+   [Material 5] : CoreResources/Orange.mat
+   [Material 6] : CoreResources/White.mat
  ============= END COMPONENT ============= 
  ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

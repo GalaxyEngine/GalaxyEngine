@@ -59,7 +59,7 @@ namespace GALAXY
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const std::filesystem::path& value)
 	{
-		*this << value.string().c_str();
+		*this << value.generic_string().c_str();
 		return *this;
 	}
 

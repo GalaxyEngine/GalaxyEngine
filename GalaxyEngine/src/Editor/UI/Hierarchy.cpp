@@ -1,7 +1,5 @@
 #include "pch.h"
 #include "Editor/UI/EditorUIManager.h"
-#include "Editor/UI/Hierarchy.h"
-#include "Editor/UI/Inspector.h"
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
@@ -125,7 +123,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t 
 			m_inspector->ClearSelected();
 		}
 	}
-	if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete))
+	if ((ImGui::IsWindowFocused() || EditorUIManager::GetInstance()->GetSceneWindow()->IsFocused())&& ImGui::IsKeyPressed(ImGuiKey_Delete))
 	{
 		for (Weak<Core::GameObject>& object : m_inspector->GetSelected())
 		{

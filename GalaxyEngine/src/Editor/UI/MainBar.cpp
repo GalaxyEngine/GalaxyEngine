@@ -32,6 +32,8 @@ namespace GALAXY
 				{
 					if (std::string path = Utils::OS::OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
 					{
+						if (std::filesystem::path(path).extension() != ".galaxy")
+							return;
 						OpenScene(path);
 					}
 				}

@@ -135,8 +135,15 @@ namespace GALAXY
 
 	void Editor::UI::FileDialog::SetCurrentPath(Path val)
 	{
-		m_currentPath = val;
-		m_currentFile = std::make_shared<TmpFile>(val);
+		if (std::filesystem::exists(val))
+		{
+			m_currentPath = val;
+		}
+		else
+		{
+			m_currentPath = std::filesystem::current_path();
+		}
+		m_currentFile = std::make_shared<TmpFile>(m_currentPath);
 		m_currentFile->FindChildrens();
 	}
 

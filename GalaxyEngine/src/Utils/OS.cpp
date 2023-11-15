@@ -3,6 +3,8 @@
 
 #include "Core/Application.h"
 
+#include "Editor/UI/FileDialog.h"
+
 #include "Resource/ResourceManager.h"
 
 #ifdef __linux__

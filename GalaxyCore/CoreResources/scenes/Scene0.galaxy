@@ -10,9 +10,9 @@
  [Child Number] : 0
  ------------- BEGIN COMPONENT ------------- 
   [Name] : Mesh Component
-  [Mesh] : CoreResources\models\Cube.obj:Cube
+  [Mesh] : CoreResources/models/Cube.obj:Cube
   [Material Count] : 1
-   [Material 0] : CoreResources\materials\DefaultMaterial.mat
+   [Material 0] : CoreResources/materials/DefaultMaterial.mat
  ============= END COMPONENT ============= 
  ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 
