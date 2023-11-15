@@ -102,11 +102,8 @@ namespace GALAXY
 
 			Shared<Utils::FileWatcher> m_fileWatcherDLL;
 
-#if defined(_WIN32)
-			HMODULE m_hDll = NULL;
-#elif defined(__linux__)
 			void* m_hDll = nullptr;
-#endif
+
 			bool m_dllLoaded = false;
 
 			std::filesystem::path m_dllPath;

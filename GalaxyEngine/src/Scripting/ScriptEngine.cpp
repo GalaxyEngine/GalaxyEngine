@@ -4,6 +4,7 @@
 #include "Scripting/ScriptInstance.h"
 
 #include "Resource/Script.h"
+#include "Resource/Scene.h"
 
 #include "Component/ComponentHolder.h"
 #include "Component/ScriptComponent.h"
@@ -12,12 +13,9 @@
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 #include "Core/ThreadManager.h"
 
-#ifdef __linux__
-#include <dlfcn.h>
-#endif
+#include "Utils/OS.h"
 
 #define DESTINATION_DLL std::filesystem::path("")
 
@@ -35,38 +33,6 @@ namespace GALAXY
 		UnloadDLL();
 	}
 
-	void OnDllUpdate()
-	{
-		PrintLog("Dll Updated !");
-	}
-
-	std::string GetLastErrorAsString()
-	{
-		std::string message = "";
-#ifdef _WIN32
-		//Get the error message ID, if any.
-		DWORD errorMessageID = ::GetLastError();
-		if (errorMessageID == 0) {
-			return std::string(); //No error message has been recorded
-		}
-
-		LPSTR messageBuffer = nullptr;
-
-		//Ask Win32 to give us the string version of that message ID.
-		//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
-		size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-		//Copy the error message into a std::string.
-		message = std::string(messageBuffer, size);
-
-		//Free the Win32's string's buffer.
-		LocalFree(messageBuffer);
-#endif
-
-		return message;
-	}
-
 	void Scripting::ScriptEngine::CopyDLLFile(const std::filesystem::path& originalPath, const std::filesystem::path& copiedPath)
 	{
 		Utils::FileSystem::RemoveFile(copiedPath);
@@ -76,12 +42,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
-		std::string extension = "";
-#if defined(_WIN32)
-		extension = ".dll";
-#elif defined(__linux__)
-		extension = ".so";
-#endif
+		std::string extension = Utils::OS::GetDLLExstension();
 
 		auto dllPathName = dllPath / (dllName + extension);
 		auto pdbPathName = dllPath / (dllName + ".pdb");
@@ -130,39 +91,9 @@ namespace GALAXY
 			copiedFile = 0;
 		}
 
-		auto dllLoad = copiedDllPath.string();
-		bool loaded = false;
+		std::string dllLoad = copiedDllPath.string();
 
-#if defined(_WIN32)
-		m_hDll = LoadLibrary(dllLoad.c_str());
-
-		if (m_hDll != NULL)
-		{
-			PrintLog("Loading Project %s", dllName.c_str());
-
-			for (auto& script : m_scripts)
-			{
-				ParseScript(script);
-			}
-			m_dllLoaded = true;
-			PrintLog("Loaded Project %s", dllName.c_str());
-		}
-		else
-		{
-			PrintError("Failed to load project DLL : %s", GetLastErrorAsString().c_str());
-		}
-#elif defined(__linux__)
-		// Linux-specific code
-		m_hDll = dlopen(dllLoad.c_str(), RTLD_LAZY);
-		if (m_hDll)
-		{
-			loaded = true;
-		}
-		else
-		{
-			PrintError("Failed to load project DLL: %s", dlerror());
-		}
-#endif
+		m_hDll = Utils::OS::LoadDLL(dllLoad.c_str());
 	}
 
 
@@ -170,11 +101,7 @@ namespace GALAXY
 	{
 		if (m_dllLoaded && m_hDll != NULL)
 		{
-#if defined(_WIN32)
-			FreeLibrary(m_hDll);
-#elif defined(__linux__)
-			dlclose(m_hDll);
-#endif
+			Utils::OS::FreeDLL(m_hDll);
 		}
 	}
 
@@ -202,13 +129,13 @@ namespace GALAXY
 						Component::ComponentHolder::UnregisterComponent(scriptComponent);
 						break;
 					}
-				}
+					}
 
 				m_scripts.erase(m_scripts.begin() + i);
 				return;
+				}
 			}
 		}
-	}
 
 	void Scripting::ScriptEngine::ParseScript(Weak<Resource::Script>& script)
 	{
@@ -396,31 +323,19 @@ namespace GALAXY
 
 	Scripting::ScriptConstructor Scripting::ScriptEngine::GetConstructor(const std::string& className)
 	{
-#ifdef _WIN32
-		return (ScriptConstructor)(GetProcAddress(m_hDll, ("Create_" + className).c_str()));
-#elif defined(__linux__)
-		return (ScriptConstructor)dlsym(m_hDll, ("Create_" + className).c_str());
-#endif
+		return Utils::OS::GetDLLMethod<ScriptConstructor>(m_hDll, ("Create_" + className).c_str());
 	}
 
 	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)
 	{
 		std::string getterMethodName = ("Get_" + className + '_' + variableName).c_str();
-#ifdef _WIN32
-		return (GetterMethod)(GetProcAddress(m_hDll, getterMethodName.c_str()));
-#elif defined(__linux__)
-		return (GetterMethod)dlsym(m_hDll, getterMethodName.c_str());
-#endif
+		return Utils::OS::GetDLLMethod<GetterMethod>(m_hDll, getterMethodName.c_str());
 	}
 
 	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName)
 	{
 		std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
-#ifdef _WIN32
-		return (SetterMethod)(GetProcAddress(m_hDll, setterMethodName.c_str()));
-#elif defined(__linux__)
-		return (SetterMethod)dlsym(m_hDll, setterMethodName.c_str());
-#endif
+		return Utils::OS::GetDLLMethod<SetterMethod>(m_hDll, setterMethodName.c_str());
 	}
 
 	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName)
@@ -431,8 +346,8 @@ namespace GALAXY
 			{
 				return m_scripts[i].lock() != nullptr;
 			}
-		}
-		return false;
 	}
+		return false;
+}
 
 }

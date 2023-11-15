@@ -3,66 +3,13 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
+#include "Resource/Scene.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 
-#ifdef _WIN32
-#pragma comment(lib, "Comdlg32.lib")
-#elif defined(__linux__)
-#define HANDLE_FILE_DIALOG
-#endif
 
-std::string SaveDialog(const char* filter)
-{
-#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
-	OPENFILENAMEA ofn;
-	CHAR szFile[260] = { 0 };
-	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
-	ofn.lStructSize = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = filter;
-	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
-	if (GetSaveFileNameA(&ofn) == TRUE)
-	{
-		return ofn.lpstrFile;
-	}
-#elif defined(HANDLE_FILE_DIALOG)
-	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Save, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
-#endif
-	return "";
-}
-
-std::string OpenDialog(const char* filter)
-{
-#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
-	OPENFILENAMEA ofn;
-	CHAR szFile[260] = { 0 };
-	ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
-	ofn.lStructSize = sizeof(OPENFILENAMEA);
-	ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = sizeof(szFile);
-	ofn.lpstrFilter = filter;
-	ofn.nFilterIndex = 1;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-	ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
-	if (GetSaveFileNameA(&ofn) == TRUE)
-	{
-		if (ofn.lpstrFile != NULL)
-			return ofn.lpstrFile;
-		return "";
-	}
-#elif defined(HANDLE_FILE_DIALOG)
-	Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Open, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
-#endif
-	return "";
-}
+#include "Utils/OS.h"
 
 namespace GALAXY
 {
@@ -83,14 +30,14 @@ namespace GALAXY
 			{
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (std::string path = OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
+					if (std::string path = Utils::OS::OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						OpenScene(path);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene"))
 				{
-					if (std::string path = SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
+					if (std::string path = Utils::OS::SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						SaveScene(path);
 					}
