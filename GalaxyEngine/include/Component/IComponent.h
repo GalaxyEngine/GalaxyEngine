@@ -71,17 +71,23 @@ namespace GALAXY {
 
 			// ========= Getters ========= //
 
-			inline bool IsEnable() const { return p_enable; }
+			// return if the component is enable and his gameobject
+			bool IsEnable() const;
+
+			// return if the component is enable and only him
+			inline bool IsSelfEnable() const { return p_enable; }
 
 			inline virtual void SetGameObject(Weak<Core::GameObject> object) { p_gameObject = object; }
 
 			inline Shared<Core::GameObject> GetGameObject() { return p_gameObject.lock(); }
 
+			class Transform* GetTransform();
+
 			inline uint32_t GetIndex() const { return p_id; }
 
 			// ========= Setters ========= //
 
-			inline void SetEnable(bool enable) { p_enable = enable; }
+			inline void SetSelfEnable(bool enable) { p_enable = enable; }
 
 			virtual Shared<BaseComponent> Clone() = 0;
 
@@ -128,7 +134,7 @@ namespace GALAXY {
 			}
 		private:
 
-		};
+			};
 
+		}
 	}
-}

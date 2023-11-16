@@ -44,8 +44,10 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	ImGui::SameLine();
 	Wrapper::GUI::InputText("##InputName", &object->m_name);
 	ImGui::SameLine();
-	ImGui::TextUnformatted(std::to_string(object->GetUUID()).c_str());
+	ImGui::Text("%llu", object->GetUUID());
 	ImGui::Separator();
+
+	ImGui::BeginDisabled(!object->m_active);
 
 	// Transform
 	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
@@ -60,10 +62,10 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 			continue;
 		ImGui::PushID(i);
 
-		bool enable = object->m_components[i]->IsEnable();
+		bool enable = object->m_components[i]->IsSelfEnable();
 		if (ImGui::Checkbox("##", &enable))
 		{
-			object->m_components[i]->SetEnable(enable);
+			object->m_components[i]->SetSelfEnable(enable);
 		}
 		ImGui::SameLine();
 
@@ -107,6 +109,8 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		}
 		ImGui::PopID();
 	}
+
+	ImGui::EndDisabled();
 	if (openPopup)
 	{
 		ImGui::OpenPopup("RightClickPopup");

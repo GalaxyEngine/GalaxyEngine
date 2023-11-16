@@ -322,7 +322,9 @@ namespace GALAXY {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, filter);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, format, texture->m_size.x, texture->m_size.y, 0, format, GL_UNSIGNED_BYTE, texture->m_bytes);
-		glGenerateMipmap(GL_TEXTURE_2D);
+		
+		if (texture->m_generateMipmaps)
+			glGenerateMipmap(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
@@ -586,9 +588,9 @@ namespace GALAXY {
 
 		const auto& VP = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP();
 
-		ShaderSendMat4(shader->GetLocation("MVP"), VP, true);
-		ShaderSendVec4f(shader->GetLocation("Diffuse"), color);
-		ShaderSendInt(shader->GetLocation("EnableTexture"), false);
+		shader->SendMat4("MVP", VP);
+		shader->SendVec4f("material.diffuse", color);
+		shader->SendInt("material.enableTexture", false);
 
 		// Draw vertices
 		glBindVertexArray(VAO);

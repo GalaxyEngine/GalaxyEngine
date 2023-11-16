@@ -12,6 +12,7 @@ namespace GALAXY
 	namespace Wrapper { class Window; class Renderer; }
 	namespace Editor::UI { class EditorUIManager; }
 	namespace Scripting { class ScriptEngine; }
+	namespace Render { class LightManager; }
 	namespace Core 
 	{
 		class ThreadManager;
@@ -50,6 +51,8 @@ namespace GALAXY
 
 			Editor::UI::EditorUIManager* m_editorUI = nullptr;
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;
+
+			Render::LightManager* m_lightManager = nullptr;
 
 			Unique<Wrapper::Window> m_window;
 

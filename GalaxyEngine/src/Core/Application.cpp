@@ -4,7 +4,6 @@
 #include "Core/Application.h"
 #include "Core/ThreadManager.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 #include "Core/Input.h"
 #include "Core/GameObject.h"
 
@@ -17,6 +16,9 @@
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
+#include "Resource/Scene.h"
+
+#include "Render/LightManager.h"
 
 #include "Editor/UI/EditorUIManager.h"
 
@@ -65,6 +67,9 @@ namespace GALAXY {
 		m_threadManager = Core::ThreadManager::GetInstance();
 		m_threadManager->Initialize();
 
+		// Initialize Light Manager
+		m_lightManager = Render::LightManager::GetInstance();
+
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
 		m_resourceManager->m_projectPath = projectPath.parent_path();
@@ -72,10 +77,8 @@ namespace GALAXY {
 		std::string filename = projectPath.filename().generic_string();
 		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
 
-		
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
-
 		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();

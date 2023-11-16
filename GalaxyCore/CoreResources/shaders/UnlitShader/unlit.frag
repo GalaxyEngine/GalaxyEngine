@@ -1,17 +1,23 @@
 #version 330 core
+
+struct Material
+{
+    vec4 diffuse;
+    bool enableTexture;
+    sampler2D albedo;
+};
+
 out vec4 FragColor;
 
 in vec2 uv;
 in vec3 normal;
 
-uniform vec4 Diffuse;
-uniform bool EnableTexture;
-uniform sampler2D Texture;
+uniform Material material;
 
 void main()
 {
-    if (EnableTexture)
-        FragColor = texture(Texture, uv);
+    if (material.enableTexture)
+        FragColor = texture(material.albedo, uv);
     else
-        FragColor = vec4(Diffuse.x, Diffuse.y, Diffuse.z, Diffuse.w);
+        FragColor = material.diffuse;
 } 

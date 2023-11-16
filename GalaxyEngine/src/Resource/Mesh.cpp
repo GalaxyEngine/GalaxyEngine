@@ -66,6 +66,8 @@ namespace GALAXY {
 				continue;
 
 			shader.lock()->SendMat4("MVP", Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
+			shader.lock()->SendMat4("Model", modelMatrix);
+
 			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
 		}
 		renderer->UnbindVertexArray();

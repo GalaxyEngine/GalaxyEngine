@@ -61,6 +61,7 @@ namespace GALAXY {
 			inline Weak<class Material> GetDefaultMaterial();
 			inline Weak<Shader> GetDefaultShader();
 			inline Weak<Shader> GetUnlitShader();
+			inline Weak<Shader> GetLitShader();
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);
@@ -81,12 +82,13 @@ namespace GALAXY {
 			UMap<Path, Weak<IResource>> m_temporaryResources;
 
 			Weak<class Material> m_defaultMaterial;
+			Weak<class Shader> m_unlitShader;
+			Weak<class Shader> m_litShader;
 			Weak<class Shader> m_defaultShader;
 
 			Path m_assetPath;
 			Path m_projectPath;
 			String m_projectName;
-
 		};
 
 	}

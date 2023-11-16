@@ -30,6 +30,9 @@ namespace GALAXY {
 
 			void ShowInInspector() override;
 
+			virtual void Serialize(Utils::Serializer& serializer);
+			virtual void Deserialize(Utils::Parser& parser);
+
 			// === Setters === //
 			void SetWorldPosition(const Vec3f& worldPosition);
 			void SetWorldRotation(const Quat& worldRotation);

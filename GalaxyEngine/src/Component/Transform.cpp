@@ -6,8 +6,10 @@
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
 
+#include "Utils/Parser.h"
+
 #include "Editor/ActionManager.h"
-namespace GALAXY 
+namespace GALAXY
 {
 	Component::Transform::Transform()
 	{
@@ -183,6 +185,20 @@ namespace GALAXY
 			SetLocalRotation(rotation);
 			SetLocalScale(scale);
 		}
+	}
+
+	void Component::Transform::Serialize(Utils::Serializer& serializer)
+	{
+		serializer << Utils::PAIR::KEY << "Position" << Utils::PAIR::VALUE << m_localPosition;
+		serializer << Utils::PAIR::KEY << "Rotation" << Utils::PAIR::VALUE << m_localRotation;
+		serializer << Utils::PAIR::KEY << "Scale" << Utils::PAIR::VALUE << m_localScale;
+	}
+
+	void Component::Transform::Deserialize(Utils::Parser& parser)
+	{
+		SetLocalPosition(parser["Position"].As<Vec3f>());
+		SetLocalRotation(parser["Rotation"].As<Quat>());
+		SetLocalScale(parser["Scale"].As<Vec3f>());
 	}
 
 	void Component::Transform::SetWorldPosition(const Vec3f& worldPosition)

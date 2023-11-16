@@ -13,6 +13,7 @@
 #include "Render/EditorCamera.h"
 #include "Render/Grid.h"
 #include "Render/Framebuffer.h"
+#include "Render/LightManager.h"
 
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
@@ -58,6 +59,7 @@ namespace GALAXY
 		static Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		static Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
 		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
+		static Render::LightManager* lightManager = Render::LightManager::GetInstance();
 
 		Editor::UI::EditorUIManager::GetInstance()->DrawUI();
 
@@ -125,6 +127,9 @@ namespace GALAXY
 				cameraPosition = ray.origin;
 				clickPosition = ray.origin + ray.direction * ray.scale;
 			}
+
+			lightManager->SendLightData();
+
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())

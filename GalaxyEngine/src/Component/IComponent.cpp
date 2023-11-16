@@ -11,6 +11,16 @@ namespace GALAXY {
 		}
 	}
 
+	bool Component::BaseComponent::IsEnable() const
+	{
+		return p_enable && p_gameObject.lock()->IsActive();
+	}
+
+	Component::Transform* Component::BaseComponent::GetTransform()
+	{
+		return p_gameObject.lock()->GetTransform();
+	}
+
 	Component::BaseComponent::BaseComponent()
 	{
 

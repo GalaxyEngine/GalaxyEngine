@@ -230,11 +230,11 @@ namespace GALAXY
 			break;
 		case PAIR::BEGIN_MAP:
 			m_currentType = val;
-			m_file << MAP_SEPARATOR_BEGIN;
+			m_file << m_tab << MAP_SEPARATOR_BEGIN;
 			break;
 		case PAIR::END_MAP:
 			m_currentType = val;
-			m_file << MAP_SEPARATOR_END;
+			m_file << m_tab << MAP_SEPARATOR_END;
 			break;
 		default:
 			m_currentType = val;

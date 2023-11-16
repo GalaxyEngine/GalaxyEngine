@@ -251,8 +251,16 @@ namespace GALAXY
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
-		std::string unlitPath = ENGINE_RESOURCE_FOLDER_NAME"/shaders/UnlitShader/unlit.shader";
-		return GetOrLoad<Resource::Shader>(unlitPath);
+		if (!m_unlitShader.lock())
+			m_unlitShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/UnlitShader/unlit.shader");
+		return m_unlitShader;
+	}
+
+	inline Weak<Resource::Shader> Resource::ResourceManager::GetLitShader()
+	{
+		if (!m_litShader.lock())
+			m_litShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/LitShader/lit.shader");
+		return m_litShader;
 	}
 
 	inline Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
@@ -273,7 +281,7 @@ namespace GALAXY
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
 	{
 		if (!m_defaultShader.lock())
-			m_defaultShader = GetUnlitShader();
+			m_defaultShader = GetLitShader();
 		return m_defaultShader;
 	}
 }

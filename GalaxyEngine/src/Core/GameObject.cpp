@@ -28,6 +28,10 @@ namespace GALAXY
 
 	void GameObject::Destroy()
 	{
+		for (size_t i = 0; i < m_components.size(); i++)
+		{
+			m_components[i]->RemoveFromGameObject();
+		}
 		for (size_t i = 0; i < m_childs.size(); i++)
 		{
 			m_childs[i]->Destroy();
@@ -94,8 +98,10 @@ namespace GALAXY
 		m_transform->OnUpdate();
 		for (uint32_t i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->IsEnable())
+			if (m_components[i]->IsEnable()) {
 				m_components[i]->OnUpdate();
+				m_components[i]->OnEditorUpdate();
+			}
 		}
 
 		for (uint32_t i = 0; i < m_childs.size(); i++)
@@ -108,8 +114,10 @@ namespace GALAXY
 	{
 		for (uint32_t i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->IsEnable())
+			if (m_components[i]->IsEnable()) {
 				m_components[i]->OnDraw();
+				m_components[i]->OnEditorDraw();
+			}
 		}
 
 		for (uint32_t i = 0; i < m_childs.size(); i++)
@@ -141,6 +149,7 @@ namespace GALAXY
 
 	void GameObject::RemoveComponent(Component::BaseComponent* component)
 	{
+		component->OnDestroy();
 		uint32_t index = component->GetIndex();
 		m_components.erase(m_components.begin() + index);
 		for (uint32_t i = index; i < m_components.size(); i++)
@@ -217,23 +226,39 @@ namespace GALAXY
 		return childs;
 	}
 
+	void SerializeTransform(Utils::Serializer& serializer, Component::Transform* transform)
+	{
+		serializer << PAIR::BEGIN_MAP << "BEGIN TRANSFORM";
+		transform->Serialize(serializer);
+		serializer << PAIR::END_MAP << "END TRANSFORM";
+	}
+
+	void SerializeComponent(Utils::Serializer& serializer, Shared<Component::BaseComponent> components)
+	{
+		serializer << PAIR::BEGIN_MAP << "BEGIN COMPONENT";
+		serializer << PAIR::KEY << "Name" << PAIR::VALUE << components->GetComponentName();
+		serializer << PAIR::KEY << "Enable" << PAIR::VALUE << components->IsEnable();
+		components->Serialize(serializer);
+		serializer << PAIR::END_MAP << "END COMPONENT";
+	}
+
 	void GameObject::Serialize(Utils::Serializer& serializer)
 	{
 		serializer << PAIR::BEGIN_MAP << "BEGIN GAMEOBJECT";
 
-		serializer << PAIR::KEY << "Name" << PAIR::VALUE << m_name;
-		serializer << PAIR::KEY << "UUID" << PAIR::VALUE << m_UUID;
+		serializer << PAIR::KEY << "Name"	<< PAIR::VALUE << m_name;
+		serializer << PAIR::KEY << "Active" << PAIR::VALUE << m_active;
+		serializer << PAIR::KEY << "UUID"	<< PAIR::VALUE << m_UUID;
 
 		serializer << PAIR::KEY << "Component Number" << PAIR::VALUE << m_components.size();
-		serializer << PAIR::KEY << "Child Number" << PAIR::VALUE << m_childs.size();
+		serializer << PAIR::KEY << "Child Number"	  << PAIR::VALUE << m_childs.size();
+
+		SerializeTransform(serializer, m_transform.get());
 
 		serializer << PAIR::BEGIN_TAB;
-		for (auto& components : m_components)
+		for (Shared<Component::BaseComponent>& component : m_components)
 		{
-			serializer << PAIR::BEGIN_MAP << "BEGIN COMPONENT";
-			serializer << PAIR::KEY << "Name" << PAIR::VALUE << components->GetComponentName();
-			components->Serialize(serializer);
-			serializer << PAIR::END_MAP << "END COMPONENT";
+			SerializeComponent(serializer, component);
 		}
 		serializer << PAIR::END_TAB;
 
@@ -250,16 +275,21 @@ namespace GALAXY
 	void GameObject::Deserialize(Utils::Parser& parser)
 	{
 		m_name = parser["Name"];
+		m_active = parser["Active"].As<bool>();
 		m_UUID = parser["UUID"].As<uint64_t>();
 
 		size_t componentNumber = parser["Component Number"].As<size_t>();
 		m_childs.resize(parser["Child Number"].As<size_t>());
+
+		parser.NewDepth();
+		m_transform->Deserialize(parser);
 
 		for (size_t i = 0; i < componentNumber; i++)
 		{
 			parser.NewDepth();
 			Shared<Component::BaseComponent> component;
 			String componentNameString = parser["Name"];
+			bool enable = parser["Enable"].As<bool>();
 			const char* componentName = componentNameString.c_str();
 			for (auto& componentInstance : Component::ComponentHolder::GetList())
 			{
@@ -270,6 +300,7 @@ namespace GALAXY
 				}
 			}
 			if (component) {
+				component->SetSelfEnable(enable);
 				component->Deserialize(parser);
 				AddComponent(component);
 			}

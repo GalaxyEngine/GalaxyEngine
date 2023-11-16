@@ -23,6 +23,10 @@ namespace GALAXY {
 	{
 		class Scene;
 	}
+	namespace Component
+	{
+		class Light;
+	}
 	namespace Core {
 		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -85,6 +89,8 @@ namespace GALAXY {
 			inline List<Weak<T>> GetComponentsInChildren();
 			template<typename T>
 			inline List<Weak<T>> GetComponents();
+			template<typename T>
+			inline Weak<T> GetWeakComponent();
 
 			Weak<Component::BaseComponent> GetComponentWithIndex(uint32_t index);
 
@@ -104,9 +110,12 @@ namespace GALAXY {
 			// Call after the sceneLoading to synchronize 
 			// the components and gameObjects find by the id
 			void AfterLoad();
+
+			bool IsActive() const { return m_active; }
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
+			friend Component::Light;
 
 			UUID m_UUID;
 			uint64_t m_sceneGraphID = 0;
@@ -137,7 +146,11 @@ namespace GALAXY {
 
 			template<typename T>
 			inline void AddComponent(Shared<T> component, uint32_t index);
+
+			template<typename T>
+			inline Weak<T> GetWeakOfComponent(T* component);
 		};
-	}
+
+}
 }
 #include "Core/GameObject.inl" 

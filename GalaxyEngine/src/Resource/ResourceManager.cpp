@@ -66,7 +66,7 @@ namespace GALAXY {
 			GetOrLoad<Texture>(resourcePath);
 			break;
 		case Resource::ResourceType::Shader:
-			AddResource<Shader>(resourcePath);
+			GetOrLoad<Shader>(resourcePath);
 			break;
 		case Resource::ResourceType::PostProcessShader:
 			AddResource<PostProcessShader>(resourcePath);

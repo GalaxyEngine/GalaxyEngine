@@ -60,6 +60,7 @@ namespace GALAXY {
 		component->SetGameObject(weak_from_this());
 		m_components.push_back(component);
 		component->p_id = static_cast<uint32_t>(m_components.size() - 1);
+		component->OnCreate();
 	}
 
 	template<typename T>
@@ -90,6 +91,19 @@ namespace GALAXY {
 		}
 		return list;
 	}
+
+	template<typename T>
+	inline Weak<T> Core::GameObject::GetWeakComponent()
+	{
+		for (auto& component : m_components)
+		{
+			if (auto castedComponent = std::dynamic_pointer_cast<T>(component))
+			{
+				return castedComponent;
+			}
+		}
+	}
+
 
 
 	template<typename T>
@@ -126,6 +140,20 @@ namespace GALAXY {
 	{
 		component->SetGameObject(weak_from_this());
 		m_components.insert(m_components.begin() + index, component);
+	}
+
+
+	template<typename T>
+	inline Weak<T> Core::GameObject::GetWeakOfComponent(T* component)
+	{
+		for (auto& componentArray : m_components)
+		{
+			if (componentArray.get() == component)
+			{
+				return std::dynamic_pointer_cast<T>(componentArray);
+			}
+		}
+		return {};
 	}
 
 	inline bool Core::GameObject::IsAParent(GameObject* object)

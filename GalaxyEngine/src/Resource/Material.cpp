@@ -153,12 +153,14 @@ namespace GALAXY {
 				return {};
 			shader->Use();
 
-			shader->SendInt("EnableTexture", m_albedo.lock() ? true : false);
+			shader->SendInt("material.enableTexture", m_albedo.lock() ? true : false);
 			if (auto texture = m_albedo.lock()) {
 				texture->Bind(0);
-				shader->SendInt("Texture", 0);
+				shader->SendInt("material.albedo", 0);
 			}
-			shader->SendVec4f("Diffuse", m_diffuse);
+			shader->SendVec4f("material.ambient", m_ambient);
+			shader->SendVec4f("material.diffuse", m_diffuse);
+			shader->SendVec4f("material.specular", m_specular);
 		}
 		break;
 		case Render::RenderType::PICKING:
@@ -172,18 +174,19 @@ namespace GALAXY {
 			int g = (id & 0x0000FF00) >> 8;
 			int b = (id & 0x00FF0000) >> 16;
 
-			shader->SendVec4f("Diffuse", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
+			shader->SendVec4f("idColor", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
 		}
 		break;
 		case Render::RenderType::OUTLINE:
 		{
-			shader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
-			if (!shader || !shader->HasBeenSent())
+			static auto unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
+			if (!unlitShader || !unlitShader->HasBeenSent())
 				return {};
-			shader->Use();
+			unlitShader->Use();
 
-			shader->SendInt("EnableTexture", false);
-			shader->SendVec4f("Diffuse", Vec4f(1));
+			unlitShader->SendInt("material.enableTexture", false);
+			unlitShader->SendVec4f("material.diffuse", Vec4f(1));
+			return unlitShader;
 		}
 		break;
 		default:

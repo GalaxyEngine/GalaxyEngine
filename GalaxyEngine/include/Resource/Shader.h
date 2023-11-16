@@ -25,18 +25,18 @@ namespace GALAXY {
 			void SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this);
 
 			void Use();
-			int GetLocation(const std::string& locationName);
+			int GetLocation(const char* locationName);
 
-			void SendInt(const std::string& locationName, int value);
-			void SendFloat(const std::string& locationName, float value);
-			void SendDouble(const std::string& locationName, double value);
-			void SendVec2f(const std::string& locationName, const Vec2f& value);
-			void SendVec3f(const std::string& locationName, const Vec3f& value);
-			void SendVec4f(const std::string& locationName, const Vec4f& value);
-			void SendVec2i(const std::string& locationName, const Vec2i& value);
-			void SendVec3i(const std::string& locationName, const Vec3i& value);
-			void SendVec4i(const std::string& locationName, const Vec4i& value);
-			void SendMat4(const std::string& locationName, const Mat4& value);
+			void SendInt(const char* locationName, int value);
+			void SendFloat(const char* locationName, float value);
+			void SendDouble(const char* locationName, double value);
+			void SendVec2f(const char* locationName, const Vec2f& value);
+			void SendVec3f(const char* locationName, const Vec3f& value);
+			void SendVec4f(const char* locationName, const Vec4f& value);
+			void SendVec2i(const char* locationName, const Vec2i& value);
+			void SendVec3i(const char* locationName, const Vec3i& value);
+			void SendVec4i(const char* locationName, const Vec4i& value);
+			void SendMat4(const char* locationName, const Mat4& value);
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
@@ -66,8 +66,10 @@ namespace GALAXY {
 
 			virtual void Load() override;
 			void AddShader(Weak<Shader> shader);
+
+			List<Weak<Shader>> GetShaders() const { return p_shaders; }
 		protected:
-			List<Weak<Shader>> p_shader;
+			List<Weak<Shader>> p_shaders;
 			String p_content = "";
 			uint32_t m_id = -1;
 		private:
@@ -107,6 +109,7 @@ namespace GALAXY {
 		{
 		public:
 			FragmentShader(const Path& fullPath) : BaseShader(fullPath) {}
+			~FragmentShader();
 
 			void Send() override;
 

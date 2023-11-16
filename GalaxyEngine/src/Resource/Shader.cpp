@@ -1,6 +1,9 @@
 #include "pch.h"
 #include "Resource/Shader.h"
 #include "Resource/ResourceManager.h"
+
+#include "Render/LightManager.h"
+
 #define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PickingShader/picking.frag"
 namespace GALAXY
 {
@@ -58,6 +61,10 @@ namespace GALAXY
 		if (p_hasBeenSent)
 			return;
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
+		if (p_hasBeenSent) {
+			auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
+			Render::LightManager::AddShader(weak_this);
+		}
 	}
 
 	void Resource::Shader::SetVertex(Shared<VertexShader> vertexShader, Weak<Shader> weak_this)
@@ -109,10 +116,10 @@ namespace GALAXY
 	{
 		if (!shader.lock())
 			return;
-		size_t size = p_shader.size();
+		size_t size = p_shaders.size();
 		if (size > 0)
 		{
-			for (auto&& _shader : p_shader)
+			for (auto&& _shader : p_shaders)
 			{
 				if (!_shader.lock())
 					continue;
@@ -121,10 +128,10 @@ namespace GALAXY
 			}
 		}
 
-		p_shader.push_back(shader.lock());
+		p_shaders.push_back(shader.lock());
 	}
 
-	void GALAXY::Resource::BaseShader::Load()
+	void Resource::BaseShader::Load()
 	{
 		if (p_shouldBeLoaded)
 			return;
@@ -142,6 +149,11 @@ namespace GALAXY
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->CompileVertexShader(this);
 	}
 
+	Resource::FragmentShader::~FragmentShader()
+	{
+		auto weak_this = Resource::ResourceManager::GetInstance()->GetResource<FragmentShader>(this->GetFileInfo().GetFullPath());
+	}
+
 	// === Fragment === //
 	void Resource::FragmentShader::Send()
 	{
@@ -155,65 +167,95 @@ namespace GALAXY
 		p_renderer->UseShader(this);
 	}
 
-	int Resource::Shader::GetLocation(const std::string& locationName)
+	int Resource::Shader::GetLocation(const char* locationName)
 	{
 		ASSERT(HasBeenSent());
-		if (p_locations.count(locationName))
+		if (auto& it = p_locations.find(locationName); it != p_locations.end())
 		{
-			return p_locations.at(locationName);
+			return it->second;
 		}
 		else
 			return p_locations[locationName] = p_renderer->GetShaderLocation(p_id, locationName);
 	}
 
-	void Resource::Shader::SendInt(const std::string& locationName, int value)
+	void Resource::Shader::SendInt(const char* locationName, int value)
 	{
-		p_renderer->ShaderSendInt(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendInt(locationID, value);
 	}
 
-	void Resource::Shader::SendFloat(const std::string& locationName, float value)
+	void Resource::Shader::SendFloat(const char* locationName, float value)
 	{
-		p_renderer->ShaderSendFloat(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendFloat(locationID, value);
 	}
 
-	void Resource::Shader::SendDouble(const std::string& locationName, double value)
+	void Resource::Shader::SendDouble(const char* locationName, double value)
 	{
-		p_renderer->ShaderSendDouble(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendDouble(locationID, value);
 	}
 
-	void Resource::Shader::SendVec2f(const std::string& locationName, const Vec2f& value)
+	void Resource::Shader::SendVec2f(const char* locationName, const Vec2f& value)
 	{
-		p_renderer->ShaderSendVec2f(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec2f(locationID, value);
 	}
 
-	void Resource::Shader::SendVec3f(const std::string& locationName, const Vec3f& value)
+	void Resource::Shader::SendVec3f(const char* locationName, const Vec3f& value)
 	{
-		p_renderer->ShaderSendVec3f(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec3f(locationID, value);
 	}
 
-	void Resource::Shader::SendVec4f(const std::string& locationName, const Vec4f& value)
+	void Resource::Shader::SendVec4f(const char* locationName, const Vec4f& value)
 	{
-		p_renderer->ShaderSendVec4f(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec4f(locationID, value);
 	}
 
-	void Resource::Shader::SendVec2i(const std::string& locationName, const Vec2i& value)
+	void Resource::Shader::SendVec2i(const char* locationName, const Vec2i& value)
 	{
-		p_renderer->ShaderSendVec2i(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec2i(locationID, value);
 	}
 
-	void Resource::Shader::SendVec3i(const std::string& locationName, const Vec3i& value)
+	void Resource::Shader::SendVec3i(const char* locationName, const Vec3i& value)
 	{
-		p_renderer->ShaderSendVec3i(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec3i(locationID, value);
 	}
 
-	void Resource::Shader::SendVec4i(const std::string& locationName, const Vec4i& value)
+	void Resource::Shader::SendVec4i(const char* locationName, const Vec4i& value)
 	{
-		p_renderer->ShaderSendVec4i(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendVec4i(locationID, value);
 	}
 
-	void Resource::Shader::SendMat4(const std::string& locationName, const Mat4& value)
+	void Resource::Shader::SendMat4(const char* locationName, const Mat4& value)
 	{
-		p_renderer->ShaderSendMat4(GetLocation(locationName), value);
+		int locationID = GetLocation(locationName);
+		if (locationID == -1)
+			return;
+		p_renderer->ShaderSendMat4(locationID, value);
 	}
 
 }

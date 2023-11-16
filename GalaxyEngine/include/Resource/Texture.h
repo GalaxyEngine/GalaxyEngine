@@ -54,6 +54,7 @@ namespace GALAXY {
 			Vec2i m_size = {};
 			TextureFormat m_format = TextureFormat::RGBA;
 			TextureFiltering m_filtering = TextureFiltering::REPEAT;
+			bool m_generateMipmaps = false;
 		};
 	}
 }
