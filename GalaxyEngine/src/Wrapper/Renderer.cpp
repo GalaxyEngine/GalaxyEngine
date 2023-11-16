@@ -332,7 +332,10 @@ namespace GALAXY {
 	void Wrapper::OpenGLRenderer::DestroyTexture(Resource::Texture* texture)
 	{
 		if (texture->HasBeenSent())
+		{
 			glDeleteTextures(1, &texture->m_id);
+			texture->p_hasBeenSent = false;
+		}
 	}
 
 	uint32_t Wrapper::OpenGLRenderer::TextureFilteringToAPI(Resource::TextureFiltering filtering)
@@ -602,6 +605,7 @@ namespace GALAXY {
 
 	void Wrapper::OpenGLRenderer::BindTexture(Resource::Texture* texture, uint32_t id /*= 0*/)
 	{
+		ASSERT(texture->HasBeenSent());
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, texture->GetID());
 	}

@@ -91,7 +91,7 @@ namespace GALAXY
 		Vec2f mousePos = Input::GetMousePosition();
 		Vec2f delta = mousePos - prevMousePos;
 
-		float maxRotation = 1.f;
+		float maxRotation = 100.f;
 		float mouseX = std::clamp(delta.x * m_freeLookSensitivity * deltaTime, -maxRotation, maxRotation);
 		float mouseY = std::clamp(delta.y * m_freeLookSensitivity * deltaTime, -maxRotation, maxRotation);
 

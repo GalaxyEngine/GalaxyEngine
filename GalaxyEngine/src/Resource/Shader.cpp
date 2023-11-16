@@ -170,7 +170,8 @@ namespace GALAXY
 	int Resource::Shader::GetLocation(const char* locationName)
 	{
 		ASSERT(HasBeenSent());
-		if (auto& it = p_locations.find(locationName); it != p_locations.end())
+		auto it = p_locations.find(locationName);
+		if (it != p_locations.end())
 		{
 			return it->second;
 		}
