@@ -1,5 +1,7 @@
 #version 330 core
 
+const int LightNumber = 8;
+
 struct Material
 {
     vec4 ambient;
@@ -29,14 +31,17 @@ in vec2 uv;
 in vec3 normal;
 
 uniform Material material;
-uniform DirectionalLight directional;
+uniform DirectionalLight directionals[LightNumber];
 uniform Camera camera;
 
 uniform bool UseLights;
 
 // Function to calculate directional light
-vec4 CalculateDirectionalLight(vec3 lightDir, vec3 viewDir)
+vec4 CalculateDirectionalLight(DirectionalLight directional)
 {
+    vec3 lightDir = normalize(-directional.direction);
+    vec3 viewDir = normalize(camera.viewPos - pos);
+
     // Lambertian reflection (diffuse)
     float diff = max(dot(normal, lightDir), 0.0);
     vec4 diffuseColor;
@@ -44,7 +49,8 @@ vec4 CalculateDirectionalLight(vec3 lightDir, vec3 viewDir)
     if (material.enableTexture) {
         vec4 textureColor = texture(material.albedo, uv);
         diffuseColor = textureColor * directional.diffuse * diff;
-    } else {
+    } 
+    else {
         diffuseColor = material.diffuse * directional.diffuse * diff;
     }
 
@@ -62,17 +68,17 @@ vec4 CalculateDirectionalLight(vec3 lightDir, vec3 viewDir)
 
 void main()
 {
-    FragColor = vec4(0.f, 0.f, 0.f, 1.0f);
     if (UseLights)
         discard;
-    if (directional.enable){
-        // Calculate the light direction
-        vec3 lightDir = normalize(-directional.direction);
-
-        // Calculate the view direction (camera to fragment)
-        vec3 viewDir = normalize(camera.viewPos - pos);
-
-        // Calculate final color using the directional light method
-        FragColor = CalculateDirectionalLight(lightDir, viewDir);
+    
+    vec4 globalLight = vec4(0.f, 0.f, 0.f, 1.f);
+    for (int i = 0; i < LightNumber; i++)
+    {
+        if (directionals[i].enable)
+        {
+            globalLight += CalculateDirectionalLight(directionals[i]);
+        }
     }
+
+    FragColor = globalLight;
 }

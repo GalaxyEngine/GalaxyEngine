@@ -14,13 +14,15 @@ namespace GALAXY
 
 	void Component::Light::OnCreate()
 	{
-		Render::LightManager::AddLight(GetGameObject()->GetWeakOfComponent(this));
+		if (!Render::LightManager::AddLight(GetGameObject()->GetWeakOfComponent(this)))
+		{
+			RemoveFromGameObject();
+		}
 	}
 
 	void Component::Light::OnDestroy()
 	{
 		auto weak_this = GetGameObject()->GetWeakOfComponent(this);
-		Render::LightManager::ResetLightData(this);
 		Render::LightManager::RemoveLight(weak_this);
 	}
 

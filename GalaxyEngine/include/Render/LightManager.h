@@ -1,5 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <array>
+#define MAX_LIGHT_NUMBER 8
 namespace GALAXY
 {
 	namespace Component
@@ -13,9 +15,8 @@ namespace GALAXY
 		public:
 			LightManager() {}
 
-			static void AddLight(Weak<Component::Light> light);
+			static bool AddLight(Weak<Component::Light> light);
 			static void RemoveLight(Weak<Component::Light> light);
-			inline List<Weak<Component::Light>> GetLights() { return m_lights; }
 
 			static void AddShader(Weak<Resource::Shader> shader);
 			static void RemoveShader(Weak<Resource::Shader> shader);
@@ -29,7 +30,7 @@ namespace GALAXY
 
 			List<Weak<Resource::Shader>> m_shaders;
 
-			List<Weak<Component::Light>> m_lights;
+			std::array<Weak<Component::Light>, MAX_LIGHT_NUMBER * 3> m_lights;
 
 		};
 	}

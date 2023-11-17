@@ -6,31 +6,56 @@
 #include "Resource/Shader.h"
 
 #include "Component/Light.h"
+
+/*
+* TODO:
+*	Array Of Light
+*	PointLight
+*	Check normal in shader
+*	SpotLight
+*/
+
 namespace GALAXY
 {
 	Unique<Render::LightManager> Render::LightManager::m_instance;
-	void Render::LightManager::AddLight(Weak<Component::Light> light)
+	bool Render::LightManager::AddLight(Weak<Component::Light> light)
 	{
-		for (auto& lightArray : m_instance->m_lights)
+		Shared<Component::Light> lightShared = light.lock();
+		// Check if inside the list
+		size_t freeIndex = -1;
+
+		Component::Light::Type type = lightShared->GetLightType();
+		size_t startIndex = (size_t)type * MAX_LIGHT_NUMBER;
+		for (size_t i = startIndex; i < startIndex + MAX_LIGHT_NUMBER; i++)
 		{
-			if (lightArray.lock() == light.lock())
+			if (freeIndex == -1 && m_instance->m_lights[i].lock() == nullptr)
 			{
-				return;
+				freeIndex = i - startIndex;
+			}
+			else if (m_instance->m_lights[i].lock() == lightShared)
+			{
+				return false;
 			}
 		}
-		m_instance->m_lights.push_back(light);
+		if (freeIndex == -1)
+			return false;
+		m_instance->m_lights[freeIndex] = light;
+		lightShared->SetIndex(freeIndex);
+
+		return true;
 	}
 
 	void Render::LightManager::RemoveLight(Weak<Component::Light> light)
 	{
-		for (size_t i = 0; i < m_instance->m_lights.size(); i++)
+		Shared<Component::Light> lightShared = light.lock();
+		if (lightShared->GetIndex() == -1)
+			return;
+		ResetLightData(lightShared.get());
+		if (m_instance->m_lights[lightShared->GetIndex()].lock() == lightShared)
 		{
-			if (m_instance->m_lights[i].lock() == light.lock())
-			{
-				m_instance->m_lights.erase(m_instance->m_lights.begin() + i);
-				break;
-			}
+			m_instance->m_lights[lightShared->GetIndex()].reset();
 		}
+		lightShared->SetIndex(-1);
 	}
 
 	void Render::LightManager::AddShader(Weak<Resource::Shader> shader)
@@ -79,13 +104,11 @@ namespace GALAXY
 			}
 			lockShader->Use();
 			lockShader->SendVec3f("camera.viewPos", viewPos);
-			for (auto& light : m_lights)
+
+			for (Weak<Component::Light> light : m_lights)
 			{
-				if (light.expired())
-				{
-					RemoveLight(light);
+				if (!light.lock())
 					continue;
-				}
 				light.lock()->SendLightValues(lockShader.get());
 			}
 		}

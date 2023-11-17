@@ -37,11 +37,25 @@ namespace GALAXY
 						OpenScene(path);
 					}
 				}
-				if (ImGui::MenuItem("Save Scene"))
+				if (ImGui::MenuItem("Save Scene As"))
 				{
 					if (std::string path = Utils::OS::SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
 					{
 						SaveScene(path);
+					}
+				}
+				if (ImGui::MenuItem("Save Scene"))
+				{
+					std::string path = Core::SceneHolder::GetCurrentScene()->GetFileInfo().GetFullPath().generic_string();
+					if (std::filesystem::exists(path)) {
+						SaveScene(path);
+					}
+					else
+					{
+						if (path = Utils::OS::SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
+						{
+							SaveScene(path);
+						}
 					}
 				}
 				if (ImGui::MenuItem("Exit"))

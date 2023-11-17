@@ -334,7 +334,6 @@ namespace GALAXY {
 		if (texture->HasBeenSent())
 		{
 			glDeleteTextures(1, &texture->m_id);
-			texture->p_hasBeenSent = false;
 		}
 	}
 

@@ -2,7 +2,7 @@
 #include "GalaxyAPI.h"
 #include "Light.h"
 
-namespace GALAXY 
+namespace GALAXY
 {
 	namespace Component
 	{
@@ -18,7 +18,7 @@ namespace GALAXY
 			inline const char* GetComponentName() const override { return "Directional Light"; }
 
 			inline virtual Shared<Component::BaseComponent> Clone() override {
-					return std::make_shared<DirectionalLight>(*dynamic_cast<DirectionalLight*>(this));
+				return std::make_shared<DirectionalLight>(*dynamic_cast<DirectionalLight*>(this));
 			}
 
 			void SendLightValues(Resource::Shader* shader) override;
@@ -29,14 +29,17 @@ namespace GALAXY
 
 			void OnEditorDraw() override;
 
-			
+			virtual void SetIndex(size_t val);
+
+			inline Type GetLightType() override { return Light::Type::Directional; }
 
 			inline Vec3f GetDirection() const { return m_direction; }
 			inline void SetDirection(Vec3f val) { m_direction = val; }
 
 		private:
-
 			Vec3f m_direction = Vec3f::Down();
+
+			std::string m_directionString;
 		};
 	}
 }

@@ -11,7 +11,7 @@
  ============= END TRANSFORM ============= 
   ------------- BEGIN GAMEOBJECT ------------- 
  [Name] : Directional Light
- [Active] : 0
+ [Active] : 1
  [UUID] : 7080124022290015698
  [Component Number] : 1
  [Child Number] : 0
