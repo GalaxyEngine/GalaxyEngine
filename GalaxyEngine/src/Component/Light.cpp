@@ -67,4 +67,9 @@ namespace GALAXY
 		shader->SendInt(p_enableString.c_str(), false);
 	}
 
+	void Component::Light::ComputeLocationName()
+	{
+		SetDirty();
+	}
+
 }

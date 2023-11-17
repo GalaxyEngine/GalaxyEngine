@@ -3,7 +3,7 @@
 [Active] : 1
 [UUID] : 9522093810837047897
 [Component Number] : 0
-[Child Number] : 3
+[Child Number] : 4
  ------------- BEGIN TRANSFORM ------------- 
 [Position] : 0.000000, 0.000000, 0.000000
 [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
@@ -61,9 +61,36 @@
    ------------- BEGIN COMPONENT ------------- 
   [Name] : Point Light
   [Enable] : 1
+  [Ambient] : 0.000000, 0.000000, 0.000000, 0.000000
+  [Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Specular] : 1.000000, 1.000000, 1.000000, 1.000000
   [Constant] : 1.000000
   [Linear] : 0.000000
   [Quadratic] : 0.040000
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : Spot Light
+ [Active] : 1
+ [UUID] : 12460494317343420553
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 5.489680, -7.843471
+ [Rotation] : -0.707107, 0.000000, 0.000000, 0.707107
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Spot Light
+  [Enable] : 1
+  [Ambient] : 0.000000, 0.000000, 0.000000, 0.000000
+  [Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Specular] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Constant] : 1.000000
+  [Linear] : 0.350000
+  [Quadratic] : 0.440000
+  [CutOff] : 12.500000
+  [OuterCutOff] : 17.500000
    ============= END COMPONENT ============= 
   ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

@@ -38,9 +38,9 @@ namespace GALAXY
 		Wrapper::Renderer::GetInstance()->DrawLine(worldPosition, rayEndPosition, Vec4f(1, 1, 0, 1), 5.f);
 	}
 
-	void Component::DirectionalLight::SetIndex(size_t val)
+	void Component::DirectionalLight::ComputeLocationName()
 	{
-		p_index = val;
+		Light::ComputeLocationName();
 
 		std::string indexString = std::to_string(p_index);
 		std::string prefixString = "directionals[" + indexString;
@@ -49,6 +49,7 @@ namespace GALAXY
 		p_ambient.string = prefixString + "].ambient";
 		p_diffuse.string = prefixString + "].diffuse";
 		p_specular.string = prefixString + "].specular";
+
 		m_direction.string = prefixString + "].direction";
 	}
 

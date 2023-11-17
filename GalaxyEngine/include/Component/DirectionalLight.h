@@ -27,7 +27,7 @@ namespace GALAXY
 
 			void OnEditorDraw() override;
 
-			virtual void SetIndex(size_t val);
+			void ComputeLocationName() override;
 
 			inline Type GetLightType() override { return Light::Type::Directional; }
 

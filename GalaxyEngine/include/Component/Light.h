@@ -49,6 +49,8 @@ namespace GALAXY
 			virtual void SendLightValues(Resource::Shader* shader);
 			virtual void ResetLightValues(Resource::Shader* shader);
 
+			virtual void ComputeLocationName();
+
 			inline Vec4f GetAmbient() const { return p_ambient.value; }
 			inline void SetAmbient(Vec4f val) { p_ambient.value = val; SetDirty(); }
 
@@ -61,7 +63,7 @@ namespace GALAXY
 			inline virtual Type GetLightType() { return Type::None; };
 
 			inline size_t GetIndex() const { return p_index; }
-			inline virtual void SetIndex(size_t val) { p_index = val; }
+			inline void SetIndex(size_t val) { p_index = val; ComputeLocationName(); }
 
 			inline bool IsDirty() const { return p_dirty; }
 			inline void SetDirty() { p_dirty = true; }

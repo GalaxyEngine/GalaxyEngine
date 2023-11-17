@@ -27,24 +27,24 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
-			inline float GetConstant() const { return m_constant.value; }
-			inline void SetConstant(float val) { m_constant.value = val; SetDirty(); }
+			inline float GetConstant() const { return p_constant.value; }
+			inline void SetConstant(float val) { p_constant.value = val; SetDirty(); }
 
-			inline float GetLinear() const { return m_linear.value; }
-			inline void SetLinear(float val) { m_linear.value = val; SetDirty(); }
+			inline float GetLinear() const { return p_linear.value; }
+			inline void SetLinear(float val) { p_linear.value = val; SetDirty(); }
 
-			inline float GetQuadratic() const { return m_quadratic.value; }
-			inline void SetQuadratic(float val) { m_quadratic.value = val; SetDirty(); }
+			inline float GetQuadratic() const { return p_quadratic.value; }
+			inline void SetQuadratic(float val) { p_quadratic.value = val; SetDirty(); }
 
-			void SetIndex(size_t val) override;
+			void ComputeLocationName() override;
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
-		private:
-			LightData<Vec3f> m_position;
-			LightData<float> m_constant = 1.0f;
-			LightData<float> m_linear = 0.35f;
-			LightData<float> m_quadratic = 0.44f;
+		protected:
+			LightData<Vec3f> p_position;
+			LightData<float> p_constant = 1.0f;
+			LightData<float> p_linear = 0.35f;
+			LightData<float> p_quadratic = 0.44f;
 		};
 	}
 }

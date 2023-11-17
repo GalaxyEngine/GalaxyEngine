@@ -9,7 +9,6 @@ namespace GALAXY
 {
 	void Component::PointLight::SendLightValues(Resource::Shader* shader)
 	{
-
 		Light::SendLightValues(shader);
 
 		p_dirty |= GetTransform()->WasDirty();
@@ -17,11 +16,11 @@ namespace GALAXY
 		if (!p_dirty)
 			return;
 
-		m_position.value = GetTransform()->GetWorldPosition();
-		shader->SendVec3f(m_position.string.c_str(), m_position.value);
-		shader->SendFloat(m_constant.string.c_str(), m_constant.value);
-		shader->SendFloat(m_linear.string.c_str(), m_linear.value);
-		shader->SendFloat(m_quadratic.string.c_str(), m_quadratic.value);
+		p_position.value = GetTransform()->GetWorldPosition();
+		shader->SendVec3f(p_position.string.c_str(), p_position.value);
+		shader->SendFloat(p_constant.string.c_str(), p_constant.value);
+		shader->SendFloat(p_linear.string.c_str(), p_linear.value);
+		shader->SendFloat(p_quadratic.string.c_str(), p_quadratic.value);
 
 		p_dirty = false;
 	}
@@ -32,15 +31,15 @@ namespace GALAXY
 
 		ImGui::TextUnformatted("Attenuation");
 		ImGui::TreePush("Attenuation");
-		p_dirty |= ImGui::DragFloat("Constant", &m_constant.value, 0.01f);
-		p_dirty |= ImGui::DragFloat("Linear", &m_linear.value, 0.01f);
-		p_dirty |= ImGui::DragFloat("Quadratic", &m_quadratic.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Constant", &p_constant.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Linear", &p_linear.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Quadratic", &p_quadratic.value, 0.01f);
 		ImGui::TreePop();
 	}
 
-	void Component::PointLight::SetIndex(size_t val)
+	void Component::PointLight::ComputeLocationName()
 	{
-		p_index = val;
+		Light::ComputeLocationName();
 
 		std::string indexString = std::to_string(p_index);
 		std::string prefixString = "points[" + indexString;
@@ -48,25 +47,30 @@ namespace GALAXY
 		p_enableString = prefixString + "].enable";
 		p_ambient.string = prefixString + "].ambient";
 		p_diffuse.string = prefixString + "].diffuse";
-		m_position.string = prefixString + "].position";
 		p_specular.string = prefixString + "].specular";
-		m_constant.string = prefixString + "].constant";
-		m_linear.string = prefixString + "].linear";
-		m_quadratic.string = prefixString + "].quadratic";
+
+		p_position.string = prefixString + "].position";
+		p_constant.string = prefixString + "].constant";
+		p_linear.string = prefixString + "].linear";
+		p_quadratic.string = prefixString + "].quadratic";
 	}
 
 	void Component::PointLight::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::PAIR::KEY << "Constant" << Utils::PAIR::VALUE << m_constant.value;
-		serializer << Utils::PAIR::KEY << "Linear" << Utils::PAIR::VALUE << m_linear.value;
-		serializer << Utils::PAIR::KEY << "Quadratic" << Utils::PAIR::VALUE << m_quadratic.value;
+		Light::Serialize(serializer);
+
+		serializer << Utils::PAIR::KEY << "Constant" << Utils::PAIR::VALUE << p_constant.value;
+		serializer << Utils::PAIR::KEY << "Linear" << Utils::PAIR::VALUE << p_linear.value;
+		serializer << Utils::PAIR::KEY << "Quadratic" << Utils::PAIR::VALUE << p_quadratic.value;
 	}
 
 	void Component::PointLight::Deserialize(Utils::Parser& parser)
 	{
-		m_constant.value = parser["Constant"].As<float>();
-		m_linear.value = parser["Linear"].As<float>();
-		m_quadratic.value = parser["Quadratic"].As<float>();
+		Light::Deserialize(parser);
+
+		p_constant.value = parser["Constant"].As<float>();
+		p_linear.value = parser["Linear"].As<float>();
+		p_quadratic.value = parser["Quadratic"].As<float>();
 	}
 
 }
