@@ -194,6 +194,8 @@ namespace GALAXY {
 			if (ImGui::DragFloat("##X", &values[0], 0.1f, 0.0f, 0.0f, "%.2f"))
 				stillEditing = true;
 			ImGui::PopItemWidth();
+			ImGui::PopItemWidth();
+			ImGui::PopItemWidth();
 			ImGui::PopStyleVar();
 
 			if (value != values[0]) {

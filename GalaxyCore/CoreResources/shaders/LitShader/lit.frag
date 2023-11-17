@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 
 const int LightNumber = 8;
 
@@ -19,6 +19,18 @@ struct DirectionalLight {
     vec3 direction;
 };
 
+struct PointLight {
+    bool enable;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+
+    vec3 position;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
 struct Camera
 {
     vec3 viewPos;
@@ -32,6 +44,7 @@ in vec3 normal;
 
 uniform Material material;
 uniform DirectionalLight directionals[LightNumber];
+uniform PointLight points[LightNumber];
 uniform Camera camera;
 
 uniform bool UseLights;
@@ -66,6 +79,34 @@ vec4 CalculateDirectionalLight(DirectionalLight directional)
     return ambientColor + diffuseColor + specularColor;
 }
 
+vec4 CalculatePointLight(PointLight point)
+{
+    vec3 lightDir = normalize(point.position - pos);
+    vec3 viewDir = normalize(camera.viewPos - pos);
+
+    float distance = length(point.position - pos);
+    float attenuation = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
+
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec4 diffuseColor;
+
+    if (material.enableTexture) {
+        vec4 textureColor = texture(material.albedo, uv);
+        diffuseColor = textureColor * point.diffuse * diff * attenuation;
+    } 
+    else {
+        diffuseColor = material.diffuse * point.diffuse * diff * attenuation;
+    }
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec4 specularColor = material.specular * point.specular * spec * attenuation;
+
+    vec4 ambientColor = material.ambient * point.ambient * attenuation;
+
+    return ambientColor + diffuseColor + specularColor;
+}
+
 void main()
 {
     // if UseLights is never used it will not be detected.
@@ -79,6 +120,13 @@ void main()
         if (directionals[i].enable)
         {
             globalLight += CalculateDirectionalLight(directionals[i]);
+        }
+    }
+    for (int i = 0; i < LightNumber; i++)
+    {
+        if (points[i].enable)
+        {
+            globalLight += CalculatePointLight(points[i]);
         }
     }
 

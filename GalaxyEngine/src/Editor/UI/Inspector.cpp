@@ -71,6 +71,12 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 
 		bool destroy = true;
 		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		if (ImGui::IsItemHovered())
+		{
+			ImGui::BeginTooltip();
+			ImGui::Text("ID : %d", object->m_components[i]->GetIndex());
+			ImGui::EndTooltip();
+		}
 		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 		{
 			openPopup = true;
@@ -95,7 +101,6 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		if (open) {
 			ImGui::BeginDisabled(!enable);
 			ImGui::TreePush(object->m_components[i]->GetComponentName());
-			ImGui::Text("ID : %d", object->m_components[i]->GetIndex());
 			object->m_components[i]->ShowInInspector();
 			ImGui::TreePop();
 			ImGui::EndDisabled();

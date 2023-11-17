@@ -3,31 +3,12 @@
 [Active] : 1
 [UUID] : 9522093810837047897
 [Component Number] : 0
-[Child Number] : 2
+[Child Number] : 3
  ------------- BEGIN TRANSFORM ------------- 
 [Position] : 0.000000, 0.000000, 0.000000
 [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
 [Scale] : 1.000000, 1.000000, 1.000000
  ============= END TRANSFORM ============= 
-  ------------- BEGIN GAMEOBJECT ------------- 
- [Name] : Directional Light
- [Active] : 1
- [UUID] : 7080124022290015698
- [Component Number] : 1
- [Child Number] : 0
-  ------------- BEGIN TRANSFORM ------------- 
- [Position] : 0.000000, 0.000000, 0.000000
- [Rotation] : -0.707107, 0.000000, 0.000000, 0.707107
- [Scale] : 1.000000, 1.000000, 1.000000
-  ============= END TRANSFORM ============= 
-   ------------- BEGIN COMPONENT ------------- 
-  [Name] : Directional Light
-  [Enable] : 1
-  [Ambient] : 0.000000, 0.000000, 0.000000, 0.000000
-  [Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
-  [Specular] : 1.000000, 1.000000, 1.000000, 1.000000
-   ============= END COMPONENT ============= 
-  ============= END GAMEOBJECT ============= 
   ------------- BEGIN GAMEOBJECT ------------- 
  [Name] : Radio
  [Active] : 1
@@ -45,6 +26,44 @@
   [Mesh] : CoreResources/radio.obj:SM_Prop_Radio
   [Material Count] : 1
    [Material 0] : CoreResources/acmat_0.mat
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : Directional Light
+ [Active] : 1
+ [UUID] : 7080124022290015698
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 0.000000, 0.000000
+ [Rotation] : -0.997378, 0.000000, 0.000000, 0.072368
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Directional Light
+  [Enable] : 1
+  [Ambient] : 0.000000, 0.000000, 0.000000, 0.000000
+  [Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Specular] : 1.000000, 1.000000, 1.000000, 1.000000
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : Point Light
+ [Active] : 1
+ [UUID] : 10983096402147397143
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : -0.085607, 4.104114, -6.253790
+ [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Point Light
+  [Enable] : 1
+  [Constant] : 1.000000
+  [Linear] : 0.350000
+  [Quadratic] : 0.440000
    ============= END COMPONENT ============= 
   ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

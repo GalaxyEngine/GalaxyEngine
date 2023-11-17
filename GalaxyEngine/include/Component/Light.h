@@ -15,6 +15,18 @@ namespace GALAXY
 				Point,
 				Spot
 			};
+
+			template <typename T>
+			struct LightData
+			{
+				std::string string;
+				T value;
+
+				LightData(std::string value, T val) : string(std::move(value)), value(val) {}
+				LightData(T val) : value(val) {}
+
+				operator T() const { return value; }
+			};
 		public:
 			Light() {}
 			Light& operator=(const Light& other) = default;
@@ -30,37 +42,34 @@ namespace GALAXY
 
 			virtual void ShowInInspector() override;
 
-			virtual void Serialize(Utils::Serializer& serializer);
-			virtual void Deserialize(Utils::Parser& parser);
+			virtual void Serialize(Utils::Serializer& serializer) override;
+			virtual void Deserialize(Utils::Parser& parser) override;
 
 			virtual void SendLightValues(Resource::Shader* shader);
 			virtual void ResetLightValues(Resource::Shader* shader);
 
-			inline Vec4f GetAmbient() const { return m_ambient; }
-			inline void SetAmbient(Vec4f val) { m_ambient = val; }
+			inline Vec4f GetAmbient() const { return p_ambient.value; }
+			inline void SetAmbient(Vec4f val) { p_ambient.value = val; }
 
-			inline Vec4f GetDiffuse() const { return m_diffuse; }
-			inline void SetDiffuse(Vec4f val) { m_diffuse = val; }
+			inline Vec4f GetDiffuse() const { return p_diffuse.value; }
+			inline void SetDiffuse(Vec4f val) { p_diffuse.value = val; }
 
-			inline Vec4f GetSpecular() const { return m_specular; }
-			inline void SetSpecular(Vec4f val) { m_specular = val; }
+			inline Vec4f GetSpecular() const { return p_specular.value; }
+			inline void SetSpecular(Vec4f val) { p_specular.value = val; }
 
 			inline virtual Type GetLightType() { return Type::None; };
 
-			inline size_t GetIndex() const { return m_index; }
-			inline virtual void SetIndex(size_t val) { m_index = val; }
+			inline size_t GetIndex() const { return p_index; }
+			inline virtual void SetIndex(size_t val) { p_index = val; }
 
 		protected:
-			size_t m_index = -1;
+			size_t p_index = -1;
 
-			Vec4f m_ambient = Vec4f(1);
-			Vec4f m_diffuse = Vec4f(1);
-			Vec4f m_specular = Vec4f(1);
+			LightData<Vec4f> p_ambient = Vec4f(0);
+			LightData<Vec4f> p_diffuse = Vec4f(1);
+			LightData<Vec4f> p_specular = Vec4f(1);
 
-			std::string m_enableString;
-			std::string m_ambientString;
-			std::string m_diffuseString;
-			std::string m_specularString;
+			std::string p_enableString;
 		};
 	}
 }

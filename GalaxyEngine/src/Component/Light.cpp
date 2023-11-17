@@ -28,31 +28,36 @@ namespace GALAXY
 
 	void Component::Light::ShowInInspector()
 	{
-		ImGui::ColorEdit4("Ambient", m_ambient.Data());
-		ImGui::ColorEdit4("Diffuse", m_diffuse.Data());
-		ImGui::ColorEdit4("Specular", m_specular.Data());
+		ImGui::ColorEdit4("Ambient", p_ambient.value.Data());
+		ImGui::ColorEdit4("Diffuse", p_diffuse.value.Data());
+		ImGui::ColorEdit4("Specular", p_specular.value.Data());
 	}
 
 	void Component::Light::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::PAIR::KEY << "Ambient" << Utils::PAIR::VALUE << m_ambient;
-		serializer << Utils::PAIR::KEY << "Diffuse" << Utils::PAIR::VALUE << m_diffuse;
-		serializer << Utils::PAIR::KEY << "Specular" << Utils::PAIR::VALUE << m_specular;
+		serializer << Utils::PAIR::KEY << "Ambient" << Utils::PAIR::VALUE << p_ambient.value;
+		serializer << Utils::PAIR::KEY << "Diffuse" << Utils::PAIR::VALUE << p_diffuse.value;
+		serializer << Utils::PAIR::KEY << "Specular" << Utils::PAIR::VALUE << p_specular.value;
 	}
 
 	void Component::Light::Deserialize(Utils::Parser& parser)
 	{
-		m_ambient = parser["Ambient"].As<Vec4f>();
-		m_diffuse = parser["Diffuse"].As<Vec4f>();
-		m_specular = parser["Specular"].As<Vec4f>();
+		p_ambient.value = parser["Ambient"].As<Vec4f>();
+		p_diffuse.value = parser["Diffuse"].As<Vec4f>();
+		p_specular.value = parser["Specular"].As<Vec4f>();
 	}
 
 	void Component::Light::SendLightValues(Resource::Shader* shader)
 	{
+		shader->SendInt(p_enableString.c_str(), IsEnable());
+		shader->SendVec4f(p_ambient.string.c_str(), p_ambient.value);
+		shader->SendVec4f(p_diffuse.string.c_str(), p_diffuse.value);
+		shader->SendVec4f(p_specular.string.c_str(), p_specular.value);
 	}
 
 	void Component::Light::ResetLightValues(Resource::Shader* shader)
 	{
+		shader->SendInt(p_enableString.c_str(), false);
 	}
 
 }

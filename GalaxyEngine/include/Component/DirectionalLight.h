@@ -23,8 +23,6 @@ namespace GALAXY
 
 			void SendLightValues(Resource::Shader* shader) override;
 
-			void ResetLightValues(Resource::Shader* shader) override;
-
 			void ShowInInspector() override;
 
 			void OnEditorDraw() override;
@@ -33,13 +31,11 @@ namespace GALAXY
 
 			inline Type GetLightType() override { return Light::Type::Directional; }
 
-			inline Vec3f GetDirection() const { return m_direction; }
-			inline void SetDirection(Vec3f val) { m_direction = val; }
+			inline Vec3f GetDirection() const { return m_direction.value; }
+			inline void SetDirection(Vec3f val) { m_direction.value = val; }
 
 		private:
-			Vec3f m_direction = Vec3f::Down();
-
-			std::string m_directionString;
+			LightData<Vec3f> m_direction = Vec3f::Down();
 		};
 	}
 }

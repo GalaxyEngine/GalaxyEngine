@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 uniform mat4 view;
 uniform mat4 proj;
 uniform vec3 pos;

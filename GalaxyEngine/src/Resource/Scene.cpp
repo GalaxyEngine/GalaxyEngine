@@ -111,14 +111,16 @@ namespace GALAXY
 				Vec2f mousePosition = sceneWindow->GetMousePosition();
 				mousePosition = mousePosition * Vec2f(mainWindowSize.x / imageSize.x, mainWindowSize.y / imageSize.y);
 				mousePosition.y = mainWindowSize.y - mousePosition.y;
-			
+
 				Vec4f color = renderer->ReadPixelColor(mousePosition);
 
 				uint64_t pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
-				if (Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
+				if (m_gizmo->IsGizmoClicked())
+				{ }
+				else if (Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
 					inspector->SetSelected(gameObject);
-				else if (!m_gizmo->IsGizmoClicked())
+				else
 					inspector->ClearSelected();
 
 				renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());

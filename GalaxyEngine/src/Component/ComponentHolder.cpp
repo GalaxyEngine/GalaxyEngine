@@ -2,6 +2,7 @@
 #include "Component/ComponentHolder.h"
 #include "Component/MeshComponent.h"
 #include "Component/DirectionalLight.h"
+#include "Component/PointLight.h"
 
 std::vector<std::shared_ptr<Component::BaseComponent>> Component::ComponentHolder::m_componentList;
 
@@ -10,6 +11,7 @@ void ComponentHolder::Initialize()
 {
 	RegisterComponent<MeshComponent>();
 	RegisterComponent<DirectionalLight>();
+	RegisterComponent<PointLight>();
 }
 
 
