@@ -24,6 +24,8 @@ namespace GALAXY {
 			void SetFragment(Shared<FragmentShader> fragmentShader, Weak<Shader> weak_this);
 			void SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this);
 
+			void Recompile();
+
 			void Use();
 			int GetLocation(const char* locationName);
 
@@ -55,6 +57,7 @@ namespace GALAXY {
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
+			friend class BaseShader;
 
 			Weak<Shader> m_pickingVariant;
 		};
@@ -66,6 +69,8 @@ namespace GALAXY {
 
 			virtual void Load() override;
 			void AddShader(Weak<Shader> shader);
+
+			void Recompile();
 
 			List<Weak<Shader>> GetShaders() const { return p_shaders; }
 		protected:

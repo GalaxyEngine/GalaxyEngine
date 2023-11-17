@@ -141,6 +141,10 @@ namespace GALAXY {
 			{
 				m_window->ToggleFullscreen();
 			}
+			if (Input::IsKeyPressed(Key::F5))
+			{
+				m_resourceManager->GetLitShader().lock()->Recompile();
+			}
 
 			UpdateResources();
 

@@ -60,7 +60,10 @@ namespace GALAXY
 	{
 		if (p_hasBeenSent)
 			return;
+		p_locations.clear();
+
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
+
 		if (p_hasBeenSent) {
 			auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
 			Render::LightManager::AddShader(weak_this);
@@ -86,6 +89,23 @@ namespace GALAXY
 		ASSERT(geometryShader != nullptr);
 		std::get<1>(p_subShaders) = geometryShader;
 		geometryShader->AddShader(weak_this);
+	}
+
+	void Resource::Shader::Recompile()
+	{
+		PrintLog("Recompile shader: %s", p_fileInfo.GetFullPath().string().c_str());
+		if (Shared<VertexShader>& vertShader = std::get<0>(p_subShaders).lock())
+		{
+			vertShader->Recompile();
+		}
+		if (Shared<GeometryShader>& geomShader = std::get<1>(p_subShaders).lock())
+		{
+			geomShader->Recompile();
+		}
+		if (Shared<FragmentShader>& fragShader = std::get<2>(p_subShaders).lock())
+		{
+			fragShader->Recompile();
+		}
 	}
 
 	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
@@ -129,6 +149,22 @@ namespace GALAXY
 		}
 
 		p_shaders.push_back(shader.lock());
+	}
+
+	void Resource::BaseShader::Recompile()
+	{
+		p_shouldBeLoaded = false;
+		p_loaded = false;
+		p_hasBeenSent = false;
+		p_content = "";
+
+		Core::ThreadManager::GetInstance()->AddTask(std::bind(&Resource::BaseShader::Load, this));
+
+		for (Weak<Shader> shader : p_shaders)
+		{
+			shader.lock()->p_hasBeenSent = false;
+			shader.lock()->SendRequest();
+		}
 	}
 
 	void Resource::BaseShader::Load()

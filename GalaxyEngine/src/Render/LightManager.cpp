@@ -94,7 +94,7 @@ namespace GALAXY
 		{
 			return;
 		}
-		for (auto& shader : m_shaders)
+		for (Weak<Resource::Shader> shader : m_shaders)
 		{
 			auto lockShader = shader.lock();
 			if (!lockShader)
@@ -102,7 +102,11 @@ namespace GALAXY
 				RemoveShader(shader);
 				continue;
 			}
+			if (!lockShader->HasBeenSent())
+				continue;
+
 			lockShader->Use();
+
 			lockShader->SendVec3f("camera.viewPos", viewPos);
 
 			for (Weak<Component::Light> light : m_lights)

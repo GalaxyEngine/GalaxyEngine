@@ -68,6 +68,8 @@ vec4 CalculateDirectionalLight(DirectionalLight directional)
 
 void main()
 {
+    // if UseLights is never used it will not be detected.
+    // this is why we do this :
     if (UseLights)
         discard;
     
