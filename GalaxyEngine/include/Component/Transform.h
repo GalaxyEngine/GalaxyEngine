@@ -70,6 +70,7 @@ namespace GALAXY {
 
 			inline void Rotate(Vec3f axis, float angle, Space relativeTo = Space::Local);
 
+			inline bool WasDirty() const { return m_wasDirty; }
 		private:
 			Math::Mat4     m_modelMatrix = Math::Mat4(1);
 			Math::Vec3f    m_localPosition = Math::Vec3f();
@@ -78,6 +79,7 @@ namespace GALAXY {
 			Math::Vec3f    m_localScale = Math::Vec3f(1);
 
 			bool m_dirty = true;
+			bool m_wasDirty = false;
 
 			//REFLECTION_FRIEND
 		};

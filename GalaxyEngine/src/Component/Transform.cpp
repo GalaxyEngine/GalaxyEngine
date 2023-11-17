@@ -46,8 +46,10 @@ namespace GALAXY
 
 	void Component::Transform::OnUpdate()
 	{
+		m_wasDirty = false;
 		if (!m_dirty)
 			return;
+		m_wasDirty = true;
 		ForceUpdate();
 	}
 

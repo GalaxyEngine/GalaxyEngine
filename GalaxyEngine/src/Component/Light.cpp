@@ -28,9 +28,9 @@ namespace GALAXY
 
 	void Component::Light::ShowInInspector()
 	{
-		ImGui::ColorEdit4("Ambient", p_ambient.value.Data());
-		ImGui::ColorEdit4("Diffuse", p_diffuse.value.Data());
-		ImGui::ColorEdit4("Specular", p_specular.value.Data());
+		p_dirty |= ImGui::ColorEdit4("Ambient", p_ambient.value.Data());
+		p_dirty |= ImGui::ColorEdit4("Diffuse", p_diffuse.value.Data());
+		p_dirty |= ImGui::ColorEdit4("Specular", p_specular.value.Data());
 	}
 
 	void Component::Light::Serialize(Utils::Serializer& serializer)
@@ -45,11 +45,18 @@ namespace GALAXY
 		p_ambient.value = parser["Ambient"].As<Vec4f>();
 		p_diffuse.value = parser["Diffuse"].As<Vec4f>();
 		p_specular.value = parser["Specular"].As<Vec4f>();
+
+		p_dirty = true;
 	}
 
 	void Component::Light::SendLightValues(Resource::Shader* shader)
 	{
+		// Always send boolean is enable
 		shader->SendInt(p_enableString.c_str(), IsEnable());
+
+		if (!p_dirty)
+			return;
+
 		shader->SendVec4f(p_ambient.string.c_str(), p_ambient.value);
 		shader->SendVec4f(p_diffuse.string.c_str(), p_diffuse.value);
 		shader->SendVec4f(p_specular.string.c_str(), p_specular.value);

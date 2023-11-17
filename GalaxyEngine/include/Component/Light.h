@@ -22,6 +22,7 @@ namespace GALAXY
 				std::string string;
 				T value;
 
+				LightData() = default;
 				LightData(std::string value, T val) : string(std::move(value)), value(val) {}
 				LightData(T val) : value(val) {}
 
@@ -49,19 +50,21 @@ namespace GALAXY
 			virtual void ResetLightValues(Resource::Shader* shader);
 
 			inline Vec4f GetAmbient() const { return p_ambient.value; }
-			inline void SetAmbient(Vec4f val) { p_ambient.value = val; }
+			inline void SetAmbient(Vec4f val) { p_ambient.value = val; SetDirty(); }
 
 			inline Vec4f GetDiffuse() const { return p_diffuse.value; }
-			inline void SetDiffuse(Vec4f val) { p_diffuse.value = val; }
+			inline void SetDiffuse(Vec4f val) { p_diffuse.value = val; SetDirty(); }
 
 			inline Vec4f GetSpecular() const { return p_specular.value; }
-			inline void SetSpecular(Vec4f val) { p_specular.value = val; }
+			inline void SetSpecular(Vec4f val) { p_specular.value = val; SetDirty(); }
 
 			inline virtual Type GetLightType() { return Type::None; };
 
 			inline size_t GetIndex() const { return p_index; }
 			inline virtual void SetIndex(size_t val) { p_index = val; }
 
+			inline bool IsDirty() const { return p_dirty; }
+			inline void SetDirty() { p_dirty = true; }
 		protected:
 			size_t p_index = -1;
 
@@ -70,6 +73,8 @@ namespace GALAXY
 			LightData<Vec4f> p_specular = Vec4f(1);
 
 			std::string p_enableString;
+
+			bool p_dirty = true;
 		};
 	}
 }

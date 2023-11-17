@@ -9,10 +9,11 @@
 
 /*
 * TODO:
-*	Array Of Light
-*	PointLight
+*	Check dirty
 *	Check normal in shader
 *	SpotLight
+*	Bill board shader
+*	Draw icon in editor
 */
 
 namespace GALAXY
@@ -39,7 +40,7 @@ namespace GALAXY
 		}
 		if (freeIndex == -1)
 			return false;
-		m_instance->m_lights[freeIndex] = light;
+		m_instance->m_lights[startIndex + freeIndex] = light;
 		lightShared->SetIndex(freeIndex);
 
 		return true;
@@ -50,10 +51,15 @@ namespace GALAXY
 		Shared<Component::Light> lightShared = light.lock();
 		if (lightShared->GetIndex() == -1)
 			return;
+
+		Component::Light::Type type = lightShared->GetLightType();
+		size_t startIndex = (size_t)type * MAX_LIGHT_NUMBER;
+		size_t indexInArray = startIndex + lightShared->GetIndex();
+
 		ResetLightData(lightShared.get());
-		if (m_instance->m_lights[lightShared->GetIndex()].lock() == lightShared)
+		if (m_instance->m_lights[indexInArray].lock() == lightShared)
 		{
-			m_instance->m_lights[lightShared->GetIndex()].reset();
+			m_instance->m_lights[indexInArray].reset();
 		}
 		lightShared->SetIndex(-1);
 	}

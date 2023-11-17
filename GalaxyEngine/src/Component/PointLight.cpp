@@ -5,16 +5,25 @@
 #include "Resource/Shader.h"
 
 #include "Utils/Parser.h"
-namespace GALAXY 
+namespace GALAXY
 {
 	void Component::PointLight::SendLightValues(Resource::Shader* shader)
 	{
+
 		Light::SendLightValues(shader);
 
-		shader->SendVec3f(m_positionString.c_str(), GetTransform()->GetWorldPosition());
+		p_dirty |= GetTransform()->WasDirty();
+
+		if (!p_dirty)
+			return;
+
+		m_position.value = GetTransform()->GetWorldPosition();
+		shader->SendVec3f(m_position.string.c_str(), m_position.value);
 		shader->SendFloat(m_constant.string.c_str(), m_constant.value);
 		shader->SendFloat(m_linear.string.c_str(), m_linear.value);
 		shader->SendFloat(m_quadratic.string.c_str(), m_quadratic.value);
+
+		p_dirty = false;
 	}
 
 	void Component::PointLight::ShowInInspector()
@@ -23,9 +32,9 @@ namespace GALAXY
 
 		ImGui::TextUnformatted("Attenuation");
 		ImGui::TreePush("Attenuation");
-		ImGui::DragFloat("Constant", &m_constant.value, 0.01f);
-		ImGui::DragFloat("Linear", &m_linear.value, 0.01f);
-		ImGui::DragFloat("Quadratic", &m_quadratic.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Constant", &m_constant.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Linear", &m_linear.value, 0.01f);
+		p_dirty |= ImGui::DragFloat("Quadratic", &m_quadratic.value, 0.01f);
 		ImGui::TreePop();
 	}
 
@@ -39,7 +48,7 @@ namespace GALAXY
 		p_enableString = prefixString + "].enable";
 		p_ambient.string = prefixString + "].ambient";
 		p_diffuse.string = prefixString + "].diffuse";
-		m_positionString = prefixString + "].position";
+		m_position.string = prefixString + "].position";
 		p_specular.string = prefixString + "].specular";
 		m_constant.string = prefixString + "].constant";
 		m_linear.string = prefixString + "].linear";

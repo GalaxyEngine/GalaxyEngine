@@ -10,16 +10,24 @@ namespace GALAXY
 
 	void Component::DirectionalLight::SendLightValues(Resource::Shader* shader)
 	{
+
 		Light::SendLightValues(shader);
 
+		p_dirty |= GetTransform()->WasDirty();
+
+		if (!p_dirty)
+			return;
+
+		m_direction.value = GetTransform()->GetForward();
 		shader->SendVec3f(m_direction.string.c_str(), m_direction.value);
+
+		p_dirty = false;
 	}
 
 	void Component::DirectionalLight::ShowInInspector()
 	{
 		Light::ShowInInspector();
 
-		m_direction.value = GetGameObject()->GetTransform()->GetForward();
 		ImGui::Text("%s", m_direction.value.ToString().c_str());
 	}
 
