@@ -80,4 +80,3 @@ namespace GALAXY
 		};
 	}
 }
-#include "Component/Light.inl" 

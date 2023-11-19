@@ -8,7 +8,7 @@ namespace GALAXY
 		shared->Initialize();
 		shared->m_scene = this;
 
-		m_objectList[shared->m_UUID] = shared;
+		AddObject(shared);
 
 		m_lastAdded.push_back(shared);
 
@@ -22,9 +22,8 @@ namespace GALAXY
 			m_objectList[gameObject->m_UUID] = gameObject;
 		}
 		else
-		{
-			gameObject->m_UUID = Core::UUID();
-			m_root->AddChild(gameObject);
+		{		
+			ASSERT(false);
 		}
 	}
 

@@ -18,7 +18,8 @@ void Editor::UI::Hierarchy::Draw()
 	if (ImGui::Begin("Hierarchy"))
 	{
 		Weak<GameObject> root = SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject();
-		DisplayGameObject(root);
+		uint64_t index = 0;
+		DisplayGameObject(root, index);
 
 		if (m_openRightClick)
 		{
@@ -30,13 +31,27 @@ void Editor::UI::Hierarchy::Draw()
 	ImGui::End();
 }
 
-void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t index /* = 0*/)
+void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t& index, bool display /*= true*/)
 {
 	GameObject* gameobject = weakGO.lock().get();
 	if (!gameobject)
 		return;
 
 	gameobject->m_sceneGraphID = index;
+
+	if (!display) {
+		// Do the same for all children
+		for (auto&& child : gameobject->m_childs)
+		{
+			if (!child)
+				continue;
+			ImGui::TreePush(child->m_name.c_str());
+			index++;
+			DisplayGameObject(child, index, display);
+			ImGui::TreePop();
+		}
+		return;
+	}
 	ImGui::PushID((int)index);
 	// Display arrow button
 	if (gameobject->m_childs.size() > 0) {
@@ -81,8 +96,30 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t 
 	// Selectable Field
 	else if (ImGui::Selectable(gameobject->m_name.c_str(), gameobject->m_selected, ImGuiSelectableFlags_SelectOnNav))
 	{
+		if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
+		{
+			auto lastSelected = m_inspector->GetSelected()[0].lock();
+			size_t lastSelectedId = lastSelected->GetSceneGraphID();
+			size_t objectId = gameobject->GetSceneGraphID();
+			bool inferior = lastSelectedId > objectId;
+			for (auto& object : Core::SceneHolder::GetCurrentScene()->GetObjectList())
+			{
+				size_t currentObjectID = object.second->GetSceneGraphID();
+				auto parent = object.second->GetParent();
+				if (!parent || !parent->m_open)
+					continue;
+
+				if (inferior && (currentObjectID >= lastSelectedId || currentObjectID <= objectId))
+					continue;
+				if (!inferior && (currentObjectID <= lastSelectedId || currentObjectID >= objectId))
+					continue;
+				m_inspector->AddSelected(object.second);
+			}
+
+			m_inspector->AddSelected(weakGO);
+		}
 		// Multi Select
-		if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+		else if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 			m_inspector->AddSelected(weakGO);
 		// already selected and not in multi select -> rename
 		else if (gameobject->m_selected && m_inspector->GetSelected().size() == 1)
@@ -123,9 +160,9 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t 
 			m_inspector->ClearSelected();
 		}
 	}
-	if ((ImGui::IsWindowFocused() || EditorUIManager::GetInstance()->GetSceneWindow()->IsFocused())&& ImGui::IsKeyPressed(ImGuiKey_Delete))
+	if ((ImGui::IsWindowFocused() || EditorUIManager::GetInstance()->GetSceneWindow()->IsFocused()) && ImGui::IsKeyPressed(ImGuiKey_Delete))
 	{
-		for (Weak<Core::GameObject>& object : m_inspector->GetSelected())
+		for (const Weak<Core::GameObject>& object : m_inspector->GetSelected())
 		{
 			if (!object.lock())
 				continue;
@@ -176,17 +213,17 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t 
 		ImGui::EndDragDropTarget();
 	}
 
+	if (display)
+		display = gameobject->m_open;
 	// Do the same for all children
-	if (gameobject->m_open)
+	for (auto&& child : gameobject->m_childs)
 	{
-		for (auto&& child : gameobject->m_childs)
-		{
-			if (!child)
-				continue;
-			ImGui::TreePush(child->m_name.c_str());
-			DisplayGameObject(child, ++index);
-			ImGui::TreePop();
-		}
+		if (!child)
+			continue;
+		ImGui::TreePush(child->m_name.c_str());
+		index++;
+		DisplayGameObject(child, index, display);
+		ImGui::TreePop();
 	}
 	ImGui::PopID();
 }

@@ -26,15 +26,15 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::PAIR::KEY << "Mesh" << Utils::PAIR::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetRelativePath() : "");
-		serializer << Utils::PAIR::KEY << "Material Count" << Utils::PAIR::VALUE << m_materials.size();
+		serializer << Utils::Pair::KEY << "Mesh" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetRelativePath() : "");
+		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
-		serializer << Utils::PAIR::BEGIN_TAB;
+		serializer << Utils::Pair::BEGIN_TAB;
 		for (int i = 0; i < m_materials.size(); i++)
 		{
-			serializer << Utils::PAIR::KEY << ("Material " + std::to_string(i)) << Utils::PAIR::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetRelativePath() : "");
+			serializer << Utils::Pair::KEY << ("Material " + std::to_string(i)) << Utils::Pair::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetRelativePath() : "");
 		}
-		serializer << Utils::PAIR::END_TAB;
+		serializer << Utils::Pair::END_TAB;
 	}
 
 	void Component::MeshComponent::Deserialize(Utils::Parser& parser)

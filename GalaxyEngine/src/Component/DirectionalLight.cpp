@@ -10,7 +10,6 @@ namespace GALAXY
 
 	void Component::DirectionalLight::SendLightValues(Resource::Shader* shader)
 	{
-
 		Light::SendLightValues(shader);
 
 		p_dirty |= GetTransform()->WasDirty();

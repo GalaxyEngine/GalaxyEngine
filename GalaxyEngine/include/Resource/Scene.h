@@ -65,12 +65,13 @@ namespace GALAXY {
 			// Return the GameObject with the uuid given
 			inline Weak<Core::GameObject> GetWithUUID(Core::UUID uuid);
 			inline Weak<Core::GameObject> GetRootGameObject() const { return m_root; }
-			inline Mat4& GetVP() { return m_VP; }
+			inline const Mat4& GetVP() const { return m_VP; }
 			inline Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
 			inline Weak<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
 			inline Shared<Editor::Gizmo> GetGizmo() const { return m_gizmo; }
 			inline Shared<Editor::ActionManager> GetActionManager() const { return m_actionManager; }
 
+			const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const { return m_objectList; }
 		private:
 
 		private:
@@ -87,6 +88,7 @@ namespace GALAXY {
 			Shared<Editor::Gizmo> m_gizmo;
 
 			List<Weak<Core::GameObject>> m_lastAdded;
+
 		};
 	}
 }

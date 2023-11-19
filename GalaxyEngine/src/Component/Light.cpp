@@ -35,9 +35,9 @@ namespace GALAXY
 
 	void Component::Light::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::PAIR::KEY << "Ambient" << Utils::PAIR::VALUE << p_ambient.value;
-		serializer << Utils::PAIR::KEY << "Diffuse" << Utils::PAIR::VALUE << p_diffuse.value;
-		serializer << Utils::PAIR::KEY << "Specular" << Utils::PAIR::VALUE << p_specular.value;
+		serializer << Utils::Pair::KEY << "Ambient" << Utils::Pair::VALUE << p_ambient.value;
+		serializer << Utils::Pair::KEY << "Diffuse" << Utils::Pair::VALUE << p_diffuse.value;
+		serializer << Utils::Pair::KEY << "Specular" << Utils::Pair::VALUE << p_specular.value;
 	}
 
 	void Component::Light::Deserialize(Utils::Parser& parser)

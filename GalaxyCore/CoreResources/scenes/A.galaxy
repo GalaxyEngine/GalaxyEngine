@@ -3,7 +3,7 @@
 [Active] : 1
 [UUID] : 9522093810837047897
 [Component Number] : 0
-[Child Number] : 2
+[Child Number] : 3
  ------------- BEGIN TRANSFORM ------------- 
 [Position] : 0.000000, 0.000000, 0.000000
 [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
@@ -35,8 +35,8 @@
  [Component Number] : 1
  [Child Number] : 0
   ------------- BEGIN TRANSFORM ------------- 
- [Position] : 0.500000, 0.274032, 1.512598
- [Rotation] : 0.112104, -0.764203, -0.138190, -0.619944
+ [Position] : -3.700000, -2.330000, -16.590000
+ [Rotation] : -0.100182, 0.766715, 0.123494, 0.621981
  [Scale] : 1.000000, 1.000000, 1.000000
   ============= END TRANSFORM ============= 
    ------------- BEGIN COMPONENT ------------- 
@@ -48,8 +48,27 @@
   [Constant] : 1.000000
   [Linear] : 0.350000
   [Quadratic] : 0.440000
-  [CutOff] : 12.500000
-  [OuterCutOff] : 17.500000
+  [CutOff] : 1.500000
+  [OuterCutOff] : 4.500000
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : Radio
+ [Active] : 1
+ [UUID] : 4073715051141617606
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 0.000000, 10.583868
+ [Rotation] : 0.359366, 0.000000, 0.000000, 0.725767
+ [Scale] : 3.200000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Mesh Component
+  [Enable] : 1
+  [Mesh] : CoreResources/models/Cube.obj:Cube
+  [Material Count] : 1
+   [Material 0] : CoreResources/materials/DefaultMaterial.mat
    ============= END COMPONENT ============= 
   ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

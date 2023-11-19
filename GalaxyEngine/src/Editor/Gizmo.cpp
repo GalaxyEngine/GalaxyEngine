@@ -156,7 +156,7 @@ namespace GALAXY
 
 		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 
-		if (!Render::Camera::GetEditorCamera()->IsLooking() && sceneWindow->IsFocused())
+		if (!Render::Camera::GetEditorCamera()->IsLooking() && sceneWindow->IsHovered())
 		{
 			if (Input::IsKeyPressed(Key::W)) { m_type = GizmoType::Translation; }
 			if (Input::IsKeyPressed(Key::E)) { m_type = GizmoType::Rotation; }

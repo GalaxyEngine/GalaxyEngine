@@ -145,6 +145,14 @@ namespace GALAXY {
 			{
 				m_resourceManager->GetLitShader().lock()->Recompile();
 			}
+			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C))
+			{
+				CopyObject();
+			}
+			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_V))
+			{
+				PasteObject();
+			}
 
 			UpdateResources();
 
@@ -160,6 +168,73 @@ namespace GALAXY {
 
 			m_window->SwapBuffers();
 		}
+	}
+
+	void Core::Application::PasteObject()
+	{
+		auto parser = Utils::Parser(m_clipboard);
+		List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
+
+		if (selected.empty())
+			return;
+
+		Shared<GameObject> parent = selected[0].lock()->GetParent();
+		if (!parent)
+			parent = selected[0].lock();
+
+		m_editorUI->GetInspector()->ClearSelected();
+		// Parse all gameObject
+		do
+		{
+			auto object = SceneHolder::GetCurrentScene()->CreateObject().lock();
+
+			object->SetParent(parent);
+
+			object->Deserialize(parser, false);
+
+			m_editorUI->GetInspector()->AddSelected(object);
+
+			parser.NewDepth();
+		} while (parser.GetValueMap().size() != parser.GetCurrentDepth());
+	}
+
+	void Core::Application::CopyObject()
+	{
+		List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
+
+		List<Weak<GameObject>> objects;
+
+		for (auto& object : selected)
+		{
+			bool canBeAdded = true;
+			auto lockObject = object.lock();
+			for (auto& object2 : selected)
+			{
+				auto lockObject2 = object2.lock();
+				if (lockObject != lockObject2 && lockObject->IsAParent(lockObject2.get()))
+				{
+					canBeAdded = false;
+				}
+			}
+			if (canBeAdded)
+			{
+				objects.push_back(object);
+			}
+		}
+
+		std::sort(objects.begin(), objects.end(), [](const Weak<GameObject>& a, const Weak<GameObject>& b)
+			{
+				return a.lock()->GetSceneGraphID() < b.lock()->GetSceneGraphID();
+			});
+
+		auto serializer = Utils::Serializer();
+		// Temporary : TODO : move this directly int the canBeAdded if bracket
+		for (auto& object : objects)
+		{
+			// Serialize all GameObject in same content
+			object.lock()->Serialize(serializer);
+		}
+		m_clipboard = serializer.GetContent();
 	}
 
 	void Core::Application::Destroy()

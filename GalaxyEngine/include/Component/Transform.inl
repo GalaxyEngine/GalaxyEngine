@@ -66,7 +66,7 @@ namespace GALAXY
 		return Mat4::CreateTransformMatrix(m_localPosition, m_localRotation, m_localScale);
 	}
 
-	inline Mat4 Component::Transform::GetModelMatrix() const
+	inline const Mat4& Component::Transform::GetModelMatrix() const
 	{
 		return m_modelMatrix;
 	}

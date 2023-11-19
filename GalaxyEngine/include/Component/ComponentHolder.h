@@ -23,8 +23,6 @@ namespace GALAXY::Component
 
 		static List<Shared<BaseComponent>>& GetList() { return m_componentList; }
 
-
-
 	private:
 		static List<Shared<BaseComponent>> m_componentList;
 	};

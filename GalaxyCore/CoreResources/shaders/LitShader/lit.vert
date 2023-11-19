@@ -12,8 +12,8 @@ uniform mat4 Model;
 
 void main()
 {
-    gl_Position = MVP * vec4(aPos.x, aPos.y, aPos.z, 1.0f);
-    pos = vec3(Model * vec4(aPos, 1.0f));
-    normal = aNor;
+    gl_Position = MVP * vec4(aPos, 1.0f);
+    pos = vec3(Model * vec4(aPos, 1.0f)); 
+	normal = mat3(transpose(inverse(Model))) * aNor;
     uv = aTex;
 }

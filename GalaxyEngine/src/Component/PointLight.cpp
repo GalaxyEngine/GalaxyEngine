@@ -59,9 +59,9 @@ namespace GALAXY
 	{
 		Light::Serialize(serializer);
 
-		serializer << Utils::PAIR::KEY << "Constant" << Utils::PAIR::VALUE << p_constant.value;
-		serializer << Utils::PAIR::KEY << "Linear" << Utils::PAIR::VALUE << p_linear.value;
-		serializer << Utils::PAIR::KEY << "Quadratic" << Utils::PAIR::VALUE << p_quadratic.value;
+		serializer << Utils::Pair::KEY << "Constant" << Utils::Pair::VALUE << p_constant.value;
+		serializer << Utils::Pair::KEY << "Linear" << Utils::Pair::VALUE << p_linear.value;
+		serializer << Utils::Pair::KEY << "Quadratic" << Utils::Pair::VALUE << p_quadratic.value;
 	}
 
 	void Component::PointLight::Deserialize(Utils::Parser& parser)

@@ -49,13 +49,13 @@ namespace GALAXY {
 			Quat  GetWorldRotation() const;
 			Vec3f GetWorldEulerRotation() const;
 			Vec3f GetWorldScale() const;
-			inline Mat4  GetModelMatrix() const;
+			inline const Mat4& GetModelMatrix() const;
 
 			inline Vec3f GetLocalPosition() const;
 			inline Quat  GetLocalRotation() const;
 			inline Vec3f GetLocalEulerRotation() const;
 			inline Vec3f GetLocalScale() const;
-			inline Mat4  GetLocalMatrix() const;
+			inline Mat4 GetLocalMatrix() const;
 
 			inline Vec3f GetForward() const;
 			inline Vec3f GetRight() const;

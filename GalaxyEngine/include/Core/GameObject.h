@@ -76,7 +76,7 @@ namespace GALAXY {
 			inline uint64_t GetSceneGraphID() const;
 
 			inline Component::Transform* GetTransform() { return m_transform.get(); }
-			inline Core::GameObject* GetParent() { return m_parent.lock().get(); }
+			inline Shared<Core::GameObject> GetParent() { return m_parent.lock(); }
 
 			inline List<Weak<GameObject>> GetChildren();
 			List<Weak<GameObject>> GetAllChildren();
@@ -101,7 +101,7 @@ namespace GALAXY {
 			bool IsSibling(const List<Weak<GameObject>>& siblings);
 
 			void Serialize(Utils::Serializer& serializer);
-			void Deserialize(Utils::Parser& parser);
+			void Deserialize(Utils::Parser& parser, bool parseUUID = true);
 
 			inline void SetHierarchyOpen(bool val) { m_open = val; }
 

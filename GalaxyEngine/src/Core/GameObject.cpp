@@ -228,55 +228,56 @@ namespace GALAXY
 
 	void SerializeTransform(Utils::Serializer& serializer, Component::Transform* transform)
 	{
-		serializer << PAIR::BEGIN_MAP << "BEGIN TRANSFORM";
+		serializer << Pair::BEGIN_MAP << "BEGIN TRANSFORM";
 		transform->Serialize(serializer);
-		serializer << PAIR::END_MAP << "END TRANSFORM";
+		serializer << Pair::END_MAP << "END TRANSFORM";
 	}
 
 	void SerializeComponent(Utils::Serializer& serializer, Shared<Component::BaseComponent> components)
 	{
-		serializer << PAIR::BEGIN_MAP << "BEGIN COMPONENT";
-		serializer << PAIR::KEY << "Name" << PAIR::VALUE << components->GetComponentName();
-		serializer << PAIR::KEY << "Enable" << PAIR::VALUE << components->IsEnable();
+		serializer << Pair::BEGIN_MAP << "BEGIN COMPONENT";
+		serializer << Pair::KEY << "Name" << Pair::VALUE << components->GetComponentName();
+		serializer << Pair::KEY << "Enable" << Pair::VALUE << components->IsEnable();
 		components->Serialize(serializer);
-		serializer << PAIR::END_MAP << "END COMPONENT";
+		serializer << Pair::END_MAP << "END COMPONENT";
 	}
 
 	void GameObject::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << PAIR::BEGIN_MAP << "BEGIN GAMEOBJECT";
+		serializer << Pair::BEGIN_MAP << "BEGIN GAMEOBJECT";
 
-		serializer << PAIR::KEY << "Name"	<< PAIR::VALUE << m_name;
-		serializer << PAIR::KEY << "Active" << PAIR::VALUE << m_active;
-		serializer << PAIR::KEY << "UUID"	<< PAIR::VALUE << m_UUID;
+		serializer << Pair::KEY << "Name"	<< Pair::VALUE << m_name;
+		serializer << Pair::KEY << "Active" << Pair::VALUE << m_active;
+		serializer << Pair::KEY << "UUID"	<< Pair::VALUE << m_UUID;
 
-		serializer << PAIR::KEY << "Component Number" << PAIR::VALUE << m_components.size();
-		serializer << PAIR::KEY << "Child Number"	  << PAIR::VALUE << m_childs.size();
+		serializer << Pair::KEY << "Component Number" << Pair::VALUE << m_components.size();
+		serializer << Pair::KEY << "Child Number"	  << Pair::VALUE << m_childs.size();
 
 		SerializeTransform(serializer, m_transform.get());
 
-		serializer << PAIR::BEGIN_TAB;
+		serializer << Pair::BEGIN_TAB;
 		for (Shared<Component::BaseComponent>& component : m_components)
 		{
 			SerializeComponent(serializer, component);
 		}
-		serializer << PAIR::END_TAB;
+		serializer << Pair::END_TAB;
 
-		serializer << PAIR::BEGIN_TAB;
+		serializer << Pair::BEGIN_TAB;
 		for (auto& child : m_childs)
 		{
 			child->Serialize(serializer);
 		}
-		serializer << PAIR::END_TAB;
+		serializer << Pair::END_TAB;
 
-		serializer << PAIR::END_MAP << "END GAMEOBJECT";
+		serializer << Pair::END_MAP << "END GAMEOBJECT";
 	}
 
-	void GameObject::Deserialize(Utils::Parser& parser)
+	void GameObject::Deserialize(Utils::Parser& parser, bool parseUUID /*= true*/)
 	{
 		m_name = parser["Name"];
 		m_active = parser["Active"].As<bool>();
-		m_UUID = parser["UUID"].As<uint64_t>();
+		if (parseUUID)
+			m_UUID = parser["UUID"].As<uint64_t>();
 
 		size_t componentNumber = parser["Component Number"].As<size_t>();
 		m_childs.resize(parser["Child Number"].As<size_t>());
@@ -313,7 +314,7 @@ namespace GALAXY
 			child = std::make_shared<GameObject>();
 			child->m_scene = m_scene;
 			child->SetParent(weak_from_this());
-			child->Deserialize(parser);
+			child->Deserialize(parser, parseUUID);
 			m_scene->AddObject(child);
 		}
 	}

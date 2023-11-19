@@ -22,7 +22,7 @@ namespace GALAXY {
 
 			void RightClickPopup();
 			
-			List<Weak<Core::GameObject>> GetSelected();
+			const List<Weak<Core::GameObject>>& GetSelected();
 		private:
 			friend class MainBar;
 

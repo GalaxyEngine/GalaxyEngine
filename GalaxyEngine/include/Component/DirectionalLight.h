@@ -39,4 +39,3 @@ namespace GALAXY
 		};
 	}
 }
-#include "Component/DirectionalLight.inl" 

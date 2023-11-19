@@ -44,7 +44,7 @@ namespace GALAXY
 				SetVariableVoid(variableName, newValue);
 			}
 
-			UMap<std::string, Scripting::VariableData> GetAllVariables() const;
+			const UMap<std::string, Scripting::VariableData>& GetAllVariables() const;
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;

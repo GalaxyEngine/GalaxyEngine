@@ -2,12 +2,13 @@
 #include "GalaxyAPI.h"
 #include <fstream>
 #include <unordered_map>
+#include <sstream>
 using namespace Utils;
 namespace GALAXY
 {
 	namespace Utils
 	{
-		enum class PAIR
+		enum class Pair
 		{
 			KEY,
 			VALUE,
@@ -21,6 +22,7 @@ namespace GALAXY
 		class Serializer
 		{
 		public:
+			Serializer() {}
 			Serializer(const std::filesystem::path& path);
 			~Serializer();
 
@@ -41,17 +43,19 @@ namespace GALAXY
 			inline void AddLine(const std::string& key, const std::string& value);
 			inline void AddLine(const std::string& line);
 
-			void SetCurrentType(Utils::PAIR val);
+			void SetCurrentType(Utils::Pair val);
 
 			void WriteLine();
 
-			PAIR GetCurrentType() const { return m_currentType; }
+			Pair GetCurrentType() const { return m_currentType; }
 
 			void SetCurrentKey(const std::string& key) { m_currentPair.first = key; }
 			void SetCurrentValue(const std::string& value) { m_currentPair.second = value; }
+
+			std::string GetContent() const { return m_content.str(); }
 		private:
-			// Serializer
-			std::ofstream m_file;
+			std::stringstream m_content;
+			std::filesystem::path m_filePath = "";
 
 			std::string m_tab = "";
 
@@ -59,7 +63,7 @@ namespace GALAXY
 
 			std::pair<std::string, std::string> m_currentPair;
 
-			PAIR m_currentType = PAIR::KEY;
+			Pair m_currentType = Pair::KEY;
 		};
 
 		class StringSerializer
@@ -110,18 +114,21 @@ namespace GALAXY
 		class Parser
 		{
 		public:
+			Parser(const std::string& content);
 			Parser(const std::filesystem::path& path);
 
-			void Parse(const std::filesystem::path& path);
+			void ParseFile(const std::filesystem::path& path);
+			void ParseContent(const std::string& content);
 			void PrintData();
 
 			void NewDepth();
 
 			StringSerializer operator[](const std::string& key);
+			const List<UMap<std::string, std::string>>& GetValueMap() const { return m_valueMap; }
+			size_t GetCurrentDepth() const { return m_currentDepth; }
 		private:
 			// Parser
-			std::fstream m_file;
-			std::vector<std::unordered_map<std::string, std::string>> m_valueMap;
+			List<UMap<std::string, std::string>> m_valueMap;
 
 			size_t m_currentDepth = 0;
 		};

@@ -43,8 +43,12 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	ImGui::Checkbox("##", &object->m_active);
 	ImGui::SameLine();
 	Wrapper::GUI::InputText("##InputName", &object->m_name);
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::SetTooltip("%llu", object->GetSceneGraphID());
+	}
 	ImGui::SameLine();
-	ImGui::Text("%llu", object->GetUUID());
+	ImGui::Text("%llu", object->GetUUID().operator uint64_t());
 	ImGui::Separator();
 
 	ImGui::BeginDisabled(!object->m_active);
@@ -144,6 +148,13 @@ void Editor::UI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 		gameObject.lock()->m_selected = false;
 	}
 	else {
+		if (m_selectedGameObject.empty())
+		{
+			// if empty, set gizmo object
+			Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
+			gizmo->SetGameObject(gameObject);
+		}
+			
 		m_selectedGameObject.push_back(gameObject);
 		gameObject.lock()->m_selected = true;
 	}
@@ -153,9 +164,6 @@ void Editor::UI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
 {
 	ClearSelected();
 	AddSelected(gameObject);
-
-	Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
-	gizmo->SetGameObject(gameObject);
 }
 
 void Editor::UI::Inspector::ClearSelected()
@@ -171,7 +179,7 @@ void Editor::UI::Inspector::ClearSelected()
 	gizmo->SetGameObject({});
 }
 
-List<Weak<Core::GameObject>> Editor::UI::Inspector::GetSelected()
+const List<Weak<Core::GameObject>>& Editor::UI::Inspector::GetSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{

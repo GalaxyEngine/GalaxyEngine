@@ -26,6 +26,11 @@ namespace GALAXY
 
 			void Initialize(const std::filesystem::path& projectPath);
 			void Update();
+
+			void PasteObject();
+
+			void CopyObject();
+
 			void Destroy();
 
 			inline void AddResourceToSend(const std::filesystem::path& fullPath);
@@ -59,6 +64,8 @@ namespace GALAXY
 			std::deque<std::filesystem::path> m_resourceToSend;
 
 			bool m_drawGrid = true;
+			
+			std::string m_clipboard;
 		};
 	}
 }

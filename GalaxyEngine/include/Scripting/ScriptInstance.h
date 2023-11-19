@@ -17,7 +17,7 @@ namespace GALAXY
 			ScriptInstance(ScriptInstance&&) noexcept = default;
 			virtual ~ScriptInstance() {}
 
-			inline UMap<std::string, VariableData> GetAllVariables() const { return m_variables; }
+			inline const UMap<std::string, VariableData>& GetAllVariables() const { return m_variables; }
 		private:
 			friend class ScriptEngine;
 			friend Component::ScriptComponent;

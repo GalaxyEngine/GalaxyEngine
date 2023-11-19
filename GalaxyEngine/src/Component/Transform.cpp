@@ -191,9 +191,9 @@ namespace GALAXY
 
 	void Component::Transform::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::PAIR::KEY << "Position" << Utils::PAIR::VALUE << m_localPosition;
-		serializer << Utils::PAIR::KEY << "Rotation" << Utils::PAIR::VALUE << m_localRotation;
-		serializer << Utils::PAIR::KEY << "Scale" << Utils::PAIR::VALUE << m_localScale;
+		serializer << Utils::Pair::KEY << "Position" << Utils::Pair::VALUE << m_localPosition;
+		serializer << Utils::Pair::KEY << "Rotation" << Utils::Pair::VALUE << m_localRotation;
+		serializer << Utils::Pair::KEY << "Scale" << Utils::Pair::VALUE << m_localScale;
 	}
 
 	void Component::Transform::Deserialize(Utils::Parser& parser)

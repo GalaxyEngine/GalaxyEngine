@@ -5,12 +5,12 @@ namespace GALAXY
 {
 	void Utils::Serializer::AddLine(const std::string& key, const std::string& value)
 	{
-		m_file << m_tab << "[" << key << "] : " << value << '\n';
+		m_content << m_tab << "[" << key << "] : " << value << '\n';
 	}
 
 	void Utils::Serializer::AddLine(const std::string& line)
 	{
-		m_file << m_tab << line << '\n';
+		m_content << m_tab << line << '\n';
 	}
 
 	void Utils::Serializer::PushTab()

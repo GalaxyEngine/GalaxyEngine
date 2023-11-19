@@ -16,7 +16,7 @@ namespace GALAXY {
 
 			void OnDraw() override;
 
-			inline void SetMesh(const Weak<Resource::Mesh>& mesh);
+			inline void SetMesh(Weak<Resource::Mesh> mesh) { if (mesh.lock()) { m_mesh = mesh; } }
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
@@ -33,4 +33,3 @@ namespace GALAXY {
 		};
 	}
 }
-#include "Component/MeshComponent.inl" 

@@ -30,14 +30,14 @@
 #define SERIALIZE_LIST(x)\
 {\
 	std::vector<x> list = GET_VARIABLE_LIST(x);\
-	serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << list.size();\
-	serializer << Utils::PAIR::BEGIN_MAP << variable.first;\
+	serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << list.size();\
+	serializer << Utils::Pair::BEGIN_MAP << variable.first;\
 	for (size_t i = 0; i < list.size(); i++)\
 	{\
 		x value = list.at(i);\
-		serializer << Utils::PAIR::KEY << std::to_string(i) << Utils::PAIR::VALUE << value;\
+		serializer << Utils::Pair::KEY << std::to_string(i) << Utils::Pair::VALUE << value;\
 	}\
-	serializer << Utils::PAIR::END_MAP << variable.first;\
+	serializer << Utils::Pair::END_MAP << variable.first;\
 }\
 
 #define DESERIALIZE_LIST(x)\
@@ -152,8 +152,8 @@ namespace GALAXY
 		}
 	}
 
-	std::unordered_map<std::string, Scripting::VariableData> Component::ScriptComponent::GetAllVariables() const
-	{
+	const UMap<std::string, GALAXY::Scripting::VariableData>& Component::ScriptComponent::GetAllVariables() const
+{
 		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
 		auto scriptInstance = scriptEngine->GetScriptInstance(this->GetComponentName()).lock();
 		if (scriptInstance)
@@ -212,34 +212,34 @@ namespace GALAXY
 				case Scripting::VariableType::Unknown:
 					break;
 				case Scripting::VariableType::Bool:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(bool);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(bool);
 					break;
 				case Scripting::VariableType::Int:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(int);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(int);
 					break;
 				case Scripting::VariableType::Float:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(float);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(float);
 					break;
 				case Scripting::VariableType::Double:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(double);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(double);
 					break;
 				case Scripting::VariableType::Vector2:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec2f);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec2f);
 					break;
 				case Scripting::VariableType::Vector3:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec3f);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec3f);
 					break;
 				case Scripting::VariableType::Vector4:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Vec4f);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec4f);
 					break;
 				case Scripting::VariableType::String:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(std::string);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(std::string);
 					break;
 				case Scripting::VariableType::Component:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Component::BaseComponent*);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Component::BaseComponent*);
 					break;
 				case Scripting::VariableType::GameObject:
-					serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << GET_VARIABLE(Core::GameObject*);
+					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Core::GameObject*);
 					break;
 				default:
 					break;

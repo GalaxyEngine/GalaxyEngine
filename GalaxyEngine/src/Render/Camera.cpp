@@ -73,7 +73,7 @@ namespace GALAXY
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
 	}
 
-	std::weak_ptr<Resource::Texture> Render::Camera::GetRenderTexture()
+	std::weak_ptr<Resource::Texture> Render::Camera::GetRenderTexture() const
 	{
 		return m_framebuffer->GetRenderTexture();
 	}
@@ -88,7 +88,7 @@ namespace GALAXY
 		return Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
 	}
 
-	bool Render::Camera::IsVisible()
+	bool Render::Camera::IsVisible() const
 	{
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
 	}

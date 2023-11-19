@@ -36,7 +36,7 @@ namespace GALAXY
 
 			inline void SetSize(const Vec2i& framebufferSize);
 
-			virtual bool IsVisible();
+			virtual bool IsVisible() const;
 
 			inline Mat4 GetViewMatrix() const;
 			inline Mat4 GetProjectionMatrix() const;
@@ -48,7 +48,7 @@ namespace GALAXY
 			inline Vec2f ToViewport(const Vec2f& pos) const;
 			inline Vec3f UnProject(const Vec3f& point) const;
 
-			Weak<Resource::Texture> GetRenderTexture();
+			Weak<Resource::Texture> GetRenderTexture() const;
 
 			inline float GetFar() const { return p_far; }
 			inline void SetFar(float val) { p_far = val; }
@@ -69,9 +69,6 @@ namespace GALAXY
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 
 			class Framebuffer* m_framebuffer = nullptr;
-
-		private:
-
 		};
 	}
 }
