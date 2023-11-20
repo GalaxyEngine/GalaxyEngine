@@ -126,6 +126,7 @@ vec4 CalculatePointLight(PointLight point)
 
 vec4 CalculateSpotLight(SpotLight spot)
 {
+/*
     vec3 lightDir = normalize(spot.position - pos);
     vec3 viewDir = normalize(camera.viewPos - pos);
 
@@ -153,6 +154,46 @@ vec4 CalculateSpotLight(SpotLight spot)
     vec4 ambientColor = material.ambient * spot.ambient * attenuation * spotIntensity;
 
     return ambientColor + diffuseColor + specularColor;
+    */
+    vec4 diffuseColor;
+    if (material.enableTexture) {
+        diffuseColor = texture(material.albedo, uv);
+    } 
+    else {
+        diffuseColor = material.diffuse;
+    }
+
+    // ambient
+    vec3 ambient = spot.ambient.rgb * diffuseColor.rgb;
+    
+    // diffuse 
+    vec3 norm = normalize(normal);
+    vec3 lightDir = normalize(spot.position - pos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = spot.diffuse.rgb * diff * diffuseColor.rgb;  
+    
+    // specular
+    vec3 viewDir = normalize(camera.viewPos - pos);
+    vec3 reflectDir = reflect(-lightDir, norm);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = spot.specular.rgb * spec * material.specular.rgb;  
+    
+    // spotlight (soft edges)
+    float theta = dot(lightDir, normalize(-spot.direction)); 
+    float epsilon = (spot.cutOff - spot.outerCutOff);
+    float intensity = clamp((theta - spot.outerCutOff) / epsilon, 0.0, 1.0);
+    diffuse  *= intensity;
+    specular *= intensity;
+    
+    // attenuation
+    float distance    = length(spot.position - pos);
+    float attenuation = 1.0 / (spot.constant + spot.linear * distance + spot.quadratic * (distance * distance));    
+    ambient  *= attenuation; 
+    diffuse   *= attenuation;
+    specular *= attenuation;   
+        
+    vec3 result = ambient + diffuse + specular;
+    return vec4(result, 1.f);
 }
 
 void main()

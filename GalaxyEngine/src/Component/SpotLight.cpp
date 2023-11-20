@@ -22,17 +22,25 @@ namespace GALAXY
 
 		m_direction.value = GetTransform()->GetForward();
 		shader->SendVec3f(m_direction.string.c_str(), m_direction.value);
-		shader->SendFloat(m_cutOff.string.c_str(), m_cutOff.value);
-		shader->SendFloat(m_outerCutOff.string.c_str(), m_outerCutOff.value);
+		shader->SendFloat(m_cutOff.string.c_str(), std::cos(DegToRad * m_cutOff.value));
+		shader->SendFloat(m_outerCutOff.string.c_str(), std::cos(DegToRad * m_outerCutOff.value));
 
 		p_dirty = false;
 	}
 
 	void Component::SpotLight::OnEditorDraw()
 	{
+		static auto renderer = Wrapper::Renderer::GetInstance();
 		Vec3f worldPosition = GetTransform()->GetWorldPosition();
-		Vec3f rayEndPosition = worldPosition + m_direction.value;
-		Wrapper::Renderer::GetInstance()->DrawLine(worldPosition, rayEndPosition, Vec4f(0, 1, 1, 1), 5.f);
+		Quat worldRotation = GetTransform()->GetWorldRotation();
+		renderer->DrawWireCone(worldPosition, worldRotation, 0.01f, m_outerCutOff, 25.f, Vec4f(0.980f, 0.804f, 0.0196f, 1.0f), 5.f);
+		renderer->DrawWireCone(worldPosition, worldRotation, 0.01f, m_cutOff, 25.f, Vec4f(1, 1, 0, 1), 5.f);
+
+		/* TODO: Billboard icon for all lights + picking ( do this in the material file when type of rendering is picking)
+		*  Option to draw debug icon / debug line / other...
+		*  Fix rotate gizmo of light scene cube object
+		*  Move openGL methods to another file
+		*/
 	}
 
 	void Component::SpotLight::ShowInInspector()

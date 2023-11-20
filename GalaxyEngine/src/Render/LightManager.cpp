@@ -9,10 +9,8 @@
 
 /*
 * TODO:
-*	Check dirty
-*	Check normal in shader
-*	SpotLight
 *	Bill board shader
+*	Normal mapping
 *	Draw icon in editor
 */
 

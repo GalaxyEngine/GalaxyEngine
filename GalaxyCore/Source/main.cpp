@@ -12,7 +12,6 @@ using namespace GALAXY;
 void Main(int argc, char** argv)
 {
 	//TODO :
-	// * Add the open file explorer on linux
 	// * Check dynamic loading on linux
 
 	auto workDir = std::filesystem::path(argv[0]).parent_path();

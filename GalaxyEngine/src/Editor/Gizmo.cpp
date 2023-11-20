@@ -265,7 +265,7 @@ namespace GALAXY
 				break;
 			}
 		}
-		// TODO : Translate, Rotate, Scale
+
 		if (Input::IsMouseButtonDown(MouseButton::BUTTON_1) && m_gizmoClicked)
 		{
 			Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->ScreenPointToRay(sceneWindow->GetMousePosition());

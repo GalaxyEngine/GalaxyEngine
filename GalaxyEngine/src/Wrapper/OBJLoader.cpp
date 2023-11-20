@@ -12,7 +12,6 @@
 
 void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 {
-	//TODO
 	OBJLoader model;
 	model.m_path = fullPath;
 	if (!model.Parse())
