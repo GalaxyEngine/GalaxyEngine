@@ -111,7 +111,8 @@ namespace GALAXY {
 			// the components and gameObjects find by the id
 			void AfterLoad();
 
-			bool IsActive() const { return m_active; }
+			inline bool IsActive() const { return m_active; }
+			inline bool IsSelected() const { return m_selected; }
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;

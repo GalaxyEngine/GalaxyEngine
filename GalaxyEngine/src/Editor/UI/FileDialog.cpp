@@ -1,14 +1,13 @@
 #include "pch.h"
 
+#include "Utils/Define.h"
+
 #include "Editor/UI/FileDialog.h"
 #include "Editor/UI/FileExplorer.h"
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
-
-#define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/folder.png"
-#define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/file.png"
 
 namespace GALAXY
 {

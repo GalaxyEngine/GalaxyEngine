@@ -20,4 +20,7 @@ void main()
         FragColor = texture(material.albedo, uv);
     else
         FragColor = material.diffuse;
+
+    if (FragColor.a <= 0.1f)
+        discard;
 } 

@@ -61,18 +61,21 @@ namespace GALAXY {
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || i >= m_subMeshes.size())
 				continue;
-			auto shader = materials[i].lock()->SendValues(id);
-			if (shader.lock() == nullptr)
+			auto shader = materials[i].lock()->SendValues(id).lock();
+			if (shader == nullptr)
 				continue;
 
-			shader.lock()->SendMat4("MVP", Core::SceneHolder::GetInstance()->GetCurrentScene()->GetVP() * modelMatrix);
-			shader.lock()->SendMat4("Model", modelMatrix);
+			Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+			shader->SendMat4("Model", modelMatrix);
+			shader->SendMat4("MVP", currentScene->GetVP() * modelMatrix);
+			shader->SendVec3f("CamUp", currentScene->GetCameraUp());
+			shader->SendVec3f("CamRight", currentScene->GetCameraRight());
 
 			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
 		}
 		renderer->UnbindVertexArray();
 	}
-
+	
 	Path Resource::Mesh::CreateMeshPath(const Path& modelPath, const Path& fileName)
 	{
 		return modelPath.wstring() + L":" + fileName.wstring();

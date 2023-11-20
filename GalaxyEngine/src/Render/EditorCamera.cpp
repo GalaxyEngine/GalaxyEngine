@@ -3,21 +3,20 @@
 #include "Render/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
+#include "Utils/Define.h"
+
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 #include "Core/Input.h"
 
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
-
-#define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PostProcess/Outline/outline.ppshader"
+#include "Resource/Scene.h"
 
 namespace GALAXY
 {
-
 	Render::EditorCamera::EditorCamera()
 	{
 		m_transform = std::make_unique<Component::Transform>();

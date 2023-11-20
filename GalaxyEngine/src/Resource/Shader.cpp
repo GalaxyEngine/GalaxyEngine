@@ -4,7 +4,6 @@
 
 #include "Render/LightManager.h"
 
-#define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PickingShader/picking.frag"
 namespace GALAXY
 {
 	void Resource::Shader::Load()
@@ -47,7 +46,7 @@ namespace GALAXY
 				else if (line[0] == 'F')
 				{
 					std::filesystem::path fragPath = line.substr(4);
-					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
+					fragPath = GetFileInfo().GetFullPath().parent_path() / fragPath;
 					Weak<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
 					SetFragment(fragmentShader.lock(), thisShader);
 				}

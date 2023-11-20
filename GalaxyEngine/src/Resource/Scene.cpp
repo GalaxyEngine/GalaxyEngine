@@ -77,12 +77,12 @@ namespace GALAXY
 
 				renderer->ClearColorAndBuffer(Vec4f(0));
 
-				renderer->SetRenderingType(Render::RenderType::OUTLINE);
+				renderer->SetRenderingType(Render::RenderType::Outline);
 				for (auto& selected : inspector->GetSelected())
 				{
 					selected.lock()->DrawSelfAndChild();
 				}
-				renderer->SetRenderingType(Render::RenderType::DEFAULT);
+				renderer->SetRenderingType(Render::RenderType::Default);
 				outlineFrameBuffer->End();
 			}
 
@@ -101,9 +101,9 @@ namespace GALAXY
 			{
 				renderer->ClearColorAndBuffer(Vec4f(1));
 
-				renderer->SetRenderingType(Render::RenderType::PICKING);
+				renderer->SetRenderingType(Render::RenderType::Picking);
 				m_root->DrawSelfAndChild();
-				renderer->SetRenderingType(Render::RenderType::DEFAULT);
+				renderer->SetRenderingType(Render::RenderType::Default);
 
 				// Calculate Mouse Position
 				Vec2i mainWindowSize = window->GetSize();
@@ -148,6 +148,8 @@ namespace GALAXY
 	{
 		m_currentCamera = camera;
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
+		m_cameraUp = m_currentCamera.lock()->GetTransform()->GetUp();
+		m_cameraRight = m_currentCamera.lock()->GetTransform()->GetRight();
 	}
 
 #pragma region Resource Methods

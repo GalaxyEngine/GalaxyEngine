@@ -25,7 +25,7 @@ namespace GALAXY
 
 			Weak<Resource::Shader> m_shader;
 
-			uint32_t m_vao, m_vbo;
+			uint32_t m_vao = -1, m_vbo = -1;
 
 		};
 	}

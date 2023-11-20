@@ -4,11 +4,6 @@
 
 using Path = std::filesystem::path;
 
-
-#define NONE_RESOURCE "None"
-#define ASSET_FOLDER_NAME "Assets"
-#define ENGINE_RESOURCE_FOLDER_NAME "CoreResources"
-
 namespace GALAXY 
 {
 	namespace Resource

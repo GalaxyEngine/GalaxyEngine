@@ -6,9 +6,6 @@
 #include "Resource/Script.h"
 #include "Resource/Material.h"
 
-#define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/folder.png"
-#define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/file.png"
-
 /* TODO:
 * Drag and Drop (folders, models, ...)
 * Delete
@@ -152,9 +149,8 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::Draw()
 	{
-		if (!p_open) {
+		if (!p_open)
 			return;
-		}
 
 		const int iconSize = 86;
 		const int space = 15;

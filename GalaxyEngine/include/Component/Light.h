@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
+#include "Editor/EditorIcon.h"
 namespace GALAXY
 {
 	namespace Component
@@ -41,6 +42,8 @@ namespace GALAXY
 
 			virtual void OnDestroy() override;
 
+			virtual void OnEditorDraw() override;
+
 			virtual void ShowInInspector() override;
 
 			virtual void Serialize(Utils::Serializer& serializer) override;
@@ -77,6 +80,8 @@ namespace GALAXY
 			std::string p_enableString;
 
 			bool p_dirty = true;
+
+			Editor::EditorIcon m_editorIcon;
 		};
 	}
 }

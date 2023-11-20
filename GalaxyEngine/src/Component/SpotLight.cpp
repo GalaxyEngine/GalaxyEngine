@@ -1,10 +1,13 @@
 #include "pch.h"
+
 #include "Component/SpotLight.h"
 #include "Component/Transform.h"
 
 #include "Resource/Shader.h"
 
 #include "Utils/Parser.h"
+
+#include "Core/GameObject.h"
 
 namespace GALAXY 
 {
@@ -30,6 +33,10 @@ namespace GALAXY
 
 	void Component::SpotLight::OnEditorDraw()
 	{
+		Light::OnEditorDraw();
+
+		if (!GetGameObject()->IsSelected())
+			return;
 		static auto renderer = Wrapper::Renderer::GetInstance();
 		Vec3f worldPosition = GetTransform()->GetWorldPosition();
 		Quat worldRotation = GetTransform()->GetWorldRotation();

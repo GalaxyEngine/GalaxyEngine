@@ -1,7 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Utils/Define.h"
 #include <array>
-#define MAX_LIGHT_NUMBER 8
+
 namespace GALAXY
 {
 	namespace Component

@@ -152,8 +152,8 @@ namespace GALAXY
 		}
 	}
 
-	const UMap<std::string, GALAXY::Scripting::VariableData>& Component::ScriptComponent::GetAllVariables() const
-{
+	UMap<std::string, Scripting::VariableData> Component::ScriptComponent::GetAllVariables() const
+	{
 		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
 		auto scriptInstance = scriptEngine->GetScriptInstance(this->GetComponentName()).lock();
 		if (scriptInstance)

@@ -32,7 +32,7 @@ namespace GALAXY
 
 			static inline ResourceType GetResourceType() { return ResourceType::Material; }
 
-			inline Weak<class Shader> GetShader() const { return m_shader; }
+			inline Shared<class Shader> GetShader() const { return m_shader.lock(); }
 
 			static Weak<Material> Create(const std::filesystem::path& path);
 

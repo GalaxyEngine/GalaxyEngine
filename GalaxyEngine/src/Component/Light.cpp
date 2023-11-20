@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Component/Light.h"
 
+#include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
 
 #include "Render/LightManager.h"
 
 #include "Core/GameObject.h"
 
+#include "Utils/Define.h"
 #include "Utils/Parser.h"
 
 namespace GALAXY 
@@ -18,12 +20,18 @@ namespace GALAXY
 		{
 			RemoveFromGameObject();
 		}
+		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(LIGHT_ICON_PATH));
 	}
 
 	void Component::Light::OnDestroy()
 	{
 		auto weak_this = GetGameObject()->GetWeakOfComponent(this);
 		Render::LightManager::RemoveLight(weak_this);
+	}
+
+	void Component::Light::OnEditorDraw()
+	{
+		m_editorIcon.Render(GetTransform()->GetModelMatrix(), GetGameObject()->GetSceneGraphID());
 	}
 
 	void Component::Light::ShowInInspector()

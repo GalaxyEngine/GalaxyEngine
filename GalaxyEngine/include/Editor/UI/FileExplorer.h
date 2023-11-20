@@ -68,7 +68,7 @@ namespace GALAXY
 		private:
 			friend class MainBar;
 
-			Path m_workingDirectory = ASSET_FOLDER_NAME;
+			Path m_workingDirectory;
 
 			Shared<File> m_mainFile;
 			Shared<File> m_currentFile;

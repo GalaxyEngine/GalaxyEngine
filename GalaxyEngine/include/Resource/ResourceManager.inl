@@ -1,6 +1,8 @@
 #pragma once
 #include "Resource/ResourceManager.h"
 
+#include "Utils/Define.h"
+
 #include "Resource/Texture.h"
 #include "Resource/PostProcessShader.h"
 #include "Resource/Shader.h"

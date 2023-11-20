@@ -146,7 +146,7 @@ namespace GALAXY {
 		Shared<Resource::Shader> shader = {};
 		switch (renderType)
 		{
-		case Render::RenderType::DEFAULT:
+		case Render::RenderType::Default:
 		{
 			shader = m_shader.lock();
 			if (!shader || !shader->HasBeenSent())
@@ -163,7 +163,7 @@ namespace GALAXY {
 			shader->SendVec4f("material.specular", m_specular);
 		}
 		break;
-		case Render::RenderType::PICKING:
+		case Render::RenderType::Picking:
 		{
 			shader = m_shader.lock()->GetPickingVariant().lock();
 			if (!shader || !shader->HasBeenSent())
@@ -177,7 +177,7 @@ namespace GALAXY {
 			shader->SendVec4f("idColor", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
 		}
 		break;
-		case Render::RenderType::OUTLINE:
+		case Render::RenderType::Outline:
 		{
 			static auto unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
 			if (!unlitShader || !unlitShader->HasBeenSent())
