@@ -51,7 +51,7 @@ namespace GALAXY
 
 	float Input::m_scrollValue = 0.f;
 
-	Vec2f Input::m_mouseDragDelta = 0.f;
+	Vec2f Input::m_mouseDragDelta = Vec2f(0.f);
 
 	void Input::Initialize()
 	{

@@ -3,7 +3,7 @@
 [Active] : 1
 [UUID] : 9522093810837047897
 [Component Number] : 0
-[Child Number] : 2
+[Child Number] : 3
  ------------- BEGIN TRANSFORM ------------- 
 [Position] : 0.000000, 0.000000, 0.000000
 [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
@@ -50,6 +50,25 @@
   [Quadratic] : 0.032000
   [CutOff] : 12.500000
   [OuterCutOff] : 17.500000
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : Radio
+ [Active] : 1
+ [UUID] : 9433109857815344215
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 0.000000, 1.443435
+ [Rotation] : -0.001194, -0.000000, 0.000000, 0.573370
+ [Scale] : 6.231851, 4.200609, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Mesh Component
+  [Enable] : 1
+  [Mesh] : CoreResources/models/Cube.obj:Cube
+  [Material Count] : 1
+   [Material 0] : CoreResources/materials/DefaultMaterial.mat
    ============= END COMPONENT ============= 
   ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

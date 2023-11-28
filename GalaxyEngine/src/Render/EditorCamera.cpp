@@ -99,7 +99,7 @@ namespace GALAXY
 
 		prevMousePos = Input::GetMousePosition();
 
-		if (Approximately(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
+		if (Math::AlmostEqual<float>(m_transform->GetLocalEulerRotation().z, 180.f, 0.1f))
 		{
 			mouseX *= -1;
 		}

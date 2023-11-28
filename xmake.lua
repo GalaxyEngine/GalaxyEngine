@@ -5,6 +5,11 @@ if is_plat("windows") then
     set_runtimes(is_mode("debug") and "MDd" or "MD")
 end
 
+-- Custom repo
+add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
+
+-- Packages
+add_requires("galaxymath v1.1")
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
@@ -44,6 +49,7 @@ target("GalaxyEngine")
     set_pcxxheader("GalaxyEngine/include/pch.h")
     
     -- Packages --
+    add_packages("galaxymath")
     add_packages("glfw")
     add_packages("imgui")
     add_packages("glad")

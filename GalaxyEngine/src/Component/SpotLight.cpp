@@ -43,10 +43,9 @@ namespace GALAXY
 		renderer->DrawWireCone(worldPosition, worldRotation, 0.01f, m_outerCutOff, 25.f, Vec4f(0.980f, 0.804f, 0.0196f, 1.0f), 5.f);
 		renderer->DrawWireCone(worldPosition, worldRotation, 0.01f, m_cutOff, 25.f, Vec4f(1, 1, 0, 1), 5.f);
 
-		/* TODO: Billboard icon for all lights + picking ( do this in the material file when type of rendering is picking)
+		/* TODO: 
 		*  Option to draw debug icon / debug line / other...
 		*  Fix rotate gizmo of light scene cube object
-		*  Move openGL methods to another file
 		*/
 	}
 

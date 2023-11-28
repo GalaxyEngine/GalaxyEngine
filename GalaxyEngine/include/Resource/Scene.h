@@ -28,13 +28,14 @@ namespace GALAXY {
 		{
 		public:
 			Scene(const Path& path);
-			Scene& operator=(const Scene& other) = default;
+			Scene& operator=(const Scene& other) { return *this; }
 			Scene(const Scene&) = default;
 			Scene(Scene&&) noexcept = default;
 			virtual ~Scene();
 
 #pragma region Resource Methods
 			void Load() override;
+			void Unload() override;
 			void Send() override;
 			void Save(const Path& fullPath = "");
 
@@ -48,7 +49,7 @@ namespace GALAXY {
 			void Update();
 
 			// Every GameObject should be create via this function
-			template<typename... Args> 
+			template<typename... Args>
 			inline Weak<Core::GameObject> CreateObject(Args&&... args);
 
 			inline void AddObject(std::shared_ptr<Core::GameObject> gameObject);

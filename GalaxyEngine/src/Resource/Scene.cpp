@@ -167,6 +167,11 @@ namespace GALAXY
 		SendRequest();
 	}
 
+	void Scene::Unload()
+	{
+		m_root->Destroy();
+	}
+
 	void Scene::Send()
 	{
 		Initialize();

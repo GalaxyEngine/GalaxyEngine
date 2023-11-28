@@ -1,9 +1,9 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Utils/Type.h"
+#include "Core/UUID.h"
 
-#include <Core/UUID.h>
-
-#include <Wrapper/Reflection.h>
+#include "Wrapper/Reflection.h"
 
 namespace GALAXY {
 	namespace Utils { class Serializer; class Parser; }

@@ -42,7 +42,7 @@ namespace GALAXY {
 			void TreePop();
 			void PushID(size_t id);
 			void PopID();
-			bool Button(const char* buttonName, Vec2f buttonSize = 0);
+			bool Button(const char* buttonName, Vec2f buttonSize = Vec2f(0));
 			void SameLine();
 
 		}

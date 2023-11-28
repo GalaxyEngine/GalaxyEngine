@@ -118,7 +118,7 @@ namespace GALAXY {
 		{
 			ImGui::BeginGroup();
 			if (m_icon.lock()) {
-				Wrapper::GUI::TextureImage(m_icon.lock().get(), 16);
+				Wrapper::GUI::TextureImage(m_icon.lock().get(), Vec2f(16));
 				ImGui::SameLine();
 			}
 			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))

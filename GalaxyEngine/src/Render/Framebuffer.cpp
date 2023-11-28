@@ -11,9 +11,11 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
+#include <set>
+
 namespace GALAXY {
 
-	static std::unordered_map<size_t, bool> s_indexArray = {};
+	static std::set<size_t> s_indexArray = {};
 	Render::Framebuffer::Framebuffer(const Vec2i& size) : m_size(size)
 	{
 		m_renderer = Wrapper::Renderer::GetInstance();
@@ -23,7 +25,7 @@ namespace GALAXY {
 			freeIndex++;
 		}
 		m_index = freeIndex;
-		s_indexArray[m_index] = true;
+		s_indexArray.emplace(m_index);
 
 		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer_" + std::to_string(m_index) + ".png");
 		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture);
@@ -40,7 +42,7 @@ namespace GALAXY {
 		m_renderTexture.reset();
 	}
 
-	std::weak_ptr<GALAXY::Resource::Texture> Render::Framebuffer::GetRenderTexture() const
+	std::weak_ptr<Resource::Texture> Render::Framebuffer::GetRenderTexture() const
 	{
 		if (!m_postProcess)
 			return m_renderTexture;

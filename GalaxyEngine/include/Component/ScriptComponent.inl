@@ -3,7 +3,7 @@
 #include "Wrapper/GUI.h"
 namespace GALAXY 
 {
-	const Vec2f buttonSize = 24;
+	const Vec2f buttonSize = Vec2f(24);
 	template<typename T> 
 	inline void Component::ScriptComponent::DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable)
 	{

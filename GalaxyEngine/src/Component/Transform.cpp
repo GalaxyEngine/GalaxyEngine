@@ -24,7 +24,7 @@ namespace GALAXY
 	{
 		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
 		{
-			return p_gameObject.lock()->GetParent()->GetTransform()->GetModelMatrix() * m_localPosition;
+			return p_gameObject.lock()->GetParent()->GetTransform()->GetModelMatrix() * Vec4f(m_localPosition, 1.0f);
 		}
 		else
 		{
@@ -74,7 +74,7 @@ namespace GALAXY
 	{
 		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
 		{
-			return GetModelMatrix().GetScale<float>();
+			return GetModelMatrix().GetScale();
 		}
 		else
 		{
@@ -86,7 +86,7 @@ namespace GALAXY
 	{
 		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
 		{
-			return GetModelMatrix().GetEulerRotation<float>();
+			return GetModelMatrix().GetRotation().ToEuler();
 		}
 		else
 		{

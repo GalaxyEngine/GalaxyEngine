@@ -2,6 +2,7 @@
 #include <GalaxyAPI.h>
 
 #include <Wrapper/Window.h>
+#include <Utils/Type.h>
 
 #include <deque>
 #include <filesystem>

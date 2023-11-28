@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Editor/UI/EditorWindow.h"
+#include "Utils/Type.h"
+
 namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Editor::UI

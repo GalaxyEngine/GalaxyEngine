@@ -16,12 +16,15 @@
 #include <thread>
 
 // Galaxy Headers
-#include <Debug/Log.h>
-#include <Maths/Maths.h>
-#include <Wrapper/Renderer.h>
-#include <Wrapper/GUI.h>
-#include <Wrapper/Reflection.h>
-#include <Utils/FileSystem.h>
+#define IMGUI_IMPLEMENTATION
+#include <galaxymath/Maths.h>
+
+#include "Debug/Log.h"
+#include "Wrapper/Renderer.h"
+#include "Wrapper/GUI.h"
+#include "Wrapper/Reflection.h"
+#include "Utils/FileSystem.h"
+#include "Utils/Type.h"
 
 // Libs Headers
 #define IMGUI_DEFINE_MATH_OPERATORS

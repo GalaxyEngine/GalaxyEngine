@@ -112,7 +112,7 @@ namespace GALAXY {
 			ImGui::ColorEdit4("Diffuse", &m_diffuse.x);
 			ImGui::ColorEdit4("Specular", &m_specular.x);
 			if (auto texture = m_albedo.lock()) {
-				if (Wrapper::GUI::TextureButton(m_albedo.lock().get(), 32))
+				if (Wrapper::GUI::TextureButton(m_albedo.lock().get(), Vec2f(32)))
 				{
 					ImGui::OpenPopup("TexturePopup");
 				}

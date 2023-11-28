@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include <Maths/Maths.h>
+//#include <galaxymath/Maths.h>
 #include "Component/Transform.h"
 namespace GALAXY
 {

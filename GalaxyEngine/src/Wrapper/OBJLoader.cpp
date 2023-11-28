@@ -73,6 +73,7 @@ bool Wrapper::OBJLoader::Parse()
 			if (!quadOBJ)
 				subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
 			else
+				//TODO : check if it's work
 				subMeshes.back().count = (size_t)(mesh.indices.size() * 1.5f - subMeshes.back().startIndex);
 		}
 	};

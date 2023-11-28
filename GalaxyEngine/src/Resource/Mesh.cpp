@@ -24,6 +24,8 @@ namespace GALAXY {
 
 	void Resource::Mesh::Load()
 	{
+		if (p_shouldBeLoaded)
+			return;
 		p_shouldBeLoaded = true;
 		Resource::ResourceManager::GetInstance()->GetOrLoad<Model>(m_modelPath);
 		p_loaded = true;

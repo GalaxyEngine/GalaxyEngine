@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Utils/Type.h"
 namespace GALAXY 
 {
 	namespace Resource
