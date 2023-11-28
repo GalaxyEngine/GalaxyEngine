@@ -9,7 +9,7 @@ end
 add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 
 -- Packages
-add_requires("galaxymath ~1.1")
+add_requires("galaxymath ~1.2")
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
@@ -26,7 +26,6 @@ set_targetdir("GalaxyCore")
 
 -- diable warnings
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
-add_defines("_CRT_SECURE_NO_WARNINGS")
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
 target("GalaxyEngine")

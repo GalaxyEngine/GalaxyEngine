@@ -155,10 +155,12 @@ namespace GALAXY
 
 		static ImGuiTextFilter filterExtension;
 		if (!m_filter.empty()) {
-			strcpy(filterExtension.InputBuf, m_filter.c_str());
+			size_t count = std::min(m_filter.size(), sizeof(filterExtension.InputBuf) - 1);
+			strncpy_s(filterExtension.InputBuf, m_filter.c_str(), count);
+			filterExtension.InputBuf[count] = '\0';  // Ensure null-termination
 			filterExtension.Build();
 		}
-		for (int i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
+		for (size_t i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
 		{
 			const auto& file = m_currentFile->m_childrens[i];
 
@@ -172,14 +174,13 @@ namespace GALAXY
 
 			// Handle file selection logic
 			if (ImGui::Selectable("##select", &file->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(iconSize))) {
-				if (file->m_selected || !file->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				if (file->m_selected || (!file->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)))
 				{
 					m_currentFile->SetSelected(file);
 					if (!file->m_info.isDirectory())
 						m_fileName = file->m_info.GetFileName();
 				}
 			}
-			Vec2f selectedCursorPos = ImGui::GetCursorPos();
 
 			// Handle double-click to open the file
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

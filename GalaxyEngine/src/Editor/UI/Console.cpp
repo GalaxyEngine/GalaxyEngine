@@ -56,7 +56,7 @@ namespace GALAXY {
 
 			// Display Text Selected
 			ImGui::BeginChild("Message", { 0, size2 - 5 }); // - 5 disable scrollbar
-			if (m_textSelected != -1 && m_textSelected < m_texts.size())
+			if (m_textSelected != INDEX_NONE && m_textSelected < m_texts.size())
 			{
 				std::string prefix = "";
 				Vec4f color = Vec4f(1);

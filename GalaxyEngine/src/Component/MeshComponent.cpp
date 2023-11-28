@@ -15,7 +15,6 @@ namespace GALAXY {
 
 	void Component::MeshComponent::OnDraw()
 	{
-		static auto renderer = Wrapper::Renderer::GetInstance();
 		if (!m_mesh.lock())
 			return;
 		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
@@ -30,7 +29,7 @@ namespace GALAXY {
 		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
 		serializer << Utils::Pair::BEGIN_TAB;
-		for (int i = 0; i < m_materials.size(); i++)
+		for (size_t i = 0; i < m_materials.size(); i++)
 		{
 			serializer << Utils::Pair::KEY << ("Material " + std::to_string(i)) << Utils::Pair::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetRelativePath() : "");
 		}

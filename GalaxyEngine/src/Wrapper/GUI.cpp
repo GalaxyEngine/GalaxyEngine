@@ -325,8 +325,6 @@ namespace GALAXY {
 
 		pressed = ImGui::Button(resultString.c_str(), Vec2f(0, imageSize.y));
 
-		float size = ImGui::GetItemRectSize().x;
-
 		ImGui::SetCursorPos(cursorPos);
 
 		TextureImage(texture, imageSize, uv0, uv1);
@@ -349,8 +347,6 @@ namespace GALAXY {
 			resultString.insert(resultString.begin(), ' ');
 
 		ToggleButton(resultString.c_str(), toggle, Vec2f(0, imageSize.y));
-
-		float size = ImGui::GetItemRectSize().x;
 
 		ImGui::SetCursorPos(cursorPos);
 

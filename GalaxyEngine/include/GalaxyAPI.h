@@ -2,9 +2,6 @@
 namespace GALAXY {}
 using namespace GALAXY;
 
-#define IMGUI_IMPLEMENTATION
-#include <galaxymath/Maths.h>
-
 #if defined(_WIN32) && defined(GALAXY_EXPORTS)
 #define GALAXY_API __declspec(dllexport)
 #elif defined(_WIN32)

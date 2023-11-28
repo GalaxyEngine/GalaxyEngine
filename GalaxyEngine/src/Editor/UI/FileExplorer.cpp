@@ -201,7 +201,7 @@ namespace GALAXY {
 
 				// Handle file selection logic
 				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(iconSize))) {
-					if (child->m_selected || !child->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+					if (child->m_selected || (!child->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)))
 					{
 						if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 						{
@@ -215,7 +215,6 @@ namespace GALAXY {
 						RemoveFileSelected(child);
 					}
 				}
-				Vec2f selectedCursorPos = ImGui::GetCursorPos();
 
 				// Handle double-click to open the file
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {

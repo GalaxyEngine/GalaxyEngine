@@ -1,4 +1,3 @@
-#include "pch.h"
 
 #ifdef _WIN32
 BOOL APIENTRY DllMain(HMODULE hModule,

@@ -380,7 +380,7 @@ namespace GALAXY
 					// If it's a list
 					std::vector<Component::BaseComponent*> vector = std::any_cast<std::vector<Component::BaseComponent*>>(variableValue);
 					std::vector<ComponentInfo> vectorValue(vector.size());
-					for (int i = 0; i < vectorValue.size(); i++)
+					for (size_t i = 0; i < vectorValue.size(); i++)
 					{
 						auto anyValue = ConvertComponentToInfo(vector[i]);
 						vectorValue[i] = std::any_cast<ComponentInfo>(anyValue);
@@ -397,7 +397,7 @@ namespace GALAXY
 					// If it's a list
 					std::vector<Core::GameObject*> vector = std::any_cast<std::vector<Core::GameObject*>>(variableValue);
 					std::vector<uint64_t> vectorValue(vector.size());
-					for (int i = 0; i < vectorValue.size(); i++)
+					for (size_t i = 0; i < vectorValue.size(); i++)
 					{
 						auto anyValue = ConvertGameObjectToID(vector[i]);
 						vectorValue[i] = std::any_cast<uint64_t>(anyValue);
@@ -417,7 +417,6 @@ namespace GALAXY
 		ASSERT(m_component);
 
 		auto afterVariables = m_component->GetAllVariables();
-		int i = 0;
 		for (auto& variable : afterVariables)
 		{
 			// Check if the variable is still there and if the variable has the same type
@@ -469,7 +468,7 @@ namespace GALAXY
 						auto listOfID = std::any_cast<std::vector<uint64_t>>(variableValue.first);
 						std::vector<Core::GameObject*> listOfGameObject(listOfID.size());
 						// Go trough all gameObjectIDs
-						for (int i = 0; i < listOfGameObject.size(); i++)
+						for (size_t i = 0; i < listOfGameObject.size(); i++)
 						{
 							std::any id = listOfID[i];
 							auto anyGameObject = ConvertIDToGameObject(id);
@@ -761,8 +760,6 @@ namespace GALAXY
 
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
 	{
-		if (!this)
-			return nullptr;
 		void* variableVoid = Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(this, GetComponentName(), variableName);
 		return variableVoid;
 	}

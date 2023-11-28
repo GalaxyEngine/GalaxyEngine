@@ -117,7 +117,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::RemoveScript(Weak<Resource::Script> script)
 	{
-		for (int i = 0; i < m_scripts.size(); i++) {
+		for (size_t i = 0; i < m_scripts.size(); i++) {
 			if (script.lock().get() == m_scripts[i].lock().get())
 			{
 				for (auto scriptComponent : m_registeredScriptComponents)
@@ -231,7 +231,7 @@ namespace GALAXY
 		// Load the new DLL
 		LoadDLL(m_dllPath, m_dllName);
 
-		for (int i = 0; i < reloaders.size(); i++)
+		for (size_t i = 0; i < reloaders.size(); i++)
 		{
 			auto& currentReloaderList = reloaders[i];
 			auto& currentComponentID = componentIDs[i];
@@ -340,7 +340,7 @@ namespace GALAXY
 
 	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName)
 	{
-		for (int i = 0; i < m_scripts.size(); i++)
+		for (size_t i = 0; i < m_scripts.size(); i++)
 		{
 			if (scriptName == m_scripts[i].lock()->GetFileInfo().GetFileNameNoExtension())
 			{

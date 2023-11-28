@@ -73,7 +73,7 @@ namespace GALAXY
 		private:
 			Path m_currentPath = std::filesystem::current_path();
 
-			FileDialogType m_fileDialogType;
+			FileDialogType m_fileDialogType = FileDialogType::Open;
 
 			Shared<TmpFile> m_currentFile;
 

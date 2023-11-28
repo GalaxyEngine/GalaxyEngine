@@ -167,7 +167,6 @@ void Editor::UI::Hierarchy::DisplayGameObject(Weak<GameObject> weakGO, uint64_t&
 			if (!object.lock())
 				continue;
 
-			Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
 			object.lock()->Destroy();
 		}
 	}

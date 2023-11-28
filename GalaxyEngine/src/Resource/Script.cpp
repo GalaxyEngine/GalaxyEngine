@@ -93,6 +93,7 @@ CLASS(%s)
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
+		//TODO : Move to os specific file + add linux support
 #ifdef _WIN32
 		// Find the Visual Studio window by its class name or window title
 		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string() + " - Microsoft Visual Studio";
@@ -120,7 +121,7 @@ CLASS(%s)
 			// No Visual Studio window found, open a new window
 			std::string newPath = path.string();
 			const std::string commandLineArgs = "\"" + path.string() + "\" /command \"Edit.OpenFile " + newPath + "\"";
-			HINSTANCE result = ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
+			ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
 		}
 #else
 #endif

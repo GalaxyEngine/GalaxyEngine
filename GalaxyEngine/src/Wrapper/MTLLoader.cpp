@@ -36,7 +36,8 @@ namespace GALAXY
 				std::string name;
 				iss >> name;
 				const std::filesystem::path& matFullPath = path.parent_path() / name.append(".mat");
-				if (currentMaterial = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Material>(matFullPath).lock())
+				currentMaterial = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Material>(matFullPath).lock();
+				if (currentMaterial)
 				{
 					// file .mat already exists, so skip this one to go to the next material
 					while (std::getline(file, line))

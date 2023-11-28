@@ -16,7 +16,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 	model.m_path = fullPath;
 	if (!model.Parse())
 		return;
-	for (int i = 0; i < model.m_meshes.size(); i++) {
+	for (size_t i = 0; i < model.m_meshes.size(); i++) {
 
 		const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, model.m_meshes[i].name);
 
@@ -35,7 +35,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		mesh->m_normals = model.m_meshes[i].normals;
 		mesh->m_indices = model.m_meshes[i].indices;
 		mesh->m_finalVertices = model.m_meshes[i].finalVertices;
-		for (int j = 0; j < model.m_meshes[i].subMeshes.size(); j++) {
+		for (size_t j = 0; j < model.m_meshes[i].subMeshes.size(); j++) {
 			Resource::SubMesh subMesh;
 			subMesh.startIndex = model.m_meshes[i].subMeshes[j].startIndex;
 			subMesh.count = model.m_meshes[i].subMeshes[j].count;

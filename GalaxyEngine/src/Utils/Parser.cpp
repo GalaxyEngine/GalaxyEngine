@@ -286,14 +286,12 @@ namespace GALAXY
 
 		std::string line;
 		std::unordered_map<std::string, std::string>* currentMap = nullptr;
-		bool ignoreNext = false;
 
 		while (std::getline(ss, line)) {
 			if (line.find(MAP_SEPARATOR_BEGIN) != std::string::npos)
 			{
 				m_valueMap.push_back({});
 				currentMap = &m_valueMap.back();
-				ignoreNext = true;
 			}
 
 			if (size_t pos = line.find("["); pos != std::string::npos)

@@ -86,5 +86,4 @@ namespace GALAXY::Debug {
 #define PrintWarning(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_WARNING, x, ##__VA_ARGS__);
 #define PrintError(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_ERROR, x, ##__VA_ARGS__);
 
-#define ASSERT(condition) \
-        assert(condition);
+#define ASSERT(condition) assert(condition);

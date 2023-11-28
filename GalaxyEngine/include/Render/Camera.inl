@@ -47,7 +47,6 @@ namespace GALAXY
 		Vec4f mousePosition = Vec4f(ToViewport(point), 1.f, 1.f);
 		Mat4 invVP = GetViewProjectionMatrix().CreateInverseMatrix();
 		Vec3f position = GetTransform()->GetWorldPosition();
-		Vec4f pos = (invVP * mousePosition);
 		return position + (invVP * mousePosition) * point.z;
 	}
 }

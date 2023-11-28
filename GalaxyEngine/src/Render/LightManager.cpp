@@ -21,13 +21,13 @@ namespace GALAXY
 	{
 		Shared<Component::Light> lightShared = light.lock();
 		// Check if inside the list
-		size_t freeIndex = -1;
+		size_t freeIndex = INDEX_NONE;
 
 		Component::Light::Type type = lightShared->GetLightType();
 		size_t startIndex = (size_t)type * MAX_LIGHT_NUMBER;
 		for (size_t i = startIndex; i < startIndex + MAX_LIGHT_NUMBER; i++)
 		{
-			if (freeIndex == -1 && m_instance->m_lights[i].lock() == nullptr)
+			if (freeIndex == INDEX_NONE && m_instance->m_lights[i].lock() == nullptr)
 			{
 				freeIndex = i - startIndex;
 			}
@@ -36,7 +36,7 @@ namespace GALAXY
 				return false;
 			}
 		}
-		if (freeIndex == -1)
+		if (freeIndex == INDEX_NONE)
 			return false;
 		m_instance->m_lights[startIndex + freeIndex] = light;
 		lightShared->SetIndex(freeIndex);
@@ -47,7 +47,7 @@ namespace GALAXY
 	void Render::LightManager::RemoveLight(Weak<Component::Light> light)
 	{
 		Shared<Component::Light> lightShared = light.lock();
-		if (lightShared->GetIndex() == -1)
+		if (lightShared->GetIndex() == INDEX_NONE)
 			return;
 
 		Component::Light::Type type = lightShared->GetLightType();
@@ -59,7 +59,7 @@ namespace GALAXY
 		{
 			m_instance->m_lights[indexInArray].reset();
 		}
-		lightShared->SetIndex(-1);
+		lightShared->SetIndex(INDEX_NONE);
 	}
 
 	void Render::LightManager::AddShader(Weak<Resource::Shader> shader)

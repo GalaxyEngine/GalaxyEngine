@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Utils/Define.h"
+
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
@@ -50,7 +52,7 @@ namespace GALAXY
 		if (std::count_if(m_childs.begin(), m_childs.end(), [&](const Shared<GameObject>& c)
 			{ return c == child; }) == 0)
 		{
-			if (index == -1)
+			if (index == INDEX_NONE)
 				m_childs.push_back(child);
 			else
 				m_childs.insert(m_childs.begin() + index, child);

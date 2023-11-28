@@ -25,7 +25,7 @@ namespace GALAXY {
 	{
 		if (!p_open)
 			return;
-		if (m_visible = ImGui::Begin("Scene", &p_open))
+		if ((m_visible = ImGui::Begin("Scene", &p_open)))
 		{
 			m_isFocused = ImGui::IsWindowFocused();
 			m_isHovered = ImGui::IsWindowHovered();

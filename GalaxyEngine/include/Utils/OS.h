@@ -1,7 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 
-#ifdef _WIN32
+#if defined(_WIN32) && defined(_MSC_VER)
 #pragma comment(lib, "Comdlg32.lib")
 #elif defined(__linux__)
 #define HANDLE_FILE_DIALOG

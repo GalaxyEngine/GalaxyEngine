@@ -79,7 +79,7 @@ namespace GALAXY
 
 			void UpdateFileWatcherDLL();
 
-			static enum class VariableType StringToVariableType(const std::string& typeName);
+			static VariableType StringToVariableType(const std::string& typeName);
 
 			Weak<class ScriptInstance> GetScriptInstance(const char* scriptName);
 

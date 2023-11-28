@@ -160,6 +160,8 @@ namespace GALAXY {
 					AddResource<Mesh>(meshPath);
 					break;
 				}
+				default :
+					break;
 				}
 			}
 		}
