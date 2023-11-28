@@ -11,7 +11,7 @@ namespace GALAXY
 
 	inline Mat4 Render::Camera::GetViewMatrix() const
 	{
-		Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, -1));
+		Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, 1));
 		out = out.CreateInverseMatrix();
 		return out;
 	}
@@ -28,6 +28,7 @@ namespace GALAXY
 		projectionMatrix[2][3] = -(2.0f * p_far * p_near) / (p_far - p_near);
 		projectionMatrix[3][3] = 0.0f;
 
+		return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
 		return projectionMatrix;
 	}
 

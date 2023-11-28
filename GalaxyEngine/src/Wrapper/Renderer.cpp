@@ -146,7 +146,7 @@ namespace GALAXY {
 		Vec3f forward = rotation * Math::Vec3f::Forward();
 		float h = 25.f;
 		angle = angle * DegToRad;
-		float radius = topRadius + h * std::tanf(angle);
+		float radius = topRadius + h * std::tan(angle);
 		DrawWireCircle(pos, forward, topRadius, 32, color, lineWidth);
 		DrawWireCircle(pos + forward * h, forward, radius, 32, color, lineWidth);
 		DrawLine(pos + rotation * Vec3f::Up() * topRadius, pos + rotation * (Vec3f::Up() * radius + Vec3f::Forward() * h), color, lineWidth);

@@ -88,7 +88,7 @@ namespace GALAXY
 			virtual void ShaderSendVec2i(uint32_t location, const Vec2i& value) {}
 			virtual void ShaderSendVec3i(uint32_t location, const Vec3i& value) {}
 			virtual void ShaderSendVec4i(uint32_t location, const Vec4i& value) {}
-			virtual void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = true) {}
+			virtual void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) {}
 
 			// === Buffers === //
 			virtual void CreateVertexArray(uint32_t& vao) {}

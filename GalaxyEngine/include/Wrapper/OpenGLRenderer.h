@@ -46,7 +46,7 @@ namespace GALAXY
 			void ShaderSendVec2i(uint32_t location, const Vec2i& value) override;
 			void ShaderSendVec3i(uint32_t location, const Vec3i& value) override;
 			void ShaderSendVec4i(uint32_t location, const Vec4i& value) override;
-			void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = true) override;
+			void ShaderSendMat4(uint32_t location, const Mat4& value, bool transpose = false) override;
 
 			// === Buffers === //
 			void CreateVertexArray(uint32_t& vao) override;

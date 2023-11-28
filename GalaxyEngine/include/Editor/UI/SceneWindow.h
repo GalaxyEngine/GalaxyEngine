@@ -35,8 +35,8 @@ namespace GALAXY
 			bool m_isHovered = false;
 			bool m_isFocused = false;
 
-			Vec2i m_imagePosition = 0;
-			Vec2i m_imageSize = 0;
+			Vec2i m_imagePosition = Vec2i(0);
+			Vec2i m_imageSize = Vec2i(0);
 
 			std::weak_ptr<Resource::Texture> m_settingsIcon;
 			std::weak_ptr<Resource::Texture> m_menuIcon;

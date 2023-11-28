@@ -1,7 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
-#include <galaxymath/Maths.h>
+//#include <galaxymath/Maths.h>
 
 namespace GALAXY {
 	enum class Space

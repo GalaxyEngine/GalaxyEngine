@@ -9,7 +9,7 @@ end
 add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 
 -- Packages
-add_requires("galaxymath v1.1")
+add_requires("galaxymath ~1.1")
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
@@ -68,4 +68,5 @@ target("GalaxyCore")
     add_deps("GalaxyEngine")
     add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
+    add_packages("galaxymath")
 target_end()

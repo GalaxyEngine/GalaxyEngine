@@ -6,7 +6,7 @@ struct GLFWwindow;
 #include <Windows.h>
 #endif
 
-#include <galaxymath/Maths.h>
+//#include <galaxymath/Maths.h>
 
 namespace GALAXY
 {

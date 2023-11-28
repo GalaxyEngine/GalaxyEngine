@@ -438,8 +438,6 @@ namespace GALAXY
 			}
 		}
 
-		PrintLog("distance: %f", distance);
-
 		if (distance > 1.f)
 		{
 			m_axis = GizmoAxis::None;

@@ -93,15 +93,15 @@ namespace GALAXY
 	void Resource::Shader::Recompile()
 	{
 		PrintLog("Recompile shader: %s", p_fileInfo.GetFullPath().string().c_str());
-		if (Shared<VertexShader>& vertShader = std::get<0>(p_subShaders).lock())
+		if (Shared<VertexShader> vertShader = std::get<0>(p_subShaders).lock())
 		{
 			vertShader->Recompile();
 		}
-		if (Shared<GeometryShader>& geomShader = std::get<1>(p_subShaders).lock())
+		if (Shared<GeometryShader> geomShader = std::get<1>(p_subShaders).lock())
 		{
 			geomShader->Recompile();
 		}
-		if (Shared<FragmentShader>& fragShader = std::get<2>(p_subShaders).lock())
+		if (Shared<FragmentShader> fragShader = std::get<2>(p_subShaders).lock())
 		{
 			fragShader->Recompile();
 		}
