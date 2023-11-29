@@ -97,7 +97,9 @@ namespace GALAXY {
 		}
 		case Resource::ResourceType::Data:
 		{
-			if (!Utils::FileSystem::FileExistNoExtension(resourcePath)) {
+			Path path = resourcePath.parent_path() / resourcePath.stem();
+			if (!std::filesystem::exists(path)) {
+				// remove if resource not exist buf data file exist
 				Utils::FileSystem::RemoveFile(resourcePath);
 				break;
 			}
@@ -117,7 +119,7 @@ namespace GALAXY {
 
 	bool Resource::ResourceManager::CheckForDataFile(const Path& resourcePath)
 	{
-		Path dataFilePath = resourcePath.parent_path() / (resourcePath.stem().string() + ".gdata");
+		Path dataFilePath = resourcePath.string() + ".gdata";
 
 		bool exist = std::filesystem::exists(dataFilePath);
 		if (!exist)
@@ -148,7 +150,7 @@ namespace GALAXY {
 			{
 				process = true;
 				iss >> originFilePath;
-				type = Utils::FileInfo::GetTypeFromExtension(originFilePath.extension());
+				type = Utils::FileInfo::GetTypeFromExtension(dataPath.stem().extension());
 			}
 			else if (process)
 			{

@@ -30,8 +30,7 @@ namespace GALAXY {
 
 	void Resource::Model::CreateDataFiles()
 	{
-		auto fileWithoutExt = p_fileInfo.GetFullPath().parent_path() / p_fileInfo.GetFileNameNoExtension();
-		std::filesystem::path path = fileWithoutExt.wstring() + L".gdata";
+		std::filesystem::path path = p_fileInfo.GetFullPath().string() + ".gdata";
 		std::ofstream file = Utils::FileSystem::GenerateFile(path);
 		if (file.is_open()) {
 			file << "Origin: " << p_fileInfo.GetRelativePath().generic_string() << std::endl;
