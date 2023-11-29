@@ -4,6 +4,8 @@
 #include <Wrapper/Window.h>
 #include <Utils/Type.h>
 
+#include "Editor/EditorSettings.h"
+
 #include <deque>
 #include <filesystem>
 
@@ -42,10 +44,11 @@ namespace GALAXY
 
 			inline Wrapper::Window* GetWindow() { return m_window.get(); }
 
+			inline Editor::EditorSettings& GetEditorSettings() { return m_editorSettings; }
+
 			inline bool* GetDrawGridPtr() { return &m_drawGrid; }
 
 			void Exit();
-
 		private:
 			static Application m_instance;
 
@@ -56,6 +59,7 @@ namespace GALAXY
 			Core::SceneHolder* m_sceneHolder = nullptr;
 
 			Editor::UI::EditorUIManager* m_editorUI = nullptr;
+			Editor::EditorSettings m_editorSettings;
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;
 
 			Render::LightManager* m_lightManager = nullptr;

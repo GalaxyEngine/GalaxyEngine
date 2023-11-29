@@ -70,6 +70,10 @@ namespace GALAXY {
 		// Initialize Light Manager
 		m_lightManager = Render::LightManager::GetInstance();
 
+		// Initialize Scripting
+		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
+
+
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
 		m_resourceManager->m_projectPath = projectPath.parent_path();
@@ -87,8 +91,7 @@ namespace GALAXY {
 		Editor::UI::EditorUIManager::Initialize();
 		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
 
-		// Initialize Scripting
-		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
+		// Load dll scripting
 		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
 
 		// Initialize Components

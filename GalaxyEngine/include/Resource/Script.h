@@ -26,7 +26,8 @@ namespace GALAXY
 			static inline ResourceType GetResourceType() { return ResourceType::Script; }
 
 		private:
-
+			static void OpenWithVSCode(const Path& path);
+			static void OpenWithVS(const Path& path);
 		};
 	}
 }

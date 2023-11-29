@@ -24,6 +24,7 @@ namespace GALAXY
 	void Editor::UI::MainBar::Draw()
 	{
 		static auto editorInstance = EditorUIManager::GetInstance();
+		static Editor::EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -64,10 +65,17 @@ namespace GALAXY
 				}
 				ImGui::EndMenu();
 			}
+			bool openEditorSettings = false;
 			if (ImGui::BeginMenu("Edit"))
 			{
+				openEditorSettings = ImGui::MenuItem("Editor Settings");
 				ImGui::EndMenu();
 			}
+			if (openEditorSettings)
+			{
+				ImGui::OpenPopup("EditorSettings");
+			}
+			settings.Draw();
 			if (ImGui::BeginMenu("Window"))
 			{
 				ImGui::MenuItem("Hierarchy", NULL, &editorInstance->GetHierarchy()->p_open);

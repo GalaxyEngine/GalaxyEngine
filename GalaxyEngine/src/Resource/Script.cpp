@@ -2,6 +2,8 @@
 #include "Resource/Script.h"
 #include "Resource/ResourceManager.h"
 
+#include "Editor/EditorSettings.h"
+
 #include "Scripting/ScriptEngine.h"
 namespace GALAXY
 {
@@ -39,6 +41,8 @@ CLASS(%s)
 		std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
 		Scripting::ScriptEngine::GetInstance()->AddScript(resource);
 		p_loaded = true;
+
+		//OpenScript(GetFileInfo().GetFullPath());
 	}
 
 	void Resource::Script::Unload()
@@ -72,6 +76,38 @@ CLASS(%s)
 		return Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".h");
 	}
 
+	void Resource::Script::OpenScript(const Path& path)
+	{
+		switch (Editor::EditorSettings::GetInstance().GetExternalTool())
+		{
+		case Editor::ExternalTool::VisualStudio:
+		{
+			OpenWithVS(path);
+			break;
+		}
+		case Editor::ExternalTool::VisualStudioCode:
+		{
+			OpenWithVSCode(path);
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	//TODO : Move to os specific file + add linux support
+
+	void Resource::Script::OpenWithVSCode(const Path& path)
+	{
+#ifdef _WIN32
+		std::string command = path.string();
+		std::string env = "code";
+
+		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
+#else
+		//TODO
+#endif
+	}
+
 #ifdef _WIN32
 	BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
 		char windowTitle[256];
@@ -91,9 +127,8 @@ CLASS(%s)
 	}
 #endif
 
-	void Resource::Script::OpenScript(const Path& path)
+	void Resource::Script::OpenWithVS(const Path& path)
 	{
-		//TODO : Move to os specific file + add linux support
 #ifdef _WIN32
 		// Find the Visual Studio window by its class name or window title
 		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string() + " - Microsoft Visual Studio";
@@ -124,6 +159,7 @@ CLASS(%s)
 			ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
 		}
 #else
+		//TODO
 #endif
 	}
 
