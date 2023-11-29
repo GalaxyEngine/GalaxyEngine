@@ -87,8 +87,11 @@ namespace GALAXY {
 
 	void Editor::UI::SceneWindow::DrawImage()
 	{
-		auto renderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetRenderTexture().lock().get();
-		auto outlineRenderTexture = Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
+		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+		if (!currentScene->HasBeenSent())
+			return;
+		auto renderTexture = currentScene->GetEditorCamera()->GetRenderTexture().lock().get();
+		auto outlineRenderTexture = currentScene->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
 
 		if (!renderTexture || !outlineRenderTexture)
 			return;

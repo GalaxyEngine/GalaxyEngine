@@ -28,7 +28,7 @@ namespace GALAXY {
 		{
 		public:
 			Scene(const Path& path);
-			Scene& operator=(const Scene& other) { return *this; }
+			Scene& operator=(const Scene& other) = default;
 			Scene(const Scene&) = default;
 			Scene(Scene&&) noexcept = default;
 			virtual ~Scene();

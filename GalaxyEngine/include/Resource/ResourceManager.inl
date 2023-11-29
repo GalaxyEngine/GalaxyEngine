@@ -164,7 +164,7 @@ namespace GALAXY
 		}
 
 		Shared<IResource> resource = m_instance->m_resources.at(relativePath);
-		Shared<T> resourcePtr = dynamic_pointer_cast<T>(resource);
+		T* resourcePtr = dynamic_pointer_cast<T>(resource).get();
 		*resourcePtr = T(fullPath);
 
 		return GetOrLoad<T>(fullPath);

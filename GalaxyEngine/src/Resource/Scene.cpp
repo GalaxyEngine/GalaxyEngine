@@ -49,7 +49,6 @@ namespace GALAXY
 		m_grid->Initialize();
 		p_hasBeenSent = true;
 
-
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 	}
 
@@ -60,8 +59,11 @@ namespace GALAXY
 		static Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
 		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 		static Render::LightManager* lightManager = Render::LightManager::GetInstance();
-
-		Editor::UI::EditorUIManager::GetInstance()->DrawUI();
+		static Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
+		
+		editorUIManager->DrawUI();
+		if (!HasBeenSent()) // if it reload the current scene from the Main Bar menu
+			return;
 
 		m_root->UpdateSelfAndChild();
 
@@ -160,6 +162,7 @@ namespace GALAXY
 		p_shouldBeLoaded = true;
 
 		Utils::Parser parser(GetFileInfo().GetFullPath());
+		m_root->m_scene = this;
 		m_root->Deserialize(parser);
 
 		p_loaded = true;

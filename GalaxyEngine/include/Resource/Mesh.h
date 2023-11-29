@@ -26,8 +26,7 @@ namespace GALAXY
 			void Load() override;
 			void Send() override;
 
-			void Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials, uint64_t id = -1);
-			void RenderBillboard(const Mat4& modelMatrix, const std::vector<std::weak_ptr<class Material>>& materials, uint64_t id = -1);
+			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, uint64_t id = -1);
 
 			void DrawBoundingBox(Component::Transform* transform);
 
@@ -37,6 +36,7 @@ namespace GALAXY
 			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
 		private:
 			void ComputeBoundingBox();
+
 		private:
 			friend Wrapper::OBJLoader;
 			friend class Model;

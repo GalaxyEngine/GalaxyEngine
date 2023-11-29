@@ -60,7 +60,7 @@ namespace GALAXY
 		// Check if the current object is already a parent of the child
 		if (child->m_parent.lock().get() != this)
 		{
-			child->SetParent(weak_from_this());
+			child->SetParent(Weak<GameObject>(weak_from_this()));
 		}
 
 	}

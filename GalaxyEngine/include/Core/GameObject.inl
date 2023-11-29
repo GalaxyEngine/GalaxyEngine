@@ -38,7 +38,7 @@ namespace GALAXY {
 	}
 
 	template<typename T>
-	inline std::weak_ptr<T> Core::GameObject::AddComponent()
+	inline Weak<T> Core::GameObject::AddComponent()
 	{
 		if (!std::is_base_of<Component::BaseComponent, T>::value) {
 			PrintError("Incorrect Type for component");

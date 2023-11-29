@@ -53,7 +53,7 @@ namespace GALAXY {
 		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 	}
 
-	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<std::weak_ptr<Resource::Material>>& materials, uint64_t id /*= -1*/)
+	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/)
 	{
 		if (!HasBeenSent() || !IsLoaded())
 			return;

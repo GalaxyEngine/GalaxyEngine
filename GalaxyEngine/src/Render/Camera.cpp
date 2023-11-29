@@ -73,17 +73,17 @@ namespace GALAXY
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
 	}
 
-	std::weak_ptr<Resource::Texture> Render::Camera::GetRenderTexture() const
+	Weak<Resource::Texture> Render::Camera::GetRenderTexture() const
 	{
 		return m_framebuffer->GetRenderTexture();
 	}
 
-	std::shared_ptr<Render::EditorCamera> Render::Camera::GetEditorCamera()
+	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}
 
-	std::weak_ptr<Render::Camera> Render::Camera::GetCurrentCamera()
+	Weak<Render::Camera> Render::Camera::GetCurrentCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
 	}

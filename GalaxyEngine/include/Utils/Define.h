@@ -21,4 +21,4 @@
 #define NONE_RESOURCE "None"
 #define MAX_LIGHT_NUMBER 8
 
-#define INDEX_NONE static_cast<size_t>(-1)
+#define INDEX_NONE -1

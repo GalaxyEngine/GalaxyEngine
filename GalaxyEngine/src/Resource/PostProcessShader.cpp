@@ -17,7 +17,7 @@ namespace GALAXY
 			return;
 		p_shouldBeLoaded = true;
 
-		std::weak_ptr<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
+		Weak<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
 		auto vertexShader = ResourceManager::GetInstance()->GetOrLoad<VertexShader>(VERTEX_PP_PATH);
 		SetVertex(vertexShader.lock(), thisShader);
 
