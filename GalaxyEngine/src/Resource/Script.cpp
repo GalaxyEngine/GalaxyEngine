@@ -78,14 +78,14 @@ CLASS(%s)
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
-		switch (Editor::EditorSettings::GetInstance().GetExternalTool())
+		switch (Editor::EditorSettings::GetInstance().GetScriptEditorTool())
 		{
-		case Editor::ExternalTool::VisualStudio:
+		case Editor::ScriptEditorTool::VisualStudio:
 		{
 			OpenWithVS(path);
 			break;
 		}
-		case Editor::ExternalTool::VisualStudioCode:
+		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
 			OpenWithVSCode(path);
 			break;

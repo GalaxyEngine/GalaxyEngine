@@ -152,7 +152,7 @@ namespace GALAXY {
 		if (!p_open)
 			return;
 
-		const int iconSize = 86;
+		int iconSize = 86 * Wrapper::GUI::GetScaleFactor();
 		const int space = 15;
 		const int textLength = 9;
 		bool openRightClick = false;

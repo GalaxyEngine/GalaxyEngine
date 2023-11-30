@@ -178,8 +178,10 @@ namespace GALAXY {
 			m_errorNumber++;
 			break;
 		}
-
+		//TODO : Test this
+		Core::ThreadManager::Lock();
 		m_texts.push_back(Debug::LogText(type, text));
+		Core::ThreadManager::Unlock();
 	}
 
 	void Editor::UI::Console::Clear()

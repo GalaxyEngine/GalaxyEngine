@@ -48,6 +48,7 @@ namespace GALAXY
 
 			// --- Callbacks --- //
 			static void ResizeCallback(GLFWwindow* window, int width, int height);
+			static void MoveCallback(GLFWwindow* window, int xpos, int ypos);
 
 			void Create(const WindowConfig& config);
 			void Destroy();
@@ -72,17 +73,23 @@ namespace GALAXY
 			bool ShouldClose();
 			void Close();
 
-			[[nodiscard]] void* GetWindow() { return m_window; }
+			[[nodiscard]] void* GetWindow() const { return m_window; }
 
 #ifdef _WIN32
-			HWND GetWindowWIN32();
+			HWND GetWindowWIN32() const;
 #endif
+			void ComputeScale();
 
+			float GetScreenScale() const;
+
+			void* GetCurrentMonitor() const;
 		private:
 			int CursorModeToAPI(CursorMode mode);
 
-			void* m_window;
+			void* m_window = nullptr;
 			bool m_vsync = true;
+
+			float m_scale = 1.0f;
 
 		};
 	}

@@ -12,6 +12,10 @@ namespace GALAXY {
 		{
 			void Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version);
 			void UnInitalize();
+
+			void SetDefaultFontSize(float pixel_size);
+			void SetTheme();
+
 			void NewFrame();
 			void EndFrame(const std::unique_ptr<Wrapper::Window>& window);
 
@@ -45,6 +49,7 @@ namespace GALAXY {
 			bool Button(const char* buttonName, Vec2f buttonSize = Vec2f(0));
 			void SameLine();
 
+			float GetScaleFactor();
 		}
 	}
 }

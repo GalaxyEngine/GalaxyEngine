@@ -96,7 +96,7 @@ namespace GALAXY
 			}
 
 			// Custom operator= for move assignment
-			StringSerializer& operator=(StringSerializer&& other) {
+			StringSerializer& operator=(StringSerializer&& other) noexcept {
 				if (this != &other) {
 					m_content = std::move(other.m_content);
 				}

@@ -10,6 +10,8 @@
 #include <GLFW/glfw3native.h>
 #endif
 
+#include "Core/Application.h"
+
 namespace GALAXY {
 	static bool s_initialized = false;
 	Wrapper::Window::~Window()
@@ -66,6 +68,9 @@ namespace GALAXY {
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwMakeContextCurrent(glfwWindow);
 		glfwSetFramebufferSizeCallback(glfwWindow, &ResizeCallback);
+		glfwSetWindowPosCallback(glfwWindow, &MoveCallback);
+
+		ComputeScale();
 	}
 
 	void Wrapper::Window::Destroy()
@@ -138,10 +143,12 @@ namespace GALAXY {
 	void Wrapper::Window::SetFullscreen(bool enable)
 	{
 		static Vec2i prevSize;
+		static Vec2i prevPos;
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		if (enable) {
+			prevPos = GetPosition();
 			prevSize = GetSize();
-			GLFWmonitor* primary = glfwGetPrimaryMonitor();
+			GLFWmonitor* primary = static_cast<GLFWmonitor*>(GetCurrentMonitor());
 
 			const GLFWvidmode* mode = glfwGetVideoMode(primary);
 
@@ -150,10 +157,10 @@ namespace GALAXY {
 		}
 		else
 		{
-			GLFWmonitor* primary = glfwGetPrimaryMonitor();
+			GLFWmonitor* primary = static_cast<GLFWmonitor*>(GetCurrentMonitor());
 			const GLFWvidmode* mode = glfwGetVideoMode(primary);
-			glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, (int)prevSize.x, (int)prevSize.y, 0);
-			glfwSetWindowPos(glfwWindow, 100, 100);
+			glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, prevSize.x, prevSize.y, 0);
+			glfwSetWindowPos(glfwWindow, prevPos.x, prevPos.y);
 		}
 	}
 
@@ -166,9 +173,14 @@ namespace GALAXY {
 		}
 	}
 
+	void Wrapper::Window::MoveCallback(GLFWwindow* window, int xpos, int ypos)
+	{
+		Core::Application::GetInstance().GetWindow()->ComputeScale();
+	}
+
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, bool physicalPos /*= false*/)
 	{
-    	GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
+		GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
 		int cursorMode;
 		cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -220,11 +232,67 @@ namespace GALAXY {
 	}
 
 #ifdef _WIN32
-	HWND Wrapper::Window::GetWindowWIN32()
+	HWND Wrapper::Window::GetWindowWIN32() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		return glfwGetWin32Window(glfwWindow);
 	}
 #endif
+
+	void Wrapper::Window::ComputeScale()
+	{
+#ifdef _WIN32
+		HWND hwnd = GetWindowWIN32();
+
+		int dpi = GetDpiForWindow(hwnd);
+
+		m_scale = dpi / 96.f;
+#else
+		//TODO:
+#endif
+	}
+
+	float Wrapper::Window::GetScreenScale() const
+	{
+		return m_scale;
+	}
+
+
+	void* Wrapper::Window::GetCurrentMonitor() const
+	{
+		int nmonitors, i;
+		int wx, wy, ww, wh;
+		int mx, my, mw, mh;
+		int overlap, bestoverlap;
+		GLFWmonitor* bestmonitor;
+		GLFWmonitor** monitors;
+		const GLFWvidmode* mode;
+
+		bestoverlap = 0;
+		bestmonitor = NULL;
+
+		glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &wx, &wy);
+		glfwGetWindowSize(static_cast<GLFWwindow*>(m_window), &ww, &wh);
+		monitors = glfwGetMonitors(&nmonitors);
+
+		for (i = 0; i < nmonitors; i++) {
+			mode = glfwGetVideoMode(monitors[i]);
+			glfwGetMonitorPos(monitors[i], &mx, &my);
+			mw = mode->width;
+			mh = mode->height;
+
+			overlap =
+				std::max(0, std::min(wx + ww, mx + mw) - std::max(wx, mx)) *
+				std::max(0, std::min(wy + wh, my + mh) - std::max(wy, my));
+
+			if (bestoverlap < overlap) {
+				bestoverlap = overlap;
+				bestmonitor = monitors[i];
+			}
+		}
+
+		return bestmonitor;
+
+	}
 
 }

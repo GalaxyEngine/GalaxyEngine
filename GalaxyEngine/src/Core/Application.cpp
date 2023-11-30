@@ -139,16 +139,16 @@ namespace GALAXY {
 	{
 		while (!m_window->ShouldClose())
 		{
+			//TODO : Fix outline framebuffer scale on FHD screen 24''
+			//TODO : Fix this
+			Wrapper::GUI::SetDefaultFontSize(13 * Wrapper::GUI::GetScaleFactor());
+
 			Wrapper::Window::PollEvent();
 			Wrapper::GUI::NewFrame();
 
 			if (Input::IsKeyPressed(Key::F11))
 			{
 				m_window->ToggleFullscreen();
-			}
-			if (Input::IsKeyPressed(Key::F5))
-			{
-				m_resourceManager->GetLitShader().lock()->Recompile();
 			}
 			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C))
 			{

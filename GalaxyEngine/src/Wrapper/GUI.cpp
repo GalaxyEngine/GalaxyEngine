@@ -6,6 +6,11 @@
 
 #include "Resource/Texture.h"
 
+#include "Core/Application.h"
+#include "Wrapper/Window.h"
+
+#include <set>
+
 namespace GALAXY {
 	static bool s_initialized = false;
 	void Wrapper::GUI::Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
@@ -22,10 +27,12 @@ namespace GALAXY {
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
-		// Setup Platform/Renderer backends
+		// Setup Platform/Renderer back ends
 		GLFWwindow* windowPtr = static_cast<GLFWwindow*>(window->GetWindow());
 		ImGui_ImplGlfw_InitForOpenGL(windowPtr, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
+
+		SetTheme();
 
 		PrintLog("Initalized ImGui %s", IMGUI_VERSION);
 		s_initialized = true;
@@ -38,6 +45,80 @@ namespace GALAXY {
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+	}
+
+	static float current_fontSize;
+	void Wrapper::GUI::SetDefaultFontSize(float pixelSize)
+	{
+		static ImGuiIO& io = ImGui::GetIO();
+
+		if (pixelSize == current_fontSize)
+			return;
+		// Create a new ImFontConfig
+		ImFontConfig config;
+		config.SizePixels = pixelSize;
+		config.OversampleH = config.OversampleV = 1;
+		config.PixelSnapH = true;    
+
+		// Load the new font
+		io.Fonts->AddFontDefault(&config);
+	}
+
+	void Wrapper::GUI::SetTheme()
+	{
+		// ChatGPT generated theme
+		ImVec4* colors = ImGui::GetStyle().Colors;
+
+		// Darken the entire color palette
+		for (int i = 0; i < ImGuiCol_COUNT; i++) {
+			ImVec4& color = colors[i];
+			color.x *= 0.7f;
+			color.y *= 0.7f;
+			color.z *= 0.7f;
+		}
+
+		colors[ImGuiCol_Text] = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
+		colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.90f);
+		colors[ImGuiCol_Border] = ImVec4(0.50f, 0.50f, 0.50f, 0.50f);
+		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+		colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
+		colors[ImGuiCol_FrameBgHovered] = ImVec4(0.31f, 0.31f, 0.31f, 0.80f);
+		colors[ImGuiCol_FrameBgActive] = ImVec4(0.41f, 0.41f, 0.41f, 0.80f);
+		colors[ImGuiCol_TitleBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
+		colors[ImGuiCol_MenuBarBg] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+		colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
+		colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+		colors[ImGuiCol_CheckMark] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+		colors[ImGuiCol_SliderGrab] = ImVec4(0.51f, 0.51f, 0.51f, 1.00f);
+		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.71f, 0.71f, 0.71f, 1.00f);
+		colors[ImGuiCol_Button] = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
+		colors[ImGuiCol_ButtonHovered] = ImVec4(0.31f, 0.31f, 0.31f, 0.80f);
+		colors[ImGuiCol_ButtonActive] = ImVec4(0.41f, 0.41f, 0.41f, 0.80f);
+		colors[ImGuiCol_Header] = ImVec4(0.31f, 0.31f, 0.31f, 0.80f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.80f);
+		colors[ImGuiCol_HeaderActive] = ImVec4(0.51f, 0.51f, 0.51f, 0.80f);
+		colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
+		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.70f, 0.70f, 0.70f, 0.60f);
+		colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.90f, 0.90f, 0.60f);
+		colors[ImGuiCol_ResizeGrip] = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.70f, 0.70f, 0.70f, 0.60f);
+		colors[ImGuiCol_ResizeGripActive] = ImVec4(0.90f, 0.90f, 0.90f, 0.60f);
+		colors[ImGuiCol_PlotLines] = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
+		colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
+		colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
+		colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.60f, 0.00f, 1.00f);
+		colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
+		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
+		colors[ImGuiCol_Tab] = ImVec4(0.20f, 0.20f, 0.20f, 0.86f);
+		colors[ImGuiCol_TabHovered] = ImVec4(0.40f, 0.40f, 0.40f, 0.80f);
+		colors[ImGuiCol_TabActive] = ImVec4(0.46f, 0.46f, 0.46f, 0.91f);
+		colors[ImGuiCol_TabUnfocused] = ImVec4(0.07f, 0.07f, 0.07f, 0.97f);
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 0.97f);
 	}
 
 	void Wrapper::GUI::NewFrame()
@@ -100,7 +181,7 @@ namespace GALAXY {
 	}
 
 	void Wrapper::GUI::SetNextItemOpen(bool open /*= true*/)
-{
+	{
 		ImGui::SetNextItemOpen(open);
 	}
 
@@ -134,6 +215,11 @@ namespace GALAXY {
 		ImGui::SameLine();
 	}
 
+	float Wrapper::GUI::GetScaleFactor()
+	{
+		return Core::Application::GetInstance().GetWindow()->GetScreenScale();
+	}
+
 	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
 	{
 		static bool _lock = false;
@@ -142,7 +228,6 @@ namespace GALAXY {
 		{
 			float value = values[0];
 			ImGuiIO& io = ImGui::GetIO();
-			auto boldFont = io.Fonts->Fonts[0];
 
 			ImGui::PushID(label.c_str());
 
@@ -161,10 +246,8 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("X", buttonSize))
 				values[0] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -172,10 +255,8 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("Y", buttonSize))
 				values[0] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -184,10 +265,8 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("Z", buttonSize))
 				values[0] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -207,7 +286,6 @@ namespace GALAXY {
 		else
 		{
 			ImGuiIO& io = ImGui::GetIO();
-			auto boldFont = io.Fonts->Fonts[0];
 
 			ImGui::PushID(label.c_str());
 
@@ -219,16 +297,14 @@ namespace GALAXY {
 			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			float lineHeight = GImGui->Font->FontSize * GetScaleFactor() + GImGui->Style.FramePadding.y * 2.0f;
 			ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("X", buttonSize))
 				values[0] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -240,10 +316,8 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.3f, 0.8f, 0.3f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.2f, 0.7f, 0.2f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("Y", buttonSize))
 				values[1] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -255,10 +329,8 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.2f, 0.35f, 0.9f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4{ 0.1f, 0.25f, 0.8f, 1.0f });
-			ImGui::PushFont(boldFont);
 			if (ImGui::Button("Z", buttonSize))
 				values[2] = resetValue;
-			ImGui::PopFont();
 			ImGui::PopStyleColor(3);
 
 			ImGui::SameLine();
@@ -295,7 +367,6 @@ namespace GALAXY {
 						auto cloned = component->Clone();
 						return cloned;
 					}
-
 				}
 			}
 			ImGui::EndPopup();
@@ -307,7 +378,7 @@ namespace GALAXY {
 	{
 		if (!texture->HasBeenSent())
 			return false;
-		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size);
+		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size * GetScaleFactor());
 	}
 
 	bool Wrapper::GUI::TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 /*= {0, 0}*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
@@ -421,5 +492,7 @@ namespace GALAXY {
 		bb.Max = bb.Min + ImGui::CalcItemSize(split_vertically ? ImVec2(thickness, splitter_long_axis_size) : ImVec2(splitter_long_axis_size, thickness), 0.0f, 0.0f);
 		return ImGui::SplitterBehavior(bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, size1, size2, min_size1, min_size2, 0.0f);
 	}
+
+
 
 }

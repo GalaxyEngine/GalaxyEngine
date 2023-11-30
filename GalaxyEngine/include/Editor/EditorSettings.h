@@ -4,7 +4,29 @@ namespace GALAXY
 {
 	namespace Editor
 	{
-		enum class ExternalTool
+		enum class EditorSettingsTab
+		{
+			General = 0,
+			ExternalTool,
+			Appearance,
+		};
+
+		inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
+		{
+			switch (tab)
+			{
+			case EditorSettingsTab::General:
+				return "General";
+			case EditorSettingsTab::ExternalTool:
+				return "External Tool";
+			case EditorSettingsTab::Appearance:
+				return "Appearance";
+			default:
+				return "Invalid";
+			}
+		}
+
+		enum class ScriptEditorTool
 		{
 			None = 0,
 #ifdef _WIN32
@@ -13,7 +35,7 @@ namespace GALAXY
 			VisualStudioCode = 2
 		};
 
-		inline const char* SerializeExternalToolEnum()
+		inline const char* SerializeScriptEditorToolEnum()
 		{
 #ifdef _WIN32
 			return "None\0Visual Studio\0Visual Studio Code";
@@ -32,18 +54,26 @@ namespace GALAXY
 
 			void Draw();
 
-			ExternalTool GetExternalTool() const { return m_externalTool; }
-			void SetExternalTool(ExternalTool val) { m_externalTool = val; }
+			void AddListElement(EditorSettingsTab tab);
+
+			void DisplayTab(EditorSettingsTab tab);
+			void DisplayExternalToolTab();
+			void DisplayAppearanceTab();
+
+			ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
+			void SetScriptEditorTool(ScriptEditorTool val) { m_scriptEditorTool = val; }
 
 			void SaveSettings();
 			void LoadSettings();
 
 		private:
 			bool m_firstUpdate = false;
+
+			EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
 #if defined(_WIN32)
-			ExternalTool m_externalTool = ExternalTool::VisualStudio;
+			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudio;
 #else
-			ExternalTool m_externalTool = ExternalTool::VisualStudioCode;
+			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
 #endif
 		};
 	}

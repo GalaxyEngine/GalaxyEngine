@@ -4,6 +4,8 @@
 #include "Editor/UI/SceneWindow.h"
 #include "Editor/UI/Hierarchy.h"
 
+#include "Core/Application.h"
+
 namespace GALAXY {
 	Unique<Editor::UI::EditorUIManager> Editor::UI::EditorUIManager::m_instance;
 

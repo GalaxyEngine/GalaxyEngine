@@ -74,7 +74,7 @@ namespace GALAXY
 
 			// Outline 
 			{
-				auto outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
+				Render::Framebuffer* outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
 				outlineFrameBuffer->Begin();
 
 				renderer->ClearColorAndBuffer(Vec4f(0));
