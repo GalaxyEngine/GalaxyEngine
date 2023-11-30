@@ -54,6 +54,8 @@ namespace GALAXY {
 		m_window->Create(windowConfig);
 		m_window->SetVSync(false);
 
+		m_editorSettings.LoadSettings();
+
 		Input::Initialize();
 
 		// Initialize GUI Lib

@@ -270,6 +270,7 @@ namespace GALAXY
 		if (!file.is_open()) {
 			PrintError("File %s could'nt be open", path.string().c_str());
 			file.close();
+			m_fileOpen = false;
 			return;
 		}
 		// Get file content
@@ -278,6 +279,7 @@ namespace GALAXY
 		ParseContent(content);
 
 		file.close();
+		m_fileOpen = true;
 	}
 
 	void Utils::Parser::ParseContent(const std::string& content)

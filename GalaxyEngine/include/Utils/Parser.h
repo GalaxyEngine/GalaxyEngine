@@ -14,9 +14,9 @@ namespace GALAXY
 			VALUE,
 			BEGIN_TAB,
 			END_TAB,
-			BEGIN_MAP,
-			END_MAP,
-			TITLE,
+		BEGIN_MAP,
+		END_MAP,
+		TITLE,
 		};
 
 		class Serializer
@@ -117,6 +117,8 @@ namespace GALAXY
 			Parser(const std::string& content);
 			Parser(const std::filesystem::path& path);
 
+			bool IsFileOpen() const { return m_fileOpen; }
+
 			void ParseFile(const std::filesystem::path& path);
 			void ParseContent(const std::string& content);
 			void PrintData();
@@ -131,6 +133,8 @@ namespace GALAXY
 			List<UMap<std::string, std::string>> m_valueMap;
 
 			size_t m_currentDepth = 0;
+
+			bool m_fileOpen = false;
 		};
 
 	}
