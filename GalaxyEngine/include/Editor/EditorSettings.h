@@ -44,7 +44,6 @@ namespace GALAXY
 #endif
 		}
 
-		//TODO: load from file
 		class EditorSettings
 		{
 		public:

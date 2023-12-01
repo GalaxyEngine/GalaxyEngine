@@ -241,22 +241,14 @@ namespace GALAXY {
 
 	void Wrapper::Window::ComputeScale()
 	{
-#ifdef _WIN32
-		HWND hwnd = GetWindowWIN32();
-
-		int dpi = GetDpiForWindow(hwnd);
-
-		m_scale = dpi / 96.f;
-#else
-		//TODO:
-#endif
+		float yScale = 0;
+		glfwGetMonitorContentScale(static_cast<GLFWmonitor*>(GetCurrentMonitor()), &m_scale, &yScale);
 	}
 
 	float Wrapper::Window::GetScreenScale() const
 	{
 		return m_scale;
 	}
-
 
 	void* Wrapper::Window::GetCurrentMonitor() const
 	{
@@ -292,7 +284,6 @@ namespace GALAXY {
 		}
 
 		return bestmonitor;
-
 	}
 
 }

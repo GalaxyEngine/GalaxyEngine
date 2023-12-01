@@ -152,7 +152,7 @@ namespace GALAXY {
 		if (!p_open)
 			return;
 
-		int iconSize = 86 * Wrapper::GUI::GetScaleFactor();
+		float iconSize = 86 * Wrapper::GUI::GetScaleFactor();
 		const int space = 15;
 		const int textLength = 9;
 		bool openRightClick = false;
@@ -242,7 +242,7 @@ namespace GALAXY {
 				// Positioning for the file icon and text
 				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
 				ImGui::BeginGroup();
-				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24));
+				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2i(iconSize - 24.f));
 
 				// Truncate and display file name
 				size_t length = child->m_info.GetFileName().length();
@@ -251,7 +251,7 @@ namespace GALAXY {
 					fileName = fileName.substr(0, textLength);
 					fileName.append("...");
 				}
-				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2) + iconSize / 2, iconSize - 24 + 5);
+				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + iconSize / 2.f, iconSize - 24.f + 5.f);
 				ImGui::SetCursorPos(cursorPos + TextPos);
 				ImGui::TextUnformatted(fileName.c_str());
 				ImGui::EndGroup();
