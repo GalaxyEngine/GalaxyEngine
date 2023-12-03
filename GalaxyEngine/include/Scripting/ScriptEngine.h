@@ -54,7 +54,6 @@ namespace GALAXY
 		class GALAXY_API ScriptEngine
 		{
 		public:
-			ScriptEngine();
 			~ScriptEngine();
 
 			static inline ScriptEngine* GetInstance();
@@ -63,7 +62,7 @@ namespace GALAXY
 
 			void UnloadDLL() const;
 
-			void AddScript(Weak<Resource::Script> script);
+			void AddScript(const Weak<Resource::Script>& script);
 
 			void RemoveScript(const Weak<Resource::Script>& script);
 

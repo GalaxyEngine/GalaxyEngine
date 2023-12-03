@@ -27,7 +27,7 @@ namespace GALAXY {
 		m_instance->m_fileExplorer->Initialize();
 	}
 
-	void Editor::UI::EditorUIManager::DrawUI()
+	void Editor::UI::EditorUIManager::DrawUI() const
 	{
 		DrawMainDock();
 		m_fileDialog->Draw();

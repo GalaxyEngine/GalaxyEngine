@@ -25,7 +25,7 @@ namespace GALAXY::Editor::UI {
 
 		static void Release();
 
-		void DrawUI();
+		void DrawUI() const;
 
 		static void DrawMainDock();
 

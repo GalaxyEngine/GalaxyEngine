@@ -23,10 +23,6 @@ namespace GALAXY
 {
 
 	std::unique_ptr<Scripting::ScriptEngine> Scripting::ScriptEngine::m_instance;
-	Scripting::ScriptEngine::ScriptEngine()
-	{
-
-	}
 
 	Scripting::ScriptEngine::~ScriptEngine()
 	{
@@ -109,7 +105,7 @@ namespace GALAXY
 			copiedFile = 0;
 		}
 
-		const std::string dllLoad = std::filesystem::current_path() / copiedDllPath.string();
+		const std::string dllLoad = (std::filesystem::current_path() / copiedDllPath.string()).string();
 
 		if (!std::filesystem::exists(dllLoad))
 			return;
@@ -129,13 +125,13 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::UnloadDLL() const
 	{
-		if (m_dllLoaded && m_hDll != NULL)
+		if (m_dllLoaded && m_hDll != nullptr)
 		{
 			Utils::OS::FreeDLL(m_hDll);
 		}
 	}
 
-	void Scripting::ScriptEngine::AddScript(Weak<Resource::Script> script)
+	void Scripting::ScriptEngine::AddScript(const Weak<Resource::Script>& script)
 	{
 		m_scripts.push_back(script);
 
