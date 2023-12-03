@@ -43,8 +43,11 @@ namespace GALAXY
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
 		const std::string extension = Utils::OS::GetDLLExtension();
-
+		#ifdef _WIN32
 		auto dllPathName = dllPath / (dllName + extension);
+		#else
+		auto dllPathName = dllPath / ("lib" + dllName + extension);
+		#endif
 		auto pdbPathName = dllPath / (dllName + ".pdb");
 		auto libPathName = dllPath / (dllName + ".lib");
 		auto libPathName2 = dllPath / (dllName + ".dll.a");
@@ -64,7 +67,11 @@ namespace GALAXY
 			return;
 		}
 
+		#ifdef _WIN32
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + extension);
+		#else
+		std::filesystem::path copiedDllPath = DESTINATION_DLL / ("lib" + dllName + extension);
+		#endif
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
 		std::filesystem::path copiedLib2Path = DESTINATION_DLL / (dllName + ".dll.a");
@@ -102,12 +109,16 @@ namespace GALAXY
 			copiedFile = 0;
 		}
 
-		const std::string dllLoad = copiedDllPath.string();
+		const std::string dllLoad = std::filesystem::current_path() / copiedDllPath.string();
+
+		if (!std::filesystem::exists(dllLoad))
+			return;
 
 		m_hDll = Utils::OS::LoadDLL(dllLoad.c_str());
 
 		if (m_hDll != nullptr)
 		{
+			m_dllLoaded = true;
 			for (auto& script : m_scripts)
 			{
 				ParseScript(script);
@@ -239,7 +250,7 @@ namespace GALAXY
 					component->RemoveFromGameObject();
 				}
 			}
-		}
+		}	
 
 		// Clean up old scripts
 		CleanScripts();

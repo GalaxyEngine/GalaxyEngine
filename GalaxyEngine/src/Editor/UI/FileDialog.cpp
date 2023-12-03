@@ -148,7 +148,12 @@ namespace GALAXY
 		static ImGuiTextFilter filterExtension;
 		if (!m_filter.empty()) {
 			const size_t count = std::min(m_filter.size(), sizeof(filterExtension.InputBuf) - 1);
+#ifdef _WIN32
 			strncpy_s(filterExtension.InputBuf, m_filter.c_str(), count);
+#else
+			strncpy(filterExtension.InputBuf, m_filter.c_str(), count);
+    		filterExtension.InputBuf[count] = '\0';  // Ensure null-termination
+#endif
 			filterExtension.InputBuf[count] = '\0';  // Ensure null-termination
 			filterExtension.Build();
 		}

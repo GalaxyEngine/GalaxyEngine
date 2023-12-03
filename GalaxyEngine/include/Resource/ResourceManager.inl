@@ -88,7 +88,7 @@ namespace GALAXY
 		if (resource != m_instance->m_resources.end())
 		{
 			// Load the resource if not loaded.
-			if (!resource->second->p_shouldBeLoaded)
+			if (!resource->second->p_shouldBeLoaded.load())
 			{
 #ifdef ENABLE_MULTITHREAD
 				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());

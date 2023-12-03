@@ -9,9 +9,7 @@
 
 /*
 * TODO:
-*	Bill board shader
 *	Normal mapping
-*	Draw icon in editor
 */
 
 namespace GALAXY

@@ -58,7 +58,7 @@ namespace GALAXY
 
 		inline const char* SerializeSpaceEnum()
 		{
-			return "Local\0World";
+			return "Local\0World\0";
 		}
 
 		inline const char* SerializeSpaceValue(Space space)

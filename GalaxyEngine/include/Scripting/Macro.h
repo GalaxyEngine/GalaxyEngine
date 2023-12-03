@@ -1,7 +1,10 @@
 #pragma once
 #include "GalaxyAPI.h"
-
+#ifdef _WIN32
 #define EXPORT_FUNC extern "C" __declspec(dllexport)
+#elif defined(__linux__)
+#define EXPORT_FUNC extern "C"
+#endif
 #define CLASS(x) \
 	EXPORT_FUNC Component::BaseComponent* Create##_##x() { return new x(); }
 

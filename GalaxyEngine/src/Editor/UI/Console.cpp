@@ -176,6 +176,7 @@ namespace GALAXY {
 			break;
 		}
 		//TODO : Test this
+		//TODO : Display only text visible
 		Core::ThreadManager::Lock();
 		m_texts.push_back(Debug::LogText(type, text));
 		Core::ThreadManager::Unlock();

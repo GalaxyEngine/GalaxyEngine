@@ -17,16 +17,11 @@ namespace GALAXY
 		{
 			switch (tab)
 			{
-			case EditorSettingsTab::General:
-				return "General";
-			case EditorSettingsTab::ExternalTool:
-				return "External Tool";
-			case EditorSettingsTab::Appearance:
-				return "Appearance";
-			case EditorSettingsTab::Benchmark:
-				return "Benchmark";
-			default:
-				return "Invalid";
+			case EditorSettingsTab::General: return "General";
+			case EditorSettingsTab::ExternalTool: return "External Tool";
+			case EditorSettingsTab::Appearance:	return "Appearance";
+			case EditorSettingsTab::Benchmark:	return "Benchmark";
+			default: return "Invalid";
 			}
 		}
 
@@ -36,15 +31,15 @@ namespace GALAXY
 #ifdef _WIN32
 			VisualStudio = 1,
 #endif
-			VisualStudioCode = 2
+			VisualStudioCode
 		};
 
 		inline const char* SerializeScriptEditorToolEnum()
 		{
 #ifdef _WIN32
-			return "None\0Visual Studio\0Visual Studio Code";
+			return "None\0Visual Studio\0Visual Studio Code\0";
 #else
-			return "None\0Visual Studio Code";
+			return "None\0Visual Studio Code\0";
 #endif
 		}
 

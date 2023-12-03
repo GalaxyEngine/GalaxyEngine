@@ -78,13 +78,16 @@ CLASS(%s)
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
-		switch (Editor::EditorSettings::GetInstance().GetScriptEditorTool())
+		Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();
+		switch (tool)
 		{
+#ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
 			OpenWithVS(path);
 			break;
 		}
+#endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
 			OpenWithVSCode(path);
@@ -160,8 +163,6 @@ CLASS(%s)
 			const std::string commandLineArgs = "\"" + path.string() + "\" /command \"Edit.OpenFile " + newPath + "\"";
 			ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
 		}
-#else
-		//TODO
 #endif
 	}
 

@@ -11,16 +11,19 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	//TODO :
-	// * Check dynamic loading on linux
-
+	//TODO : Fix crash on hot reload
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
 	
+	//TODO : Remove this
+	#ifdef _WIN32
 	std::filesystem::path projectPath = "D:/Code/Moteurs/ProjectTest/ProjectTest.gProject";
+	#elif defined(__linux__)
+	std::filesystem::path projectPath = "/home/uwu/Documents/ProjectTest/ProjectTest.gProject";
+	#endif
 	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);

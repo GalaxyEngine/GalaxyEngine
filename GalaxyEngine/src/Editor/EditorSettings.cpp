@@ -18,7 +18,6 @@ namespace GALAXY
 
 	void Editor::EditorSettings::Draw()
 	{
-		//TODO : Improve
 		if (ImGui::BeginPopupModal("EditorSettings", nullptr/*, ImGuiWindowFlags_NoResize*/))
 		{
 			constexpr float buttonSizeY = 30;

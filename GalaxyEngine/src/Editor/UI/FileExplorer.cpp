@@ -409,14 +409,6 @@ namespace GALAXY {
 				{
 					ImGui::OpenPopup("Create Script");
 				}
-				if (ImGui::Button("Material", buttonSize))
-				{
-					Resource::Material::Create(m_currentFile->m_info.GetFullPath() / "New Material.mat");
-					ReloadContent();
-					quitPopup();
-				}
-				ImGui::EndMenu();
-			}
 			if (ImGui::BeginPopupModal("Create Script"))
 			{
 				static std::string scriptName;
@@ -430,6 +422,14 @@ namespace GALAXY {
 					quitPopup();
 				}
 				ImGui::EndPopup();
+			}
+				if (ImGui::Button("Material", buttonSize))
+				{
+					Resource::Material::Create(m_currentFile->m_info.GetFullPath() / "New Material.mat");
+					ReloadContent();
+					quitPopup();
+				}
+				ImGui::EndMenu();
 			}
 			ImGui::EndPopup();
 		}
@@ -474,15 +474,18 @@ namespace GALAXY {
 		}
 		*/
 #elif defined(__linux__)
-		//TODO : Test this
-		const char* command = select ? "xdg-open \"" : "xdg-open ";
-		for (const auto& file : files) {
-			std::string fullCommand = command + file + "\"";
-			if (std::system(fullCommand.c_str()) != 0) {
-				std::perror("Failed to open file explorer");
-				// Handle error as needed
-			}
+		std::string command = "xdg-open ";
+		std::string fullCommand;
+		if (files[0]->m_info.isDirectory())
+			fullCommand = command + files[0]->m_info.GetFullPath().generic_string() + "/";
+		else
+			// if it's a file, we open the parent folder (because i cannot find how to open file explorer and select a file with xdg (TODO))
+			fullCommand = command + files[0]->m_info.GetFullPath().parent_path().generic_string() + "/";
+		if (std::system(fullCommand.c_str()) != 0) {
+			std::perror("Failed to open file explorer");
+			// Handle error as needed
 		}
+		
 #endif
 	}
 

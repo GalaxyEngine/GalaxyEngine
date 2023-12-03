@@ -45,7 +45,6 @@ namespace GALAXY
 
 		/* TODO: 
 		*  Option to draw debug icon / debug line / other...
-		*  Fix rotate gizmo of light scene cube object
 		*/
 	}
 
