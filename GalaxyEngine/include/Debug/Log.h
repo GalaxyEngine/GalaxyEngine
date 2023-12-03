@@ -31,7 +31,7 @@ namespace GALAXY::Debug {
 			char buf[MAX_LOG_SIZE];
 			char buf2[MAX_LOG_SIZE];
 #ifdef _WIN32
-			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+			const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 			sprintf_s(buf2, format, args ...);
 			sprintf_s(buf, "[%02d:%02d:%02d] %s (l:%d): %s\n", calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec, file, line, buf2);
 			switch (type)
@@ -81,9 +81,9 @@ namespace GALAXY::Debug {
 }
 
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#define LOG(t, x, ...) Debug::Log::Print(__FILENAME__, __LINE__, t, x, ##__VA_ARGS__);
-#define PrintLog(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_INFO, x, ##__VA_ARGS__);
-#define PrintWarning(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_WARNING, x, ##__VA_ARGS__);
-#define PrintError(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_ERROR, x, ##__VA_ARGS__);
+#define LOG(t, x, ...) Debug::Log::Print(__FILENAME__, __LINE__, t, x, ##__VA_ARGS__)
+#define PrintLog(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_INFO, x, ##__VA_ARGS__)
+#define PrintWarning(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_WARNING, x, ##__VA_ARGS__)
+#define PrintError(x, ...) Debug::Log::Print(__FILENAME__, __LINE__, Debug::LogType::L_ERROR, x, ##__VA_ARGS__)
 
-#define ASSERT(condition) assert(condition);
+#define ASSERT(condition) assert(condition)

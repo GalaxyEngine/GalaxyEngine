@@ -28,19 +28,19 @@ namespace GALAXY {
 		class Texture : public IResource
 		{
 		public:
-			Texture(const Path& fullPath) : IResource(fullPath) {}
+			explicit Texture(const Path& fullPath) : IResource(fullPath) {}
 			Texture& operator=(const Texture& other) = default;
 			Texture(const Texture&) = default;
 			Texture(Texture&&) noexcept = default;
-			virtual ~Texture();
+			~Texture() override;
 
-			inline uint32_t GetID() { return m_id; }
+			inline uint32_t GetID() const { return m_id; }
 
 			void Load() override;
 			void Send() override;
 
 			void Bind(uint32_t index = 0);
-			void UnBind();
+			static void UnBind();
 
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::Texture; }

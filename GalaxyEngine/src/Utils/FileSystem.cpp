@@ -50,8 +50,8 @@ namespace GALAXY {
 	bool Utils::FileSystem::FileExistNoExtension(const std::filesystem::path& path)
 	{
 #ifdef _WIN32
-		std::filesystem::path directory = path.parent_path();
-		std::string filename = path.stem().string();
+		const std::filesystem::path directory = path.parent_path();
+		const std::string filename = path.stem().string();
 		for (const auto& entry : std::filesystem::directory_iterator(directory)) {
 			if (entry.is_regular_file() && entry.path() != path && entry.path().stem().string() == filename) {
 				return true;
@@ -72,16 +72,16 @@ namespace GALAXY {
 				PrintWarning("Remove file %s", path.string().c_str());
 				return true;
 			}
-			else {
-				PrintError("Failed to Remove file %s, err : %s", path.string().c_str(), ec.message().c_str());
-				return false;
-			}
+			PrintError("Failed to Remove file %s, err : %s", path.string().c_str(), ec.message().c_str());
+			return false;
 		}
 		return false;
 	}
 
 	bool Utils::FileSystem::CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath)
 	{
+		if (!std::filesystem::exists(sourcePath))
+			return false;
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 		std::ifstream sourceFile(sourcePath, std::ios::binary);
 		while (!sourceFile) { sourceFile = std::ifstream(sourcePath, std::ios::binary); }

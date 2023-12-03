@@ -4,7 +4,7 @@ namespace GALAXY
 {
 	namespace Core
 	{
-		class UUID
+		class GALAXY_API UUID
 		{
 		public:
 			UUID();

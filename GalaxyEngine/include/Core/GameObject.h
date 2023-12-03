@@ -32,7 +32,7 @@ namespace GALAXY {
 		{
 		public:
 			GameObject();
-			GameObject(String name);
+			explicit GameObject(const String& name);
 			GameObject& operator=(const GameObject& other) = default;
 			GameObject(const GameObject&) = default;
 			GameObject(GameObject&&) noexcept = default;
@@ -41,13 +41,13 @@ namespace GALAXY {
 			// Main Methods
 			void Initialize();
 
-			void UpdateSelfAndChild();
-			void DrawSelfAndChild();
+			void UpdateSelfAndChild() const;
+			void DrawSelfAndChild() const;
 
-			void RemoveChild(GameObject* child);
+			void RemoveChild(const GameObject* child);
 			void RemoveChild(uint32_t index);
 
-			void RemoveFromParent();
+			void RemoveFromParent() const;
 
 			// This method is to use when you need to destroy over all a gameObject and all its children
 			void Destroy();
@@ -57,10 +57,10 @@ namespace GALAXY {
 			// === Setters === //
 			inline void SetName(String val);
 
-			void AddChild(Shared<GameObject> child, uint32_t index = -1);
+			void AddChild(const Shared<GameObject>& child, uint32_t index = -1);
 
 			// Set the parent to the given GameObject
-			void SetParent(Weak<GameObject> parent);
+			void SetParent(const Weak<GameObject>& parent);
 
 			template<typename T>
 			inline Weak<T> AddComponent();
@@ -75,15 +75,15 @@ namespace GALAXY {
 			inline UUID GetUUID() const;
 			inline uint64_t GetSceneGraphID() const;
 
-			inline Component::Transform* GetTransform() { return m_transform.get(); }
-			inline Shared<Core::GameObject> GetParent() { return m_parent.lock(); }
+			inline Component::Transform* GetTransform() const;
+			inline Shared<Core::GameObject> GetParent() const;
 
-			inline List<Weak<GameObject>> GetChildren();
-			List<Weak<GameObject>> GetAllChildren();
+			inline List<Weak<GameObject>> GetChildren() const;
+			List<Weak<GameObject>> GetAllChildren() const;
 			inline Weak<GameObject> GetChild(uint32_t index);
 
 			// Return the child index in the list of child
-			uint32_t GetChildIndex(GameObject* child);
+			uint32_t GetChildIndex(const GameObject* child) const;
 
 			template<typename T>
 			inline List<Weak<T>> GetComponentsInChildren();
@@ -94,25 +94,26 @@ namespace GALAXY {
 
 			Weak<Component::BaseComponent> GetComponentWithIndex(uint32_t index);
 
-			Component::BaseComponent* GetComponentWithName(const String& componentName);
+			Component::BaseComponent* GetComponentWithName(const String& componentName) const;
 
 			// Check if the object given is a parent of the this
-			inline bool IsAParent(GameObject* object);
-			bool IsSibling(const List<Weak<GameObject>>& siblings);
+			inline bool IsAParent(GameObject* object) const;
+			bool IsSibling(const List<Weak<GameObject>>& siblings) const;
 
 			void Serialize(Utils::Serializer& serializer);
 			void Deserialize(Utils::Parser& parser, bool parseUUID = true);
 
-			inline void SetHierarchyOpen(bool val) { m_open = val; }
+			inline void SetHierarchyOpen(bool val);
 
-			inline Resource::Scene* GetScene() { return m_scene; }
+			inline Resource::Scene* GetScene() const;
 
 			// Call after the sceneLoading to synchronize 
 			// the components and gameObjects find by the id
-			void AfterLoad();
+			void AfterLoad() const;
 
-			inline bool IsActive() const { return m_active; }
-			inline bool IsSelected() const { return m_selected; }
+			inline bool IsActive() const;
+			inline bool IsSelected() const;
+
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
@@ -125,7 +126,7 @@ namespace GALAXY {
 			Resource::Scene* m_scene = nullptr;
 
 			Weak<GameObject> m_parent;
-			List<Shared<GameObject>> m_childs;
+			List<Shared<GameObject>> m_children;
 			List<Shared<Component::BaseComponent>> m_components;
 
 			std::unique_ptr<Component::Transform> m_transform;
@@ -152,6 +153,6 @@ namespace GALAXY {
 			inline Weak<T> GetWeakOfComponent(T* component);
 		};
 
-}
+	}
 }
 #include "Core/GameObject.inl" 

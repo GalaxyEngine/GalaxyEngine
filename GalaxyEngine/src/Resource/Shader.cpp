@@ -19,7 +19,7 @@ namespace GALAXY
 		}
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
-			Weak<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
+			const Weak<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
 			// Parse .shader file
 			std::string line;
@@ -29,7 +29,7 @@ namespace GALAXY
 				{
 					std::filesystem::path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
-					Weak<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
+					Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertPath);
 					SetVertex(vertexShader.lock(), thisShader);
 
 					m_pickingVariant = Create(vertPath, PICKING_PATH);
@@ -40,14 +40,14 @@ namespace GALAXY
 				{
 					std::filesystem::path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
-					Weak<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
+					Weak<GeometryShader> geometryShader = ResourceManager::GetOrLoad<Resource::GeometryShader>(geomPath);
 					SetGeometry(geometryShader.lock(), thisShader);
 				}
 				else if (line[0] == 'F')
 				{
 					std::filesystem::path fragPath = line.substr(4);
 					fragPath = GetFileInfo().GetFullPath().parent_path() / fragPath;
-					Weak<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
+					Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragPath);
 					SetFragment(fragmentShader.lock(), thisShader);
 				}
 			}
@@ -64,44 +64,44 @@ namespace GALAXY
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
 
 		if (p_hasBeenSent) {
-			auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
+			const auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
 			Render::LightManager::AddShader(weak_this);
 		}
 	}
 
-	void Resource::Shader::SetVertex(Shared<VertexShader> vertexShader, Weak<Shader> weak_this)
+	void Resource::Shader::SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this)
 	{
 		ASSERT(vertexShader != nullptr);
 		std::get<0>(p_subShaders) = vertexShader;
 		vertexShader->AddShader(weak_this);
 	}
 
-	void Resource::Shader::SetFragment(Shared<FragmentShader> fragmentShader, Weak<Shader> weak_this)
+	void Resource::Shader::SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this)
 	{
 		ASSERT(fragmentShader != nullptr);
 		std::get<2>(p_subShaders) = fragmentShader;
 		fragmentShader->AddShader(weak_this);
 	}
 
-	void Resource::Shader::SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this)
+	void Resource::Shader::SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this)
 	{
 		ASSERT(geometryShader != nullptr);
 		std::get<1>(p_subShaders) = geometryShader;
 		geometryShader->AddShader(weak_this);
 	}
 
-	void Resource::Shader::Recompile()
+	void Resource::Shader::Recompile() const
 	{
 		PrintLog("Recompile shader: %s", p_fileInfo.GetFullPath().string().c_str());
-		if (Shared<VertexShader> vertShader = std::get<0>(p_subShaders).lock())
+		if (const Shared<VertexShader> vertShader = std::get<0>(p_subShaders).lock())
 		{
 			vertShader->Recompile();
 		}
-		if (Shared<GeometryShader> geomShader = std::get<1>(p_subShaders).lock())
+		if (const Shared<GeometryShader> geomShader = std::get<1>(p_subShaders).lock())
 		{
 			geomShader->Recompile();
 		}
-		if (Shared<FragmentShader> fragShader = std::get<2>(p_subShaders).lock())
+		if (const Shared<FragmentShader> fragShader = std::get<2>(p_subShaders).lock())
 		{
 			fragShader->Recompile();
 		}
@@ -110,9 +110,9 @@ namespace GALAXY
 	Weak<Resource::Shader> Resource::Shader::Create(const std::filesystem::path& vertPath, const std::filesystem::path& fragPath)
 	{
 		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
-			return Weak<Resource::Shader>();
-		Weak<VertexShader> vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
-		Weak<FragmentShader> fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+			return {};
+		const Weak<VertexShader> vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
+		const Weak<FragmentShader> fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
 
 		// temporary add this to check if it's work to not expire the shader
 		Shared<VertexShader> LockVertex = vertexShader.lock();
@@ -131,11 +131,11 @@ namespace GALAXY
 	}
 
 	// === Base Shader === //
-	void Resource::BaseShader::AddShader(Weak<Shader> shader)
+	void Resource::BaseShader::AddShader(const Weak<Shader>& shader)
 	{
 		if (!shader.lock())
 			return;
-		size_t size = p_shaders.size();
+		const size_t size = p_shaders.size();
 		if (size > 0)
 		{
 			for (auto&& _shader : p_shaders)
@@ -157,9 +157,9 @@ namespace GALAXY
 		p_hasBeenSent = false;
 		p_content = "";
 
-		Core::ThreadManager::GetInstance()->AddTask(std::bind(&Resource::BaseShader::Load, this));
+		Core::ThreadManager::GetInstance()->AddTask([this] { Load(); });
 
-		for (Weak<Shader> shader : p_shaders)
+		for (const Weak<Shader>& shader : p_shaders)
 		{
 			shader.lock()->p_hasBeenSent = false;
 			shader.lock()->SendRequest();
@@ -205,7 +205,7 @@ namespace GALAXY
 	int Resource::Shader::GetLocation(const char* locationName)
 	{
 		ASSERT(HasBeenSent());
-		auto it = p_locations.find(locationName);
+		const auto it = p_locations.find(locationName);
 		if (it != p_locations.end())
 		{
 			return it->second;
@@ -214,25 +214,25 @@ namespace GALAXY
 			return p_locations[locationName] = p_renderer->GetShaderLocation(p_id, locationName);
 	}
 
-	void Resource::Shader::SendInt(const char* locationName, int value)
+	void Resource::Shader::SendInt(const char* locationName, const int value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendInt(locationID, value);
 	}
 
-	void Resource::Shader::SendFloat(const char* locationName, float value)
+	void Resource::Shader::SendFloat(const char* locationName, const float value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendFloat(locationID, value);
 	}
 
-	void Resource::Shader::SendDouble(const char* locationName, double value)
+	void Resource::Shader::SendDouble(const char* locationName, const double value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendDouble(locationID, value);
@@ -240,7 +240,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec2f(const char* locationName, const Vec2f& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec2f(locationID, value);
@@ -248,7 +248,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec3f(const char* locationName, const Vec3f& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec3f(locationID, value);
@@ -256,7 +256,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec4f(const char* locationName, const Vec4f& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec4f(locationID, value);
@@ -264,7 +264,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec2i(const char* locationName, const Vec2i& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec2i(locationID, value);
@@ -272,7 +272,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec3i(const char* locationName, const Vec3i& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec3i(locationID, value);
@@ -280,7 +280,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendVec4i(const char* locationName, const Vec4i& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendVec4i(locationID, value);
@@ -288,7 +288,7 @@ namespace GALAXY
 
 	void Resource::Shader::SendMat4(const char* locationName, const Mat4& value)
 	{
-		int locationID = GetLocation(locationName);
+		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
 		p_renderer->ShaderSendMat4(locationID, value);

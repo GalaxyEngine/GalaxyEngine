@@ -18,13 +18,13 @@ namespace GALAXY
 		p_shouldBeLoaded = true;
 
 		Weak<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
-		auto vertexShader = ResourceManager::GetInstance()->GetOrLoad<VertexShader>(VERTEX_PP_PATH);
+		auto vertexShader = ResourceManager::GetOrLoad<VertexShader>(VERTEX_PP_PATH);
 		SetVertex(vertexShader.lock(), thisShader);
 
 		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
-			std::weak_ptr<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
+			Weak<Shader> this_shader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
 			// Parse .shader file
 			std::string line;
@@ -33,22 +33,22 @@ namespace GALAXY
 				{
 					Path vertPath = line.substr(4);
 					vertPath = p_fileInfo.GetFullPath().parent_path() / vertPath;
-					std::weak_ptr<VertexShader> vertexShader = ResourceManager::GetInstance()->GetOrLoad<Resource::VertexShader>(vertPath);
-					SetVertex(vertexShader.lock(), thisShader);
+					Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertPath);
+					SetVertex(vertexShader.lock(), this_shader);
 				}
 				else if (line[0] == 'G')
 				{
 					Path geomPath = line.substr(4);
 					geomPath = p_fileInfo.GetFullPath().parent_path() / geomPath;
-					std::weak_ptr<GeometryShader> geometryShader = ResourceManager::GetInstance()->GetOrLoad<Resource::GeometryShader>(geomPath);
-					SetGeometry(geometryShader.lock(), thisShader);
+					Weak<GeometryShader> geometryShader = ResourceManager::GetOrLoad<Resource::GeometryShader>(geomPath);
+					SetGeometry(geometryShader.lock(), this_shader);
 				}
 				else if (line[0] == 'F')
 				{
 					Path fragPath = line.substr(4);
 					fragPath = p_fileInfo.GetFullPath().parent_path() / fragPath;
-					std::weak_ptr<FragmentShader> fragmentShader = ResourceManager::GetInstance()->GetOrLoad<Resource::FragmentShader>(fragPath);
-					SetFragment(fragmentShader.lock(), thisShader);
+					Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragPath);
+					SetFragment(fragmentShader.lock(), this_shader);
 				}
 			}
 			SendRequest();

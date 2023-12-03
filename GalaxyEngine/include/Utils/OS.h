@@ -24,7 +24,7 @@ namespace GALAXY
 		template<typename T>
 		inline T GetDLLMethod(void* dll, const char* name);
 
-		const char* GetDLLExstension();
+		const char* GetDLLExtension();
 	}
 }
 #include "Utils/OS.inl" 

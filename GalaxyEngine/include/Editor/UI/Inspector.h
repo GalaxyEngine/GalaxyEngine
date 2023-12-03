@@ -8,15 +8,15 @@ namespace GALAXY {
 		class Inspector : public EditorWindow
 		{
 		public:
-			~Inspector() {}
+			~Inspector() override {}
 
 			void Draw() override;
 
 			void ShowGameObject(Core::GameObject* object);
 
-			void AddSelected(Weak<Core::GameObject> gameObject);
+			void AddSelected(const Weak<Core::GameObject>& gameObject);
 
-			void SetSelected(Weak<Core::GameObject> gameObject);
+			void SetSelected(const Weak<Core::GameObject>& gameObject);
 
 			void ClearSelected();
 

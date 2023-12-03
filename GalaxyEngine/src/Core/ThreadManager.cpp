@@ -3,15 +3,12 @@
 
 std::unique_ptr<Core::ThreadManager> Core::ThreadManager::m_instance;
 
-Core::ThreadManager::~ThreadManager()
-{
-}
-
 void Core::ThreadManager::Initialize()
 {
 	m_threadList.resize(std::thread::hardware_concurrency());
-	for (uint32_t i = 0; i < m_threadList.size(); i++) {
-		m_threadList.at(i) = std::thread(&ThreadManager::ThreadLoop, this);
+	for (std::thread& i : m_threadList)
+	{
+		i = std::thread(&ThreadManager::ThreadLoop, this);
 	}
 }
 
@@ -24,7 +21,7 @@ void Core::ThreadManager::ThreadLoop()
 		{
 			Lock();
 			if (!m_tasks.empty()) {
-				auto task = m_tasks.front();
+				const std::function<void()> task = m_tasks.front();
 				m_tasks.pop();
 				Unlock();
 				if (task != nullptr)
@@ -70,7 +67,7 @@ void Core::ThreadManager::Destroy()
 {
 	Terminate();
 	// clear threadList
-	while (m_threadList.size() > 0)
+	while (!m_threadList.empty())
 	{
 		for (size_t i = 0; i < m_threadList.size(); i++) {
 			if (m_threadList[i].joinable())

@@ -8,7 +8,11 @@ namespace GALAXY
 		class PostProcessShader : public Shader
 		{
 		public:
-			PostProcessShader(const Path& fullPath);
+			explicit PostProcessShader(const Path& fullPath);
+			PostProcessShader& operator=(const PostProcessShader& other) = default;
+			PostProcessShader(const PostProcessShader&) = default;
+			PostProcessShader(PostProcessShader&&) noexcept = default;
+			~PostProcessShader() override = default;
 
 			void Load() override;
 

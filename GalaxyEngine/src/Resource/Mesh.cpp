@@ -17,7 +17,7 @@ namespace GALAXY {
 	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
 	{
 		p_fileInfo.m_resourceType = GetResourceType();
-		std::string fullPathString = p_fileInfo.m_fullPath.string();
+		const std::string fullPathString = p_fileInfo.m_fullPath.string();
 		p_fileInfo.m_fileName = fullPathString.substr(fullPathString.find_last_of(':') + 1);
 		m_modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 	}
@@ -27,7 +27,7 @@ namespace GALAXY {
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-		Resource::ResourceManager::GetInstance()->GetOrLoad<Model>(m_modelPath);
+		Resource::ResourceManager::GetOrLoad<Model>(m_modelPath);
 		p_loaded = true;
 	}
 
@@ -42,9 +42,12 @@ namespace GALAXY {
 
 		renderer->CreateIndexBuffer(m_indexBufferIndex, m_indices.data()->Data(), sizeof(Vec3i) * m_indices.size());
 
-		renderer->VertexAttribPointer(0, 3, 8 * sizeof(float), (void*)(0));
-		renderer->VertexAttribPointer(1, 2, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-		renderer->VertexAttribPointer(2, 3, 8 * sizeof(float), (void*)(5 * sizeof(float)));
+		const auto textureOffset = reinterpret_cast<void*>(3 * sizeof(float));
+		const auto normalsOffset = reinterpret_cast<void*>(5 * sizeof(float));
+
+		renderer->VertexAttribPointer(0, 3, 8 * sizeof(float), nullptr);
+		renderer->VertexAttribPointer(1, 2, 8 * sizeof(float), textureOffset);
+		renderer->VertexAttribPointer(2, 3, 8 * sizeof(float), normalsOffset);
 
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
@@ -53,7 +56,7 @@ namespace GALAXY {
 		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 	}
 
-	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/)
+	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/) const
 	{
 		if (!HasBeenSent() || !IsLoaded())
 			return;
@@ -67,7 +70,7 @@ namespace GALAXY {
 			if (shader == nullptr)
 				continue;
 
-			Resource::Scene* currentScene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+			const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 			shader->SendMat4("Model", modelMatrix);
 			shader->SendMat4("MVP", currentScene->GetVP() * modelMatrix);
 			shader->SendVec3f("CamUp", currentScene->GetCameraUp());
@@ -98,10 +101,10 @@ namespace GALAXY {
 		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
 	}
 
-	void Resource::Mesh::DrawBoundingBox(Component::Transform* transform)
+	void Resource::Mesh::DrawBoundingBox(const Component::Transform* transform) const
 	{
-		BoundingBox box = GetBoundingBox();
-		auto instance = Wrapper::Renderer::GetInstance();
+		const BoundingBox box = GetBoundingBox();
+		const auto instance = Wrapper::Renderer::GetInstance();
 
 		instance->DrawWireCube(transform->GetWorldPosition() + box.center, Vec3f(
 			(box.max.x - box.min.x) / 2.0f,

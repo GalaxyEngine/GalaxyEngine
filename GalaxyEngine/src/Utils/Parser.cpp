@@ -26,7 +26,7 @@ namespace GALAXY
 		m_filePath = path;
 	}
 
-	void Utils::Serializer::CloseFile()
+	void Utils::Serializer::CloseFile() const
 	{
 		auto file = std::ofstream(m_filePath);
 		if (!file.is_open()) {
@@ -55,7 +55,7 @@ namespace GALAXY
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const char& value)
 	{
-		std::string stringValue(1, value);
+		const std::string stringValue(1, value);
 		*this << stringValue.c_str();
 		return *this;
 	}
@@ -68,90 +68,90 @@ namespace GALAXY
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const bool& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const float& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const int& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned long& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const long long& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const unsigned long long& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Core::UUID& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const double& value)
 	{
-		std::string stringValue = std::to_string(value);
+		const std::string stringValue = std::to_string(value);
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec2f& value)
 	{
-		std::string stringValue = value.ToString();
+		const std::string stringValue = value.ToString();
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec3f& value)
 	{
-		std::string stringValue = value.ToString();
+		const std::string stringValue = value.ToString();
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec4f& value)
 	{
-		std::string stringValue = value.ToString();
+		const std::string stringValue = value.ToString();
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Quat& value)
 	{
-		std::string stringValue = value.ToString();
+		const std::string stringValue = value.ToString();
 		*this << stringValue.c_str();
 		return *this;
 	}
 
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Mat4& value)
 	{
-		std::string stringValue = value.ToString();
+		const std::string stringValue = value.ToString();
 		*this << stringValue.c_str();
 		return *this;
 	}
@@ -168,7 +168,7 @@ namespace GALAXY
 			this->operator<<(-1);
 			return *this;
 		}
-			;
+		;
 		this->operator<<<uint64_t>(value->GetUUID());
 		return *this;
 	}
@@ -221,7 +221,7 @@ namespace GALAXY
 		return *this;
 	}
 
-	void Utils::Serializer::SetCurrentType(Utils::Pair val)
+	void Utils::Serializer::SetCurrentType(const Utils::Pair val)
 	{
 		switch (val)
 		{
@@ -274,7 +274,7 @@ namespace GALAXY
 			return;
 		}
 		// Get file content
-		std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 		ParseContent(content);
 
@@ -292,11 +292,11 @@ namespace GALAXY
 		while (std::getline(ss, line)) {
 			if (line.find(MAP_SEPARATOR_BEGIN) != std::string::npos)
 			{
-				m_valueMap.push_back({});
+				m_valueMap.emplace_back();
 				currentMap = &m_valueMap.back();
 			}
 
-			if (size_t pos = line.find("["); pos != std::string::npos)
+			if (const size_t pos = line.find("["); pos != std::string::npos)
 			{
 				std::string currentKey = line.substr(pos + 1);
 				currentKey = currentKey.substr(0, currentKey.find_first_of(']'));
@@ -327,8 +327,8 @@ namespace GALAXY
 	Utils::StringSerializer Utils::Parser::operator[](const std::string& key)
 	{
 		ASSERT(m_valueMap.size() > m_currentDepth);
-		ASSERT(m_valueMap[m_currentDepth].count(key) > 0);
-		return StringSerializer(m_valueMap[m_currentDepth][key]);
+		ASSERT(m_valueMap[m_currentDepth].contains(key));
+		return { m_valueMap[m_currentDepth][key] };
 	}
 
 #pragma endregion
@@ -380,7 +380,7 @@ namespace GALAXY
 	template <>
 	int Utils::StringSerializer::As()
 	{
-		return std::stoul(m_content);
+		return std::stoi(m_content);
 	}
 
 	template <>
@@ -392,31 +392,31 @@ namespace GALAXY
 	template <>
 	Vec2f Utils::StringSerializer::As()
 	{
-		return Vec2f(m_content);
+		return { m_content };
 	}
 
 	template <>
 	Vec3f Utils::StringSerializer::As()
 	{
-		return Vec3f(m_content);
+		return { m_content };
 	}
 
 	template <>
 	Vec4f Utils::StringSerializer::As()
 	{
-		return Vec4f(m_content);
+		return { m_content };
 	}
 
 	template <>
 	Quat Utils::StringSerializer::As()
 	{
-		return Quat(m_content);
+		return { m_content };
 	}
 
 	template <>
 	Weak<Core::GameObject> Utils::StringSerializer::As()
 	{
-		uint64_t index = As<uint64_t>();
+		const uint64_t index = As<uint64_t>();
 		return Core::SceneHolder::GetCurrentScene()->GetWithUUID(index);
 	}
 
@@ -429,6 +429,6 @@ namespace GALAXY
 		char skipChar;
 		os >> goIndex >> skipChar >> compIndex;
 
-		return Component::ComponentID(goIndex, compIndex);
+		return { goIndex, compIndex };
 	}
 }

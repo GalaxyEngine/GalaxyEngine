@@ -1,3 +1,4 @@
+#pragma once
 
 // -- Shaders -- //
 #define PICKING_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PickingShader/picking.frag"

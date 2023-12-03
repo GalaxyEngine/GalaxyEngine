@@ -36,7 +36,7 @@ namespace GALAXY
 		class Window
 		{
 		public:
-			~Window();
+			~Window() = default;
 
 			static bool Initialize();
 			static void UnInitialize();
@@ -51,40 +51,40 @@ namespace GALAXY
 			static void MoveCallback(GLFWwindow* window, int xpos, int ypos);
 
 			void Create(const WindowConfig& config);
-			void Destroy();
+			void Destroy() const;
 
-			void SwapBuffers();
+			void SwapBuffers() const;
 
 			// --- Getters --- //
-			bool GetVSyncEnable();
-			void GetSize(int* width, int* height);
-			Vec2i GetSize();
-			Vec2i GetPosition();
+			bool GetVSyncEnable() const;
+			void GetSize(int* width, int* height) const;
+			Vec2i GetSize() const;
+			Vec2i GetPosition() const;
 
 			// --- Setters --- //
 			void SetVSync(bool enable);
 			void SetFullscreen(bool enable);
 			void ToggleFullscreen();
-			void SetSize(int width, int height);
-			void SetSize(const Vec2i& size);
-			void SetMousePosition(const Vec2i& pos, bool physicalPos = false);
-			void SetCursorMode(CursorMode mode);
+			void SetSize(int width, int height) const;
+			void SetSize(const Vec2i& size) const;
+			void SetMousePosition(const Vec2i& pos, bool physicalPos = false) const;
+			void SetCursorMode(CursorMode mode) const;
 
-			bool ShouldClose();
-			void Close();
+			bool ShouldClose() const;
+			void Close() const;
 
 			[[nodiscard]] void* GetWindow() const { return m_window; }
 
 #ifdef _WIN32
-			HWND GetWindowWIN32() const;
+			[[nodiscard]] HWND GetWindowWIN32() const;
 #endif
 			void ComputeScale();
 
-			float GetScreenScale() const;
+			[[nodiscard]] float GetScreenScale() const;
 
-			void* GetCurrentMonitor() const;
+			[[nodiscard]] void* GetCurrentMonitor() const;
 		private:
-			int CursorModeToAPI(CursorMode mode);
+			static int CursorModeToAPI(CursorMode mode);
 
 			void* m_window = nullptr;
 			bool m_vsync = true;

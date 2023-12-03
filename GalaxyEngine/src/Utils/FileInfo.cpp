@@ -56,7 +56,7 @@ namespace GALAXY
 		}
 	}
 
-	Path Utils::FileInfo::ToPath(Path path)
+	Path Utils::FileInfo::ToPath(const Path& path)
 	{
 		Path canonicalPath = std::filesystem::weakly_canonical(path);
 		// Temp Try to remove this line :
@@ -67,13 +67,13 @@ namespace GALAXY
 	Path Utils::FileInfo::ToRelativePath(Path path)
 	{
 		path = ToPath(path);
-		if (auto relative = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath()); !relative.empty() && relative.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
+		if (const Path relative = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath()); !relative.empty() && relative.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
 		{
 			if (relative == ".")
 				return ASSET_FOLDER_NAME;
 			return ASSET_FOLDER_NAME / relative;
 		}
-		else if (auto relative = std::filesystem::relative(path, ENGINE_RESOURCE_FOLDER_NAME); !relative.empty())
+		else if (const Path relative = std::filesystem::relative(path, ENGINE_RESOURCE_FOLDER_NAME); !relative.empty())
 		{
 			return ENGINE_RESOURCE_FOLDER_NAME / relative;
 		}

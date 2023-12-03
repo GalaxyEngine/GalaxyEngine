@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <optional>
 namespace GALAXY 
 {
 	namespace Editor
@@ -9,6 +10,7 @@ namespace GALAXY
 			General = 0,
 			ExternalTool,
 			Appearance,
+			Benchmark,
 		};
 
 		inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
@@ -21,6 +23,8 @@ namespace GALAXY
 				return "External Tool";
 			case EditorSettingsTab::Appearance:
 				return "Appearance";
+			case EditorSettingsTab::Benchmark:
+				return "Benchmark";
 			default:
 				return "Invalid";
 			}
@@ -55,15 +59,18 @@ namespace GALAXY
 
 			void AddListElement(EditorSettingsTab tab);
 
+			[[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
+			void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
+
+			void SaveSettings() const;
+			void LoadSettings();
+		private:
 			void DisplayTab(EditorSettingsTab tab);
+
+			void DisplayGeneralTab();
 			void DisplayExternalToolTab();
 			void DisplayAppearanceTab();
-
-			ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
-			void SetScriptEditorTool(ScriptEditorTool val) { m_scriptEditorTool = val; }
-
-			void SaveSettings();
-			void LoadSettings();
+			void DisplayBenchmarkTab();
 
 		private:
 			bool m_firstUpdate = false;

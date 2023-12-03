@@ -6,7 +6,7 @@ namespace GALAXY
 	inline void Render::Camera::SetSize(const Vec2i& framebufferSize)
 	{
 		p_framebufferSize = framebufferSize;
-		p_aspectRatio = (float)p_framebufferSize.x / (float)p_framebufferSize.y;
+		p_aspectRatio = static_cast<float>(p_framebufferSize.x) / static_cast<float>(p_framebufferSize.y);
 	}
 
 	inline Mat4 Render::Camera::GetViewMatrix() const
@@ -18,7 +18,7 @@ namespace GALAXY
 
 	inline Mat4 Render::Camera::GetProjectionMatrix() const
 	{
-		float tanHalfFov = std::tan(p_fov * DegToRad * 0.5f);
+		const float tanHalfFov = std::tan(p_fov * DegToRad * 0.5f);
 
 		Mat4 projectionMatrix = Mat4();
 		projectionMatrix[0][0] = 1.0f / (p_aspectRatio * tanHalfFov);
@@ -39,14 +39,14 @@ namespace GALAXY
 
 	inline Vec2f Render::Camera::ToViewport(const Vec2f& pos) const
 	{
-		return { (float)(2.0f * pos.x) / (float)GetScreenResolution().x - 1.0f, (float)1.0f - (2.0f * pos.y) / (float)GetScreenResolution().y };
+		return { (2.0f * pos.x) / static_cast<float>(GetScreenResolution().x) - 1.0f, (float)1.0f - (2.0f * pos.y) / (float)GetScreenResolution().y };
 	}
 
 	inline Vec3f Render::Camera::UnProject(const Vec3f& point) const
 	{
-		Vec4f mousePosition = Vec4f(ToViewport(point), 1.f, 1.f);
-		Mat4 invVP = GetViewProjectionMatrix().CreateInverseMatrix();
-		Vec3f position = GetTransform()->GetWorldPosition();
+		const Vec4f mousePosition = Vec4f(ToViewport(point), 1.f, 1.f);
+		const Mat4 invVP = GetViewProjectionMatrix().CreateInverseMatrix();
+		const Vec3f position = GetTransform()->GetWorldPosition();
 		return position + (invVP * mousePosition) * point.z;
 	}
 }

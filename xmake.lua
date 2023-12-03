@@ -57,8 +57,11 @@ target("GalaxyEngine")
     if is_plat("mingw") then
         -- for file dialog in Windows mingw
         add_links("comdlg32")
+        -- rename output file because instead it is "libGalaxyEngine.dll"
+        set_prefixname("")
     end
     --add_packages("rttr")
+
 target_end()
 
 target("GalaxyCore")

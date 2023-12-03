@@ -17,18 +17,18 @@ namespace GALAXY
 		class Mesh : public IResource
 		{
 		public:
-			Mesh(const Path& fullPath);
+			explicit Mesh(const Path& fullPath);
 			Mesh& operator=(const Mesh& other) = default;
 			Mesh(const Mesh&) = default;
 			Mesh(Mesh&&) noexcept = default;
-			virtual ~Mesh() {}
+			~Mesh() override {}
 
 			void Load() override;
 			void Send() override;
 
-			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, uint64_t id = -1);
+			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, uint64_t id = -1) const;
 
-			void DrawBoundingBox(Component::Transform* transform);
+			void DrawBoundingBox(const Component::Transform* transform) const;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Mesh; }
 

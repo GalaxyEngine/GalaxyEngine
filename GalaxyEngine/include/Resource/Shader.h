@@ -15,16 +15,20 @@ namespace GALAXY {
 		class Shader : public IResource
 		{
 		public:
-			Shader(const Path& fullPath) : IResource(fullPath) {}
+			explicit Shader(const Path& fullPath) : IResource(fullPath) {}
+			Shader& operator=(const Shader& other) = default;
+			Shader(const Shader&) = default;
+			Shader(Shader&&) noexcept = default;
+			~Shader() override = default;
 
 			virtual void Load() override;
 			void Send() override;
 
-			void SetVertex(Shared<VertexShader> vertexShader, Weak<Shader> weak_this);
-			void SetFragment(Shared<FragmentShader> fragmentShader, Weak<Shader> weak_this);
-			void SetGeometry(Shared<GeometryShader> geometryShader, Weak<Shader> weak_this);
+			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this);
+			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
+			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
 
-			void Recompile();
+			void Recompile() const;
 
 			void Use();
 			int GetLocation(const char* locationName);
@@ -65,17 +69,17 @@ namespace GALAXY {
 		class BaseShader : public IResource
 		{
 		public:
-			BaseShader(const Path& fullPath) : IResource(fullPath) {}
+			explicit BaseShader(const Path& fullPath) : IResource(fullPath) {}
 
 			virtual void Load() override;
-			void AddShader(Weak<Shader> shader);
+			void AddShader(const Weak<Shader>& shader);
 
 			void Recompile();
 
 			List<Weak<Shader>> GetShaders() const { return p_shaders; }
 		protected:
 			List<Weak<Shader>> p_shaders;
-			String p_content = "";
+			String p_content;
 			uint32_t m_id = -1;
 		private:
 		};
@@ -83,7 +87,7 @@ namespace GALAXY {
 		class VertexShader : public BaseShader
 		{
 		public:
-			VertexShader(const Path& fullPath) : BaseShader(fullPath) {}
+			explicit VertexShader(const Path& fullPath) : BaseShader(fullPath) {}
 
 			void Send() override;
 
@@ -99,7 +103,7 @@ namespace GALAXY {
 		class GeometryShader : public BaseShader
 		{
 		public:
-			GeometryShader(const Path& fullPath) : BaseShader(fullPath) {}
+			explicit GeometryShader(const Path& fullPath) : BaseShader(fullPath) {}
 
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::GeometryShader; }
@@ -113,8 +117,8 @@ namespace GALAXY {
 		class FragmentShader : public BaseShader
 		{
 		public:
-			FragmentShader(const Path& fullPath) : BaseShader(fullPath) {}
-			~FragmentShader();
+			explicit FragmentShader(const Path& fullPath) : BaseShader(fullPath) {}
+			~FragmentShader() override;
 
 			void Send() override;
 

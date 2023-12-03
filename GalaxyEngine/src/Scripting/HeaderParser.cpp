@@ -109,7 +109,7 @@ namespace GALAXY
 		return false;
 	}
 
-	bool Scripting::HeaderParser::isValidVariableCharacter(char ch)
+	bool Scripting::HeaderParser::isValidVariableCharacter(const char ch)
 	{
 		// Check if the character is an uppercase letter, lowercase letter, digit, or underscore
 		return std::isalpha(ch) || std::isdigit(ch) || ch == '_';

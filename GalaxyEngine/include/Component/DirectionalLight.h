@@ -9,11 +9,11 @@ namespace GALAXY
 		class DirectionalLight : public Light
 		{
 		public:
-			DirectionalLight() {}
+			DirectionalLight() = default;
 			DirectionalLight& operator=(const DirectionalLight& other) = default;
 			DirectionalLight(const DirectionalLight&) = default;
 			DirectionalLight(DirectionalLight&&) noexcept = default;
-			virtual ~DirectionalLight() {}
+			~DirectionalLight() override = default;
 
 			inline const char* GetComponentName() const override { return "Directional Light"; }
 
@@ -32,7 +32,7 @@ namespace GALAXY
 			inline Type GetLightType() override { return Light::Type::Directional; }
 
 			inline Vec3f GetDirection() const { return m_direction.value; }
-			inline void SetDirection(Vec3f val) { m_direction.value = val; }
+			inline void SetDirection(const Vec3f val) { m_direction.value = val; }
 
 		private:
 			LightData<Vec3f> m_direction = Vec3f::Down();

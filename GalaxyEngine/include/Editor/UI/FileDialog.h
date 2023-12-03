@@ -11,15 +11,15 @@ namespace GALAXY
 		class TmpFile
 		{
 		public:
-			TmpFile(const Path& path);
+			explicit TmpFile(const Path& path);
 			TmpFile& operator=(const TmpFile& other) = default;
 			TmpFile(const TmpFile&) = default;
 			TmpFile(TmpFile&&) noexcept = default;
-			virtual ~TmpFile();
+			virtual ~TmpFile() = default;
 
-			void FindChildrens();
+			void FindChildren();
 
-			inline void SetSelected(Shared<TmpFile> file) 
+			inline void SetSelected(const Shared<TmpFile>& file) 
 			{ 
 				if (m_selectedFile)
 					m_selectedFile->m_selected = false;
@@ -33,7 +33,7 @@ namespace GALAXY
 
 			Shared<Resource::Texture> m_icon;
 
-			List<Shared<TmpFile>> m_childrens;
+			List<Shared<TmpFile>> m_children;
 
 			Shared<TmpFile> m_selectedFile;
 
@@ -50,20 +50,20 @@ namespace GALAXY
 		{
 		public:
 			FileDialog();
-			~FileDialog();
+			~FileDialog() override = default;
 
-			void Draw();
+			void Draw() override;
 
 			void Exit();
 
-			void DrawPanel(ImGuiTextFilter& textFilter);
+			void DrawPanel(const ImGuiTextFilter& textFilter);
 
 			inline Path GetCurrentPath() const { return m_currentPath; }
 
-			void SetCurrentPath(Path val);
-			inline void SetInitialized(bool val) { m_initialized = val; }
+			void SetCurrentPath(const Path& val);
+			inline void SetInitialized(const bool val) { m_initialized = val; }
 
-			inline void SetFileDialogType(FileDialogType val) { m_fileDialogType = val; }
+			inline void SetFileDialogType(const FileDialogType val) { m_fileDialogType = val; }
 			inline std::string GetOutput() const { return m_output; }
 			inline FileDialogType GetFileDialogType() const { return m_fileDialogType; }
 

@@ -25,9 +25,9 @@ namespace GALAXY {
 			inline void AddResource(const Shared<IResource>& resource);
 
 			template<typename T>
-			inline Weak<T> AddResource(const Path& relativePath);
+			inline Weak<T> AddResource(const Path& fullPath);
 
-			inline bool Contains(const Path& fullPath);
+			inline bool Contains(const Path& fullPath) const;
 
 			// Remove the Resource to the resource Manager
 			inline void RemoveResource(IResource* resource);
@@ -65,7 +65,7 @@ namespace GALAXY {
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);
-			bool CheckForDataFile(const Path& resourcePath);
+			static bool CheckForDataFile(const Path& resourcePath);
 
 			void ProcessDataFile(const Path& dataPath);
 

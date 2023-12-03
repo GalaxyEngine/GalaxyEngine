@@ -80,39 +80,39 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::File::FindChildrens()
+	void Editor::UI::File::FindChildren()
 	{
-		auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
+		const auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
 		for (const std::filesystem::directory_entry& entry : dirIt)
 		{
-			m_childrens.push_back(std::make_shared<File>(entry.path()));
-			m_childrens.back()->m_parent = shared_from_this();
+			m_children.push_back(std::make_shared<File>(entry.path()));
+			m_children.back()->m_parent = shared_from_this();
 			if (entry.is_directory()) {
 				m_isAnyChildFolder = true;
 			}
 		}
 	}
 
-	void Editor::UI::File::FindAllChildrens()
+	void Editor::UI::File::FindAllChildren()
 	{
 		if (!std::filesystem::exists(m_info.GetFullPath()))
 		{
 			PrintLog("%s does not exist, maybe because of no project path", m_info.GetFullPath().string().c_str());
 			return;
 		}
-		auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
+		const auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
 		for (const std::filesystem::directory_entry& entry : dirIt)
 		{
-			m_childrens.push_back(std::make_shared<File>(entry.path()));
-			m_childrens.back()->m_parent = weak_from_this();
+			m_children.push_back(std::make_shared<File>(entry.path()));
+			m_children.back()->m_parent = weak_from_this();
 			if (entry.is_directory()) {
 				m_isAnyChildFolder = true;
-				m_childrens.back()->FindAllChildrens();
+				m_children.back()->FindAllChildren();
 			}
 		}
 	}
 
-	void Editor::UI::File::DisplayOnExplorer()
+	void Editor::UI::File::DisplayOnExplorer() const
 	{
 		if (m_info.isDirectory())
 		{
@@ -123,7 +123,7 @@ namespace GALAXY {
 			}
 			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
 			{
-				for (auto& children : m_childrens)
+				for (const Shared<File>& children : m_children)
 				{
 					children->DisplayOnExplorer();
 				}
@@ -134,15 +134,11 @@ namespace GALAXY {
 
 #pragma endregion
 
-	Editor::UI::FileExplorer::FileExplorer()
-	{
-	}
-
 	void Editor::UI::FileExplorer::Initialize()
 	{
 		m_workingDirectory = Resource::ResourceManager::GetInstance()->GetAssetPath();
 		m_mainFile = std::make_shared<File>(m_workingDirectory);
-		m_mainFile->FindAllChildrens();
+		m_mainFile->FindAllChildren();
 
 		m_currentFile = m_mainFile;
 	}
@@ -152,9 +148,9 @@ namespace GALAXY {
 		if (!p_open)
 			return;
 
-		float iconSize = 86 * Wrapper::GUI::GetScaleFactor();
-		const int space = 15;
-		const int textLength = 9;
+		const float iconSize = 86 * Wrapper::GUI::GetScaleFactor();
+		constexpr int space = 15;
+		constexpr int textLength = 9;
 		bool openRightClick = false;
 
 		// Begin the ImGui window for the File Explorer
@@ -189,13 +185,13 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Vec4f(0, 0, 100, 255));
 
 			// Iterate through each child of the current file
-			for (size_t i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++) {
-				auto& child = m_currentFile->m_childrens[i];
+			for (size_t i = 0, j = 0; i < m_currentFile->m_children.size(); i++) {
+				Shared<File>& child = m_currentFile->m_children[i];
 				if (!child || !child->m_icon.lock() || child->m_info.GetResourceType() == Resource::ResourceType::Data) {
 					continue;
 				}
 
-				ImGui::PushID((int)i);
+				ImGui::PushID(static_cast<int>(i));
 
 				auto cursorPos = ImGui::GetCursorPos();
 
@@ -226,7 +222,7 @@ namespace GALAXY {
 				}
 				else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
-					if (std::count(m_selectedFiles.begin(), m_selectedFiles.end(), child) == 0)
+					if (std::ranges::count(m_selectedFiles, child) == 0)
 					{
 						ClearSelected();
 					}
@@ -242,10 +238,10 @@ namespace GALAXY {
 				// Positioning for the file icon and text
 				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
 				ImGui::BeginGroup();
-				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2i(iconSize - 24.f));
+				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24.f));
 
 				// Truncate and display file name
-				size_t length = child->m_info.GetFileName().length();
+				const size_t length = child->m_info.GetFileName().length();
 				std::string fileName = child->m_info.GetFileName();
 				if (length > textLength + 3) {
 					fileName = fileName.substr(0, textLength);
@@ -285,15 +281,15 @@ namespace GALAXY {
 
 	}
 
-	void Editor::UI::FileExplorer::AddFileSelected(Shared<File>& child)
+	void Editor::UI::FileExplorer::AddFileSelected(const Shared<File>& child)
 	{
-		if (std::count(m_selectedFiles.begin(), m_selectedFiles.end(), child) > 0)
+		if (std::ranges::count(m_selectedFiles, child) > 0)
 			return;
 		child->m_selected = true;
 		m_selectedFiles.push_back(child);
 	}
 
-	void Editor::UI::FileExplorer::RemoveFileSelected(Shared<File>& child)
+	void Editor::UI::FileExplorer::RemoveFileSelected(const Shared<File>& child)
 	{
 		for (size_t i = 0; i < m_selectedFiles.size(); i++) {
 			if (m_selectedFiles[i] == child) {
@@ -305,14 +301,14 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::ClearSelected()
 	{
-		for (auto& selectedFile : m_selectedFiles)
+		for (const auto& selectedFile : m_selectedFiles)
 		{
 			selectedFile->m_selected = false;
 		}
 		m_selectedFiles.clear();
 	}
 
-	void Editor::UI::FileExplorer::SetCurrentFile(Shared<File>& file)
+	void Editor::UI::FileExplorer::SetCurrentFile(const Shared<File>& file)
 	{
 		m_currentFile = file;
 		ClearSelected();
@@ -334,9 +330,9 @@ namespace GALAXY {
 				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 				if (m_rightClickedFiles[0]->m_resource.lock()) {
 					bool allSame = true;
-					Resource::ResourceType commonType = m_rightClickedFiles[0]->m_resource.lock()->GetFileInfo().GetResourceType();
+					const Resource::ResourceType commonType = m_rightClickedFiles[0]->m_resource.lock()->GetFileInfo().GetResourceType();
 
-					for (auto& file : m_rightClickedFiles)
+					for (const Shared<File>& file : m_rightClickedFiles)
 					{
 						if (!file->m_resource.lock() || commonType != file->m_resource.lock()->GetFileInfo().GetResourceType())
 						{
@@ -359,7 +355,7 @@ namespace GALAXY {
 						case Resource::ResourceType::Model:
 							if (ImGui::Button("Import", buttonSize))
 							{
-								for (auto& file : m_rightClickedFiles)
+								for (const Shared<File>& file : m_rightClickedFiles)
 								{
 									file->m_resource.lock()->Load();
 								}
@@ -383,7 +379,7 @@ namespace GALAXY {
 
 				if (ImGui::Button("Delete", buttonSize))
 				{
-					for (auto& file : m_rightClickedFiles)
+					for (const Shared<File>& file : m_rightClickedFiles)
 					{
 						Resource::ResourceManager::GetInstance()->RemoveResource(file->m_info.GetRelativePath());
 						std::remove(file->m_info.GetFullPath().string().c_str());
@@ -439,7 +435,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, bool select)
+	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, const bool select)
 	{
 #ifdef _WIN32
 		
@@ -451,10 +447,9 @@ namespace GALAXY {
 		snprintf(fullCommand, sizeof(fullCommand), "%s%s\"", command, files[0]->m_info.GetFullPath().string().c_str());
 
 		// Launch File Explorer
-		HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL);
 
-		if ((intptr_t)result <= 32) {
-			DWORD error = GetLastError();
+		if (HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL); reinterpret_cast<intptr_t>(result) <= 32) {
+			const DWORD error = GetLastError();
 			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
 		}
 		
@@ -478,14 +473,22 @@ namespace GALAXY {
 			// You might also use FormatMessage to get a more detailed error description
 		}
 		*/
-#else
-		//TODO
+#elif defined(__linux__)
+		//TODO : Test this
+		const char* command = select ? "xdg-open \"" : "xdg-open ";
+		for (const auto& file : files) {
+			std::string fullCommand = command + file + "\"";
+			if (std::system(fullCommand.c_str()) != 0) {
+				std::perror("Failed to open file explorer");
+				// Handle error as needed
+			}
+		}
 #endif
 	}
 
-	void Editor::UI::FileExplorer::ReloadContent()
+	void Editor::UI::FileExplorer::ReloadContent() const
 	{
-		m_currentFile->m_childrens.clear();
-		m_currentFile->FindAllChildrens();
+		m_currentFile->m_children.clear();
+		m_currentFile->FindAllChildren();
 	}
 }

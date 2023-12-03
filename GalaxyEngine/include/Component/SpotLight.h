@@ -14,7 +14,7 @@ namespace GALAXY
 			SpotLight& operator=(const SpotLight& other) = default;
 			SpotLight(const SpotLight&) = default;
 			SpotLight(SpotLight&&) noexcept = default;
-			virtual ~SpotLight() {}
+			~SpotLight() override {}
 
 			inline const char* GetComponentName() const override { return "Spot Light"; }
 
@@ -35,10 +35,10 @@ namespace GALAXY
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;
 
-			inline void SetCutOff(float angle) { m_cutOff.value = angle; SetDirty(); }
+			inline void SetCutOff(const float angle) { m_cutOff.value = angle; SetDirty(); }
 			inline float GetCutOff() const { return m_cutOff.value; }
 
-			inline void SetOuterCutOff(float angle) { m_outerCutOff = angle; SetDirty(); }
+			inline void SetOuterCutOff(const float angle) { m_outerCutOff = angle; SetDirty(); }
 			inline float GetOuterCutOff() const { return m_outerCutOff.value; }
 		private:
 			LightData<Vec3f> m_direction;

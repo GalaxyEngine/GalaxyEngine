@@ -9,6 +9,8 @@
 #include <deque>
 #include <filesystem>
 
+#include "Editor/Benchmark.h"
+
 namespace GALAXY
 {
 	namespace Resource { class ResourceManager; class IResource; }
@@ -25,16 +27,16 @@ namespace GALAXY
 		public:
 			~Application();
 
-			static Application& GetInstance() { return m_instance; }
+			static inline Application& GetInstance();
 
 			void Initialize(const std::filesystem::path& projectPath);
 			void Update();
 
-			void PasteObject();
+			void PasteObject() const;
 
 			void CopyObject();
 
-			void Destroy();
+			void Destroy() const;
 
 			inline void AddResourceToSend(const std::filesystem::path& fullPath);
 
@@ -42,13 +44,14 @@ namespace GALAXY
 
 			void TrySendResource(Shared<Resource::IResource> resource, const std::filesystem::path& resourcePath);
 
-			inline Wrapper::Window* GetWindow() { return m_window.get(); }
+			[[nodiscard]] inline Wrapper::Window* GetWindow() const;
 
-			inline Editor::EditorSettings& GetEditorSettings() { return m_editorSettings; }
+			inline Editor::EditorSettings& GetEditorSettings();
+			inline Editor::Benchmark& GetBenchmark();
 
-			inline bool* GetDrawGridPtr() { return &m_drawGrid; }
+			inline bool* GetDrawGridPtr();
 
-			void Exit();
+			void Exit() const;
 		private:
 			static Application m_instance;
 
@@ -71,6 +74,8 @@ namespace GALAXY
 			bool m_drawGrid = true;
 			
 			std::string m_clipboard;
+
+			Editor::Benchmark m_benchmark;
 		};
 	}
 }

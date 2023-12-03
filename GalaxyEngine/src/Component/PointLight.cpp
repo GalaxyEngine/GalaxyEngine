@@ -41,8 +41,8 @@ namespace GALAXY
 	{
 		Light::ComputeLocationName();
 
-		std::string indexString = std::to_string(p_index);
-		std::string prefixString = "points[" + indexString;
+		const std::string indexString = std::to_string(p_lightIndex);
+		const std::string prefixString = "points[" + indexString;
 
 		p_enableString = prefixString + "].enable";
 		p_ambient.string = prefixString + "].ambient";

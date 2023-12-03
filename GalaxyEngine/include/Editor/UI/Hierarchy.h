@@ -10,11 +10,11 @@ namespace GALAXY {
 		class Hierarchy : public EditorWindow
 		{
 		public:
-			~Hierarchy() {}
+			~Hierarchy() override {}
 
 			void Draw() override;
 
-			void DisplayGameObject(Weak<Core::GameObject> weakGO, uint64_t& index, bool display = true);
+			void DisplayGameObject(const Weak<Core::GameObject>& weakGO, uint64_t& index, bool display = true);
 
 			void RightClickPopup();
 

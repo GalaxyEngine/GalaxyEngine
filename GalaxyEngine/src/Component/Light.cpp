@@ -25,7 +25,7 @@ namespace GALAXY
 
 	void Component::Light::OnDestroy()
 	{
-		auto weak_this = GetGameObject()->GetWeakOfComponent(this);
+		const Weak<Light> weak_this = GetGameObject()->GetWeakOfComponent(this);
 		Render::LightManager::RemoveLight(weak_this);
 	}
 

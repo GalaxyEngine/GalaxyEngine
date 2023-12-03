@@ -16,7 +16,7 @@ namespace GALAXY
 
 			m_currentTime = 0.f;
 
-			bool exist = std::filesystem::exists(m_filePath);
+			const bool exist = std::filesystem::exists(m_filePath);
 			if (m_exist && !exist) {
 				// Existed but not now, Delete
 				std::cerr << "File Deleted " << m_filePath << std::endl;

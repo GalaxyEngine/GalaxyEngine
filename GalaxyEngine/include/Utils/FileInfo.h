@@ -21,11 +21,11 @@ namespace GALAXY
 		class FileInfo
 		{
 		public:
-			FileInfo() {}
-			FileInfo(const Path& path, bool createRelativePath = true);
-			~FileInfo() {}
+			FileInfo() = default;
+			explicit FileInfo(const Path& path, bool createRelativePath = true);
+			~FileInfo() = default;
 
-			static Path ToPath(Path path);
+			static Path ToPath(const Path& path);
 			static Path ToRelativePath(Path path);
 			static Resource::ResourceType GetTypeFromExtension(const Path& ext);
 
@@ -36,8 +36,8 @@ namespace GALAXY
 			inline Path GetExtension() const { return m_extension; }
 			inline Resource::ResourceType GetResourceType() const { return m_resourceType; }
 
-			inline bool isDirectory() { return std::filesystem::is_directory(m_fullPath); }
-			inline bool Exist() { return std::filesystem::exists(m_fullPath); }
+			inline bool isDirectory() const { return std::filesystem::is_directory(m_fullPath); }
+			inline bool Exist() const { return std::filesystem::exists(m_fullPath); }
 		private:
 			friend Resource::IResource;
 			friend Resource::Mesh;
@@ -50,7 +50,7 @@ namespace GALAXY
 			Path m_extension;
 			bool m_exist = false;
 
-			Resource::ResourceType m_resourceType = (Resource::ResourceType)0;
+			Resource::ResourceType m_resourceType = static_cast<Resource::ResourceType>(0);
 		};
 	}
 }

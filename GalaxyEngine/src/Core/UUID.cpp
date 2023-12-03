@@ -15,7 +15,7 @@ namespace GALAXY
 		
 	}
 
-	Core::UUID::UUID(uint64_t uuid) : m_UUID(uuid)
+	Core::UUID::UUID(const uint64_t uuid) : m_UUID(uuid)
 	{
 
 	}

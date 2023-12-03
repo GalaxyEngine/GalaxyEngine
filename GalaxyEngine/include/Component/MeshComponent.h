@@ -10,13 +10,13 @@ namespace GALAXY {
 		{
 		public:
 			MeshComponent() {}
-			~MeshComponent() {}
+			~MeshComponent() override {}
 
 			inline const char* GetComponentName() const override { return "Mesh Component"; }
 
 			void OnDraw() override;
 
-			inline void SetMesh(Weak<Resource::Mesh> mesh) { if (mesh.lock()) { m_mesh = mesh; } }
+			inline void SetMesh(const Weak<Resource::Mesh>& mesh) { if (mesh.lock()) { m_mesh = mesh; } }
 
 			void Serialize(Utils::Serializer& serializer) override;
 			void Deserialize(Utils::Parser& parser) override;

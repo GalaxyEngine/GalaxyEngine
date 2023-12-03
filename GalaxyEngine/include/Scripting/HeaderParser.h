@@ -7,7 +7,7 @@ namespace GALAXY
 	{
 		struct HFile
 		{
-			HFile(const std::filesystem::path& _path) : path(_path) {}
+			explicit HFile(const std::filesystem::path& _path) : path(_path) {}
 			std::filesystem::path path;
 		};
 
@@ -23,9 +23,9 @@ namespace GALAXY
 			HeaderParser();
 
 			List<PropertyInfo> ParseFile(const std::filesystem::path& filename);
-			bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, std::string file);
+			static bool ExtractPropertyInfo(const std::string& line, PropertyInfo& propertyInfo, std::string file);
 
-			bool isValidVariableCharacter(char ch);
+			static bool isValidVariableCharacter(char ch);
 		private:
 		};
 	}

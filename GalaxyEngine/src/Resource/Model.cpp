@@ -28,9 +28,9 @@ namespace GALAXY {
 		CreateDataFiles();
 	}
 
-	void Resource::Model::CreateDataFiles()
+	void Resource::Model::CreateDataFiles() const
 	{
-		std::filesystem::path path = p_fileInfo.GetFullPath().string() + ".gdata";
+		const Path path = p_fileInfo.GetFullPath().string() + ".gdata";
 		std::ofstream file = Utils::FileSystem::GenerateFile(path);
 		if (file.is_open()) {
 			file << "Origin: " << p_fileInfo.GetRelativePath().generic_string() << std::endl;
@@ -47,7 +47,7 @@ namespace GALAXY {
 	{
 		for (auto& weakMesh : m_meshes)
 		{
-			Shared<Resource::Mesh> mesh = weakMesh.lock();
+			const Shared<Mesh> mesh = weakMesh.lock();
 			mesh->ComputeBoundingBox();
 
 			m_boundingBox.min.x = std::min(m_boundingBox.min.x, mesh->m_boundingBox.min.x);

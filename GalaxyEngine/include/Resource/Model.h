@@ -21,11 +21,11 @@ namespace GALAXY {
 		class Model : public IResource
 		{
 		public:
-			Model(const Path& fullPath) : IResource(fullPath) {}
+			explicit Model(const Path& fullPath) : IResource(fullPath) {}
 			Model& operator=(const Model& other) = default;
 			Model(const Model&) = default;
 			Model(Model&&) noexcept = default;
-			virtual ~Model();
+			~Model() override;
 
 			void Load() override;
 
@@ -33,7 +33,7 @@ namespace GALAXY {
 		
 			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
 		private:
-			void CreateDataFiles();
+			void CreateDataFiles() const;
 
 			void ComputeBoundingBox();
 		private:

@@ -4,11 +4,8 @@
 #include "Utils/Define.h"
 
 #include "Resource/Texture.h"
-#include "Resource/PostProcessShader.h"
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
-#include "Resource/Mesh.h"
-#include "Resource/Model.h"
 #include "Resource/Scene.h"
 
 namespace GALAXY
@@ -25,7 +22,7 @@ namespace GALAXY
 	template<typename T>
 	inline Weak<T> Resource::ResourceManager::AddResource(const Path& fullPath)
 	{
-		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_resources.contains(relativePath)) {
 			PrintWarning("Already Contain %s", relativePath.string().c_str());
 			return Weak<T>();
@@ -38,7 +35,7 @@ namespace GALAXY
 	{
 		if (!resource)
 			return;
-		if (auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
+		if (const auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
 		{
 			it->second->Unload();
 			m_resources.erase(it);
@@ -63,7 +60,7 @@ namespace GALAXY
 		it.reset();
 	}
 
-	inline bool Resource::ResourceManager::Contains(const Path& fullPath)
+	inline bool Resource::ResourceManager::Contains(const Path& fullPath) const
 	{
 		return m_resources.contains(fullPath);
 	}
@@ -73,7 +70,7 @@ namespace GALAXY
 	{
 		if (fullPath.empty())
 			return {};
-		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		auto resource = m_instance->m_resources.find(relativePath);
 		if (resource == m_instance->m_resources.end())
 		{
@@ -116,7 +113,7 @@ namespace GALAXY
 		if (fullPath.empty())
 			return {};
 
-		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 
 		if (m_instance->m_resources.contains(relativePath))
 		{
@@ -157,13 +154,13 @@ namespace GALAXY
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::ReloadResource(const Path& fullPath)
 	{
-		Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
-		if (!m_instance->m_resources.count(relativePath)) {
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (!m_instance->m_resources.contains(relativePath)) {
 			PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
 			return GetOrLoad<T>(fullPath);
 		}
 
-		Shared<IResource> resource = m_instance->m_resources.at(relativePath);
+		const Shared<IResource> resource = m_instance->m_resources.at(relativePath);
 		T* resourcePtr = dynamic_pointer_cast<T>(resource).get();
 		*resourcePtr = T(fullPath);
 
@@ -173,8 +170,8 @@ namespace GALAXY
 	template <typename T>
 	inline Weak<T> Resource::ResourceManager::GetResource(const Path& fullPath)
 	{
-		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
-		if (m_resources.count(relativePath))
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (m_resources.contains(relativePath))
 		{
 			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
 		}
@@ -184,9 +181,9 @@ namespace GALAXY
 	template <typename T>
 	inline Shared<T> Resource::ResourceManager::GetTemporaryResource(const Path& fullPath)
 	{
-		if (m_temporaryResources.count(fullPath))
+		if (m_temporaryResources.contains(fullPath))
 		{
-			auto resource = m_temporaryResources.at(fullPath);
+			const Weak<IResource> resource = m_temporaryResources.at(fullPath);
 			if (resource.expired()) 
 			{
 				m_temporaryResources.erase(fullPath);
@@ -202,11 +199,11 @@ namespace GALAXY
 	inline std::vector<Weak<T>> Resource::ResourceManager::GetAllResources()
 	{
 		std::vector<Weak<T>> m_resourcesOfType;
-		for (auto&& resource : m_resources)
+		for (Shared<IResource>& val : m_resources | std::views::values)
 		{
-			if (resource.second->GetFileInfo().GetResourceType() == T::GetResourceType())
+			if (val->GetFileInfo().GetResourceType() == T::GetResourceType())
 			{
-				m_resourcesOfType.push_back(std::dynamic_pointer_cast<T>(resource.second));
+				m_resourcesOfType.push_back(std::dynamic_pointer_cast<T>(val));
 			}
 		}
 		return m_resourcesOfType;
@@ -219,20 +216,20 @@ namespace GALAXY
 		{
 			static ImGuiTextFilter filter;
 			filter.Draw();
-			Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
+			const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
 			for (const auto& [path, resource] : m_resources)
 			{
-				bool typeChecked = false;
+				bool typeChecked;
 				if (typeFilter.size() > 0)
-					typeChecked = std::find(typeFilter.begin(), typeFilter.end(), resource->GetFileInfo().GetResourceType()) != typeFilter.end();
+					typeChecked = std::ranges::find(typeFilter, resource->GetFileInfo().GetResourceType()) != typeFilter.end();
 				else
 					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
 
 				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
 					&& resource->p_displayOnInspector)
 				{
-					ImGui::PushID((int)i++);
+					ImGui::PushID(static_cast<int>(i++));
 					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))
 					{
 						ImGui::CloseCurrentPopup();

@@ -1,7 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
-//#include <galaxymath/Maths.h>
+#include <galaxymath/Maths.h>
 
 namespace GALAXY {
 	enum class Space
@@ -14,11 +14,11 @@ namespace GALAXY {
 		{
 		public:
 			Transform();
-			Transform(const Vec3f& position, const Quat& rotation, const Vec3f& scale = { 1, 1, 1 });
+			Transform(const Vec3f& position, const Quat& rotation, const Vec3f& scale = Vec3f(1.f));
 			Transform& operator=(const Transform& other) = default;
 			Transform(const Transform&) = default;
 			Transform(Transform&&) noexcept = default;
-			virtual ~Transform() {}
+			~Transform() override = default;
 
 			void OnUpdate() override;
 			void ForceUpdate();
@@ -30,8 +30,8 @@ namespace GALAXY {
 
 			void ShowInInspector() override;
 
-			virtual void Serialize(Utils::Serializer& serializer);
-			virtual void Deserialize(Utils::Parser& parser);
+			void Serialize(Utils::Serializer& serializer) override;
+			void Deserialize(Utils::Parser& parser) override;
 
 			// === Setters === //
 			void SetWorldPosition(const Vec3f& worldPosition);
@@ -45,24 +45,24 @@ namespace GALAXY {
 			inline void SetLocalScale(const Vec3f& localScale);
 
 			// === Getters === //
-			Vec3f GetWorldPosition() const;
-			Quat  GetWorldRotation() const;
-			Vec3f GetWorldEulerRotation() const;
-			Vec3f GetWorldScale() const;
-			inline const Mat4& GetModelMatrix() const;
+			[[nodiscard]] Vec3f GetWorldPosition() const;
+			[[nodiscard]] Quat  GetWorldRotation() const;
+			[[nodiscard]] Vec3f GetWorldEulerRotation() const;
+			[[nodiscard]] Vec3f GetWorldScale() const;
+			[[nodiscard]] inline const Mat4& GetModelMatrix() const;
 
-			inline Vec3f GetLocalPosition() const;
-			inline Quat  GetLocalRotation() const;
-			inline Vec3f GetLocalEulerRotation() const;
-			inline Vec3f GetLocalScale() const;
-			inline Mat4 GetLocalMatrix() const;
+			[[nodiscard]] inline Vec3f GetLocalPosition() const;
+			[[nodiscard]] inline Quat  GetLocalRotation() const;
+			[[nodiscard]] inline Vec3f GetLocalEulerRotation() const;
+			[[nodiscard]] inline Vec3f GetLocalScale() const;
+			[[nodiscard]] inline Mat4 GetLocalMatrix() const;
 
-			inline Vec3f GetForward() const;
-			inline Vec3f GetRight() const;
-			inline Vec3f GetUp() const;
+			[[nodiscard]] inline Vec3f GetForward() const;
+			[[nodiscard]] inline Vec3f GetRight() const;
+			[[nodiscard]] inline Vec3f GetUp() const;
 
 			// === Other Methods === //
-			inline Vec3f TransformDirection(Vec3f direction);
+			inline Vec3f TransformDirection(Vec3f direction) const;
 
 			inline void RotateAround(Vec3f axis, float angle);
 

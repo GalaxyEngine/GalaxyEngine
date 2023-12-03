@@ -3,6 +3,7 @@
 #include <vector>
 #include <unordered_map>
 #include <map>
+#include <string>
 
 template <typename T>
 using Weak = std::weak_ptr<T>;

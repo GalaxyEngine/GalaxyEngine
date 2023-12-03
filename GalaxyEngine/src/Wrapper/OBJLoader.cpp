@@ -74,7 +74,7 @@ bool Wrapper::OBJLoader::Parse()
 				subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
 			else
 				//TODO : check if it's work
-				subMeshes.back().count = (size_t)(mesh.indices.size() * 1.5f - subMeshes.back().startIndex);
+				subMeshes.back().count = static_cast<size_t>(mesh.indices.size() * 1.5f - subMeshes.back().startIndex);
 		}
 	};
 
@@ -161,16 +161,16 @@ bool Wrapper::OBJLoader::Parse()
 	{
 		std::vector<Vec3i> triangulateFace;
 
-		for (size_t i = 0; i < m_meshes.size(); i++) {
-			ConvertQuadToTriangles(m_meshes[i].indices, triangulateFace);
-			m_meshes[i].indices = triangulateFace;
+		for (auto& mesh : m_meshes)
+		{
+			ConvertQuadToTriangles(mesh.indices, triangulateFace);
+			mesh.indices = triangulateFace;
 		}
 	}
 
-
-	for (size_t i = 0; i < m_meshes.size(); i++)
+	for (auto& m_meshe : m_meshes)
 	{
-		ComputeVertices(m_meshes[i]);
+		ComputeVertices(m_meshe);
 	}
 
 	return true;
@@ -211,7 +211,7 @@ Vec3i Wrapper::OBJLoader::ParseFaceIndex(const std::string& indexStr)
 bool AreVerticesSimilar(const Vec3f& v1, const Vec2f& uv1, const Vec3f& n1,
 	const Vec3f& v2, const Vec2f& uv2, const Vec3f& n2)
 {
-	const float epsilon = 0.0001f;
+	constexpr float epsilon = 0.0001f;
 	return (std::abs(v1.x - v2.x) < epsilon &&
 		std::abs(v1.y - v2.y) < epsilon &&
 		std::abs(v1.z - v2.z) < epsilon &&
@@ -244,7 +244,6 @@ void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 
 void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices)
 {
-
 	if (quadIndices.size() % 4 != 0) {
 		PrintError("The number of index is not valid");
 		return;

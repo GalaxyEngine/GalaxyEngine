@@ -3,12 +3,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
-unsigned char* Wrapper::ImageLoader::Load(char const* filename, int* x, int* y, int* comp, int req_comp)
+unsigned char* Wrapper::ImageLoader::Load(char const* filename, int* x, int* y, int* comp, const int req_comp)
 {
 	return stbi_load(filename, x, y, comp, req_comp);
 }
 
-void Wrapper::ImageLoader::FlipVerticalOnLoad(bool flagTrueIfShouldFlip)
+void Wrapper::ImageLoader::FlipVerticalOnLoad(const bool flagTrueIfShouldFlip)
 {
 	stbi_set_flip_vertically_on_load(flagTrueIfShouldFlip);
 }

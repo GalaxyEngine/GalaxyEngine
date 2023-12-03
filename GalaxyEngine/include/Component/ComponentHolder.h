@@ -8,7 +8,7 @@ namespace GALAXY::Component
 	class ComponentHolder
 	{
 	public:
-		~ComponentHolder() {}
+		~ComponentHolder() = default;
 
 		static void Initialize();
 

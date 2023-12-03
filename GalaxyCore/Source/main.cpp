@@ -14,12 +14,12 @@ void Main(int argc, char** argv)
 	//TODO :
 	// * Check dynamic loading on linux
 
-	auto workDir = std::filesystem::path(argv[0]).parent_path();
+	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
-
+	
 	std::filesystem::path projectPath = "D:/Code/Moteurs/ProjectTest/ProjectTest.gProject";
 	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
 	if (argc > 1)

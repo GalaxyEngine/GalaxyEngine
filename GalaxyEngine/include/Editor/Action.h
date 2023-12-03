@@ -22,8 +22,8 @@ namespace GALAXY
 				undoAction = undoFunc;
 			}
 
-			inline void Do() { doAction(); }
-			inline void Undo() { undoAction(); }
+			inline void Do() const { doAction(); }
+			inline void Undo() const { undoAction(); }
 
 		private:
 			std::function<void()> doAction;

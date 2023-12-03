@@ -9,7 +9,7 @@ namespace GALAXY
 	{
 		class FileWatcher {
 		public:
-			FileWatcher(const std::string& filePath, std::function<void()> callback, bool multithread = false)
+			FileWatcher(const std::string& filePath, const std::function<void()>& callback, const bool multithread = false)
 				: m_multithread(multithread), m_filePath(filePath), m_callback(callback), m_exist(std::filesystem::exists(filePath)){
 			}
 			~FileWatcher() { StopWatching(); }

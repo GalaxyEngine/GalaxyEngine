@@ -54,7 +54,7 @@ namespace GALAXY
 		ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
 		if (GetSaveFileNameA(&ofn) == TRUE)
 		{
-			if (ofn.lpstrFile != NULL)
+			if (ofn.lpstrFile != nullptr)
 				return ofn.lpstrFile;
 			return "";
 		}
@@ -66,20 +66,20 @@ namespace GALAXY
 
 	std::string Utils::OS::GetLastErrorMessage()
 	{
-		std::string message = "";
+		std::string message;
 #ifdef _WIN32
 		//Get the error message ID, if any.
-		DWORD errorMessageID = ::GetLastError();
+		const DWORD errorMessageID = ::GetLastError();
 		if (errorMessageID == 0) {
-			return std::string(); //No error message has been recorded
+			return {}; //No error message has been recorded
 		}
 
 		LPSTR messageBuffer = nullptr;
 
 		//Ask Win32 to give us the string version of that message ID.
 		//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
-		size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+		const size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+		                                   nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
 		//Copy the error message into a std::string.
 		message = std::string(messageBuffer, size);
@@ -103,7 +103,7 @@ namespace GALAXY
 #endif
 
 		if (!handle) {
-			std::string errorMessage = GetLastErrorMessage();
+			const std::string errorMessage = GetLastErrorMessage();
 			PrintError("Failed to load DLL %s. Error : %s", DllPath.generic_string().c_str(), errorMessage.c_str());
 		}
 		return handle;
@@ -120,7 +120,7 @@ namespace GALAXY
 #endif
 	}
 
-	const char* Utils::OS::GetDLLExstension()
+	const char* Utils::OS::GetDLLExtension()
 	{
 #if defined(_WIN32)
 		return ".dll";

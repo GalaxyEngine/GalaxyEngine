@@ -24,7 +24,10 @@ namespace GALAXY {
 	void Editor::UI::SceneWindow::Draw()
 	{
 		if (!p_open)
+		{
+			m_visible = false;
 			return;
+		}
 		if ((m_visible = ImGui::Begin("Scene", &p_open)))
 		{
 			m_isFocused = ImGui::IsWindowFocused();
@@ -52,11 +55,11 @@ namespace GALAXY {
 			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
 				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGridPtr());
-				Shared<Editor::Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
-				int value = (int)gizmo->GetGizmoMode();
+				const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
+				int value = static_cast<int>(gizmo->GetGizmoMode());
 				if (ImGui::Combo("Gizmo Mode", &value, Editor::SerializeSpaceEnum()))
 				{
-					gizmo->SetGizmoMode((Editor::Space)value);
+					gizmo->SetGizmoMode(static_cast<Space>(value));
 				}
 				ImGui::EndPopup();
 			}
@@ -72,11 +75,11 @@ namespace GALAXY {
 	{
 		if (!m_settingsIcon.lock())
 		{
-			m_settingsIcon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/settings.png");
+			m_settingsIcon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/settings.png");
 		}
 		if (!m_menuIcon.lock())
 		{
-			m_menuIcon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/menu.png");
+			m_menuIcon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/menu.png");
 		}
 	}
 
@@ -87,25 +90,25 @@ namespace GALAXY {
 
 	void Editor::UI::SceneWindow::DrawImage()
 	{
-		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+		const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 		if (!currentScene->HasBeenSent())
 			return;
-		auto renderTexture = currentScene->GetEditorCamera()->GetRenderTexture().lock().get();
-		auto outlineRenderTexture = currentScene->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
+		const auto renderTexture = currentScene->GetEditorCamera()->GetRenderTexture().lock().get();
+		const auto outlineRenderTexture = currentScene->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
 
 		if (!renderTexture || !outlineRenderTexture)
 			return;
 
-		float contentWidth = ImGui::GetContentRegionAvail().x;
-		float contentHeight = ImGui::GetContentRegionAvail().y;
+		const float contentWidth = ImGui::GetContentRegionAvail().x;
+		const float contentHeight = ImGui::GetContentRegionAvail().y;
 
-		const bool keepAspectRatio = true;
-		const bool drawBorder = false;
+		constexpr bool keepAspectRatio = true;
+		constexpr bool drawBorder = false;
 
 		float width = contentWidth, height = contentHeight;
 
 		if (keepAspectRatio) {
-			float aspectRatio = 16.f / 9.f;
+			const float aspectRatio = 16.f / 9.f;
 
 			// Calculate dimensions while maintaining the aspect ratio
 			if (contentWidth / aspectRatio <= contentHeight)
@@ -121,17 +124,18 @@ namespace GALAXY {
 		}
 		m_imageSize = Vec2f(width, height);
 		// Calculate the x position for centering horizontally
-		float xPos = (ImGui::GetContentRegionAvail().x - width) * 0.5f;
-		float yPos = (ImGui::GetContentRegionAvail().y - height) * 0.5f;
+		const float xPos = (ImGui::GetContentRegionAvail().x - width) * 0.5f;
+		const float yPos = (ImGui::GetContentRegionAvail().y - height) * 0.5f;
 
-		auto cursorPos = ImGui::GetCursorPos();
+		const auto cursorPos = ImGui::GetCursorPos();
 		// Set the cursor position to center the content horizontally
 		ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
 
 		// Get Position to draw a border
-		Vec2f topLeft = ImGui::GetCursorScreenPos();
+		const Vec2f topLeft = ImGui::GetCursorScreenPos();
 
-		m_imagePosition = (Vec2i)((Vec2f)ImGui::GetWindowPos() - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f() + (Vec2f)ImGui::GetCursorPos());
+		m_imagePosition = static_cast<Vec2i>(static_cast<Vec2f>(ImGui::GetWindowPos()) - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f()
+			+ static_cast<Vec2f>(ImGui::GetCursorPos()));
 
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 

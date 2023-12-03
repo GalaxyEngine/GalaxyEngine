@@ -9,11 +9,11 @@ namespace GALAXY
 		class Script : public IResource
 		{
 		public:
-			Script(const Path& fullPath) : IResource(fullPath) {}
+			explicit Script(const Path& fullPath) : IResource(fullPath) {}
 			Script& operator=(const Script& other) = default;
 			Script(const Script&) = default;
 			Script(Script&&) noexcept = default;
-			virtual ~Script() {}
+			~Script() override {}
 
 			void Load() override;
 

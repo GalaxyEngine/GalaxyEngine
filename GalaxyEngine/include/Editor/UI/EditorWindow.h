@@ -4,10 +4,10 @@ namespace GALAXY::Editor::UI {
 	class EditorWindow
 	{
 	public:
-		~EditorWindow() {}
+		virtual ~EditorWindow() {}
 
 		inline bool IsOpen() const { return p_open; }
-		inline void SetOpen(bool value) { p_open = value; };
+		inline void SetOpen(const bool value) { p_open = value; };
 
 		virtual void Initialize() {}
 		virtual void Draw() {}

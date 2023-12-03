@@ -4,7 +4,32 @@ namespace GALAXY
 {
 	inline void Core::Application::AddResourceToSend(const std::filesystem::path& fullPath)
 	{
-		if (!std::count(m_resourceToSend.begin(), m_resourceToSend.end(), fullPath))
+		if (!std::ranges::count(m_resourceToSend, fullPath))
 			m_resourceToSend.push_back(fullPath);
+	}
+
+	Wrapper::Window* Core::Application::GetWindow() const
+	{
+		return m_window.get();
+	}
+
+	Core::Application& Core::Application::GetInstance()
+	{
+		return m_instance;
+	}
+
+	Editor::EditorSettings& Core::Application::GetEditorSettings()
+	{
+		return m_editorSettings;
+	}
+
+	Editor::Benchmark& Core::Application::GetBenchmark()
+	{
+		return m_benchmark;
+	}
+
+	bool* Core::Application::GetDrawGridPtr()
+	{
+		return &m_drawGrid;
 	}
 }

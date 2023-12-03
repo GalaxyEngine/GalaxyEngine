@@ -2,9 +2,7 @@
 #include "GalaxyAPI.h"
 #include <filesystem>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
+#include <atomic>
 
 namespace GALAXY
 {
@@ -63,13 +61,13 @@ namespace GALAXY
 
 			void LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName);
 
-			void UnloadDLL();
+			void UnloadDLL() const;
 
 			void AddScript(Weak<Resource::Script> script);
 
-			void RemoveScript(Weak<Resource::Script> script);
+			void RemoveScript(const Weak<Resource::Script>& script);
 
-			void ParseScript(Weak<Resource::Script>& script);
+			void ParseScript(const Weak<Resource::Script>& script);
 
 			void CleanScripts();
 
@@ -77,23 +75,23 @@ namespace GALAXY
 
 			void ReloadDLL();
 
-			void UpdateFileWatcherDLL();
+			void UpdateFileWatcherDLL() const;
 
 			static VariableType StringToVariableType(const std::string& typeName);
 
 			Weak<class ScriptInstance> GetScriptInstance(const char* scriptName);
 
-			Shared<Component::ScriptComponent> CreateScript(const std::string& scriptName);
+			Shared<Component::ScriptComponent> CreateScript(const std::string& scriptName) const;
 
 			void* GetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName);
 			void SetVariableOfScript(Component::ScriptComponent* component, const std::string& scriptName, const std::string& variableName, void* value);
 
 		private:
-			ScriptConstructor GetConstructor(const std::string& className);
-			GetterMethod GetGetter(const std::string& className, const std::string& variableName);
-			SetterMethod GetSetter(const std::string& className, const std::string& variableName);
+			ScriptConstructor GetConstructor(const std::string& className) const;
+			GetterMethod GetGetter(const std::string& className, const std::string& variableName) const;
+			SetterMethod GetSetter(const std::string& className, const std::string& variableName) const;
 
-			bool ScriptExist(const std::string& scriptName);
+			bool ScriptExist(const std::string& scriptName) const;
 
 			void CopyDLLFile(const std::filesystem::path& originalPath, const std::filesystem::path& copiedPath);
 		private:
@@ -116,7 +114,7 @@ namespace GALAXY
 			std::unordered_map<std::string, Shared<class ScriptInstance>> m_scriptInstances;
 			std::vector<Weak<class ScriptComponent>> m_scriptComponents;
 
-			int copiedFile = 0;
+			std::atomic<int> copiedFile = 0;
 		};
 	}
 }

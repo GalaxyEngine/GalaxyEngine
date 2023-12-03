@@ -52,9 +52,9 @@ namespace GALAXY
 
 			virtual void Initialize() {}
 			virtual void EnableDebugOutput() {}
-			inline bool IsInitalized() { return p_initalized; }
+			inline bool IsInitalized() const { return p_initalized; }
 
-			inline void SetRenderingType(Render::RenderType value) { p_renderType = value; }
+			inline void SetRenderingType(const Render::RenderType value) { p_renderType = value; }
 			inline Render::RenderType GetRenderType() const { return p_renderType; }
 
 			virtual void Viewport(const Vec2i& pos, const Vec2i& size) {}

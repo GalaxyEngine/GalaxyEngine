@@ -34,10 +34,6 @@ namespace GALAXY
 		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
 		m_root->m_scene = this;
 	}
-
-	Scene::~Scene()
-	{
-	}
 	
 	void Scene::Initialize()
 	{
@@ -108,26 +104,26 @@ namespace GALAXY
 				renderer->SetRenderingType(Render::RenderType::Default);
 
 				// Calculate Mouse Position
-				Vec2i mainWindowSize = window->GetSize();
-				Vec2f imageSize = sceneWindow->GetImageSize();
+				const Vec2f mainWindowSize = window->GetSize();
+				const Vec2f imageSize = sceneWindow->GetImageSize();
 				Vec2f mousePosition = sceneWindow->GetMousePosition();
 				mousePosition = mousePosition * Vec2f(mainWindowSize.x / imageSize.x, mainWindowSize.y / imageSize.y);
 				mousePosition.y = mainWindowSize.y - mousePosition.y;
 
-				Vec4f color = renderer->ReadPixelColor(mousePosition);
+				const Vec4f color = renderer->ReadPixelColor(mousePosition);
 
-				uint64_t pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
+				const auto pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
 				if (m_gizmo->IsGizmoClicked())
 				{ }
-				else if (Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
+				else if (const Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
 					inspector->SetSelected(gameObject);
 				else
 					inspector->ClearSelected();
 
 				renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
 
-				auto ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
+				const Physic::Ray ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
 				cameraPosition = ray.origin;
 				clickPosition = ray.origin + ray.direction * ray.scale;
 			}
@@ -146,7 +142,7 @@ namespace GALAXY
 		}
 	}
 
-	void Scene::SetCurrentCamera(Weak<Render::Camera> camera)
+	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
 	{
 		m_currentCamera = camera;
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
@@ -155,6 +151,7 @@ namespace GALAXY
 	}
 
 #pragma region Resource Methods
+
 	void Resource::Scene::Load()
 	{
 		if (p_shouldBeLoaded)
@@ -180,7 +177,7 @@ namespace GALAXY
 		Initialize();
 	}
 
-	void Scene::Save(const Path& fullPath)
+	void Scene::Save(const Path& fullPath) const
 	{
 		Utils::Serializer serializer(fullPath.empty() ? p_fileInfo.GetFullPath() : fullPath);
 
@@ -192,9 +189,9 @@ namespace GALAXY
 
 	Weak<Scene> Scene::Create(const Path& path)
 	{
-		Scene scene(path);
+		const Scene scene(path);
 		scene.Save();
-		return Resource::ResourceManager::GetInstance()->GetOrLoad<Scene>(path);
+		return ResourceManager::GetInstance()->GetOrLoad<Scene>(path);
 	}
 #pragma endregion
 }

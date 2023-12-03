@@ -19,7 +19,7 @@ public:\
 	virtual ~x() {}\
 	const char* GetComponentName() const override \
 		{ \
-			return typeid(*this).name() + 6;\
+			return #x;\
 		}\
 	virtual List<const char*> GetComponentNames() const override\
 	{\

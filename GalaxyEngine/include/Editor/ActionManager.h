@@ -28,7 +28,7 @@ namespace GALAXY
 
 			inline void Undo() {
 				if (CanUndo()) {
-					Action action = undoStack.back();
+					const Action action = undoStack.back();
 					undoStack.pop_back();
 					action.Undo();
 					redoStack.push_back(action);
@@ -37,7 +37,7 @@ namespace GALAXY
 
 			inline void Redo() {
 				if (CanRedo()) {
-					Action action = redoStack.back();
+					const Action action = redoStack.back();
 					redoStack.pop_back();
 					action.Do();
 					undoStack.push_back(action);

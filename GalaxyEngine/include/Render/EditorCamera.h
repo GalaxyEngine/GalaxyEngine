@@ -13,7 +13,7 @@ namespace GALAXY
 			EditorCamera& operator=(const EditorCamera& other) = default;
 			EditorCamera(const EditorCamera&) = default;
 			EditorCamera(EditorCamera&&) noexcept = default;
-			virtual ~EditorCamera();
+			~EditorCamera() override;
 
 			void Update();
 
@@ -23,7 +23,7 @@ namespace GALAXY
 
 			inline class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
 
-			inline bool IsLooking() { return m_looking; }
+			inline bool IsLooking() const { return m_looking; }
 		private:
 
 			void StartLooking();

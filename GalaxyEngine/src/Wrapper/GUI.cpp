@@ -48,20 +48,21 @@ namespace GALAXY {
 	}
 
 	static float current_fontSize;
-	void Wrapper::GUI::SetDefaultFontSize(float pixelSize)
+	void Wrapper::GUI::SetDefaultFontSize(const float pixel_size)
 	{
 		static ImGuiIO& io = ImGui::GetIO();
 
-		if (pixelSize == current_fontSize)
+		if (pixel_size == current_fontSize)
 			return;
 		// Create a new ImFontConfig
 		ImFontConfig config;
-		config.SizePixels = pixelSize;
+		config.SizePixels = pixel_size;
 		config.OversampleH = config.OversampleV = 1;
 		config.PixelSnapH = true;    
 
 		// Load the new font
 		io.Fonts->AddFontDefault(&config);
+		current_fontSize = pixel_size;
 	}
 
 	void Wrapper::GUI::SetTheme()
@@ -151,7 +152,7 @@ namespace GALAXY {
 
 	static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	{
-		InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+		const InputTextCallback_UserData* user_data = static_cast<InputTextCallback_UserData*>(data->UserData);
 		if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
 		{
 			// Resize string callback
@@ -159,7 +160,7 @@ namespace GALAXY {
 			std::string* str = user_data->Str;
 			IM_ASSERT(data->Buf == str->c_str());
 			str->resize(data->BufTextLen);
-			data->Buf = (char*)str->c_str();
+			data->Buf = const_cast<char*>(str->c_str());
 		}
 		return 0;
 	}
@@ -172,7 +173,7 @@ namespace GALAXY {
 
 		InputTextCallback_UserData cb_user_data;
 		cb_user_data.Str = str;
-		return ImGui::InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
+		return ImGui::InputText(label, const_cast<char*>(str->c_str()), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 	}
 
 	float Wrapper::GUI::DeltaTime()
@@ -180,7 +181,7 @@ namespace GALAXY {
 		return ImGui::GetIO().DeltaTime;
 	}
 
-	void Wrapper::GUI::SetNextItemOpen(bool open /*= true*/)
+	void Wrapper::GUI::SetNextItemOpen(const bool open /*= true*/)
 	{
 		ImGui::SetNextItemOpen(open);
 	}
@@ -195,9 +196,9 @@ namespace GALAXY {
 		ImGui::TreePop();
 	}
 
-	void Wrapper::GUI::PushID(size_t id)
+	void Wrapper::GUI::PushID(const size_t id)
 	{
-		ImGui::PushID((int)id);
+		ImGui::PushID(static_cast<int>(id));
 	}
 
 	void Wrapper::GUI::PopID()
@@ -205,7 +206,7 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	bool Wrapper::GUI::Button(const char* buttonName, Vec2f buttonSize)
+	bool Wrapper::GUI::Button(const char* buttonName, const Vec2f buttonSize)
 	{
 		return ImGui::Button(buttonName, buttonSize);
 	}
@@ -220,13 +221,13 @@ namespace GALAXY {
 		return Core::Application::GetInstance().GetWindow()->GetScreenScale();
 	}
 
-	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
+	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, const float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
 	{
 		static bool _lock = false;
 		bool stillEditing = false;
 		if (lockButton && _lock)
 		{
-			float value = values[0];
+			const float value = values[0];
 			ImGuiIO& io = ImGui::GetIO();
 
 			ImGui::PushID(label.c_str());
@@ -239,8 +240,8 @@ namespace GALAXY {
 			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth() * 3 - 15.f);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-			float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+			const float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			const ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 			// X
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
@@ -297,8 +298,8 @@ namespace GALAXY {
 			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-			float lineHeight = GImGui->Font->FontSize * GetScaleFactor() + GImGui->Style.FramePadding.y * 2.0f;
-			ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
+			const float lineHeight = GImGui->Font->FontSize * GetScaleFactor() + GImGui->Style.FramePadding.y * 2.0f;
+			const ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4{ 0.9f, 0.2f, 0.2f, 1.0f });
@@ -357,11 +358,11 @@ namespace GALAXY {
 		{
 			static ImGuiTextFilter filter;
 			filter.Draw();
-			for (auto& component : Component::ComponentHolder::GetList())
+			for (const auto& component : Component::ComponentHolder::GetList())
 			{
 				if (filter.PassFilter(component->GetComponentName()))
 				{
-					Vec2f ButtonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+					const Vec2f ButtonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 					if (ImGui::Button(component->GetComponentName(), ButtonSize)) {
 						ImGui::CloseCurrentPopup();
 						auto cloned = component->Clone();
@@ -374,7 +375,7 @@ namespace GALAXY {
 		return nullptr;
 	}
 
-	bool Wrapper::GUI::TextureButton(Resource::Texture* texture, Vec2f size)
+	bool Wrapper::GUI::TextureButton(const Resource::Texture* texture, const Vec2f size)
 	{
 		if (!texture->HasBeenSent())
 			return false;
@@ -386,9 +387,9 @@ namespace GALAXY {
 		if (!texture->HasBeenSent())
 			return false;
 		bool pressed = false;
-		Vec2f cursorPos = ImGui::GetCursorPos();
-		int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
-		int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
+		const Vec2f cursorPos = ImGui::GetCursorPos();
+		const int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
+		const int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
 		std::string resultString = label;
 
 		for (int i = 0; i < spaceNumber; i++)
@@ -409,9 +410,9 @@ namespace GALAXY {
 
 	void Wrapper::GUI::TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle, const Vec2f& imageSize, const Vec2f& uv0 /*= { 0, 0 }*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
 	{
-		Vec2f cursorPos = ImGui::GetCursorPos();
-		int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
-		int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
+		const Vec2f cursorPos = ImGui::GetCursorPos();
+		const int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
+		const int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
 		std::string resultString = label;
 
 		for (int i = 0; i < spaceNumber; i++)
@@ -439,9 +440,9 @@ namespace GALAXY {
 	{
 		if (*toggle == true)
 		{
-			ImVec4 active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-			ImVec4 hovered = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-			ImVec4 base = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+			const Vec4f active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+			const Vec4f hovered = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+			const Vec4f base = ImGui::GetStyleColorVec4(ImGuiCol_Button);
 			ImGui::PushStyleColor(ImGuiCol_Button, active);
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hovered);
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, base);
@@ -482,11 +483,11 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	bool Wrapper::GUI::Splitter(bool split_vertically, float thickness, float* size1, float* size2, float min_size1, float min_size2, float splitter_long_axis_size /*= -1.0f*/)
+	bool Wrapper::GUI::Splitter(const bool split_vertically, const float thickness, float* size1, float* size2, const float min_size1, const float min_size2, const float splitter_long_axis_size /*= -1.0f*/)
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = g.CurrentWindow;
-		ImGuiID id = window->GetID("##Splitter");
+		const ImGuiID id = window->GetID("##Splitter");
 		ImRect bb;
 		bb.Min = window->DC.CursorPos + (split_vertically ? ImVec2(*size1, 0.0f) : ImVec2(0.0f, *size1));
 		bb.Max = bb.Min + ImGui::CalcItemSize(split_vertically ? ImVec2(thickness, splitter_long_axis_size) : ImVec2(splitter_long_axis_size, thickness), 0.0f, 0.0f);

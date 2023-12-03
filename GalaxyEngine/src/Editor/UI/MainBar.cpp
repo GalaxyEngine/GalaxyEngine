@@ -13,18 +13,10 @@
 
 namespace GALAXY
 {
-	Editor::UI::MainBar::MainBar()
-	{
-	}
-
-	Editor::UI::MainBar::~MainBar()
-	{
-	}
-
 	void Editor::UI::MainBar::Draw()
 	{
-		static auto editorInstance = EditorUIManager::GetInstance();
-		static Editor::EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
+		static EditorUIManager* editorInstance = EditorUIManager::GetInstance();
+		static EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -78,11 +70,11 @@ namespace GALAXY
 			settings.Draw();
 			if (ImGui::BeginMenu("Window"))
 			{
-				ImGui::MenuItem("Hierarchy", NULL, &editorInstance->GetHierarchy()->p_open);
-				ImGui::MenuItem("Inspector", NULL, &editorInstance->GetInspector()->p_open);
-				ImGui::MenuItem("SceneWindow", NULL, &editorInstance->GetSceneWindow()->p_open);
-				ImGui::MenuItem("File Explorer", NULL, &editorInstance->GetFileExplorer()->p_open);
-				ImGui::MenuItem("Console", NULL, &editorInstance->GetConsole()->p_open);
+				ImGui::MenuItem("Hierarchy", nullptr, &editorInstance->GetHierarchy()->p_open);
+				ImGui::MenuItem("Inspector", nullptr, &editorInstance->GetInspector()->p_open);
+				ImGui::MenuItem("SceneWindow", nullptr, &editorInstance->GetSceneWindow()->p_open);
+				ImGui::MenuItem("File Explorer", nullptr, &editorInstance->GetFileExplorer()->p_open);
+				ImGui::MenuItem("Console", nullptr, &editorInstance->GetConsole()->p_open);
 				ImGui::EndMenu();
 			}
 			ImGui::EndMainMenuBar();
@@ -108,7 +100,7 @@ namespace GALAXY
 
 	void Editor::UI::MainBar::OpenScene(const std::string& path)
 	{
-		auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
+		const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
 
 		Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
 	}
@@ -118,7 +110,7 @@ namespace GALAXY
 		if (path.find(".galaxy") == std::string::npos)
 			path = path + ".galaxy";
 
-		Resource::Scene* scene = Core::SceneHolder::GetInstance()->GetCurrentScene();
+		const Resource::Scene* scene = Core::SceneHolder::GetCurrentScene();
 		scene->Save(path);
 	}
 

@@ -8,17 +8,12 @@
 
 #include "Component/Transform.h"
 
-#include "Render/Framebuffer.h"
-
-#include "Resource/Scene.h"
 #include "Resource/ResourceManager.h"
-#include "Resource/Texture.h"
-#include "Resource/Shader.h"
 
 namespace GALAXY {
 	std::unique_ptr<Wrapper::Renderer> Wrapper::Renderer::m_instance = nullptr;
 
-	void Wrapper::Renderer::CreateInstance(RenderAPI renderAPI)
+	void Wrapper::Renderer::CreateInstance(const RenderAPI renderAPI)
 	{
 		switch (renderAPI)
 		{
@@ -27,6 +22,10 @@ namespace GALAXY {
 			m_instance = std::make_unique<Wrapper::OpenGLRenderer>();
 			break;
 		}
+		case RenderAPI::VULKAN:
+			break;
+		case RenderAPI::DIRECTX:
+			break;
 		default:
 			break;
 		}
@@ -34,7 +33,7 @@ namespace GALAXY {
 		m_instance->EnableDebugOutput();
 	}
 
-	void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+	void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)
 	{
 		// Define the eight vertices of the cube
 		Vec3f vertices[8];
@@ -65,10 +64,10 @@ namespace GALAXY {
 	void Wrapper::Renderer::DrawWireCube(Component::Transform* transform, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
 	{
 		// Assuming you have a Vec3f representing the center of the cube
-		Vec3f cubeCenter = transform->GetWorldPosition();
+		const Vec3f cubeCenter = transform->GetWorldPosition();
 
 		// Assuming you have a float representing the half-size of the cube
-		float halfSize = transform->GetWorldScale().x / 2.0f;
+		const float halfSize = transform->GetWorldScale().x / 2.0f;
 
 		// Calculate the vertices of the cube
 		Vec3f vertices[8];
@@ -81,7 +80,7 @@ namespace GALAXY {
 		// Assuming you have an instance of OpenGLRenderer named "glRenderer"
 		for (int i = 0; i < 4; ++i)
 		{
-			int next = (i + 1) % 2;
+			const int next = (i + 1) % 2;
 			DrawLine(vertices[i], vertices[next], color, lineWidth);
 			DrawLine(vertices[i + 4], vertices[next + 4], color, lineWidth);
 			DrawLine(vertices[i], vertices[i + 4], color, lineWidth);
@@ -116,7 +115,7 @@ namespace GALAXY {
 		DrawLine(vertices[3], vertices[7], color, lineWidth);
 	}
 
-	void Wrapper::Renderer::DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments /*= 32*/, Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+	void Wrapper::Renderer::DrawWireCircle(const Vec3f& pos, const Vec3f& normal, const float radius, const int numSegments /*= 32*/, const Vec4f color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)
 	{
 		float angle = 0.f;
 		Vec3f right = Vec3f::Zero();
@@ -128,25 +127,25 @@ namespace GALAXY {
 		{
 			right = Vec3f::Up().Cross(normal).GetNormalize(); // vector to the right of the direction
 		}
-		Vec3f startPoint = pos + right * radius;
+		const Vec3f startPoint = pos + right * radius;
 		Vec3f previousPoint = startPoint;
 
 		for (int i = 1; i <= numSegments; i++)
 		{
 			angle = i * 360.f / numSegments;
-			Vec3f point = pos + Quat::AngleAxis(angle, normal) * (right * radius);
+			const Vec3f point = pos + Quat::AngleAxis(angle, normal) * (right * radius);
 			DrawLine(previousPoint, point, color, lineWidth);
 			previousPoint = point;
 		}
 		DrawLine(previousPoint, startPoint, color, lineWidth);
 	}
 
-	void Wrapper::Renderer::DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height /*= 25.f*/, const Vec4f& color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+	void Wrapper::Renderer::DrawWireCone(const Vec3f& pos, const Quat& rotation, const float topRadius, float angle, float height /*= 25.f*/, const Vec4f& color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)
 	{
-		Vec3f forward = rotation * Math::Vec3f::Forward();
-		float h = 25.f;
+		const Vec3f forward = rotation * Math::Vec3f::Forward();
+		constexpr float h = 25.f;
 		angle = angle * DegToRad;
-		float radius = topRadius + h * std::tan(angle);
+		const float radius = topRadius + h * std::tan(angle);
 		DrawWireCircle(pos, forward, topRadius, 32, color, lineWidth);
 		DrawWireCircle(pos + forward * h, forward, radius, 32, color, lineWidth);
 		DrawLine(pos + rotation * Vec3f::Up() * topRadius, pos + rotation * (Vec3f::Up() * radius + Vec3f::Forward() * h), color, lineWidth);

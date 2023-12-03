@@ -74,7 +74,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		ImGui::SameLine();
 
 		bool destroy = true;
-		bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		const bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
@@ -97,7 +97,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMPONENT")) 
 			{
-				uint32_t payloadData = *static_cast<uint32_t*>(payload->Data);
+				const uint32_t payloadData = *static_cast<uint32_t*>(payload->Data);
 				object->ChangeComponentIndex(payloadData, i);
 			}
 		}
@@ -132,17 +132,17 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	{
 		ImGui::OpenPopup("ComponentPopup");
 	}
-	if (std::shared_ptr<Component::BaseComponent> component = Wrapper::GUI::ComponentPopup())
+	if (const std::shared_ptr<Component::BaseComponent> component = Wrapper::GUI::ComponentPopup())
 	{
 		object->AddComponent(component);
 	}
 }
 
 
-void Editor::UI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
+void Editor::UI::Inspector::AddSelected(const Weak<Core::GameObject>& gameObject)
 {
-	auto it = std::remove_if(m_selectedGameObject.begin(), m_selectedGameObject.end(),
-		[&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); });
+	auto it = std::ranges::remove_if(m_selectedGameObject,
+	                                 [&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); }).begin();
 	if (it != m_selectedGameObject.end()) {
 		m_selectedGameObject.erase(it);
 		gameObject.lock()->m_selected = false;
@@ -151,7 +151,7 @@ void Editor::UI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 		if (m_selectedGameObject.empty())
 		{
 			// if empty, set gizmo object
-			Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
+			const Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
 			gizmo->SetGameObject(gameObject);
 		}
 			
@@ -160,7 +160,7 @@ void Editor::UI::Inspector::AddSelected(Weak<Core::GameObject> gameObject)
 	}
 }
 
-void Editor::UI::Inspector::SetSelected(Weak<Core::GameObject> gameObject)
+void Editor::UI::Inspector::SetSelected(const Weak<Core::GameObject>& gameObject)
 {
 	ClearSelected();
 	AddSelected(gameObject);
@@ -170,12 +170,12 @@ void Editor::UI::Inspector::ClearSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{
-		if (auto object = m_selectedGameObject[i].lock())
+		if (const Shared<Core::GameObject> object = m_selectedGameObject[i].lock())
 			object->m_selected = false;
 	}
 	m_selectedGameObject.clear();
 
-	Shared<Editor::Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
+	const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 	gizmo->SetGameObject({});
 }
 
@@ -196,7 +196,7 @@ void Editor::UI::Inspector::RightClickPopup()
 {
 	if (m_rightClicked.lock() && ImGui::BeginPopup("RightClickPopup"))
 	{
-		Vec2f buttonSize(ImGui::GetWindowContentRegionWidth(), 0);
+		const Vec2f buttonSize(ImGui::GetWindowContentRegionWidth(), 0);
 		if (ImGui::Button("Destroy", buttonSize))
 		{
 			m_rightClicked.lock()->RemoveFromGameObject();
@@ -206,7 +206,7 @@ void Editor::UI::Inspector::RightClickPopup()
 		else if (ImGui::Button("Move Up", buttonSize))
 		{
 			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
-			uint32_t index = m_rightClicked.lock()->GetIndex();
+			const uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index - 1);
 
@@ -216,7 +216,7 @@ void Editor::UI::Inspector::RightClickPopup()
 		else if (ImGui::Button("Move Down", buttonSize))
 		{
 			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
-			uint32_t index = m_rightClicked.lock()->GetIndex();
+			const uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index + 1);
 

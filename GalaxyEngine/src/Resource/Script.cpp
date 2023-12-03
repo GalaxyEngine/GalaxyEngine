@@ -48,7 +48,7 @@ CLASS(%s)
 	void Resource::Script::Unload()
 	{
 		// Remove the resource from ScriptEngine, remove all component when the user rebuild the dll
-		std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
+		const std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
 		Scripting::ScriptEngine::GetInstance()->RemoveScript(resource);
 		p_loaded = false;
 	}
@@ -100,7 +100,7 @@ CLASS(%s)
 	{
 #ifdef _WIN32
 		std::string command = path.string();
-		std::string env = "code";
+		const std::string env = "code";
 
 		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
 #else
@@ -111,7 +111,7 @@ CLASS(%s)
 	}
 
 #ifdef _WIN32
-	BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam) {
+	BOOL CALLBACK EnumWindowsProc(const HWND hwnd, const LPARAM lParam) {
 		char windowTitle[256];
 		GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle));
 
@@ -120,7 +120,7 @@ CLASS(%s)
 			// Check for additional criteria to identify the specific instance
 			if (strstr(windowTitle, Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string().c_str()) != nullptr) {
 				// We found the specific instance of Visual Studio
-				*(HWND*)lParam = hwnd;
+				*reinterpret_cast<HWND*>(lParam) = hwnd;
 				return FALSE; // Stop enumerating windows
 			}
 		}
@@ -138,7 +138,7 @@ CLASS(%s)
 		HWND hwnd = nullptr; // This will hold the window handle of the specific instance
 
 		// Enumerate windows to find the specific instance of Visual Studio
-		EnumWindows(EnumWindowsProc, (LPARAM)&hwnd);
+		EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnd));
 		if (hwnd)
 		{
 			// Visual Studio window exists, bring it to the foreground
@@ -146,8 +146,8 @@ CLASS(%s)
 			SetActiveWindow(hwnd);
 
 			std::string command = " /edit ";
-			std::string env = "devenv.exe";
-			std::string newPath = path.string();
+			const std::string env = "devenv.exe";
+			const std::string newPath = path.string();
 			command += newPath;
 
 			// Open file with the first instance of Visual Studio
@@ -156,7 +156,7 @@ CLASS(%s)
 		else
 		{
 			// No Visual Studio window found, open a new window
-			std::string newPath = path.string();
+			const std::string newPath = path.string();
 			const std::string commandLineArgs = "\"" + path.string() + "\" /command \"Edit.OpenFile " + newPath + "\"";
 			ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
 		}

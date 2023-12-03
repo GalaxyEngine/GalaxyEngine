@@ -16,13 +16,13 @@ namespace GALAXY
 		public:
 			LightManager() {}
 
-			static bool AddLight(Weak<Component::Light> light);
-			static void RemoveLight(Weak<Component::Light> light);
+			static bool AddLight(const Weak<Component::Light>& light);
+			static void RemoveLight(const Weak<Component::Light>& light);
 
-			static void AddShader(Weak<Resource::Shader> shader);
-			static void RemoveShader(Weak<Resource::Shader> shader);
+			static void AddShader(const Weak<Resource::Shader>& shader);
+			static void RemoveShader(const Weak<Resource::Shader>& shader);
 
-			void SendLightData();
+			void SendLightData() const;
 			static void ResetLightData(Component::Light* light);
 
 			static LightManager* GetInstance();

@@ -12,23 +12,23 @@ namespace GALAXY
 		class Material : public IResource
 		{
 		public:
-			Material(const Path& fullPath);
+			explicit Material(const Path& fullPath);
 			Material& operator=(const Material& other) = default;
 			Material(const Material&) = default;
 			Material(Material&&) noexcept = default;
-			virtual ~Material() {}
+			~Material() override {}
 
 			void Load() override;
 
 			bool LoadMatFile();
 
-			bool LoadMTLFile();
+			static bool LoadMTLFile();
 
-			void Save();
+			void Save() const;
 
 			void ShowInInspector() override;
 
-			Weak<Shader> SendValues(uint64_t id = -1);
+			Weak<Shader> SendValues(uint64_t id = -1) const;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Material; }
 
@@ -41,11 +41,11 @@ namespace GALAXY
 			inline Vec4f GetSpecular() const { return m_specular; }
 			inline Weak<class Texture> GetAlbedo() const { return m_albedo; }
 
-			inline void SetAmbient(Vec4f val) { m_ambient = val; }
-			inline void SetDiffuse(Vec4f val) { m_diffuse = val; }
-			inline void SetSpecular(Vec4f val) { m_specular = val; }
-			inline void SetAlbedo(Weak<class Texture> val) { m_albedo = val; }
-			inline void SetShader(Weak<class Shader> val) { m_shader = val; }
+			inline void SetAmbient(const Vec4f val) { m_ambient = val; }
+			inline void SetDiffuse(const Vec4f val) { m_diffuse = val; }
+			inline void SetSpecular(const Vec4f val) { m_specular = val; }
+			inline void SetAlbedo(const Weak<class Texture>& val) { m_albedo = val; }
+			inline void SetShader(const Weak<class Shader>& val) { m_shader = val; }
 		private:
 			friend Wrapper::MTLLoader;
 			friend Render::Framebuffer;

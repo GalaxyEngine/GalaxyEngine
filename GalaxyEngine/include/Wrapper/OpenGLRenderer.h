@@ -10,7 +10,7 @@ namespace GALAXY
 			OpenGLRenderer& operator=(const OpenGLRenderer& other) = default;
 			OpenGLRenderer(const OpenGLRenderer&) = default;
 			OpenGLRenderer(OpenGLRenderer&&) noexcept = default;
-			virtual ~OpenGLRenderer();
+			~OpenGLRenderer() override;
 
 			void Initialize() override;
 			void EnableDebugOutput() override;

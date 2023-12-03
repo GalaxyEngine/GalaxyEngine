@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Core/Input.h"
+
+#include <ranges>
 #include <GLFW/glfw3.h>
 
 #include <Wrapper/Window.h>
@@ -8,7 +10,7 @@
 namespace GALAXY 
 {
 
-	void Input::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	void Input::key_callback(GLFWwindow* window, const int key, int scancode, const int action, int mods)
 	{
 		if (action == GLFW_PRESS)
 		{
@@ -22,7 +24,7 @@ namespace GALAXY
 		}
 	}
 
-	void Input::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+	void Input::mouse_button_callback(GLFWwindow* window, const int button, const int action, int mods)
 	{
 		if (action == GLFW_PRESS)
 		{
@@ -36,7 +38,7 @@ namespace GALAXY
 		}
 	}
 
-	void Input::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	void Input::scroll_callback(GLFWwindow* window, const double xoffset, const double yoffset)
 	{
 		m_scrollValue = static_cast<float>(yoffset);
 	}
@@ -55,7 +57,7 @@ namespace GALAXY
 
 	void Input::Initialize()
 	{
-		m_window = reinterpret_cast<GLFWwindow*>(Core::Application::GetInstance().GetWindow()->GetWindow());
+		m_window = static_cast<GLFWwindow*>(Core::Application::GetInstance().GetWindow()->GetWindow());
 		glfwSetKeyCallback(m_window, key_callback);
 		glfwSetMouseButtonCallback(m_window, mouse_button_callback);
 		glfwSetScrollCallback(m_window, scroll_callback);
@@ -65,13 +67,13 @@ namespace GALAXY
 	{
 		static Vec2f lastMousePosition = GetMousePosition();
 		m_keyRelease.clear();
-		for (auto& key: m_keyPressed)
+		for (const int& key : m_keyPressed | std::views::keys)
 		{
-			m_keyDown[key.first] = true;
+			m_keyDown[key] = true;
 		}
 		m_keyPressed.clear();
 		m_scrollValue = 0.f;
-		auto mousePosition = GetMousePosition();
+		const Vec2f mousePosition = GetMousePosition();
 		m_mouseDragDelta = lastMousePosition - GetMousePosition();
 
 		lastMousePosition = mousePosition;

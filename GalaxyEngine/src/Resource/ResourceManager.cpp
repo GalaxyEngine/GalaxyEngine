@@ -10,7 +10,6 @@
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Script.h"
-#include "Resource/Material.h"
 #include "Resource/Scene.h"
 
 #define AUTO_IMPORT
@@ -21,14 +20,14 @@ namespace GALAXY {
 
 	Resource::ResourceManager::~ResourceManager()
 	{
-		for (auto& resource : m_resources)
+		for (auto& val : m_resources | std::views::values)
 		{
-			resource.second.reset();
+			val.reset();
 		}
 		m_resources.clear();
-		for (auto& resource : m_temporaryResources)
+		for (auto& val : m_temporaryResources | std::views::values)
 		{
-			resource.second.reset();
+			val.reset();
 		}
 		m_temporaryResources.clear();
 	}
@@ -37,7 +36,7 @@ namespace GALAXY {
 	{
 		if (!std::filesystem::exists(folder))
 			return;
-		std::filesystem::directory_iterator dirIt = std::filesystem::directory_iterator(folder);
+		const std::filesystem::directory_iterator dirIt = std::filesystem::directory_iterator(folder);
 		for (const std::filesystem::directory_entry& entry : dirIt) {
 			if (entry.is_directory())
 			{
@@ -54,9 +53,8 @@ namespace GALAXY {
 	{
 		if (!resourcePath.has_extension())
 			return;
-		Path extension = resourcePath.extension();
-		ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension);
-		switch (type)
+		const Path extension = resourcePath.extension();
+		switch (ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension))
 		{
 		case Resource::ResourceType::None:
 			PrintError("Cannot Import resource with this extension : %s", extension.string().c_str());
@@ -97,7 +95,7 @@ namespace GALAXY {
 		}
 		case Resource::ResourceType::Data:
 		{
-			Path path = resourcePath.parent_path() / resourcePath.stem();
+			const Path path = resourcePath.parent_path() / resourcePath.stem();
 			if (!std::filesystem::exists(path)) {
 				// remove if resource not exist buf data file exist
 				Utils::FileSystem::RemoveFile(resourcePath);
@@ -119,14 +117,14 @@ namespace GALAXY {
 
 	bool Resource::ResourceManager::CheckForDataFile(const Path& resourcePath)
 	{
-		Path dataFilePath = resourcePath.string() + ".gdata";
+		const Path dataFilePath = resourcePath.string() + ".gdata";
 
-		bool exist = std::filesystem::exists(dataFilePath);
+		const bool exist = std::filesystem::exists(dataFilePath);
 		if (!exist)
 			return false;
 
-		auto dataFileTime = std::filesystem::last_write_time(dataFilePath);
-		auto ResourceFileTime = std::filesystem::last_write_time(resourcePath);
+		const auto dataFileTime = std::filesystem::last_write_time(dataFilePath);
+		const auto ResourceFileTime = std::filesystem::last_write_time(resourcePath);
 
 		if (dataFileTime > ResourceFileTime)
 			return true;

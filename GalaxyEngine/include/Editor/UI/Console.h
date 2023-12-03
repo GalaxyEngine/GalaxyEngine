@@ -19,7 +19,7 @@ namespace GALAXY
 		class Console : public EditorWindow
 		{
 		public:
-			~Console();
+			~Console() override = default;
 
 			void Draw() override;
 
@@ -27,7 +27,7 @@ namespace GALAXY
 
 			void SetResources();
 
-			void AddText(Debug::LogType type, std::string text);
+			void AddText(Debug::LogType type, const std::string& text);
 
 			void Clear();
 		private:

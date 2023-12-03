@@ -10,12 +10,8 @@
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
-#include "Wrapper/ImageLoader.h"
 
 #include "Resource/ResourceManager.h"
-#include "Resource/Texture.h"
-#include "Resource/Shader.h"
-#include "Resource/Material.h"
 #include "Resource/Scene.h"
 
 #include "Render/LightManager.h"
@@ -23,7 +19,6 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Component/ComponentHolder.h"
-#include "Component/MeshComponent.h"
 
 #include "Scripting/ScriptEngine.h"
 
@@ -85,10 +80,10 @@ namespace GALAXY {
 
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
-		
+
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
-		
+
 		// Initialize Editor::UI
 		Editor::UI::EditorUIManager::Initialize();
 		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
@@ -106,14 +101,14 @@ namespace GALAXY {
 
 		if (!m_resourceToSend.empty())
 		{
-			auto resourcePath = m_resourceToSend.front();
-			std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
+			const Path resourcePath = m_resourceToSend.front();
+			const std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
 
-			if (auto resourceFound = resource.lock())
+			if (const Shared<Resource::IResource> resourceFound = resource.lock())
 			{
 				TrySendResource(resourceFound, resourcePath);
 			}
-			else if (auto resourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
+			else if (const Shared<Resource::IResource> resourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
 			{
 				PrintLog("Send temp resource %s", resourcePath.string().c_str());
 				TrySendResource(resourceFound, resourcePath);
@@ -172,13 +167,15 @@ namespace GALAXY {
 			Input::Update();
 
 			m_window->SwapBuffers();
+
+			m_benchmark.UpdateBenchmark(Wrapper::GUI::DeltaTime());
 		}
 	}
 
-	void Core::Application::PasteObject()
+	void Core::Application::PasteObject() const
 	{
 		auto parser = Utils::Parser(m_clipboard);
-		List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
+		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
 
 		if (selected.empty())
 			return;
@@ -205,17 +202,17 @@ namespace GALAXY {
 
 	void Core::Application::CopyObject()
 	{
-		List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
+		const List<Weak<GameObject>>& selected = m_editorUI->GetInspector()->GetSelected();
 
 		List<Weak<GameObject>> objects;
 
-		for (auto& object : selected)
+		for (const Weak<GameObject>& object : selected)
 		{
 			bool canBeAdded = true;
-			auto lockObject = object.lock();
-			for (auto& object2 : selected)
+			Shared<GameObject> lockObject = object.lock();
+			for (const Weak<GameObject>& object2 : selected)
 			{
-				auto lockObject2 = object2.lock();
+				Shared<GameObject> lockObject2 = object2.lock();
 				if (lockObject != lockObject2 && lockObject->IsAParent(lockObject2.get()))
 				{
 					canBeAdded = false;
@@ -227,14 +224,14 @@ namespace GALAXY {
 			}
 		}
 
-		std::sort(objects.begin(), objects.end(), [](const Weak<GameObject>& a, const Weak<GameObject>& b)
+		std::ranges::sort(objects, [](const Weak<GameObject>& a, const Weak<GameObject>& b)
 			{
 				return a.lock()->GetSceneGraphID() < b.lock()->GetSceneGraphID();
 			});
 
 		auto serializer = Utils::Serializer();
 		// Temporary : TODO : move this directly int the canBeAdded if bracket
-		for (auto& object : objects)
+		for (Weak<GameObject>& object : objects)
 		{
 			// Serialize all GameObject in same content
 			object.lock()->Serialize(serializer);
@@ -242,7 +239,7 @@ namespace GALAXY {
 		m_clipboard = serializer.GetContent();
 	}
 
-	void Core::Application::Destroy()
+	void Core::Application::Destroy() const
 	{
 		// Cleanup:
 		// Scene Holder
@@ -272,7 +269,7 @@ namespace GALAXY {
 		PrintLog("Application clean-up completed.");
 	}
 
-	void Core::Application::Exit()
+	void Core::Application::Exit() const
 	{
 		m_window->Close();
 	}

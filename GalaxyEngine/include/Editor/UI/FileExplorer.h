@@ -16,16 +16,16 @@ namespace GALAXY
 		class File : public std::enable_shared_from_this<File>
 		{
 		public:
-			File(const Path& path);
+			explicit File(const Path& path);
 			File& operator=(const File& other) = default;
 			File(const File&) = default;
 			File(File&&) noexcept = default;
 			virtual ~File() {}
 
-			void FindChildrens();
-			void FindAllChildrens();
+			void FindChildren();
+			void FindAllChildren();
 
-			void DisplayOnExplorer();
+			void DisplayOnExplorer() const;
 
 		private:
 			friend class FileExplorer;
@@ -36,7 +36,7 @@ namespace GALAXY
 			Weak<Resource::IResource> m_resource;
 
 			Weak<File> m_parent;
-			List<Shared<File>> m_childrens;
+			List<Shared<File>> m_children;
 
 			bool m_selected = false;
 			bool m_isAnyChildFolder = false;
@@ -45,26 +45,26 @@ namespace GALAXY
 		class FileExplorer : public EditorWindow
 		{
 		public:
-			FileExplorer();
-			~FileExplorer() {}
+			FileExplorer() = default;
+			~FileExplorer() override = default;
 
 			void Initialize() override;
 
 			void Draw() override;
 
-			void AddFileSelected(Shared<File>& child);
-			void RemoveFileSelected(Shared<File>& child);
+			void AddFileSelected(const Shared<File>& child);
+			void RemoveFileSelected(const Shared<File>& child);
 
 		private:
 			void ClearSelected();
 
-			void SetCurrentFile(Shared<File>& file);
+			void SetCurrentFile(const Shared<File>& file);
 
 			void RightClickWindow();
 
-			void ShowInExplorer(const List<Shared<File>>& files, bool select);
+			static void ShowInExplorer(const List<Shared<File>>& files, bool select);
 
-			void ReloadContent();
+			void ReloadContent() const;
 		private:
 			friend class MainBar;
 

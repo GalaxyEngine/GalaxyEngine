@@ -15,7 +15,7 @@ namespace GALAXY
 			return false;
 		}
 
-		auto endMaterial = [&](std::shared_ptr<Resource::Material> material)
+		auto endMaterial = [&](const std::shared_ptr<Resource::Material>& material)
 			{
 				if (material && !material->p_fileInfo.Exist())
 				{

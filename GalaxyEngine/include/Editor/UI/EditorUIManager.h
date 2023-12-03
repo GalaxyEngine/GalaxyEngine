@@ -23,11 +23,11 @@ namespace GALAXY::Editor::UI {
 
 		static void Initialize();
 
-		void Release();
+		static void Release();
 
 		void DrawUI();
 
-		void DrawMainDock();
+		static void DrawMainDock();
 
 		inline MainBar* GetMainBar() const { return m_mainBar.get(); }
 		inline Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }

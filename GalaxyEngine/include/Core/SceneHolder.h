@@ -16,7 +16,7 @@ namespace GALAXY {
 
 			void Update();
 
-			inline void SwitchScene(Weak<Resource::Scene> scene);
+			inline void SwitchScene(const Weak<Resource::Scene>& scene);
 
 			static Resource::Scene* GetCurrentScene();
 

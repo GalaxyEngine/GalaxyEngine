@@ -52,8 +52,8 @@ namespace GALAXY
 		TODO:
 		 * change delta time with Time class
 		*/
-		bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
-		float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
+		const bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
+		const float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
 
 		const float deltaTime = Wrapper::GUI::DeltaTime();
 
@@ -87,14 +87,14 @@ namespace GALAXY
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * deltaTime));
 		}
 
-		Vec2f mousePos = Input::GetMousePosition();
-		Vec2f delta = mousePos - prevMousePos;
+		const Vec2f mousePos = Input::GetMousePosition();
+		const Vec2f delta = mousePos - prevMousePos;
 
-		float maxRotation = 1.f;
+		constexpr float maxRotation = 1.f;
 		float mouseX = std::clamp(delta.x * m_freeLookSensitivity * deltaTime, -maxRotation, maxRotation);
-		float mouseY = std::clamp(delta.y * m_freeLookSensitivity * deltaTime, -maxRotation, maxRotation);
+		const float mouseY = std::clamp(delta.y * m_freeLookSensitivity * deltaTime, -maxRotation, maxRotation);
 
-		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		const Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		window->SetMousePosition(prevMousePos);
 
 		prevMousePos = Input::GetMousePosition();
@@ -107,11 +107,10 @@ namespace GALAXY
 		m_transform->Rotate(Vec3f::Up(), -mouseX, Space::World);
 		m_transform->Rotate(Vec3f::Right(), -mouseY, Space::Local);
 
-
-		float axis = Input::GetScrollWheelValue();
+		const float axis = Input::GetScrollWheelValue();
 		if (axis != 0)
 		{
-			float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
+			const float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
 		}
 	}
@@ -119,15 +118,15 @@ namespace GALAXY
 	void Render::EditorCamera::StartLooking()
 	{
 		m_looking = true;
-		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-		prevMousePos = (Vec2f)ImGui::GetMousePos() - window->GetPosition();
+		const Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		prevMousePos = static_cast<Vec2f>(ImGui::GetMousePos()) - window->GetPosition();
 		window->SetCursorMode(Wrapper::CursorMode::Hidden);
 	}
 
 	void Render::EditorCamera::StopLooking()
 	{
 		m_looking = false;
-		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		const Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		window->SetMousePosition(prevMousePos);
 		window->SetCursorMode(Wrapper::CursorMode::Normal);
 	}

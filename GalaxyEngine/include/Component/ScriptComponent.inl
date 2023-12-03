@@ -15,7 +15,7 @@ namespace GALAXY
 				Wrapper::GUI::SetNextItemOpen();
 				if (Wrapper::GUI::TreeNode(variable.first.c_str())) {
 					for (size_t i = 0; i < list->size(); i++) {
-						Wrapper::GUI::PushID((int)i);
+						Wrapper::GUI::PushID(static_cast<int>(i));
 						T value = (*list)[i];
 						DisplayVariableT(variable, &value);
 						(*list)[i] = value;

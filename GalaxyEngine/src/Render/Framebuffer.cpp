@@ -1,15 +1,15 @@
 #include "pch.h"
 #include "Render/Framebuffer.h"
-#include "Render/Camera.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Mesh.h"
 #include "Resource/Material.h"
+#include "Resource/Scene.h"
+#include "Resource/PostProcessShader.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 
 #include <set>
 
@@ -21,7 +21,7 @@ namespace GALAXY {
 		m_renderer = Wrapper::Renderer::GetInstance();
 		// Check for free index in list of indices
 		int freeIndex = 0;
-		while (s_indexArray.count(freeIndex) > 0) {
+		while (s_indexArray.contains(freeIndex)) {
 			freeIndex++;
 		}
 		m_index = freeIndex;
@@ -65,7 +65,7 @@ namespace GALAXY {
 	{
 		if (!m_postProcess)
 			return;
-		auto postProcessFramebuffer = m_postProcess.get();
+		const auto postProcessFramebuffer = m_postProcess.get();
 
 		m_renderer->BindRenderBuffer(postProcessFramebuffer);
 
@@ -88,7 +88,7 @@ namespace GALAXY {
 		RenderPostProcess();
 	}
 
-	void Render::Framebuffer::SetPostProcessShader(Weak<Resource::PostProcessShader> postProcessShader)
+	void Render::Framebuffer::SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader)
 	{
 		if (!postProcessShader.lock())
 		{

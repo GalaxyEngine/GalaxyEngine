@@ -1,6 +1,8 @@
 #pragma once
+#include <ranges>
+
 #include "Resource/Scene.h"
-namespace GALAXY 
+namespace GALAXY
 {
 	template<typename... Args> inline Weak<Core::GameObject> Resource::Scene::CreateObject(Args&&... args)
 	{
@@ -15,21 +17,21 @@ namespace GALAXY
 		return shared;
 	}
 
-	inline void Resource::Scene::AddObject(std::shared_ptr<Core::GameObject> gameObject)
+	inline void Resource::Scene::AddObject(const std::shared_ptr<Core::GameObject>& gameObject)
 	{
-		if (!m_objectList.count(gameObject->m_UUID))
+		if (!m_objectList.contains(gameObject->m_UUID))
 		{
 			m_objectList[gameObject->m_UUID] = gameObject;
 		}
 		else
-		{		
+		{
 			ASSERT(false);
 		}
 	}
 
 	inline void Resource::Scene::RemoveObject(Core::GameObject* object)
 	{
-		auto shared = std::find_if(m_objectList.begin(), m_objectList.end(), [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
+		const auto shared = std::ranges::find_if(m_objectList, [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
 			return element.second.get() == object; });
 		if (shared != m_objectList.end()) {
 			if (shared != m_objectList.end())
@@ -41,7 +43,7 @@ namespace GALAXY
 
 	inline void Resource::Scene::RevertObject(size_t number)
 	{
-		for (size_t i = 0; i < number; ++i) 
+		for (size_t i = 0; i < number; ++i)
 		{
 			auto last = m_lastAdded.back();
 			last.lock()->Destroy();
@@ -49,9 +51,9 @@ namespace GALAXY
 		}
 	}
 
-	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithSceneGraphID(uint64_t index)
+	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithSceneGraphID(const uint64_t index)
 	{
-		for (auto& [id, object]:m_objectList)
+		for (auto& object : m_objectList | std::views::values)
 		{
 			if (object->GetSceneGraphID() == index)
 			{
@@ -61,14 +63,57 @@ namespace GALAXY
 		return {};
 	}
 
-	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithUUID(Core::UUID uuid)
+	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithUUID(const Core::UUID& uuid)
 	{
-		if (m_objectList.count(uuid))
+		if (m_objectList.contains(uuid))
 		{
 			return m_objectList.at(uuid);
 		}
 		return {};
 	}
 
+	inline Weak<Core::GameObject> Resource::Scene::GetRootGameObject() const
+	{
+		return m_root;
+	}
 
+	inline const Mat4& Resource::Scene::GetVP() const
+	{
+		return m_VP;
+	}
+
+	inline const Vec3f& Resource::Scene::GetCameraUp() const
+	{
+		return m_cameraUp;
+	}
+
+	inline const Vec3f& Resource::Scene::GetCameraRight() const
+	{
+		return m_cameraRight;
+	}
+
+	inline Shared<Render::EditorCamera> Resource::Scene::GetEditorCamera() const
+	{
+		return m_editorCamera;
+	}
+
+	inline Weak<Render::Camera> Resource::Scene::GetCurrentCamera() const
+	{
+		return m_currentCamera;
+	}
+
+	inline Shared<Editor::Gizmo> Resource::Scene::GetGizmo() const
+	{
+		return m_gizmo;
+	}
+
+	inline Shared<Editor::ActionManager> Resource::Scene::GetActionManager() const
+	{
+		return m_actionManager;
+	}
+
+	inline const UMap<Core::UUID, Shared<Core::GameObject>>& Resource::Scene::GetObjectList() const
+	{
+		return m_objectList;
+	}
 }

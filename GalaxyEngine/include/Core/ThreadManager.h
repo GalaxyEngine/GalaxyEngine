@@ -10,14 +10,14 @@ namespace GALAXY::Core {
 	class ThreadManager
 	{
 	public:
-		~ThreadManager();
+		~ThreadManager() = default;
 
 		void Initialize();
 		void Destroy();
 
 		void ThreadLoop();
 
-		void Terminate() { m_terminate = true; }
+		inline void Terminate() { m_terminate = true; }
 
 		template <typename F, typename... A> inline void AddTask(F&& task, A&&... args)
 		{
@@ -25,7 +25,7 @@ namespace GALAXY::Core {
 				std::apply(task, args);
 				};
 			if (task_function) {
-				std::lock_guard<std::mutex> lock(m_mutex);
+				std::lock_guard lock(m_mutex);
 				m_tasks.push(task_function);
 			}
 		}

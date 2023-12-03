@@ -27,17 +27,17 @@ namespace GALAXY {
 		class Scene : public IResource
 		{
 		public:
-			Scene(const Path& path);
+			explicit Scene(const Path& path);
 			Scene& operator=(const Scene& other) = default;
 			Scene(const Scene&) = default;
 			Scene(Scene&&) noexcept = default;
-			virtual ~Scene();
+			~Scene() override = default;
 
 #pragma region Resource Methods
 			void Load() override;
 			void Unload() override;
 			void Send() override;
-			void Save(const Path& fullPath = "");
+			void Save(const Path& fullPath = "") const;
 
 			static Weak<Scene> Create(const Path& path);
 
@@ -52,11 +52,11 @@ namespace GALAXY {
 			template<typename... Args>
 			inline Weak<Core::GameObject> CreateObject(Args&&... args);
 
-			inline void AddObject(std::shared_ptr<Core::GameObject> gameObject);
+			inline void AddObject(const std::shared_ptr<Core::GameObject>& gameObject);
 
 			inline void RemoveObject(Core::GameObject* object);
 
-			void SetCurrentCamera(Weak<Render::Camera> camera);
+			void SetCurrentCamera(const Weak<Render::Camera>& camera);
 
 			inline void RevertObject(size_t number = 1);
 
@@ -64,18 +64,17 @@ namespace GALAXY {
 			// Return the GameObject with the index given in scene Graph
 			inline Weak<Core::GameObject> GetWithSceneGraphID(uint64_t index);
 			// Return the GameObject with the uuid given
-			inline Weak<Core::GameObject> GetWithUUID(Core::UUID uuid);
-			inline Weak<Core::GameObject> GetRootGameObject() const { return m_root; }
-			inline const Mat4& GetVP() const { return m_VP; }
-			inline const Vec3f& GetCameraUp() const { return m_cameraUp; }
-			inline const Vec3f& GetCameraRight() const { return m_cameraRight; }
-			inline Shared<Render::EditorCamera> GetEditorCamera() const { return m_editorCamera; }
-			inline Weak<Render::Camera> GetCurrentCamera() const { return m_currentCamera; }
-			inline Shared<Editor::Gizmo> GetGizmo() const { return m_gizmo; }
-			inline Shared<Editor::ActionManager> GetActionManager() const { return m_actionManager; }
+			inline Weak<Core::GameObject> GetWithUUID(const Core::UUID& uuid);
+			inline Weak<Core::GameObject> GetRootGameObject() const;
+			inline const Mat4& GetVP() const;
+			inline const Vec3f& GetCameraUp() const;
+			inline const Vec3f& GetCameraRight() const;
+			inline Shared<Render::EditorCamera> GetEditorCamera() const;
+			inline Weak<Render::Camera> GetCurrentCamera() const;
+			inline Shared<Editor::Gizmo> GetGizmo() const;
+			inline Shared<Editor::ActionManager> GetActionManager() const;
 
-			const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const { return m_objectList; }
-		private:
+			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
 		private:
 			Shared<Render::EditorCamera> m_editorCamera;

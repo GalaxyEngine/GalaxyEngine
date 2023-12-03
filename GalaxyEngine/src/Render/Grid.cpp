@@ -16,20 +16,21 @@ namespace GALAXY
 	{
 		m_shader = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Shader>(GRID_PATH);
 
+		//TODO: Move to Renderer
 		glGenVertexArrays(1, &m_vao);
 		glGenBuffers(1, &m_vbo);
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+		glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
 
-	void Render::Grid::Draw()
+	void Render::Grid::Draw() const
 	{
-		if (auto gridShader = m_shader.lock(); gridShader && gridShader->HasBeenSent()) {
+		if (const Shared<Resource::Shader> gridShader = m_shader.lock(); gridShader && gridShader->HasBeenSent()) {
 
 			const auto renderer = Wrapper::Renderer::GetInstance();
 			const auto currentCamera = Render::Camera::GetCurrentCamera().lock();

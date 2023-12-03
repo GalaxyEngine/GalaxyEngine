@@ -31,15 +31,14 @@ namespace GALAXY
 		}
 	}
 
-	void Editor::UI::TmpFile::FindChildrens()
+	void Editor::UI::TmpFile::FindChildren()
 	{
 		try {
-
-			auto iterator = std::filesystem::directory_iterator(m_info.GetFullPath());
-			for (auto entry : iterator)
+			const auto iterator = std::filesystem::directory_iterator(m_info.GetFullPath());
+			for (const auto& entry : iterator)
 			{
 				Shared<TmpFile> child = std::make_shared<TmpFile>(entry.path());
-				m_childrens.push_back(child);
+				m_children.push_back(child);
 			}
 		}
 		catch (const std::exception&)
@@ -48,19 +47,11 @@ namespace GALAXY
 		}
 	}
 
-	Editor::UI::TmpFile::~TmpFile()
-	{
-	}
-
 #pragma endregion
 
 	Editor::UI::FileDialog::FileDialog()
 	{
 		SetOpen(false);
-	}
-
-	Editor::UI::FileDialog::~FileDialog()
-	{
 	}
 
 	void Editor::UI::FileDialog::Draw()
@@ -77,7 +68,7 @@ namespace GALAXY
 			ImGui::SameLine();
 			if (ImGui::Button("<|"))
 			{
-				Path parentPath = m_currentPath.parent_path();
+				const Path parentPath = m_currentPath.parent_path();
 				if (std::filesystem::exists(parentPath))
 					SetCurrentPath(parentPath);
 			}
@@ -132,7 +123,7 @@ namespace GALAXY
 		}
 	}
 
-	void Editor::UI::FileDialog::SetCurrentPath(Path val)
+	void Editor::UI::FileDialog::SetCurrentPath(const Path& val)
 	{
 		if (std::filesystem::exists(val))
 		{
@@ -143,32 +134,33 @@ namespace GALAXY
 			m_currentPath = std::filesystem::current_path();
 		}
 		m_currentFile = std::make_shared<TmpFile>(m_currentPath);
-		m_currentFile->FindChildrens();
+		m_currentFile->FindChildren();
 	}
 
-	void Editor::UI::FileDialog::DrawPanel(ImGuiTextFilter& textFilter)
+	void Editor::UI::FileDialog::DrawPanel(const ImGuiTextFilter& textFilter)
 	{
 		ImGui::BeginChild("Content Panel", ImGui::GetContentRegionAvail() - Vec2f(0, 50));
-		const int iconSize = 86;
-		const int textLength = 10;
-		const int space = 15;
+
+		constexpr int iconSize = 86;
+		constexpr int textLength = 10;
+		constexpr int space = 15;
 
 		static ImGuiTextFilter filterExtension;
 		if (!m_filter.empty()) {
-			size_t count = std::min(m_filter.size(), sizeof(filterExtension.InputBuf) - 1);
+			const size_t count = std::min(m_filter.size(), sizeof(filterExtension.InputBuf) - 1);
 			strncpy_s(filterExtension.InputBuf, m_filter.c_str(), count);
 			filterExtension.InputBuf[count] = '\0';  // Ensure null-termination
 			filterExtension.Build();
 		}
-		for (size_t i = 0, j = 0; i < m_currentFile->m_childrens.size(); i++)
+		for (size_t i = 0, j = 0; i < m_currentFile->m_children.size(); i++)
 		{
-			const auto& file = m_currentFile->m_childrens[i];
+			const auto& file = m_currentFile->m_children[i];
 
-			bool passExtensionFilter = (!filterExtension.PassFilter(file->m_info.GetExtension().string().c_str()) && !file->m_info.isDirectory());
+			const bool passExtensionFilter = (!filterExtension.PassFilter(file->m_info.GetExtension().string().c_str()) && !file->m_info.isDirectory());
 			if (!textFilter.PassFilter(file->m_info.GetFileName().c_str()) || passExtensionFilter)
 				continue;
 
-			ImGui::PushID((int)i);
+			ImGui::PushID(static_cast<int>(i));
 
 			Vec2f cursorPos = ImGui::GetCursorPos();
 
@@ -206,7 +198,7 @@ namespace GALAXY
 			Wrapper::GUI::TextureImage(file->m_icon.get(), Vec2f(iconSize - 24));
 
 			// Truncate and display file name
-			size_t length = file->m_info.GetFileName().length();
+			const size_t length = file->m_info.GetFileName().length();
 			std::string fileName = file->m_info.GetFileName();
 			if (length > textLength + 3) {
 				fileName = fileName.substr(0, textLength);
@@ -234,13 +226,13 @@ namespace GALAXY
 
 	void Editor::UI::FileDialog::Exit()
 	{
-		std::string finalFilePath = (m_currentFile->m_info.GetFullPath() / m_fileName).generic_string();
+		const std::string finalFilePath = (m_currentFile->m_info.GetFullPath() / m_fileName).generic_string();
 		m_output = finalFilePath;
 		SetOpen(false);
 		m_exited = true;
 	}
 
-	void Editor::UI::FileDialog::OpenFileDialog(FileDialogType fileDialogType, std::string filter /*= ""*/, const Path& initialDir /*= std::filesystem::current_path()*/)
+	void Editor::UI::FileDialog::OpenFileDialog(const FileDialogType fileDialogType, std::string filter /*= ""*/, const Path& initialDir /*= std::filesystem::current_path()*/)
 	{
 		static Editor::UI::FileDialog* fileDialog = Editor::UI::EditorUIManager::GetInstance()->GetFileDialog();
 		// Refresh file dialog
@@ -258,7 +250,7 @@ namespace GALAXY
 
 	bool Editor::UI::FileDialog::Initialized()
 	{
-		static Editor::UI::FileDialog* fileDialog = Editor::UI::EditorUIManager::GetInstance()->GetFileDialog();
+		static FileDialog* fileDialog = EditorUIManager::GetInstance()->GetFileDialog();
 		return fileDialog->m_initialized;
 	}
 

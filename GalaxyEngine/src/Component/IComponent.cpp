@@ -5,7 +5,7 @@
 namespace GALAXY {
 	void Component::BaseComponent::RemoveFromGameObject()
 	{
-		if (Shared<Core::GameObject> gameObject = GetGameObject())
+		if (const Shared<Core::GameObject> gameObject = GetGameObject())
 		{
 			gameObject->RemoveComponent(this);
 		}
@@ -16,7 +16,7 @@ namespace GALAXY {
 		return p_enable && p_gameObject.lock()->IsActive();
 	}
 
-	Component::Transform* Component::BaseComponent::GetTransform()
+	Component::Transform* Component::BaseComponent::GetTransform() const
 	{
 		return p_gameObject.lock()->GetTransform();
 	}

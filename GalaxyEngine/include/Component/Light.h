@@ -30,11 +30,11 @@ namespace GALAXY
 				operator T() const { return value; }
 			};
 		public:
-			Light() {}
+			Light() = default;
 			Light& operator=(const Light& other) = default;
 			Light(const Light&) = default;
 			Light(Light&&) noexcept = default;
-			virtual ~Light() {}
+			~Light() override = default;
 
 			inline const char* GetComponentName() const override { return "Light Component"; }
 
@@ -55,23 +55,23 @@ namespace GALAXY
 			virtual void ComputeLocationName();
 
 			inline Vec4f GetAmbient() const { return p_ambient.value; }
-			inline void SetAmbient(Vec4f val) { p_ambient.value = val; SetDirty(); }
+			inline void SetAmbient(const Vec4f val) { p_ambient.value = val; SetDirty(); }
 
 			inline Vec4f GetDiffuse() const { return p_diffuse.value; }
-			inline void SetDiffuse(Vec4f val) { p_diffuse.value = val; SetDirty(); }
+			inline void SetDiffuse(const Vec4f val) { p_diffuse.value = val; SetDirty(); }
 
 			inline Vec4f GetSpecular() const { return p_specular.value; }
-			inline void SetSpecular(Vec4f val) { p_specular.value = val; SetDirty(); }
+			inline void SetSpecular(const Vec4f val) { p_specular.value = val; SetDirty(); }
 
 			inline virtual Type GetLightType() { return Type::None; };
 
-			inline size_t GetIndex() const { return p_index; }
-			inline void SetIndex(size_t val) { p_index = val; ComputeLocationName(); }
+			inline size_t GetLightIndex() const { return p_lightIndex; }
+			inline void SetLightIndex(const size_t val) { p_lightIndex = val; ComputeLocationName(); }
 
 			inline bool IsDirty() const { return p_dirty; }
 			inline void SetDirty() { p_dirty = true; }
 		protected:
-			size_t p_index = -1;
+			size_t p_lightIndex = -1;
 
 			LightData<Vec4f> p_ambient = Vec4f(0);
 			LightData<Vec4f> p_diffuse = Vec4f(1);

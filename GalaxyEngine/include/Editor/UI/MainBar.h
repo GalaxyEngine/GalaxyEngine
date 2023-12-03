@@ -7,14 +7,13 @@ namespace GALAXY
 		class MainBar
 		{
 		public:
-			MainBar();
-			~MainBar();
+			~MainBar() = default;
 
-			void Draw();
+			static void Draw();
 
-			void SaveScene(std::string path);
+			static void SaveScene(std::string path);
 
-			void OpenScene(const std::string& path);
+			static void OpenScene(const std::string& path);
 
 		private:
 

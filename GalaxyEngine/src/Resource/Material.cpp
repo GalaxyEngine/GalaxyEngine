@@ -81,7 +81,7 @@ namespace GALAXY {
 		return false;
 	}
 
-	void Resource::Material::Save()
+	void Resource::Material::Save() const
 	{
 		std::ofstream matFile(p_fileInfo.GetFullPath());
 		if (matFile.is_open())
@@ -132,17 +132,17 @@ namespace GALAXY {
 					ImGui::OpenPopup("TexturePopup");
 				}
 			}
-			if (auto tex = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Texture>("TexturePopup"); tex.lock())
+			if (const Weak<Texture> tex = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Texture>("TexturePopup"); tex.lock())
 			{
 				m_albedo = tex;
 			}
 		}
 	}
 
-	Weak<Resource::Shader> Resource::Material::SendValues(uint64_t id /*= -1*/)
+	Weak<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const
 	{
 		static auto renderer = Wrapper::Renderer::GetInstance();
-		auto renderType = renderer->GetRenderType();
+		const auto renderType = renderer->GetRenderType();
 		Shared<Resource::Shader> shader = {};
 		switch (renderType)
 		{
@@ -154,7 +154,7 @@ namespace GALAXY {
 			shader->Use();
 
 			shader->SendInt("material.enableTexture", m_albedo.lock() ? true : false);
-			if (auto texture = m_albedo.lock()) {
+			if (const Shared<Texture> texture = m_albedo.lock()) {
 				texture->Bind(0);
 				shader->SendInt("material.albedo", 0);
 			}
@@ -170,9 +170,9 @@ namespace GALAXY {
 				return {};
 			shader->Use();
 
-			int r = (id & 0x000000FF) >> 0;
-			int g = (id & 0x0000FF00) >> 8;
-			int b = (id & 0x00FF0000) >> 16;
+			const int r = (id & 0x000000FF) >> 0;
+			const int g = (id & 0x0000FF00) >> 8;
+			const int b = (id & 0x00FF0000) >> 16;
 
 			shader->SendVec4f("idColor", Vec4f(r / 255.f, g / 255.f, b / 255.f, 1.f));
 		}
@@ -197,9 +197,9 @@ namespace GALAXY {
 
 	Weak<Resource::Material> Resource::Material::Create(const std::filesystem::path& path)
 	{
-		Material material(path);
+		const Material material(path);
 		material.Save();
-		return Resource::ResourceManager::GetInstance()->GetOrLoad<Material>(path);
+		return Resource::ResourceManager::GetOrLoad<Material>(path);
 	}
 
 }

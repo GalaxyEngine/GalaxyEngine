@@ -19,7 +19,7 @@ namespace GALAXY
 
 			void Initialize();
 			
-			void Draw();
+			void Draw() const;
 
 		private:
 

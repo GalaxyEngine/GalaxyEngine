@@ -13,12 +13,10 @@
 #include "Core/Application.h"
 
 namespace GALAXY {
+	// boolean to check if glfw has been initalized
 	static bool s_initialized = false;
-	Wrapper::Window::~Window()
-	{
-	}
 
-	static void glfw_error_callback(int error, const char* description)
+	static void glfw_error_callback(const int error, const char* description)
 	{
 		PrintError("GLFW Error %d: %s", error, description);
 	}
@@ -29,7 +27,7 @@ namespace GALAXY {
 			PrintError("Failed to initalize GLFW");
 			return false;
 		}
-		const size_t major = 4, minor = 5;
+		constexpr size_t major = 4, minor = 5;
 		PrintLog("Initalized GLFW %d.%d", major, minor);
 		glfwSetErrorCallback(glfw_error_callback);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
@@ -73,31 +71,30 @@ namespace GALAXY {
 		ComputeScale();
 	}
 
-	void Wrapper::Window::Destroy()
+	void Wrapper::Window::Destroy() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwDestroyWindow(glfwWindow);
 	}
 
-	void Wrapper::Window::SwapBuffers()
+	void Wrapper::Window::SwapBuffers() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSwapBuffers(glfwWindow);
 	}
 
-	bool Wrapper::Window::GetVSyncEnable()
+	bool Wrapper::Window::GetVSyncEnable() const
 	{
 		return m_vsync;
 	}
 
-
-	void Wrapper::Window::GetSize(int* width, int* height)
+	void Wrapper::Window::GetSize(int* width, int* height) const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwGetWindowSize(glfwWindow, width, height);
 	}
 
-	Vec2i Wrapper::Window::GetSize()
+	Vec2i Wrapper::Window::GetSize() const
 	{
 		Vec2i size;
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
@@ -105,25 +102,25 @@ namespace GALAXY {
 		return size;
 	}
 
-	void Wrapper::Window::SetVSync(bool enable)
+	void Wrapper::Window::SetVSync(const bool enable)
 	{
 		m_vsync = enable;
 		glfwSwapInterval(enable); // Enable vsync
 	}
 
-	bool Wrapper::Window::ShouldClose()
+	bool Wrapper::Window::ShouldClose() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		return glfwWindowShouldClose(glfwWindow);
 	}
 
-	void Wrapper::Window::SetSize(int width, int height)
+	void Wrapper::Window::SetSize(int width, int height) const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSetWindowSize(glfwWindow, width, height);
 	}
 
-	void Wrapper::Window::SetSize(const Vec2i& size)
+	void Wrapper::Window::SetSize(const Vec2i& size) const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSetWindowSize(glfwWindow, size.x, size.y);
@@ -140,7 +137,7 @@ namespace GALAXY {
 		SetFullscreen(glfwGetWindowMonitor(glfwWindow) == nullptr);
 	}
 
-	void Wrapper::Window::SetFullscreen(bool enable)
+	void Wrapper::Window::SetFullscreen(const bool enable)
 	{
 		static Vec2i prevSize;
 		static Vec2i prevPos;
@@ -159,7 +156,7 @@ namespace GALAXY {
 		{
 			GLFWmonitor* primary = static_cast<GLFWmonitor*>(GetCurrentMonitor());
 			const GLFWvidmode* mode = glfwGetVideoMode(primary);
-			glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, prevSize.x, prevSize.y, 0);
+			glfwSetWindowMonitor(glfwWindow, nullptr, 0, 0, prevSize.x, prevSize.y, 0);
 			glfwSetWindowPos(glfwWindow, prevPos.x, prevPos.y);
 		}
 	}
@@ -173,16 +170,15 @@ namespace GALAXY {
 		}
 	}
 
-	void Wrapper::Window::MoveCallback(GLFWwindow* window, int xpos, int ypos)
+	void Wrapper::Window::MoveCallback(GLFWwindow* window, int /*xpos*/, int /*ypos*/)
 	{
 		Core::Application::GetInstance().GetWindow()->ComputeScale();
 	}
 
-	void Wrapper::Window::SetMousePosition(const Vec2i& pos, bool physicalPos /*= false*/)
+	void Wrapper::Window::SetMousePosition(const Vec2i& pos, const bool physicalPos /*= false*/) const
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
-		int cursorMode;
-		cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
+		int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!physicalPos)
 			glfwSetCursorPos(window, pos.x, pos.y);
@@ -192,10 +188,9 @@ namespace GALAXY {
 			glfwGetWindowPos(window, &windowPos.x, &windowPos.y);
 			glfwSetCursorPos(window, (double)(pos.x - windowPos.x), (double)(pos.y - windowPos.y));
 		}
-		// glfwSetInputMode(window, GLFW_CURSOR, cursorMode);
 	}
 
-	int Wrapper::Window::CursorModeToAPI(CursorMode mode)
+	int Wrapper::Window::CursorModeToAPI(const CursorMode mode)
 	{
 		switch (mode)
 		{
@@ -211,21 +206,21 @@ namespace GALAXY {
 		}
 	}
 
-	void Wrapper::Window::SetCursorMode(CursorMode mode)
+	void Wrapper::Window::SetCursorMode(const CursorMode mode) const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
-		int modeValue = CursorModeToAPI(mode);
+		const int modeValue = CursorModeToAPI(mode);
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, modeValue);
 	}
 
-	Math::Vec2i Wrapper::Window::GetPosition()
+	Math::Vec2i Wrapper::Window::GetPosition() const
 	{
 		Vec2i windowPos;
 		glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &windowPos.x, &windowPos.y);
 		return windowPos;
 	}
 
-	void Wrapper::Window::Close()
+	void Wrapper::Window::Close() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSetWindowShouldClose(glfwWindow, true);
@@ -252,29 +247,26 @@ namespace GALAXY {
 
 	void* Wrapper::Window::GetCurrentMonitor() const
 	{
-		int nmonitors, i;
+		int nmonitors;
 		int wx, wy, ww, wh;
-		int mx, my, mw, mh;
-		int overlap, bestoverlap;
+		int mx, my;
+		int bestoverlap;
 		GLFWmonitor* bestmonitor;
-		GLFWmonitor** monitors;
-		const GLFWvidmode* mode;
 
 		bestoverlap = 0;
 		bestmonitor = NULL;
 
 		glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &wx, &wy);
 		glfwGetWindowSize(static_cast<GLFWwindow*>(m_window), &ww, &wh);
-		monitors = glfwGetMonitors(&nmonitors);
+		GLFWmonitor** monitors = glfwGetMonitors(&nmonitors);
 
-		for (i = 0; i < nmonitors; i++) {
-			mode = glfwGetVideoMode(monitors[i]);
+		for (int i = 0; i < nmonitors; i++) {
+			const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
 			glfwGetMonitorPos(monitors[i], &mx, &my);
-			mw = mode->width;
-			mh = mode->height;
+			const int mw = mode->width;
+			const int mh = mode->height;
 
-			overlap =
-				std::max(0, std::min(wx + ww, mx + mw) - std::max(wx, mx)) *
+			const int overlap = std::max(0, std::min(wx + ww, mx + mw) - std::max(wx, mx)) *
 				std::max(0, std::min(wy + wh, my + mh) - std::max(wy, my));
 
 			if (bestoverlap < overlap) {

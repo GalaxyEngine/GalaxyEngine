@@ -26,9 +26,9 @@ namespace GALAXY
 			static Shared<class EditorCamera> GetEditorCamera();
 			static Weak<Camera> GetCurrentCamera();
 
-			void Begin();
+			void Begin() const;
 
-			void End();
+			void End() const;
 
 			void DisplayCameraSettings();
 

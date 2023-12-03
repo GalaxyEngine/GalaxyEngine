@@ -1,5 +1,7 @@
 #pragma once
 #include <GalaxyAPI.h>
+#include <galaxymath/Maths.h>
+
 typedef int ImGuiInputTextFlags;
 
 namespace GALAXY {
@@ -23,7 +25,7 @@ namespace GALAXY {
 
 			bool DrawVec3Control(const std::string& label, float* values, float resetValue = 0.0f, bool lockButton = false, float columnWidth = 100.0f);
 
-			bool TextureButton(Resource::Texture* texture, Vec2f size);
+			bool TextureButton(const Resource::Texture* texture, Vec2f size);
 
 			bool TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 = {0, 0}, const Vec2f& uv1 = { 1, 1 }, int frame_padding = 0, const Vec4f& bg_col = Vec4f(0, 0, 0, 1), const Vec4f& tint_col = Vec4f(1, 1, 1, 1));
 

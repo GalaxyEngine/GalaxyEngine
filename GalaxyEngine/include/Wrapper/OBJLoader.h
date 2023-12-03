@@ -37,13 +37,13 @@ namespace GALAXY
 		private:
 			bool Parse();
 
-			Vec3i ParseFaceIndex(const std::string& indexStr);
+			static Vec3i ParseFaceIndex(const std::string& indexStr);
 
-			void ComputeVertices(OBJMesh& mesh);
+			static void ComputeVertices(OBJMesh& mesh);
 
-			void ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices);
+			static void ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices);
 
-			bool ReadMtl(const std::filesystem::path& mtlPath);
+			static bool ReadMtl(const std::filesystem::path& mtlPath);
 		};
 	}
 }

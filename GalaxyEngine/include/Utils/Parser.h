@@ -14,20 +14,20 @@ namespace GALAXY
 			VALUE,
 			BEGIN_TAB,
 			END_TAB,
-		BEGIN_MAP,
-		END_MAP,
-		TITLE,
+			BEGIN_MAP,
+			END_MAP,
+			TITLE,
 		};
 
 		class Serializer
 		{
 		public:
 			Serializer() {}
-			Serializer(const std::filesystem::path& path);
+			explicit Serializer(const std::filesystem::path& path);
 			~Serializer();
 
 			void Create(const std::filesystem::path& path);
-			void CloseFile();
+			void CloseFile() const;
 
 			template<typename T>
 			Serializer& operator<<(const T& value);

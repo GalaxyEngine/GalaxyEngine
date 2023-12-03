@@ -4,9 +4,6 @@
 #include "Resource/ResourceManager.h"
 
 namespace GALAXY {
-	Editor::UI::Console::~Console()
-	{
-	}
 
 	void Editor::UI::Console::Draw()
 	{
@@ -74,10 +71,10 @@ namespace GALAXY {
 					prefix = "(Error)";
 					break;
 				}
-				auto currentText = m_texts[m_textSelected].text;
-				auto pos = currentText.find("):") + 1;
-				std::string message = currentText.substr(pos + 1);
-				std::string fileLine = currentText.substr(currentText.find_first_of(']') + 2, pos - currentText.find_first_of(']') - 2);
+				const std::string currentText = m_texts[m_textSelected].text;
+				const uint64_t pos = currentText.find("):") + 1;
+				const std::string message = currentText.substr(pos + 1);
+				const std::string fileLine = currentText.substr(currentText.find_first_of(']') + 2, pos - currentText.find_first_of(']') - 2);
 				Wrapper::GUI::TextSelectable(prefix + message, color);
 				Wrapper::GUI::TextSelectable(fileLine);
 			}
@@ -86,9 +83,9 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void Editor::UI::Console::DisplayText(size_t i)
+	void Editor::UI::Console::DisplayText(const size_t i)
 	{
-		ImGui::PushID((int)i);
+		ImGui::PushID(static_cast<int>(i));
 		Resource::Texture* tex = nullptr;
 		switch (m_texts[i].type)
 		{
@@ -143,7 +140,7 @@ namespace GALAXY {
 		m_resourcesLoaded = m_infoTexture.lock() && m_warningTexture.lock() && m_errorTexture.lock();
 	}
 
-	void Editor::UI::Console::AddText(Debug::LogType type, std::string text)
+	void Editor::UI::Console::AddText(const Debug::LogType type, const std::string& text)
 	{
 		m_scrollToBottom = true;
 		if (m_texts.size() > m_maxText)

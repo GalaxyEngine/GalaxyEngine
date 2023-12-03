@@ -42,11 +42,12 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath, const std::string& dllName)
 	{
-		std::string extension = Utils::OS::GetDLLExstension();
+		const std::string extension = Utils::OS::GetDLLExtension();
 
 		auto dllPathName = dllPath / (dllName + extension);
 		auto pdbPathName = dllPath / (dllName + ".pdb");
 		auto libPathName = dllPath / (dllName + ".lib");
+		auto libPathName2 = dllPath / (dllName + ".dll.a");
 
 		m_dllPath = dllPath;
 		m_dllName = dllName;
@@ -66,12 +67,13 @@ namespace GALAXY
 		std::filesystem::path copiedDllPath = DESTINATION_DLL / (dllName + extension);
 		std::filesystem::path copiedPdbPath = DESTINATION_DLL / (dllName + ".pdb");
 		std::filesystem::path copiedLibPath = DESTINATION_DLL / (dllName + ".lib");
+		std::filesystem::path copiedLib2Path = DESTINATION_DLL / (dllName + ".dll.a");
 
 		bool shouldCopyFiles = true;
 		if (std::filesystem::exists(copiedDllPath))
 		{
-			auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
-			auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
+			const auto lastTimeCopied = std::filesystem::last_write_time(copiedDllPath);
+			const auto lastTimeDLL = std::filesystem::last_write_time(dllPathName);
 			if (lastTimeCopied > lastTimeDLL)
 			{
 				shouldCopyFiles = false;
@@ -80,24 +82,41 @@ namespace GALAXY
 
 		if (shouldCopyFiles)
 		{
-			auto threadManager = Core::ThreadManager::GetInstance();
+			/*
+			static auto threadManager = Core::ThreadManager::GetInstance();
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, dllPathName, copiedDllPath);
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, pdbPathName, copiedPdbPath);
 			threadManager->AddTask(&Scripting::ScriptEngine::CopyDLLFile, this, libPathName, copiedLibPath);
+			*/
 
+			CopyDLLFile(dllPathName, copiedDllPath);
+			CopyDLLFile(pdbPathName, copiedPdbPath);
+			CopyDLLFile(libPathName, copiedLibPath);
+			CopyDLLFile(libPathName, copiedLib2Path);
+
+			/*
 			while (copiedFile != 3)
 			{
 			}
+			*/
 			copiedFile = 0;
 		}
 
-		std::string dllLoad = copiedDllPath.string();
+		const std::string dllLoad = copiedDllPath.string();
 
 		m_hDll = Utils::OS::LoadDLL(dllLoad.c_str());
+
+		if (m_hDll != nullptr)
+		{
+			for (auto& script : m_scripts)
+			{
+				ParseScript(script);
+			}
+		}
 	}
 
 
-	void Scripting::ScriptEngine::UnloadDLL()
+	void Scripting::ScriptEngine::UnloadDLL() const
 	{
 		if (m_dllLoaded && m_hDll != NULL)
 		{
@@ -115,15 +134,15 @@ namespace GALAXY
 		ParseScript(script);
 	}
 
-	void Scripting::ScriptEngine::RemoveScript(Weak<Resource::Script> script)
+	void Scripting::ScriptEngine::RemoveScript(const Weak<Resource::Script>& script)
 	{
 		for (size_t i = 0; i < m_scripts.size(); i++) {
 			if (script.lock().get() == m_scripts[i].lock().get())
 			{
-				for (auto scriptComponent : m_registeredScriptComponents)
+				for (const auto scriptComponent : m_registeredScriptComponents)
 				{
 					const char* componentName = scriptComponent->GetComponentName();
-					std::string scriptName = script.lock()->GetFileInfo().GetFileNameNoExtension();
+					const std::string scriptName = script.lock()->GetFileInfo().GetFileNameNoExtension();
 					if (componentName == scriptName)
 					{
 						Component::ComponentHolder::UnregisterComponent(scriptComponent);
@@ -137,13 +156,13 @@ namespace GALAXY
 			}
 		}
 
-	void Scripting::ScriptEngine::ParseScript(Weak<Resource::Script>& script)
+	void Scripting::ScriptEngine::ParseScript(const Weak<Resource::Script>& script)
 	{
 		std::string className = script.lock()->GetName();
 		className = className.substr(0, className.find_last_of('.'));
 
 		// Get the constructor
-		Shared<ScriptInstance> scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
+		const Shared<ScriptInstance> scriptInstance = m_scriptInstances[className] = std::make_shared<ScriptInstance>();
 		scriptInstance->m_constructor = GetConstructor(className);
 
 		// Get the component and register it in componentHolder
@@ -153,10 +172,10 @@ namespace GALAXY
 		m_registeredScriptComponents.push_back(component);
 
 		// Parse script and get getters, setters and variables.
-		auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
+		const auto properties = m_headerParser->ParseFile(script.lock()->GetFileInfo().GetFullPath());
 		for (auto& property : properties)
 		{
-			auto type = StringToVariableType(property.propertyType);
+			const auto type = StringToVariableType(property.propertyType);
 			scriptInstance->m_gettersMethods[property.propertyName] = GetGetter(className, property.propertyName);
 			scriptInstance->m_settersMethods[property.propertyName] = GetSetter(className, property.propertyName);
 			scriptInstance->m_variables[property.propertyName].type = type;
@@ -168,7 +187,7 @@ namespace GALAXY
 	void Scripting::ScriptEngine::CleanScripts()
 	{
 		// Unregister all script Components
-		for (auto scriptComponent : m_registeredScriptComponents)
+		for (const auto scriptComponent : m_registeredScriptComponents)
 		{
 			Component::ComponentHolder::UnregisterComponent(scriptComponent);
 		}
@@ -186,11 +205,11 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
-		Core::SceneHolder* sceneHolder = Core::SceneHolder::GetInstance();
-		Resource::Scene* currentScene = sceneHolder->GetCurrentScene();
-		Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
+		const Core::SceneHolder* sceneHolder = Core::SceneHolder::GetInstance();
+		const Resource::Scene* currentScene = sceneHolder->GetCurrentScene();
+		const Shared<Core::GameObject> rootGameObject = currentScene->GetRootGameObject().lock();
 
-		auto childGameObjects = rootGameObject->GetAllChildren();
+		const auto childGameObjects = rootGameObject->GetAllChildren();
 
 		// Initialize vectors to store reloaders and component IDs for each child game object
 		std::vector<std::vector<Component::ReloadScript>> reloaders(childGameObjects.size());
@@ -200,7 +219,7 @@ namespace GALAXY
 		{
 			auto& currentReloaderList = reloaders[i];
 			auto& currentComponentID = componentIDs[i];
-			auto childGameObject = childGameObjects[i].lock();
+			const auto childGameObject = childGameObjects[i].lock();
 
 			if (!childGameObject)
 				continue;
@@ -235,7 +254,7 @@ namespace GALAXY
 		{
 			auto& currentReloaderList = reloaders[i];
 			auto& currentComponentID = componentIDs[i];
-			auto childGameObject = childGameObjects[i];
+			const auto& childGameObject = childGameObjects[i];
 
 			for (size_t j = 0; j < currentReloaderList.size(); ++j)
 			{
@@ -250,17 +269,16 @@ namespace GALAXY
 		}
 
 		// Sync component values for all reloaders
-		for (size_t i = 0; i < reloaders.size(); ++i)
+		for (auto& currentReloaderList : reloaders)
 		{
-			auto& currentReloaderList = reloaders[i];
-			for (size_t j = 0; j < currentReloaderList.size(); ++j)
+			for (const auto& j : currentReloaderList)
 			{
-				currentReloaderList[j].SyncComponentsValues();
+				j.SyncComponentsValues();
 			}
 		}
 	}
 
-	void Scripting::ScriptEngine::UpdateFileWatcherDLL()
+	void Scripting::ScriptEngine::UpdateFileWatcherDLL() const
 	{
 		if (m_fileWatcherDLL)
 			m_fileWatcherDLL->Update();
@@ -268,7 +286,7 @@ namespace GALAXY
 
 	Scripting::VariableType Scripting::ScriptEngine::StringToVariableType(const std::string& typeName)
 	{
-		if (typeMap.count(typeName))
+		if (typeMap.contains(typeName))
 			return typeMap[typeName];
 		else
 		{
@@ -290,15 +308,15 @@ namespace GALAXY
 	{
 		if (m_scriptInstances.contains(scriptName))
 			return m_scriptInstances.at(scriptName);
-		return Weak<ScriptInstance>();
+		return {};
 	}
 
-	Shared<Component::ScriptComponent> Scripting::ScriptEngine::CreateScript(const std::string& scriptName)
+	Shared<Component::ScriptComponent> Scripting::ScriptEngine::CreateScript(const std::string& scriptName) const
 	{
 		if (m_scriptInstances.contains(scriptName))
 		{
-			auto scriptInstance = m_scriptInstances.at(scriptName);
-			Component::ScriptComponent* component = reinterpret_cast<Component::ScriptComponent*>(scriptInstance->m_constructor());
+			const auto scriptInstance = m_scriptInstances.at(scriptName);
+			auto component = reinterpret_cast<Component::ScriptComponent*>(scriptInstance->m_constructor());
 			return Shared<Component::ScriptComponent>(component);
 		}
 		return nullptr;
@@ -321,30 +339,30 @@ namespace GALAXY
 			m_scriptInstances[scriptName]->m_settersMethods[variableName](component, value);
 	}
 
-	Scripting::ScriptConstructor Scripting::ScriptEngine::GetConstructor(const std::string& className)
+	Scripting::ScriptConstructor Scripting::ScriptEngine::GetConstructor(const std::string& className) const
 	{
 		return Utils::OS::GetDLLMethod<ScriptConstructor>(m_hDll, ("Create_" + className).c_str());
 	}
 
-	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName)
+	Scripting::GetterMethod Scripting::ScriptEngine::GetGetter(const std::string& className, const std::string& variableName) const
 	{
-		std::string getterMethodName = ("Get_" + className + '_' + variableName).c_str();
+		const std::string getterMethodName = ("Get_" + className + '_' + variableName).c_str();
 		return Utils::OS::GetDLLMethod<GetterMethod>(m_hDll, getterMethodName.c_str());
 	}
 
-	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName)
+	Scripting::SetterMethod Scripting::ScriptEngine::GetSetter(const std::string& className, const std::string& variableName) const
 	{
-		std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
+		const std::string setterMethodName = ("Set_" + className + '_' + variableName).c_str();
 		return Utils::OS::GetDLLMethod<SetterMethod>(m_hDll, setterMethodName.c_str());
 	}
 
-	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName)
+	bool Scripting::ScriptEngine::ScriptExist(const std::string& scriptName) const
 	{
-		for (size_t i = 0; i < m_scripts.size(); i++)
+		for (const auto& m_script : m_scripts)
 		{
-			if (scriptName == m_scripts[i].lock()->GetFileInfo().GetFileNameNoExtension())
+			if (scriptName == m_script.lock()->GetFileInfo().GetFileNameNoExtension())
 			{
-				return m_scripts[i].lock() != nullptr;
+				return m_script.lock() != nullptr;
 			}
 	}
 		return false;

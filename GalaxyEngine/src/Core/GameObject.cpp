@@ -11,6 +11,7 @@
 #include "Component/ComponentHolder.h"
 
 using namespace Core;
+using namespace Component;
 namespace GALAXY
 {
 	GameObject::GameObject()
@@ -18,44 +19,45 @@ namespace GALAXY
 		m_transform = std::make_unique<Component::Transform>();
 	}
 
-	GameObject::GameObject(String name) : GameObject()
+	GameObject::GameObject(const String& name) : GameObject()
 	{
 		SetName(name);
 	}
 
-	Core::GameObject::~GameObject()
+	GameObject::~GameObject()
 	{
 		PrintError("GameObject \"%s\" deleted !", m_name.c_str());
 	}
 
 	void GameObject::Destroy()
 	{
-		for (size_t i = 0; i < m_components.size(); i++)
+		for (const Shared<Component::BaseComponent>& m_component : m_components)
 		{
-			m_components[i]->RemoveFromGameObject();
+			m_component->RemoveFromGameObject();
 		}
-		for (size_t i = 0; i < m_childs.size(); i++)
+		for (const Shared<GameObject>& m_child : m_children)
 		{
-			m_childs[i]->Destroy();
+			m_child->Destroy();
 		}
 		RemoveFromParent();
 		GetScene()->RemoveObject(this);
 	}
 
-	void GameObject::AddChild(Shared<GameObject> child, uint32_t index /*= -1*/)
+	void GameObject::AddChild(const Shared<GameObject>& child, const uint32_t index /*= -1*/)
 	{
 		// Check if child is not null 
 		// and if the gameObject is not already the parent of the new child
 		if (!child)
 			return;
 		// Check if the object is already on the list
-		if (std::count_if(m_childs.begin(), m_childs.end(), [&](const Shared<GameObject>& c)
-			{ return c == child; }) == 0)
+		if (std::ranges::count_if(m_children, [&](const Shared<GameObject>& c)
+		                          { return c == child; }) == 0)
 		{
-			if (index == INDEX_NONE)
-				m_childs.push_back(child);
+			// if the index is not set, add the child at the end of the list
+			if (index != INDEX_NONE)
+				m_children.insert(m_children.begin() + index, child);
 			else
-				m_childs.insert(m_childs.begin() + index, child);
+				m_children.push_back(child);
 		}
 		// Check if the current object is already a parent of the child
 		if (child->m_parent.lock().get() != this)
@@ -65,11 +67,11 @@ namespace GALAXY
 
 	}
 
-	void GameObject::SetParent(Weak<GameObject> parent)
+	void GameObject::SetParent(const Weak<GameObject>& parent)
 	{
 		if (!parent.lock())
 			return;
-		if (Shared<GameObject> prevParent = m_parent.lock())
+		if (const Shared<GameObject> prevParent = m_parent.lock())
 		{
 			prevParent->RemoveChild(this);
 		}
@@ -77,17 +79,17 @@ namespace GALAXY
 		m_parent.lock()->AddChild(shared_from_this());
 	}
 
-	void GameObject::RemoveChild(GameObject* child)
+	void GameObject::RemoveChild(const GameObject* child)
 	{
-		m_childs.erase(std::remove_if(m_childs.begin(), m_childs.end(), [&](const Weak<GameObject>& c) {
+		std::erase_if(m_children, [&](const Weak<GameObject>& c) {
 			return c.lock().get() == child;
-			}), m_childs.end());
+		});
 	}
 
-	void GameObject::RemoveChild(uint32_t index)
+	void GameObject::RemoveChild(const uint32_t index)
 	{
-		if (index < m_childs.size())
-			m_childs.erase(m_childs.begin() + index);
+		if (index < m_children.size())
+			m_children.erase(m_children.begin() + index);
 	}
 
 	void GameObject::Initialize()
@@ -95,55 +97,55 @@ namespace GALAXY
 		m_transform->SetGameObject(shared_from_this());
 	}
 
-	void GameObject::UpdateSelfAndChild()
+	void GameObject::UpdateSelfAndChild() const
 	{
 		m_transform->OnUpdate();
-		for (uint32_t i = 0; i < m_components.size(); i++)
+		for (const auto& m_component : m_components)
 		{
-			if (m_components[i]->IsEnable()) {
-				m_components[i]->OnUpdate();
-				m_components[i]->OnEditorUpdate();
+			if (m_component->IsEnable()) {
+				m_component->OnUpdate();
+				m_component->OnEditorUpdate();
 			}
 		}
 
-		for (uint32_t i = 0; i < m_childs.size(); i++)
+		for (const Shared<GameObject>& m_child : m_children)
 		{
-			m_childs[i]->UpdateSelfAndChild();
+			m_child->UpdateSelfAndChild();
 		}
 	}
 
-	void GameObject::DrawSelfAndChild()
+	void GameObject::DrawSelfAndChild() const
 	{
-		for (uint32_t i = 0; i < m_components.size(); i++)
+		for (const auto& m_component : m_components)
 		{
-			if (m_components[i]->IsEnable()) {
-				m_components[i]->OnDraw();
-				m_components[i]->OnEditorDraw();
+			if (m_component->IsEnable()) {
+				m_component->OnDraw();
+				m_component->OnEditorDraw();
 			}
 		}
 
-		for (uint32_t i = 0; i < m_childs.size(); i++)
+		for (const auto& m_child : m_children)
 		{
-			m_childs[i]->DrawSelfAndChild();
+			m_child->DrawSelfAndChild();
 		}
 	}
 
-	uint32_t GameObject::GetChildIndex(GameObject* child)
+	uint32_t GameObject::GetChildIndex(const GameObject* child) const
 	{
-		for (uint32_t i = 0; i < m_childs.size(); i++)
+		for (uint32_t i = 0; i < m_children.size(); i++)
 		{
-			if (m_childs[i].get() == child)
+			if (m_children[i].get() == child)
 				return i;
 		}
 		// Not found
 		return -1;
 	}
 
-	bool GameObject::IsSibling(const List<Weak<GameObject>>& siblings)
+	bool GameObject::IsSibling(const List<Weak<GameObject>>& siblings) const
 	{
-		for (size_t i = 0; i < siblings.size(); i++)
+		for (const Weak<GameObject>& sibling : siblings)
 		{
-			if (siblings[i].lock()->GetParent() != this->GetParent())
+			if (sibling.lock()->GetParent() != this->GetParent())
 				return false;
 		}
 		return true;
@@ -152,7 +154,7 @@ namespace GALAXY
 	void GameObject::RemoveComponent(Component::BaseComponent* component)
 	{
 		component->OnDestroy();
-		uint32_t index = component->GetIndex();
+		const uint32_t index = component->GetIndex();
 		m_components.erase(m_components.begin() + index);
 		for (uint32_t i = index; i < m_components.size(); i++)
 		{
@@ -172,12 +174,12 @@ namespace GALAXY
 		}
 	}
 
-	Component::BaseComponent* GameObject::GetComponentWithName(const String& componentName)
+	Component::BaseComponent* GameObject::GetComponentWithName(const String& componentName) const
 	{
-		for (auto component : m_components)
+		for (const Shared<Component::BaseComponent>& component : m_components)
 		{
-			auto names = component->GetComponentNames();
-			for (auto& curComponentName : names)
+			List<const char*> names = component->GetComponentNames();
+			for (const auto& curComponentName : names)
 			{
 				if (componentName == curComponentName) {
 					return component.get();
@@ -196,36 +198,36 @@ namespace GALAXY
 		return {};
 	}
 
-	void GameObject::RemoveFromParent()
+	void GameObject::RemoveFromParent() const
 	{
 		if (!m_parent.lock())
 			return;
 		m_parent.lock()->RemoveChild(this);
 	}
 
-	void GameObject::AfterLoad()
+	void GameObject::AfterLoad() const
 	{
-		for (auto& component : m_components)
+		for (const Shared<Component::BaseComponent>& component : m_components)
 		{
 			component->AfterLoad();
 			component->p_tempComponentIDs.clear();
 			component->p_tempGameObjectIDs.clear();
 		}
-		for (auto& children : m_childs)
+		for (auto& children : m_children)
 		{
 			children->AfterLoad();
 		}
 	}
 
-	List<Weak<Core::GameObject>> Core::GameObject::GetAllChildren()
+	List<Weak<GameObject>> GameObject::GetAllChildren() const
 	{
-		List<Weak<Core::GameObject>> childs = GetChildren();
-		for (auto& child : m_childs)
+		List<Weak<GameObject>> children = GetChildren();
+		for (auto& child : m_children)
 		{
-			List<Weak<Core::GameObject>> newChild = child->GetAllChildren();
-			childs.insert(childs.end(), newChild.begin(), newChild.end());
+			List<Weak<GameObject>> newChild = child->GetAllChildren();
+			children.insert(children.end(), newChild.begin(), newChild.end());
 		}
-		return childs;
+		return children;
 	}
 
 	void SerializeTransform(Utils::Serializer& serializer, Component::Transform* transform)
@@ -235,7 +237,7 @@ namespace GALAXY
 		serializer << Pair::END_MAP << "END TRANSFORM";
 	}
 
-	void SerializeComponent(Utils::Serializer& serializer, Shared<Component::BaseComponent> components)
+	void SerializeComponent(Utils::Serializer& serializer, const Shared<Component::BaseComponent>& components)
 	{
 		serializer << Pair::BEGIN_MAP << "BEGIN COMPONENT";
 		serializer << Pair::KEY << "Name" << Pair::VALUE << components->GetComponentName();
@@ -248,12 +250,12 @@ namespace GALAXY
 	{
 		serializer << Pair::BEGIN_MAP << "BEGIN GAMEOBJECT";
 
-		serializer << Pair::KEY << "Name"	<< Pair::VALUE << m_name;
+		serializer << Pair::KEY << "Name" << Pair::VALUE << m_name;
 		serializer << Pair::KEY << "Active" << Pair::VALUE << m_active;
-		serializer << Pair::KEY << "UUID"	<< Pair::VALUE << m_UUID;
+		serializer << Pair::KEY << "UUID" << Pair::VALUE << m_UUID;
 
 		serializer << Pair::KEY << "Component Number" << Pair::VALUE << m_components.size();
-		serializer << Pair::KEY << "Child Number"	  << Pair::VALUE << m_childs.size();
+		serializer << Pair::KEY << "Child Number" << Pair::VALUE << m_children.size();
 
 		SerializeTransform(serializer, m_transform.get());
 
@@ -265,7 +267,7 @@ namespace GALAXY
 		serializer << Pair::END_TAB;
 
 		serializer << Pair::BEGIN_TAB;
-		for (auto& child : m_childs)
+		for (const Shared<GameObject>& child : m_children)
 		{
 			child->Serialize(serializer);
 		}
@@ -274,15 +276,15 @@ namespace GALAXY
 		serializer << Pair::END_MAP << "END GAMEOBJECT";
 	}
 
-	void GameObject::Deserialize(Utils::Parser& parser, bool parseUUID /*= true*/)
+	void GameObject::Deserialize(Utils::Parser& parser, const bool parseUUID /*= true*/)
 	{
 		m_name = parser["Name"];
 		m_active = parser["Active"].As<bool>();
 		if (parseUUID)
 			m_UUID = parser["UUID"].As<uint64_t>();
 
-		size_t componentNumber = parser["Component Number"].As<size_t>();
-		m_childs.resize(parser["Child Number"].As<size_t>());
+		const size_t componentNumber = parser["Component Number"].As<size_t>();
+		m_children.resize(parser["Child Number"].As<size_t>());
 
 		parser.NewDepth();
 		m_transform->Deserialize(parser);
@@ -292,9 +294,9 @@ namespace GALAXY
 			parser.NewDepth();
 			Shared<Component::BaseComponent> component;
 			String componentNameString = parser["Name"];
-			bool enable = parser["Enable"].As<bool>();
+			const bool enable = parser["Enable"].As<bool>();
 			const char* componentName = componentNameString.c_str();
-			for (auto& componentInstance : Component::ComponentHolder::GetList())
+			for (const Shared<BaseComponent>& componentInstance : Component::ComponentHolder::GetList())
 			{
 				if (!strcmp(componentInstance->GetComponentName(), componentName))
 				{
@@ -309,7 +311,7 @@ namespace GALAXY
 			}
 		}
 
-		for (auto& child : m_childs)
+		for (Shared<GameObject>& child : m_children)
 		{
 			parser.NewDepth();
 

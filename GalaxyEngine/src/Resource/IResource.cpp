@@ -26,7 +26,7 @@ namespace GALAXY {
 		PrintWarning("Expired %s", p_fileInfo.GetFullPath().string().c_str());
 	}
 
-	void Resource::IResource::SendRequest()
+	void Resource::IResource::SendRequest() const
 	{
 		Core::ThreadManager::Lock();
 		Core::Application::GetInstance().AddResourceToSend(p_fileInfo.GetFullPath());

@@ -6,7 +6,6 @@ namespace GALAXY {
 		return m_name;
 	}
 
-
 	inline Core::UUID Core::GameObject::GetUUID() const
 	{
 		return m_UUID;
@@ -16,20 +15,50 @@ namespace GALAXY {
 		return m_sceneGraphID;
 	}
 
-	inline List<Weak<Core::GameObject>> Core::GameObject::GetChildren()
+	Resource::Scene* Core::GameObject::GetScene() const
+	{
+		return m_scene;
+	}
+
+	inline Component::Transform* Core::GameObject::GetTransform() const
+	{
+		return m_transform.get();
+	}
+
+	inline Shared<Core::GameObject> Core::GameObject::GetParent() const
+	{
+		return m_parent.lock();
+	}
+
+	void Core::GameObject::SetHierarchyOpen(const bool val)
+	{
+		m_open = val;
+	}
+
+	inline List<Weak<Core::GameObject>> Core::GameObject::GetChildren() const
 	{
 		List<Weak<GameObject>> weakPtrVector;
-		for (const auto& sharedPtr : m_childs) {
+		for (const auto& sharedPtr : m_children) {
 			weakPtrVector.push_back(sharedPtr);
 		}
 		return weakPtrVector;
 	}
 
-	inline Weak<Core::GameObject> Core::GameObject::GetChild(uint32_t index)
+	inline Weak<Core::GameObject> Core::GameObject::GetChild(const uint32_t index)
 	{
-		if (index < m_childs.size())
-			return m_childs.at(index);
-		return Weak<GameObject>();
+		if (index < m_children.size())
+			return m_children.at(index);
+		return {};
+	}
+
+	bool Core::GameObject::IsActive() const
+	{
+		return m_active;
+	}
+
+	inline bool Core::GameObject::IsSelected() const
+	{
+		return m_selected;
 	}
 
 	inline void Core::GameObject::SetName(String val)
@@ -40,7 +69,7 @@ namespace GALAXY {
 	template<typename T>
 	inline Weak<T> Core::GameObject::AddComponent()
 	{
-		if (!std::is_base_of<Component::BaseComponent, T>::value) {
+		if (!std::is_base_of_v<Component::BaseComponent, T>) {
 			PrintError("Incorrect Type for component");
 			return std::weak_ptr<T>();
 		}
@@ -53,7 +82,7 @@ namespace GALAXY {
 	template<typename T>
 	inline void Core::GameObject::AddComponent(Shared<T> component)
 	{
-		if (!std::is_base_of<Component::BaseComponent, T>::value) {
+		if (!std::is_base_of_v<Component::BaseComponent, T>) {
 			PrintError("Incorrect Type for component");
 			return;
 		}
@@ -67,10 +96,9 @@ namespace GALAXY {
 	inline List<Weak<T>> Core::GameObject::GetComponentsInChildren()
 	{
 		List<Weak<T>> list = GetComponents<T>();
-		for (Weak<GameObject>& child : m_childs)
+		for (const Weak<GameObject>& child : m_children)
 		{
-			Shared<GameObject> lockedChild = child.lock();
-			if (lockedChild)
+			if (Shared<GameObject> lockedChild = child.lock())
 			{
 				List<Weak<T>> newList = lockedChild->GetComponentsInChildren<T>();
 				list.insert(list.end(), newList.begin(), newList.end());
@@ -102,8 +130,8 @@ namespace GALAXY {
 				return castedComponent;
 			}
 		}
+		return {};
 	}
-
 
 
 	template<typename T>
@@ -122,7 +150,7 @@ namespace GALAXY {
 	inline List<Shared<T>> Core::GameObject::GetComponentsInChildrenPrivate()
 	{
 		List<Shared<T>> list = GetComponentsPrivate<T>();
-		for (Weak<GameObject>& child : m_childs)
+		for (const Weak<GameObject>& child : m_children)
 		{
 			Shared<GameObject> lockedChild = child.lock();
 			if (lockedChild)
@@ -156,11 +184,11 @@ namespace GALAXY {
 		return {};
 	}
 
-	inline bool Core::GameObject::IsAParent(GameObject* object)
+	inline bool Core::GameObject::IsAParent(GameObject* object) const
 	{
 		if (object == this)
 			return true;
-		else if (m_parent.lock())
+		if (m_parent.lock())
 			return m_parent.lock()->IsAParent(object);
 		return false;
 	}

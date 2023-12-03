@@ -114,7 +114,7 @@ namespace GALAXY
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
-				Editor::Action action(
+				const Editor::Action action(
 					[this, localPosition = position]()
 					{
 						SetLocalPosition(localPosition);
@@ -141,7 +141,7 @@ namespace GALAXY
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
-				Editor::Action action(
+				const Editor::Action action(
 					[this, localPosition = rotation]()
 					{
 						SetLocalRotation(localPosition);
@@ -168,7 +168,7 @@ namespace GALAXY
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
-				Editor::Action action(
+				const Editor::Action action(
 					[this, localPosition = scale]()
 					{
 						SetLocalScale(localPosition);

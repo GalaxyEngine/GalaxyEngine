@@ -38,9 +38,9 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Deserialize(Utils::Parser& parser)
 	{
-		std::string meshPath = parser["Mesh"];
+		const std::string meshPath = parser["Mesh"];
 		m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshPath);
-		size_t materialCount = parser["Material Count"].As<int>();
+		const size_t materialCount = parser["Material Count"].As<int>();
 		for (size_t i = 0; i < materialCount; i++)
 		{
 			std::string materialPath = parser["Material " + std::to_string(i)];
@@ -64,7 +64,7 @@ namespace GALAXY {
 			m_mesh.reset();
 		}
 		ImGui::PopStyleColor();
-		if (auto mesh = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Mesh>("MeshPopup"); mesh.lock())
+		if (const Weak<Resource::Mesh> mesh = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Mesh>("MeshPopup"); mesh.lock())
 		{
 			m_mesh = mesh;
 		}
@@ -81,7 +81,7 @@ namespace GALAXY {
 					selected = i;
 				}
 				ImGui::SameLine();
-				Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, size.y };
+				buttonSize = { ImGui::GetContentRegionAvail().x, size.y };
 				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetFileName().c_str() : "Missing", buttonSize))
 				{
 					ImGui::OpenPopup("MaterialPopup");
@@ -97,7 +97,7 @@ namespace GALAXY {
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("MATERIAL")) {
-						size_t index = *static_cast<uint32_t*>(payload->Data);
+						const size_t index = *static_cast<uint32_t*>(payload->Data);
 						auto mat = m_materials[index];
 						m_materials.erase(m_materials.begin() + index);
 						m_materials.insert(m_materials.begin() +  i, mat);
@@ -106,7 +106,7 @@ namespace GALAXY {
 				}
 			}
 			ImGui::PushID(clicked);
-			if (auto mat = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Material>("MaterialPopup"); mat.lock())
+			if (const Weak<Resource::Material> mat = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Material>("MaterialPopup"); mat.lock())
 			{
 				m_materials[clicked] = mat;
 			}
@@ -133,7 +133,7 @@ namespace GALAXY {
 		{
 			if (!m_materials[i].lock())
 				continue;
-			ImGui::PushID((int)i);
+			ImGui::PushID(static_cast<int>(i));
 			m_materials[i].lock()->ShowInInspector();
 			ImGui::PopID();
 		}

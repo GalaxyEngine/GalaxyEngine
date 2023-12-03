@@ -74,7 +74,7 @@ namespace GALAXY {
 		if (!opt_padding)
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f)); // Set window background to red
-		ImGui::Begin("DockSpace", (bool*)true, window_flags);
+		ImGui::Begin("DockSpace", nullptr, window_flags);
 		ImGui::PopStyleColor();
 		if (!opt_padding)
 			ImGui::PopStyleVar();
@@ -82,10 +82,10 @@ namespace GALAXY {
 		if (opt_fullscreen)
 			ImGui::PopStyleVar(2);
 
-		ImGuiIO& io = ImGui::GetIO();
+		const ImGuiIO& io = ImGui::GetIO();
 		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
 		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			const ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
 		ImGui::End();

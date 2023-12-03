@@ -10,7 +10,7 @@ namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
 
-		struct ComponentID
+		struct GALAXY_API ComponentID
 		{
 			Core::UUID gameObjectID;
 			uint32_t componentID;
@@ -72,22 +72,22 @@ namespace GALAXY {
 			// ========= Getters ========= //
 
 			// return if the component is enable and his gameobject
-			bool IsEnable() const;
+			[[nodiscard]] bool IsEnable() const;
 
 			// return if the component is enable and only him
 			inline bool IsSelfEnable() const { return p_enable; }
 
-			inline virtual void SetGameObject(Weak<Core::GameObject> object) { p_gameObject = object; }
+			inline virtual void SetGameObject(const Weak<Core::GameObject>& object) { p_gameObject = object; }
 
-			inline Shared<Core::GameObject> GetGameObject() { return p_gameObject.lock(); }
+			inline Shared<Core::GameObject> GetGameObject() const { return p_gameObject.lock(); }
 
-			class Transform* GetTransform();
+			class Transform* GetTransform() const;
 
 			inline uint32_t GetIndex() const { return p_id; }
 
 			// ========= Setters ========= //
 
-			inline void SetSelfEnable(bool enable) { p_enable = enable; }
+			inline void SetSelfEnable(const bool enable) { p_enable = enable; }
 
 			virtual Shared<BaseComponent> Clone() = 0;
 
@@ -106,14 +106,14 @@ namespace GALAXY {
 		};
 
 		template <typename Derived>
-		class IComponent : public BaseComponent
+		class GALAXY_API IComponent : public BaseComponent
 		{
 		public:
-			IComponent() {}
+			IComponent() = default;
 			IComponent& operator=(const IComponent& other) = default;
 			IComponent(const IComponent&) = default;
 			IComponent(IComponent&&) noexcept = default;
-			virtual ~IComponent() {}
+			~IComponent() override = default;
 
 			// Clone the component
 			inline virtual Shared<BaseComponent> Clone() override {

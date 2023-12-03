@@ -18,9 +18,9 @@ namespace GALAXY
 			EditorIcon& operator=(const EditorIcon& other) = default;
 			EditorIcon(const EditorIcon&) = default;
 			EditorIcon(EditorIcon&&) noexcept = default;
-			virtual ~EditorIcon() {}
+			virtual ~EditorIcon() = default;
 
-			void SetIconTexture(Weak<Resource::Texture> iconTexture);
+			void SetIconTexture(const Weak<Resource::Texture>& iconTexture) const;
 
 			void Render(const Mat4& model, uint64_t id = -1);
 		private:

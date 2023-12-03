@@ -21,7 +21,7 @@ namespace GALAXY
 			ScriptComponent& operator=(const ScriptComponent& other) = default;
 			ScriptComponent(const ScriptComponent&) = default;
 			ScriptComponent(ScriptComponent&&) noexcept = default;
-			virtual ~ScriptComponent() {}
+			~ScriptComponent() override {}
 
 			inline virtual const char* GetComponentName() const override { return "Script Component"; }
 
@@ -30,7 +30,7 @@ namespace GALAXY
 			template<typename T>
 			inline T* GetVariable(const std::string& variableName)
 			{
-				auto value = reinterpret_cast<T*>(GetVariableVoid(variableName));
+				auto value = static_cast<T*>(GetVariableVoid(variableName));
 				return value;
 			}
 
@@ -76,22 +76,22 @@ namespace GALAXY
 		class ReloadScript
 		{
 		public:
-			ReloadScript(Shared<ScriptComponent> component) : m_component(component) {}
+			explicit ReloadScript(const Shared<ScriptComponent>& component) : m_component(component) {}
 
 			void BeforeReloadScript();
 			void AfterReloadScript();
-			void SyncComponentsValues();
-			Shared<GALAXY::Component::ScriptComponent> GetComponent() const { return m_component; }
+			void SyncComponentsValues() const;
+			Shared<ScriptComponent> GetComponent() const { return m_component; }
 
 			std::string GetScriptName() const { return m_scriptName; }
 		private:
-			std::any ConvertComponentToInfo(const std::any& value);
+			static std::any ConvertComponentToInfo(const std::any& value);
 
-			std::any ConvertGameObjectToID(const std::any& value);
+			static std::any ConvertGameObjectToID(const std::any& value);
 
-			bool ConvertInfoToComponent(std::any& value);
+			static bool ConvertInfoToComponent(std::any& value);
 
-			std::any ConvertIDToGameObject(const std::any& value);
+			static std::any ConvertIDToGameObject(const std::any& value);
 		private:
 			Shared<ScriptComponent> m_component;
 

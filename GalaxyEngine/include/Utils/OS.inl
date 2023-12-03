@@ -12,9 +12,9 @@ namespace GALAXY
 	inline T Utils::OS::GetDLLMethod(void* dll, const char* name)
 	{
 #ifdef _WIN32
-		return (T)(GetProcAddress((HMODULE)dll, name));
+		return reinterpret_cast<T>(GetProcAddress(static_cast<HMODULE>(dll), name));
 #elif defined(__linux__)
-		return (T)dlsym(dll, name);
+		return reinterpret_cast<T>(dlsym(dll, name));
 #endif
 		return T();
 	}

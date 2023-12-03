@@ -6,6 +6,7 @@
 #include "Utils/Define.h"
 
 #include "Core/SceneHolder.h"
+#include "Resource/Mesh.h"
 
 namespace GALAXY 
 {
@@ -13,7 +14,7 @@ namespace GALAXY
 	Editor::EditorIcon::EditorIcon()
 	{
 		m_material = std::make_shared<Resource::Material>("Icon Material");
-		auto billboardShader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(BILLBOARD_PATH);
+		const Weak<Resource::Shader> billboardShader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(BILLBOARD_PATH);
 		m_material->SetShader(billboardShader);
 		m_material->SetAmbient(Vec4f(1));
 		m_material->SetDiffuse(Vec4f(1));
@@ -21,12 +22,12 @@ namespace GALAXY
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
 	}
 
-	void Editor::EditorIcon::SetIconTexture(Weak<Resource::Texture> iconTexture)
+	void Editor::EditorIcon::SetIconTexture(const Weak<Resource::Texture>& iconTexture) const
 	{
 		m_material->SetAlbedo(iconTexture);
 	}
 
-	void Editor::EditorIcon::Render(const Mat4& model, uint64_t id /*= -1*/)
+	void Editor::EditorIcon::Render(const Mat4& model, const uint64_t id /*= -1*/)
 {
 		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 

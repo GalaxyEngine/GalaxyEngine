@@ -32,7 +32,7 @@ namespace GALAXY
 
 	void Render::Camera::DisplayCameraSettings()
 	{
-		float contentWidth = 200.f;
+		const float contentWidth = 200.f;
 
 		// Use the content width as the width for the controls
 		ImGui::PushItemWidth(contentWidth);
@@ -40,7 +40,7 @@ namespace GALAXY
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
 		ImGui::ColorPicker4("Clear Color", &p_clearColor.x);
 		std::string buttonName;
-		if (auto shader = m_framebuffer->GetPostProcessShader().lock())
+		if (const Shared<Resource::PostProcessShader> shader = m_framebuffer->GetPostProcessShader().lock())
 			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
 		else
 			buttonName = "Set Post Process Shader";
@@ -49,7 +49,7 @@ namespace GALAXY
 			ImGui::OpenPopup("PostProcessPopup");
 		}
 		ImGui::PopItemWidth();
-		if (auto ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopup").lock())
+		if (const Shared<Resource::PostProcessShader> ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopup").lock())
 		{
 			m_framebuffer->SetPostProcessShader(ppShader);
 		}
@@ -61,10 +61,10 @@ namespace GALAXY
 	}
 
    Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f &point)
-   {		
-		Vec3f position = GetTransform()->GetWorldPosition();
-		Vec3f unprojectPoint = UnProject({point.x, point.y, p_far});
-		Vec3f direction = (unprojectPoint - position).GetNormalize();
+   {
+	   const Vec3f position = GetTransform()->GetWorldPosition();
+	   const Vec3f unprojectPoint = UnProject({point.x, point.y, p_far});
+	   const Vec3f direction = (unprojectPoint - position).GetNormalize();
 		return Physic::Ray(position, direction, p_far);
    }
 
@@ -93,12 +93,12 @@ namespace GALAXY
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
 	}
 
-	void Render::Camera::Begin()
+	void Render::Camera::Begin() const
 	{
 		m_framebuffer->Begin();
 	}
 
-	void Render::Camera::End()
+	void Render::Camera::End() const
 	{
 		m_framebuffer->End();
 	}

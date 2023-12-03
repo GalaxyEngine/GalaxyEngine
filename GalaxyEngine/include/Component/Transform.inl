@@ -86,7 +86,7 @@ namespace GALAXY
 		return GetWorldRotation() * Vec3f::Forward();
 	}
 
-	inline void Component::Transform::Rotate(Vec3f axis, float angle, Space relativeTo /*= Space::Local*/)
+	inline void Component::Transform::Rotate(const Vec3f axis, const float angle, const Space relativeTo /*= Space::Local*/)
 	{
 		if (relativeTo == Space::Local)
 			RotateAround(TransformDirection(axis), angle);
@@ -94,23 +94,23 @@ namespace GALAXY
 			RotateAround(axis, angle);
 	}
 
-	inline void Component::Transform::RotateAround(Vec3f point, Vec3f axis, float angle)
+	inline void Component::Transform::RotateAround(const Vec3f point, const Vec3f axis, const float angle)
 	{
-		Quat q = Quat::AngleAxis(angle, axis);
+		const Quat q = Quat::AngleAxis(angle, axis);
 		Vec3f dif = GetWorldPosition() - point;
 		dif = q * dif;
 		SetWorldPosition(point + dif);
-		Quat worldRotation = GetWorldRotation();
+		const Quat worldRotation = GetWorldRotation();
 		SetWorldRotation(worldRotation * worldRotation.GetInverse() * q * worldRotation);
 	}
 
-	inline void Component::Transform::RotateAround(Vec3f axis, float angle)
+	inline void Component::Transform::RotateAround(const Vec3f axis, const float angle)
 	{
 		if (angle == 0.0f)
 			return;
-		Quat rotation = Quat::AngleAxis(angle, axis);
+		const Quat rotation = Quat::AngleAxis(angle, axis);
 
-		Vec3f pivot = GetWorldPosition();
+		const Vec3f pivot = GetWorldPosition();
 		Vec3f relativePosition = Vec3f::Zero();
 
 		// Rotate the relative position
@@ -120,12 +120,12 @@ namespace GALAXY
 		SetWorldPosition(pivot + relativePosition);
 
 		// Update the object's rotation
-		Quat worldRotation = GetWorldRotation();
-		Quat rot = worldRotation * worldRotation.GetInverse() * rotation * worldRotation;
+		const Quat worldRotation = GetWorldRotation();
+		const Quat rot = worldRotation * worldRotation.GetInverse() * rotation * worldRotation;
 		SetWorldRotation(rot);
 	}
 
-	inline Vec3f Component::Transform::TransformDirection(Vec3f direction)
+	inline Vec3f Component::Transform::TransformDirection(const Vec3f direction) const
 	{
 		return GetWorldRotation() * direction;
 	}

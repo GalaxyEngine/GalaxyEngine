@@ -13,7 +13,7 @@ namespace GALAXY
 			PointLight& operator=(const PointLight& other) = default;
 			PointLight(const PointLight&) = default;
 			PointLight(PointLight&&) noexcept = default;
-			virtual ~PointLight() {}
+			~PointLight() override {}
 
 			inline const char* GetComponentName() const override { return "Point Light"; }
 
@@ -28,13 +28,13 @@ namespace GALAXY
 			void ShowInInspector() override;
 
 			inline float GetConstant() const { return p_constant.value; }
-			inline void SetConstant(float val) { p_constant.value = val; SetDirty(); }
+			inline void SetConstant(const float val) { p_constant.value = val; SetDirty(); }
 
 			inline float GetLinear() const { return p_linear.value; }
-			inline void SetLinear(float val) { p_linear.value = val; SetDirty(); }
+			inline void SetLinear(const float val) { p_linear.value = val; SetDirty(); }
 
 			inline float GetQuadratic() const { return p_quadratic.value; }
-			inline void SetQuadratic(float val) { p_quadratic.value = val; SetDirty(); }
+			inline void SetQuadratic(const float val) { p_quadratic.value = val; SetDirty(); }
 
 			void ComputeLocationName() override;
 
