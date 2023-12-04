@@ -14,7 +14,7 @@ namespace GALAXY {
 			SetResources();
 
 			const Vec2f size(24, 24);
-			if (ImGui::Button("Clear", {0, size.y}))
+			if (ImGui::Button("Clear", { 0, size.y }))
 			{
 				Clear();
 			}
@@ -36,14 +36,26 @@ namespace GALAXY {
 			filter.Draw("Search");
 
 			// Setting Splitter for the log and the text selected
-			static float size1 = ImGui::GetContentRegionAvail().y - (12 * ImGui::GetWindowHeight() / 100), size2 = 12 * ImGui::GetWindowHeight() / 100;
-			Wrapper::GUI::Splitter(false, 2, &size1, &size2, 10, 10);
-			ImGui::BeginChild("Content", Vec2f(0, size1), true);
+			static float topSize = ImGui::GetContentRegionAvail().y - (12 * ImGui::GetWindowHeight() / 100);
+			static float bottomSize = 12 * ImGui::GetWindowHeight() / 100;
+			static auto previousSize = Vec2f(0);
+			const Vec2f newSize = ImGui::GetContentRegionAvail();
+			if (previousSize != newSize)
+			{
+				// When resize reset the size of the right size
+				topSize = std::max(0.f, ImGui::GetContentRegionAvail().y - bottomSize);
+				previousSize = newSize;
+			}
+
+			Wrapper::GUI::Splitter(false, 2, &topSize, &bottomSize, 10, 10);
+			ImGui::BeginChild("Content", Vec2f(0, topSize), true);
+
 			for (size_t i = 0; i < m_texts.size(); i++)
 			{
 				if (filter.PassFilter(m_texts[i].text.c_str()))
 					DisplayText(i);
 			}
+
 			if (m_scrollToBottom)
 			{
 				m_scrollToBottom = false;
@@ -52,7 +64,7 @@ namespace GALAXY {
 			ImGui::EndChild();
 
 			// Display Text Selected
-			ImGui::BeginChild("Message", { 0, size2 - 5 }); // - 5 disable scrollbar
+			ImGui::BeginChild("Message", { 0, bottomSize - 5 }); // - 5 disable scrollbar
 			if (m_textSelected != INDEX_NONE && m_textSelected < m_texts.size())
 			{
 				std::string prefix = "";
@@ -126,15 +138,15 @@ namespace GALAXY {
 			return;
 		if (!m_infoTexture.lock())
 		{
-			m_infoTexture = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/info.png");
+			m_infoTexture = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/info.png");
 		}
 		if (!m_warningTexture.lock())
 		{
-			m_warningTexture = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/warning.png");
+			m_warningTexture = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/warning.png");
 		}
 		if (!m_errorTexture.lock())
 		{
-			m_errorTexture = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/error.png");
+			m_errorTexture = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/error.png");
 		}
 
 		m_resourcesLoaded = m_infoTexture.lock() && m_warningTexture.lock() && m_errorTexture.lock();
@@ -176,9 +188,8 @@ namespace GALAXY {
 			break;
 		}
 		//TODO : Test this
-		//TODO : Display only text visible
 		Core::ThreadManager::Lock();
-		m_texts.push_back(Debug::LogText(type, text));
+		m_texts.emplace_back(type, text);
 		Core::ThreadManager::Unlock();
 	}
 

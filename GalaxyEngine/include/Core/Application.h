@@ -25,7 +25,7 @@ namespace GALAXY
 		class GALAXY_API Application
 		{
 		public:
-			~Application();
+			~Application() = default;
 
 			static inline Application& GetInstance();
 

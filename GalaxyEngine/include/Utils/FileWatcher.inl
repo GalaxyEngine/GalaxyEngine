@@ -2,6 +2,8 @@
 #include "Utils/FileWatcher.h"
 #include <filesystem>
 
+#include "Utils/Time.h"
+
 namespace GALAXY
 {
 	inline void Utils::FileWatcher::Update()
@@ -10,7 +12,7 @@ namespace GALAXY
 		{
 			if (m_shouldStop)
 				return;
-			m_currentTime += Wrapper::GUI::DeltaTime();
+			m_currentTime += Time::DeltaTime();
 			if (m_currentTime < 1.f)
 				return;
 

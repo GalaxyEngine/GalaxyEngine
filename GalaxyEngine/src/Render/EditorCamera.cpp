@@ -14,6 +14,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 #include "Resource/Scene.h"
+#include "Utils/Time.h"
 
 namespace GALAXY
 {
@@ -48,14 +49,11 @@ namespace GALAXY
 
 		if (!m_looking)
 			return;
-		/*
-		TODO:
-		 * change delta time with Time class
-		*/
+
 		const bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
 		const float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
 
-		const float deltaTime = Wrapper::GUI::DeltaTime();
+		const float deltaTime = Utils::Time::DeltaTime();
 
 		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
 		{

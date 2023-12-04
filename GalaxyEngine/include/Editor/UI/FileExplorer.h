@@ -75,6 +75,9 @@ namespace GALAXY
 
 			List<Shared<File>> m_selectedFiles;
 			List<Shared<File>> m_rightClickedFiles;
+
+			float m_iconSize = 86.0f;
+			float m_space = 15.f;
 		};
 	}
 }

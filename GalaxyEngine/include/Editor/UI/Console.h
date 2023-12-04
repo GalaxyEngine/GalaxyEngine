@@ -3,7 +3,7 @@
 #include "Editor/UI/EditorWindow.h"
 #include <deque>
 
-namespace GALAXY 
+namespace GALAXY
 {
 	namespace Debug
 	{
@@ -12,6 +12,8 @@ namespace GALAXY
 		{
 			LogType type;
 			std::string text;
+
+			LogText(const LogType type, std::string text) : type(type), text(std::move(text)) {}
 		};
 	}
 	namespace Editor::UI
@@ -29,6 +31,9 @@ namespace GALAXY
 
 			void AddText(Debug::LogType type, const std::string& text);
 
+			void AddToDisplay(Debug::LogText* logText);
+			void ComputeDisplayTexts();
+
 			void Clear();
 		private:
 
@@ -38,6 +43,7 @@ namespace GALAXY
 			const size_t m_maxText = 200;
 
 			std::deque<Debug::LogText> m_texts;
+			std::deque<Debug::LogText*> m_displayText;
 			size_t m_textSelected = -1;
 
 			Weak<Resource::Texture> m_infoTexture;

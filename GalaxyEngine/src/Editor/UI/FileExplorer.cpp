@@ -18,7 +18,6 @@
 * Improve left child
  */
 
-namespace fs = std::filesystem;
 namespace GALAXY {
 
 #pragma region File
@@ -141,6 +140,8 @@ namespace GALAXY {
 		m_mainFile->FindAllChildren();
 
 		m_currentFile = m_mainFile;
+
+		m_iconSize = m_iconSize * Wrapper::GUI::GetScaleFactor();
 	}
 
 	void Editor::UI::FileExplorer::Draw()
@@ -148,8 +149,10 @@ namespace GALAXY {
 		if (!p_open)
 			return;
 
-		const float iconSize = 86 * Wrapper::GUI::GetScaleFactor();
-		constexpr int space = 15;
+		constexpr float minIconSize = 32.f;
+		constexpr float maxIconSize = 200.f;
+
+		constexpr float iconDeltaZoom = 5.f;
 		constexpr int textLength = 9;
 		bool openRightClick = false;
 
@@ -196,7 +199,7 @@ namespace GALAXY {
 				auto cursorPos = ImGui::GetCursorPos();
 
 				// Handle file selection logic
-				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(iconSize))) {
+				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(m_iconSize))) {
 					if (child->m_selected || (!child->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)))
 					{
 						if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
@@ -238,7 +241,7 @@ namespace GALAXY {
 				// Positioning for the file icon and text
 				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
 				ImGui::BeginGroup();
-				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(iconSize - 24.f));
+				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(m_iconSize - 24.f));
 
 				// Truncate and display file name
 				const size_t length = child->m_info.GetFileName().length();
@@ -247,24 +250,30 @@ namespace GALAXY {
 					fileName = fileName.substr(0, textLength);
 					fileName.append("...");
 				}
-				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + iconSize / 2.f, iconSize - 24.f + 5.f);
+				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + m_iconSize / 2.f, m_iconSize - 24.f + 5.f);
 				ImGui::SetCursorPos(cursorPos + TextPos);
 				ImGui::TextUnformatted(fileName.c_str());
 				ImGui::EndGroup();
 
-				if (ImGui::GetWindowWidth() - (j + 1) * (iconSize + space) > iconSize) {
-					ImGui::SameLine(static_cast<float>((j + 1) * (iconSize + space)));
+				if (ImGui::GetWindowWidth() - (j + 1) * (m_iconSize + m_space) > m_iconSize) {
+					ImGui::SameLine(static_cast<float>((j + 1) * (m_iconSize + m_space)));
 					j++;
 				}
 				else
 				{
 					j = 0;
-					ImGui::Dummy(Vec2f{ 0, space / 2 + 2 });
+					ImGui::Dummy(Vec2f{ 0, m_space / 2.f + 2.f });
 				}
 
 				ImGui::PopID();
 			}
 			ImGui::PopStyleColor(2);
+			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::GetIO().MouseWheel != 0)
+			{
+				m_iconSize += ImGui::GetIO().MouseWheel * iconDeltaZoom;
+				m_iconSize = std::clamp(m_iconSize, minIconSize, maxIconSize);
+				m_space = ((1 / m_iconSize) * 86.f) * 60.f;
+			}
 			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !openRightClick || openRightClick)
 			{
 				if (!openRightClick) {

@@ -26,13 +26,12 @@
 
 #include "Utils/FileInfo.h"
 #include "Utils/Parser.h"
+#include "Utils/Time.h"
 
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
 #pragma endregion
-
-	Core::Application::~Application() {}
 
 	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
@@ -134,6 +133,7 @@ namespace GALAXY {
 	{
 		while (!m_window->ShouldClose())
 		{
+			Time::UpdateDeltaTime();
 			//TODO : Fix outline framebuffer scale on FHD screen 24''
 			//TODO : Fix this
 			Wrapper::GUI::SetDefaultFontSize(13 * Wrapper::GUI::GetScaleFactor());
@@ -168,7 +168,7 @@ namespace GALAXY {
 
 			m_window->SwapBuffers();
 
-			m_benchmark.UpdateBenchmark(Wrapper::GUI::DeltaTime());
+			m_benchmark.UpdateBenchmark(Time::DeltaTime());
 		}
 	}
 

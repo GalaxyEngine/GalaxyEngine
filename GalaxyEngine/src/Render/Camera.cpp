@@ -32,13 +32,13 @@ namespace GALAXY
 
 	void Render::Camera::DisplayCameraSettings()
 	{
-		const float contentWidth = 200.f;
+		constexpr float contentWidth = 200.f;
 
 		// Use the content width as the width for the controls
 		ImGui::PushItemWidth(contentWidth);
 		ImGui::SliderFloat("FOV", &p_fov, 25.f, 120.f);
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
-		ImGui::ColorPicker4("Clear Color", &p_clearColor.x);
+		ImGui::ColorEdit4("Clear Color", &p_clearColor.x);
 		std::string buttonName;
 		if (const Shared<Resource::PostProcessShader> shader = m_framebuffer->GetPostProcessShader().lock())
 			buttonName = shader->GetFileInfo().GetFileNameNoExtension();

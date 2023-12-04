@@ -14,6 +14,7 @@
 
 #include "Resource/Texture.h"
 #include "Resource/ResourceManager.h"
+#include "Utils/Time.h"
 
 namespace GALAXY {
 
@@ -45,7 +46,7 @@ namespace GALAXY {
 			}
 
 			ImGui::SameLine();
-			ImGui::Text("FPS %f", 1.f / Wrapper::GUI::DeltaTime());
+			ImGui::Text("FPS %f", 1.f / Utils::Time::DeltaTime());
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(windowAvailableWidth - 16 * Wrapper::GUI::GetScaleFactor());
 			if (Wrapper::GUI::TextureButton(m_menuIcon.lock() ? m_menuIcon.lock().get() : nullptr, Vec2f(16)))

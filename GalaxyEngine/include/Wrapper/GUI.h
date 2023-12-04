@@ -29,7 +29,11 @@ namespace GALAXY {
 
 			bool TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 = {0, 0}, const Vec2f& uv1 = { 1, 1 }, int frame_padding = 0, const Vec4f& bg_col = Vec4f(0, 0, 0, 1), const Vec4f& tint_col = Vec4f(1, 1, 1, 1));
 
-			void TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle, const Vec2f& imageSize, const Vec2f& uv0 = { 0, 0 }, const Vec2f& uv1 = { 1, 1 }, int frame_padding = 0, const Vec4f& bg_col = Vec4f(0, 0, 0, 1), const Vec4f& tint_col = Vec4f(1, 1, 1, 1));
+			bool TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle,
+			                                 const Vec2f& imageSize, const Vec2f& uv0 = {0, 0},
+			                                 const Vec2f& uv1 = {1, 1}, int frame_padding = 0,
+			                                 const Vec4f& bg_col = Vec4f(0, 0, 0, 1),
+			                                 const Vec4f& tint_col = Vec4f(1, 1, 1, 1));
 			
 			void TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 = Vec2i(0, 0), const Vec2i& uv1 = Vec2i(1, 1));
 

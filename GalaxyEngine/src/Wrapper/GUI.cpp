@@ -17,7 +17,7 @@ namespace GALAXY {
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
+		auto context = ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -408,17 +408,27 @@ namespace GALAXY {
 		return pressed;
 	}
 
-	void Wrapper::GUI::TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle, const Vec2f& imageSize, const Vec2f& uv0 /*= { 0, 0 }*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
+	bool Wrapper::GUI::TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle,
+	                                               const Vec2f& imageSize, const Vec2f& uv0 /*= { 0, 0 }*/,
+	                                               const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/,
+	                                               const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/,
+	                                               const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
 	{
 		const Vec2f cursorPos = ImGui::GetCursorPos();
 		const int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
 		const int spaceNumber = (static_cast<int>(imageSize.x) / space) + 1;
+		const bool before = *toggle;
+		bool result = false;
+
 		std::string resultString = label;
 
 		for (int i = 0; i < spaceNumber; i++)
 			resultString.insert(resultString.begin(), ' ');
 
+
 		ToggleButton(resultString.c_str(), toggle, Vec2f(0, imageSize.y));
+
+		result = before != *toggle;
 
 		ImGui::SetCursorPos(cursorPos);
 
@@ -427,6 +437,7 @@ namespace GALAXY {
 		ImGui::SameLine();
 
 		ImGui::InvisibleButton("invisible_Button", Vec2f(ImGui::CalcTextSize(resultString.c_str()).x - imageSize.x, imageSize.y));
+		return result;
 	}
 
 	void Wrapper::GUI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
