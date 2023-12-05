@@ -86,6 +86,10 @@ namespace GALAXY {
 		// Initialize Editor::UI
 		Editor::UI::EditorUIManager::Initialize();
 		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
+		std::function<void(bool)> shouldCloseCallback = std::bind(&Editor::UI::EditorUIManager::SetShouldDisplayClosePopup, m_editorUI, std::placeholders::_1);
+		m_window->SetShouldCloseCallback(shouldCloseCallback);
+		std::function<bool()> shouldDisplaySafeCloseCallback = std::bind(&Editor::UI::EditorUIManager::ShouldDisplaySafeClose, m_editorUI);
+		m_window->SetShouldDisplaySafeClose(shouldDisplaySafeCloseCallback);
 
 		// Load dll scripting
 		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);

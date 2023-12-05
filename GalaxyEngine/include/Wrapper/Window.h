@@ -7,6 +7,7 @@ struct GLFWwindow;
 #endif
 
 #include <galaxymath/Maths.h>
+#include <functional>
 
 namespace GALAXY
 {
@@ -72,6 +73,8 @@ namespace GALAXY
 
 			bool ShouldClose() const;
 			void Close() const;
+			void ForceClose();
+			void CancelClose();
 
 			[[nodiscard]] void* GetWindow() const { return m_window; }
 
@@ -83,6 +86,8 @@ namespace GALAXY
 			[[nodiscard]] float GetScreenScale() const;
 
 			[[nodiscard]] void* GetCurrentMonitor() const;
+			inline void SetShouldCloseCallback(std::function<void(bool)> val) { m_shouldCloseCallback = val; }
+			inline void SetShouldDisplaySafeClose(std::function<bool()> val) { m_shouldDisplaySafeClose = val; }
 		private:
 			static int CursorModeToAPI(CursorMode mode);
 
@@ -90,6 +95,10 @@ namespace GALAXY
 			bool m_vsync = true;
 
 			float m_scale = 1.0f;
+
+			std::function<void(bool)> m_shouldCloseCallback;
+			std::function<bool()> m_shouldDisplaySafeClose = [] {return true; };
+			bool m_forceClose;
 
 		};
 	}

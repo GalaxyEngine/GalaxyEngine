@@ -25,9 +25,14 @@ namespace GALAXY::Editor::UI {
 
 		static void Release();
 
-		void DrawUI() const;
+		void DrawUI();
 
 		static void DrawMainDock();
+
+		// Safe popup to save scene if modified
+		void DisplayClosePopup();
+		void SetShouldDisplayClosePopup(bool shouldDisplay) { m_shouldDisplayClosePopup = shouldDisplay; }
+		bool ShouldDisplaySafeClose();
 
 		inline MainBar* GetMainBar() const { return m_mainBar.get(); }
 		inline Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }
@@ -45,5 +50,8 @@ namespace GALAXY::Editor::UI {
 		Unique<Console> m_console;
 		Unique<FileExplorer> m_fileExplorer;
 		Unique<FileDialog> m_fileDialog;
+
+		bool m_shouldDisplayClosePopup = false;
+		std::optional<bool> m_shouldDisplaySafeClose;
 	};
 }

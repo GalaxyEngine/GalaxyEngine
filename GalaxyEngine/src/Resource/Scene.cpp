@@ -47,6 +47,25 @@ namespace GALAXY
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 	}
+	
+	bool Scene::WasModified()
+	{
+		// Compare current scene to last saved
+		auto file = std::fstream(p_fileInfo.GetFullPath(), std::ios::in);
+		if (!file.is_open()) {
+			file.close();
+			return true;
+		}		
+		const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+		Utils::Serializer serializer(p_fileInfo.GetFullPath());
+		serializer.SetShouldSaveOnDestroy(false);
+		m_root->Serialize(serializer);
+
+		const std::string newContent = serializer.GetContent();
+
+		return content != newContent;
+	}
 
 	void Scene::Update()
 	{

@@ -111,7 +111,15 @@ namespace GALAXY {
 	bool Wrapper::Window::ShouldClose() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
-		return glfwWindowShouldClose(glfwWindow);
+		bool shouldClose = glfwWindowShouldClose(glfwWindow);
+		if (shouldClose && m_shouldDisplaySafeClose()) {
+			m_shouldCloseCallback(shouldClose);
+			return shouldClose && m_forceClose;
+		}
+		else
+		{
+			return shouldClose;
+		}
 	}
 
 	void Wrapper::Window::SetSize(int width, int height) const
@@ -224,6 +232,19 @@ namespace GALAXY {
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSetWindowShouldClose(glfwWindow, true);
+	}
+
+	void Wrapper::Window::ForceClose()
+	{
+		m_forceClose = true;
+		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+		glfwSetWindowShouldClose(glfwWindow, true);
+	}
+
+	void Wrapper::Window::CancelClose()
+	{
+		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
+		glfwSetWindowShouldClose(glfwWindow, false);
 	}
 
 #ifdef _WIN32

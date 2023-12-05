@@ -17,7 +17,7 @@ namespace GALAXY
 
 	Utils::Serializer::~Serializer()
 	{
-		if (!m_filePath.empty())
+		if (!m_filePath.empty() && m_saveOnDestroy)
 			CloseFile();
 	}
 

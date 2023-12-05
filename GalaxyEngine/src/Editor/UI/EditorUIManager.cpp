@@ -6,6 +6,9 @@
 
 #include "Core/Application.h"
 
+#include "Core/SceneHolder.h"
+#include "Resource/Scene.h"
+
 namespace GALAXY {
 	Unique<Editor::UI::EditorUIManager> Editor::UI::EditorUIManager::m_instance;
 
@@ -27,7 +30,7 @@ namespace GALAXY {
 		m_instance->m_fileExplorer->Initialize();
 	}
 
-	void Editor::UI::EditorUIManager::DrawUI() const
+	void Editor::UI::EditorUIManager::DrawUI()
 	{
 		DrawMainDock();
 		m_fileDialog->Draw();
@@ -37,6 +40,60 @@ namespace GALAXY {
 		m_inspector->Draw();
 		m_fileExplorer->Draw();
 		m_console->Draw();
+
+		if (m_shouldDisplayClosePopup) 
+		{
+			ImGui::OpenPopup("Are you sure ?");
+			DisplayClosePopup();
+		}
+	}
+
+	void Editor::UI::EditorUIManager::DisplayClosePopup()
+	{
+		if (ImGui::BeginPopupModal("Are you sure ?")) {
+			if (ImGui::Button("Yes")) {
+
+				Core::Application::GetInstance().GetWindow()->ForceClose();
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Yes and save")) {
+
+				Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+				currentScene->Save(currentScene->GetFileInfo().GetFullPath());
+				Core::Application::GetInstance().GetWindow()->ForceClose();
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel"))
+			{
+				Core::Application::GetInstance().GetWindow()->CancelClose();
+				m_shouldDisplaySafeClose.reset();
+				m_shouldDisplayClosePopup = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	bool Editor::UI::EditorUIManager::ShouldDisplaySafeClose()
+	{
+		if (m_shouldDisplaySafeClose.has_value())
+			return m_shouldDisplaySafeClose.value();
+
+		auto currentScene = Core::SceneHolder::GetCurrentScene();
+		if (!currentScene->GetFileInfo().Exist()) {
+
+			m_shouldDisplaySafeClose.emplace(true);
+			return true;
+		}
+
+		if (currentScene->WasModified()) {
+			m_shouldDisplaySafeClose.emplace(true);
+			return true;
+		}
+
+		return false;
 	}
 
 	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::GetInstance()

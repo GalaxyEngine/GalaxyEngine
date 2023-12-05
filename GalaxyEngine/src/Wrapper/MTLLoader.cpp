@@ -36,7 +36,7 @@ namespace GALAXY
 				std::string name;
 				iss >> name;
 				const std::filesystem::path& matFullPath = path.parent_path() / name.append(".mat");
-				currentMaterial = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Material>(matFullPath).lock();
+				currentMaterial = Resource::ResourceManager::GetOrLoad<Resource::Material>(matFullPath).lock();
 				if (currentMaterial)
 				{
 					// file .mat already exists, so skip this one to go to the next material
@@ -85,7 +85,7 @@ namespace GALAXY
 				std::filesystem::path texPath;
 				iss >> texPath;
 				texPath = path.parent_path() / texPath;
-				currentMaterial->m_albedo = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(texPath);
+				currentMaterial->m_albedo = Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath);
 			}
 		}
 		endMaterial(currentMaterial);

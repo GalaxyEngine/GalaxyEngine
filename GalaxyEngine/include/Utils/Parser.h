@@ -53,6 +53,7 @@ namespace GALAXY
 			void SetCurrentValue(const std::string& value) { m_currentPair.second = value; }
 
 			std::string GetContent() const { return m_content.str(); }
+			void SetShouldSaveOnDestroy(bool val) { m_saveOnDestroy = val; }
 		private:
 			std::stringstream m_content;
 			std::filesystem::path m_filePath = "";
@@ -60,6 +61,8 @@ namespace GALAXY
 			std::string m_tab = "";
 
 			bool m_first = true;
+
+			bool m_saveOnDestroy = true;
 
 			std::pair<std::string, std::string> m_currentPair;
 
