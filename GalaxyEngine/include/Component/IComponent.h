@@ -2,6 +2,7 @@
 #include "GalaxyAPI.h"
 #include "Utils/Type.h"
 #include "Core/UUID.h"
+#include "Utils/Define.h"
 
 #include "Wrapper/Reflection.h"
 
@@ -13,7 +14,7 @@ namespace GALAXY {
 		struct GALAXY_API ComponentID
 		{
 			Core::UUID gameObjectID;
-			uint32_t componentID;
+			uint32_t componentID = INDEX_NONE;
 		};
 
 		class GALAXY_API BaseComponent

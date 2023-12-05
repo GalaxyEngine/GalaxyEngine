@@ -8,13 +8,12 @@
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
 
-
 #include "Utils/OS.h"
 
 namespace GALAXY
-{
-	void Editor::UI::MainBar::Draw()
+{	void Editor::UI::MainBar::Draw()
 	{
+		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		static EditorUIManager* editorInstance = EditorUIManager::GetInstance();
 		static EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
 		if (ImGui::BeginMainMenuBar())
@@ -23,7 +22,7 @@ namespace GALAXY
 			{
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (std::string path = Utils::OS::OpenDialog("All\0*.*\0Galaxy\0*.galaxy\0"); !path.empty())
+					if (const std::string path = Utils::OS::OpenDialog(filters); !path.empty())
 					{
 						if (std::filesystem::path(path).extension() != ".galaxy")
 							return;
@@ -32,7 +31,7 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Save Scene As"))
 				{
-					if (std::string path = Utils::OS::SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
+					if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
 					{
 						SaveScene(path);
 					}
@@ -45,7 +44,7 @@ namespace GALAXY
 					}
 					else
 					{
-						if (path = Utils::OS::SaveDialog("Galaxy\0*.galaxy\0"); !path.empty())
+						if (path = Utils::OS::SaveDialog(filters); !path.empty())
 						{
 							SaveScene(path);
 						}
@@ -79,23 +78,6 @@ namespace GALAXY
 			}
 			ImGui::EndMainMenuBar();
 		}
-#ifdef HANDLE_FILE_DIALOG
-		// Handle FileDialog
-		if (!FileDialog::Initialized())
-			return;
-		static FileDialog* fileDialog = editorInstance->GetFileDialog();
-		if (auto path = fileDialog->GetOutput(); !path.empty())
-		{
-			if (fileDialog->GetFileDialogType() == FileDialogType::Open) {
-				OpenScene(path);
-			}
-			else
-			{
-				SaveScene(path);
-			}
-			fileDialog->SetInitialized(false);
-		}
-#endif
 	}
 
 	void Editor::UI::MainBar::OpenScene(const std::string& path)

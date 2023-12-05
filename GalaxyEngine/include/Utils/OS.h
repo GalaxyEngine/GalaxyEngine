@@ -6,14 +6,23 @@
 #elif defined(__linux__)
 #define HANDLE_FILE_DIALOG
 #endif
+#define HANDLE_FILE_DIALOG
 
 namespace GALAXY 
 {
 	namespace Utils::OS
 	{
-		std::string SaveDialog(const char* filter);
+		struct Filter
+		{
+			std::string name;
+			// ex : "Text file"
+			std::string spec;
+			// ex : "txt"
+		};
 
-		std::string OpenDialog(const char* filter);
+		std::string SaveDialog(const std::vector<Filter>& filters);
+
+		std::string OpenDialog(const std::vector<Filter>& filters);
 
 		std::string GetLastErrorMessage();
 

@@ -8,6 +8,7 @@
 
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
+#include "Utils/OS.h"
 
 namespace GALAXY {
 	Unique<Editor::UI::EditorUIManager> Editor::UI::EditorUIManager::m_instance;
@@ -20,7 +21,6 @@ namespace GALAXY {
 		m_inspector = std::make_unique<Inspector>();
 		m_console = std::make_unique<Console>();
 		m_fileExplorer = std::make_unique<FileExplorer>();
-		m_fileDialog = std::make_unique<FileDialog>();
 	}
 
 	void Editor::UI::EditorUIManager::Initialize()
@@ -33,7 +33,6 @@ namespace GALAXY {
 	void Editor::UI::EditorUIManager::DrawUI()
 	{
 		DrawMainDock();
-		m_fileDialog->Draw();
 		m_mainBar->Draw();
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
@@ -50,6 +49,7 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::DisplayClosePopup()
 	{
+		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		if (ImGui::BeginPopupModal("Are you sure ?")) {
 			if (ImGui::Button("Yes")) {
 
@@ -58,10 +58,20 @@ namespace GALAXY {
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("Yes and save")) {
-
 				Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-				currentScene->Save(currentScene->GetFileInfo().GetFullPath());
-				Core::Application::GetInstance().GetWindow()->ForceClose();
+				if (currentScene->GetFileInfo().Exist())
+				{
+					currentScene->Save(currentScene->GetFileInfo().GetFullPath());
+					Core::Application::GetInstance().GetWindow()->ForceClose();
+				}
+				else
+				{
+					if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
+					{
+						MainBar::SaveScene(path);
+						Core::Application::GetInstance().GetWindow()->ForceClose();
+					}
+				}
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();
@@ -81,7 +91,7 @@ namespace GALAXY {
 		if (m_shouldDisplaySafeClose.has_value())
 			return m_shouldDisplaySafeClose.value();
 
-		auto currentScene = Core::SceneHolder::GetCurrentScene();
+		const auto currentScene = Core::SceneHolder::GetCurrentScene();
 		if (!currentScene->GetFileInfo().Exist()) {
 
 			m_shouldDisplaySafeClose.emplace(true);

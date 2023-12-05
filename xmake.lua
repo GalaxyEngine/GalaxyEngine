@@ -13,6 +13,7 @@ add_requires("galaxymath ~1.2")
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
+add_requires("nativefiledialog-extended")
 --add_requires("rttr")
 
 -- enable features
@@ -53,13 +54,7 @@ target("GalaxyEngine")
     add_packages("imgui")
     add_packages("glad")
     add_packages("stb")
-
-    if is_plat("mingw") then
-        -- for file dialog in Windows mingw
-        add_links("comdlg32")
-        -- rename output file because instead it is "libGalaxyEngine.dll"
-
-    end
+    add_packages("nativefiledialog-extended")
     
     if is_plat("mingw") then
     	set_prefixname("")

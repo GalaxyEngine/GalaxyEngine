@@ -3,65 +3,79 @@
 
 #include "Core/Application.h"
 
-#include "Editor/UI/FileDialog.h"
-
 #include "Resource/ResourceManager.h"
 
-#ifdef __linux__
-#include <dlfcn.h>
-#endif
+#include <nfd.hpp>
 
 namespace GALAXY
 {
 
-	std::string Utils::OS::SaveDialog(const char* filter)
+	std::string Utils::OS::SaveDialog(const std::vector<Filter>& filters)
 	{
-#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
-		OPENFILENAMEA ofn;
-		CHAR szFile[260] = { 0 };
-		ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
-		ofn.lStructSize = sizeof(OPENFILENAMEA);
-		ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = filter;
-		ofn.nFilterIndex = 1;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-		ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
-		if (GetSaveFileNameA(&ofn) == TRUE)
+		std::string resultString = "";
+
+		NFD::Guard nfdGuard;
+
+		NFD::UniquePath outPath;
+
+		const size_t count = filters.size();
+		std::vector<nfdfilteritem_t> filterItems(count);
+
+		for (size_t i = 0; i < count; i++)
 		{
-			return ofn.lpstrFile;
+			filterItems[i].name = filters[i].name.c_str();
+			filterItems[i].spec = filters[i].spec.c_str();
 		}
-#elif defined(HANDLE_FILE_DIALOG)
-		Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Save, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
-#endif
-		return "";
+
+		// show the dialog
+		const nfdresult_t result = NFD::SaveDialog(outPath, filterItems.data(), count);
+		if (result == NFD_OKAY) {
+			resultString = std::string(outPath.get());
+		}
+		else if (result == NFD_CANCEL) {
+		}
+		else {
+		}
+
+		// NFD::Guard will automatically quit NFD.
+		return resultString;
 	}
 
-	std::string Utils::OS::OpenDialog(const char* filter)
+	std::string Utils::OS::OpenDialog(const std::vector<Filter>& filters)
 	{
-#if defined(_WIN32) && !defined(HANDLE_FILE_DIALOG)
-		OPENFILENAMEA ofn;
-		CHAR szFile[260] = { 0 };
-		ZeroMemory(&ofn, sizeof(OPENFILENAMEA));
-		ofn.lStructSize = sizeof(OPENFILENAMEA);
-		ofn.hwndOwner = Core::Application::GetInstance().GetWindow()->GetWindowWIN32();
-		ofn.lpstrFile = szFile;
-		ofn.nMaxFile = sizeof(szFile);
-		ofn.lpstrFilter = filter;
-		ofn.nFilterIndex = 1;
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
-		ofn.lpstrInitialDir = Resource::ResourceManager::GetInstance()->GetAssetPath().string().c_str();
-		if (GetSaveFileNameA(&ofn) == TRUE)
+		std::string resultString = "";
+
+		// initialize NFD
+		NFD::Guard nfdGuard;
+
+		// auto-freeing memory
+		NFD::UniquePath outPath;
+
+		const size_t count = filters.size();
+		// prepare filters for the dialog
+		std::vector<nfdfilteritem_t> filterItems(count);
+
+		for (size_t i = 0; i < count; i++)
 		{
-			if (ofn.lpstrFile != nullptr)
-				return ofn.lpstrFile;
-			return "";
+			filterItems[i].name = filters[i].name.c_str();
+			filterItems[i].spec = filters[i].spec.c_str();
 		}
-#elif defined(HANDLE_FILE_DIALOG)
-		Editor::UI::FileDialog::OpenFileDialog(Editor::UI::FileDialogType::Open, filter, Resource::ResourceManager::GetInstance()->GetAssetPath());
-#endif
-		return "";
+
+		// show the dialog
+		const nfdresult_t result = NFD::OpenDialog(outPath, filterItems.data(), count);
+		if (result == NFD_OKAY) {
+			resultString = std::string(outPath.get());
+			std::cout << "Success!" << std::endl << outPath.get() << std::endl;
+		}
+		else if (result == NFD_CANCEL) {
+			std::cout << "User pressed cancel." << std::endl;
+		}
+		else {
+			std::cout << "Error: " << NFD::GetError() << std::endl;
+		}
+
+		// NFD::Guard will automatically quit NFD.
+		return resultString;
 	}
 
 	std::string Utils::OS::GetLastErrorMessage()
@@ -79,7 +93,7 @@ namespace GALAXY
 		//Ask Win32 to give us the string version of that message ID.
 		//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
 		const size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-		                                   nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+			nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
 		//Copy the error message into a std::string.
 		message = std::string(messageBuffer, size);
@@ -107,7 +121,7 @@ namespace GALAXY
 			PrintError("Failed to load DLL %s. Error : %s", DllPath.generic_string().c_str(), errorMessage.c_str());
 		}
 		return handle;
-	}
+		}
 
 	void Utils::OS::FreeDLL(void* dll)
 	{
@@ -131,4 +145,4 @@ namespace GALAXY
 #endif
 	}
 
-}
+	}
