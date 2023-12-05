@@ -37,7 +37,8 @@ namespace GALAXY
 		}
 		for (const Shared<GameObject>& m_child : m_children)
 		{
-			m_child->Destroy();
+			if (m_child)
+				m_child->Destroy();
 		}
 		RemoveFromParent();
 		GetScene()->RemoveObject(this);

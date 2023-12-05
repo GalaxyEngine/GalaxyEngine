@@ -8,6 +8,8 @@
 #include "Editor/UI/Console.h"
 #include "Editor/UI/FileExplorer.h"
 
+#include <optional>
+
 namespace GALAXY::Editor::UI {
 	class EditorUIManager
 	{
