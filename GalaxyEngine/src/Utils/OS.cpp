@@ -28,7 +28,7 @@ namespace GALAXY
 		}
 
 		// show the dialog
-		const nfdresult_t result = NFD::SaveDialog(outPath, filterItems.data(), count);
+		const nfdresult_t result = NFD::SaveDialog(outPath, filterItems.data(), static_cast<uint32_t>(count));
 		if (result == NFD_OKAY) {
 			resultString = std::string(outPath.get());
 		}
@@ -62,16 +62,13 @@ namespace GALAXY
 		}
 
 		// show the dialog
-		const nfdresult_t result = NFD::OpenDialog(outPath, filterItems.data(), count);
+		const nfdresult_t result = NFD::OpenDialog(outPath, filterItems.data(), static_cast<uint32_t>(count));
 		if (result == NFD_OKAY) {
 			resultString = std::string(outPath.get());
-			std::cout << "Success!" << std::endl << outPath.get() << std::endl;
 		}
 		else if (result == NFD_CANCEL) {
-			std::cout << "User pressed cancel." << std::endl;
 		}
 		else {
-			std::cout << "Error: " << NFD::GetError() << std::endl;
 		}
 
 		// NFD::Guard will automatically quit NFD.

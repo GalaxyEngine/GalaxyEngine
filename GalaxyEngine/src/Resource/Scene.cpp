@@ -48,7 +48,7 @@ namespace GALAXY
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 	}
 	
-	bool Scene::WasModified()
+	bool Scene::WasModified() const
 	{
 		// Compare current scene to last saved
 		auto file = std::fstream(p_fileInfo.GetFullPath(), std::ios::in);

@@ -47,7 +47,10 @@ void Core::SceneHolder::SwitchSceneUpdate()
 	{
 		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
 
-		Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+		if (m_currentScene != m_nextScene) {
+			// Do not unload if the next scene is the same as the current scene
+			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+		}
 		m_currentScene.reset();
 
 		m_currentScene = m_nextScene;

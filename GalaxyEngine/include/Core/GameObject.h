@@ -118,6 +118,7 @@ namespace GALAXY {
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
 			friend Component::Light;
+			friend Editor::UI::Inspector;
 
 			UUID m_UUID;
 			uint64_t m_sceneGraphID = 0;
@@ -137,7 +138,6 @@ namespace GALAXY {
 			bool m_open = true;
 			bool m_selected = false;
 
-			friend Editor::UI::Inspector;
 			bool m_active = true;
 
 		private:

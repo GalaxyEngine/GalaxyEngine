@@ -61,7 +61,7 @@ namespace GALAXY {
 			inline void RevertObject(size_t number = 1);
 
 			// Call when the window should close to prevent unsaved scene
-			bool WasModified();
+			bool WasModified() const;
 
 			// Return the GameObject with the index given in scene Graph
 			inline Weak<Core::GameObject> GetWithSceneGraphID(uint64_t index);

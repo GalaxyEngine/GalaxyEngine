@@ -31,15 +31,17 @@ namespace GALAXY
 
 	void GameObject::Destroy()
 	{
-		for (const Shared<Component::BaseComponent>& m_component : m_components)
+		for (size_t i = 0; m_components.size(); i++)
 		{
-			m_component->RemoveFromGameObject();
+			m_components[i]->RemoveFromGameObject();
+			i--;
 		}
-		for (const Shared<GameObject>& m_child : m_children)
+		for (size_t i = 0; i < m_children.size(); i++)
 		{
-			if (m_child)
-				m_child->Destroy();
+			m_children[i]->Destroy();
+			i--;
 		}
+
 		RemoveFromParent();
 		GetScene()->RemoveObject(this);
 	}
@@ -52,7 +54,7 @@ namespace GALAXY
 			return;
 		// Check if the object is already on the list
 		if (std::ranges::count_if(m_children, [&](const Shared<GameObject>& c)
-		                          { return c == child; }) == 0)
+			{ return c == child; }) == 0)
 		{
 			// if the index is not set, add the child at the end of the list
 			if (index != INDEX_NONE)
@@ -84,7 +86,7 @@ namespace GALAXY
 	{
 		std::erase_if(m_children, [&](const Weak<GameObject>& c) {
 			return c.lock().get() == child;
-		});
+			});
 	}
 
 	void GameObject::RemoveChild(const uint32_t index)

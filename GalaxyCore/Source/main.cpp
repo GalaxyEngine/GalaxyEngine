@@ -11,7 +11,9 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	//TODO : Fix crash on hot reload
+	/*TODO :
+	 * Fix crash on hot reload
+	*/
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
