@@ -7,7 +7,6 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
-#include "Resource/Scene.h"
 
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
@@ -17,8 +16,6 @@
 
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
-
-#include "Component/MeshComponent.h"
 
 #include "Utils/Parser.h"
 

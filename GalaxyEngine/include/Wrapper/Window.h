@@ -34,6 +34,12 @@ namespace GALAXY
 			Disabled
 		};
 
+		enum class CoordinateSpace
+		{
+			Window,
+			Screen
+		};
+
 		class Window
 		{
 		public:
@@ -50,6 +56,7 @@ namespace GALAXY
 			// --- Callbacks --- //
 			static void ResizeCallback(GLFWwindow* window, int width, int height);
 			static void MoveCallback(GLFWwindow* window, int xpos, int ypos);
+			static void DropCallback(GLFWwindow* window, int count, const char** paths);
 
 			void Create(const WindowConfig& config);
 			void Destroy() const;
@@ -61,6 +68,10 @@ namespace GALAXY
 			void GetSize(int* width, int* height) const;
 			Vec2i GetSize() const;
 			Vec2i GetPosition() const;
+			Vec2i GetMousePosition(CoordinateSpace coordinate = CoordinateSpace::Window) const;
+
+			Vec2i ToWindowSpace(const Vec2i& pos) const;
+			Vec2i ToScreenSpace(const Vec2i& pos) const;
 
 			// --- Setters --- //
 			void SetVSync(bool enable);

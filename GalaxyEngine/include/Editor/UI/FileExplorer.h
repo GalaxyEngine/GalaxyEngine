@@ -2,6 +2,8 @@
 #include "GalaxyAPI.h"
 #include "Editor/UI/EditorWindow.h"
 
+#include "Physic/2D/Utils.h"
+
 #include "Utils/FileInfo.h"
 
 #include <filesystem>
@@ -55,6 +57,8 @@ namespace GALAXY
 			void AddFileSelected(const Shared<File>& child);
 			void RemoveFileSelected(const Shared<File>& child);
 
+			void HandleDropFile(int count, const char** paths) const;
+
 		private:
 			void ClearSelected();
 
@@ -67,6 +71,11 @@ namespace GALAXY
 			void ReloadContent() const;
 		private:
 			friend class MainBar;
+
+			bool m_visible;
+
+			//TODO: Change to Rect struct
+			Physic2D::Recti m_rect;
 
 			Path m_workingDirectory;
 

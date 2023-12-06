@@ -11,6 +11,7 @@
 #endif
 
 #include "Core/Application.h"
+#include "Editor/UI/EditorUIManager.h"
 
 namespace GALAXY {
 	// boolean to check if glfw has been initalized
@@ -67,6 +68,7 @@ namespace GALAXY {
 		glfwMakeContextCurrent(glfwWindow);
 		glfwSetFramebufferSizeCallback(glfwWindow, &ResizeCallback);
 		glfwSetWindowPosCallback(glfwWindow, &MoveCallback);
+		glfwSetDropCallback(glfwWindow, &DropCallback);
 
 		ComputeScale();
 	}
@@ -183,6 +185,11 @@ namespace GALAXY {
 		Core::Application::GetInstance().GetWindow()->ComputeScale();
 	}
 
+	void Wrapper::Window::DropCallback(GLFWwindow* window, const int count, const char** paths)
+	{
+		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->HandleDropFile(count, paths);
+	}
+
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, const bool physicalPos /*= false*/) const
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
@@ -226,6 +233,30 @@ namespace GALAXY {
 		Vec2i windowPos;
 		glfwGetWindowPos(static_cast<GLFWwindow*>(m_window), &windowPos.x, &windowPos.y);
 		return windowPos;
+	}
+
+	Vec2i Wrapper::Window::GetMousePosition(CoordinateSpace coordinate) const
+	{
+		Vec2d mousePos;
+		glfwGetCursorPos(static_cast<GLFWwindow*>(m_window), &mousePos.x, &mousePos.y);
+
+		if (coordinate == CoordinateSpace::Screen)
+		{
+			mousePos = ToScreenSpace(mousePos);
+		}
+		return mousePos;
+	}
+
+	Vec2i Wrapper::Window::ToWindowSpace(const Vec2i& pos) const
+	{
+		const Vec2i windowPos = GetPosition();
+		return pos - windowPos;
+	}
+
+	Vec2i Wrapper::Window::ToScreenSpace(const Vec2i& pos) const
+	{
+		const Vec2i windowPos = GetPosition();
+		return pos + windowPos;
 	}
 
 	void Wrapper::Window::Close() const

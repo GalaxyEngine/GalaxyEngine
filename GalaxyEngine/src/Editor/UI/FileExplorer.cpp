@@ -1,10 +1,13 @@
 #include "pch.h"
 #include "Editor/UI/FileExplorer.h"
 
+#include "Core/Application.h"
+#include "Core/Input.h"
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Script.h"
 #include "Resource/Material.h"
+#include "Wrapper/Window.h"
 
 /* TODO:
 * Drag and Drop (folders, models, ...)
@@ -157,7 +160,13 @@ namespace GALAXY {
 		bool openRightClick = false;
 
 		// Begin the ImGui window for the File Explorer
-		if (ImGui::Begin("File Explorer", &p_open)) {
+		if (m_visible = ImGui::Begin("File Explorer", &p_open); m_visible) {
+			const Vec2f vMin = ImGui::GetWindowContentRegionMin();
+			const Vec2f vMax = ImGui::GetWindowContentRegionMax();
+			const Vec2f windowPos = Vec2f(ImGui::GetWindowPos());
+
+			m_rect.min = vMin + windowPos;
+			m_rect.max = vMax + windowPos;
 
 			static float size1 = 200, size2 = ImGui::GetContentRegionAvail().x;
 			Wrapper::GUI::Splitter(true, 2, &size1, &size2, 10, 10);
@@ -308,6 +317,28 @@ namespace GALAXY {
 		}
 	}
 
+	void Editor::UI::FileExplorer::HandleDropFile(const int count, const char** paths) const
+	{
+		static auto window = Core::Application::GetInstance().GetWindow();
+		if (!p_open || !m_visible)
+			return;
+
+		const Vec2f mousePos = window->GetMousePosition(Wrapper::CoordinateSpace::Screen);
+
+		if (!m_rect.IsPointInside(mousePos))
+			return;
+
+		for (size_t i = 0; i < count; i++)
+		{
+			PrintLog("Dropped file: %s", paths[i]);
+			/* TODO:
+			 *	Copy files in file explorer (current directory if not folder selected, else inside the folder)
+			 *	Load the files dropped
+			 *	(maybe add a file watcher to check at any time if a file was added inside the asset directory)
+			*/
+		}
+	}
+
 	void Editor::UI::FileExplorer::ClearSelected()
 	{
 		for (const auto& selectedFile : m_selectedFiles)
@@ -447,7 +478,8 @@ namespace GALAXY {
 	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, const bool select)
 	{
 #ifdef _WIN32
-		
+		// TODO : Move to OS Specific 
+
 		const char *explorerPath = "explorer.exe";
 
 		// Construct the command

@@ -2,6 +2,7 @@
 #include "GalaxyAPI.h"
 #include "Utils/Type.h"
 
+// TODO : remove GLFW
 struct GLFW;
 namespace GALAXY
 {
