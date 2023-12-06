@@ -51,20 +51,14 @@ namespace GALAXY {
 
 	void Component::MeshComponent::ShowInInspector()
 	{
-		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x / 2.f, 0 };
+		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
 		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str(): "Empty", buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}
-		ImGui::SameLine();
-		ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.8f, 0.15f, 0.1f, 1.f));
-		if (ImGui::Button("Reset", buttonSize))
-		{
-			m_mesh.reset();
-		}
-		ImGui::PopStyleColor();
-		if (const Weak<Resource::Mesh> mesh = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Mesh>("MeshPopup"); mesh.lock())
+		Weak<Resource::Mesh> mesh;
+		if (Resource::ResourceManager::GetInstance()->ResourcePopup("MeshPopup", mesh))
 		{
 			m_mesh = mesh;
 		}
@@ -106,7 +100,8 @@ namespace GALAXY {
 				}
 			}
 			ImGui::PushID(clicked);
-			if (const Weak<Resource::Material> mat = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Material>("MaterialPopup"); mat.lock())
+			Weak<Resource::Material> mat;
+			if (Resource::ResourceManager::GetInstance()->ResourcePopup("MaterialPopup", mat))
 			{
 				m_materials[clicked] = mat;
 			}

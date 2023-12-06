@@ -49,14 +49,10 @@ namespace GALAXY
 			ImGui::OpenPopup("PostProcessPopup");
 		}
 		ImGui::PopItemWidth();
-		if (const Shared<Resource::PostProcessShader> ppShader = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::PostProcessShader>("PostProcessPopup").lock())
+		Weak<Resource::PostProcessShader> ppShader;
+		if (Resource::ResourceManager::GetInstance()->ResourcePopup("PostProcessPopup", ppShader))
 		{
 			m_framebuffer->SetPostProcessShader(ppShader);
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Reset"))
-		{
-			m_framebuffer->SetPostProcessShader(Weak<Resource::PostProcessShader>());
 		}
 	}
 

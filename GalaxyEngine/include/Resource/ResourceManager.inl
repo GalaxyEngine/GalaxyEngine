@@ -210,18 +210,27 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	[[nodiscard]] inline Weak<T> Resource::ResourceManager::ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
+	inline bool Resource::ResourceManager::ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
 	{
+		bool result = false;
 		if (ImGui::BeginPopup(popupName))
 		{
+			const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
+			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.8f, 0.15f, 0.1f, 1.f));
+			if (ImGui::Button("Reset", buttonSize)) {
+				outResource.reset();
+				result = true;
+			}
+			ImGui::PopStyleColor();
+			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 			static ImGuiTextFilter filter;
 			filter.Draw();
-			const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
+			const bool checkTypeInRange = typeFilter.size() > 0;
 			for (const auto& [path, resource] : m_resources)
 			{
 				bool typeChecked;
-				if (typeFilter.size() > 0)
+				if (checkTypeInRange)
 					typeChecked = std::ranges::find(typeFilter, resource->GetFileInfo().GetResourceType()) != typeFilter.end();
 				else
 					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
@@ -232,8 +241,9 @@ namespace GALAXY
 					ImGui::PushID(static_cast<int>(i++));
 					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))
 					{
+						result = true;
+						outResource = GetOrLoad<T>(path);
 						ImGui::CloseCurrentPopup();
-						return GetOrLoad<T>(path);
 					}
 					if (ImGui::IsItemHovered())
 					{
@@ -244,7 +254,7 @@ namespace GALAXY
 			}
 			ImGui::EndPopup();
 		}
-		return Weak<T>();
+		return result;
 	}
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()

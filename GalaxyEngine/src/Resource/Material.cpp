@@ -104,7 +104,8 @@ namespace GALAXY {
 			{
 				ImGui::OpenPopup("ShaderPopup");
 			}
-			if (auto sha = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Shader>("ShaderPopup", { Resource::ResourceType::Shader, Resource::ResourceType::PostProcessShader }); sha.lock())
+			Weak<Shader> sha;
+			if (Resource::ResourceManager::GetInstance()->ResourcePopup("ShaderPopup", sha, { Resource::ResourceType::Shader, Resource::ResourceType::PostProcessShader }); sha.lock())
 			{
 				m_shader = sha;
 			}
@@ -132,7 +133,8 @@ namespace GALAXY {
 					ImGui::OpenPopup("TexturePopup");
 				}
 			}
-			if (const Weak<Texture> tex = Resource::ResourceManager::GetInstance()->ResourcePopup<Resource::Texture>("TexturePopup"); tex.lock())
+			Weak<Texture> tex;
+			if (Resource::ResourceManager::GetInstance()->ResourcePopup("TexturePopup", tex))
 			{
 				m_albedo = tex;
 			}

@@ -70,7 +70,7 @@ namespace GALAXY {
 			void ProcessDataFile(const Path& dataPath);
 
 			template <typename T>
-			[[nodiscard]] inline Weak<T> ResourcePopup(const char* popupName, const std::vector<Resource::ResourceType>& typeFilter = {});
+			inline bool ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter = {});
 
 			Path GetAssetPath() const { return m_assetPath; }
 			Path GetProjectPath() const { return m_projectPath; }
