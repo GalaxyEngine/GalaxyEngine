@@ -50,8 +50,6 @@ namespace GALAXY {
 
 		m_editorSettings.LoadSettings();
 
-		Input::Initialize();
-
 		// Initialize GUI Lib
 		Wrapper::GUI::Initialize(m_window, "#version 450");
 

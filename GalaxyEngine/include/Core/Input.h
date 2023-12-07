@@ -2,10 +2,9 @@
 #include "GalaxyAPI.h"
 #include "Utils/Type.h"
 
-// TODO : remove GLFW
-struct GLFW;
 namespace GALAXY
 {
+	namespace Wrapper { class Window; }
 	enum class Key : int
 	{
 		NONE = 0,
@@ -147,6 +146,12 @@ namespace GALAXY
 		BUTTON_MIDDLE = BUTTON_3,
 	};
 
+	enum class KeyState
+	{
+		Pressed,
+		Released
+	};
+
 	enum class KeyEvent
 	{
 		None,
@@ -155,10 +160,9 @@ namespace GALAXY
 		Released
 	};
 
+	//TODO : Fix inputs
 	class GALAXY_API Input {
 	public:
-		static void Initialize();
-
 		static void Update();
 
 		static inline bool IsKeyPressed(Key key);
@@ -172,11 +176,10 @@ namespace GALAXY
 		static Vec2f GetMousePosition();
 		static inline Vec2f GetMouseDragDelta();
 	private:
-		static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-
-		static GLFWwindow* m_window;
+		friend Wrapper::Window;
+		static void key_callback(KeyState keyState, int key);
+		static void mouse_button_callback(KeyState keyState, int button);
+		static void scroll_callback(double yoffset);
 
 		static UMap<int, bool> m_keyPressed;
 		static UMap<int, bool> m_keyDown;

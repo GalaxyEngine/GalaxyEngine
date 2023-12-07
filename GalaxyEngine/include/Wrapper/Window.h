@@ -57,6 +57,9 @@ namespace GALAXY
 			static void ResizeCallback(GLFWwindow* window, int width, int height);
 			static void MoveCallback(GLFWwindow* window, int xpos, int ypos);
 			static void DropCallback(GLFWwindow* window, int count, const char** paths);
+			static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
+			static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
+			static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
 			void Create(const WindowConfig& config);
 			void Destroy() const;

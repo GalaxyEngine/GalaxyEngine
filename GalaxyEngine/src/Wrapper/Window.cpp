@@ -69,6 +69,9 @@ namespace GALAXY {
 		glfwSetFramebufferSizeCallback(glfwWindow, &ResizeCallback);
 		glfwSetWindowPosCallback(glfwWindow, &MoveCallback);
 		glfwSetDropCallback(glfwWindow, &DropCallback);
+		glfwSetKeyCallback(glfwWindow, &KeyCallback);
+		glfwSetMouseButtonCallback(glfwWindow, &MouseButtonCallback);
+		glfwSetScrollCallback(glfwWindow, &ScrollCallback);
 
 		ComputeScale();
 	}
@@ -188,6 +191,21 @@ namespace GALAXY {
 	void Wrapper::Window::DropCallback(GLFWwindow* window, const int count, const char** paths)
 	{
 		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->HandleDropFile(count, paths);
+	}
+
+	void Wrapper::Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		Input::key_callback(action == GLFW_PRESS ? KeyState::Pressed : KeyState::Released, key);
+	}
+
+	void Wrapper::Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+	{
+		Input::key_callback(action == GLFW_PRESS ? KeyState::Pressed : KeyState::Released, button);
+	}
+
+	void Wrapper::Window::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		Input::scroll_callback(yoffset);
 	}
 
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, const bool physicalPos /*= false*/) const
