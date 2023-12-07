@@ -195,12 +195,14 @@ namespace GALAXY {
 
 	void Wrapper::Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		Input::key_callback(action == GLFW_PRESS ? KeyState::Pressed : KeyState::Released, key);
+		const KeyEvent state = action == GLFW_PRESS ? KeyEvent::Pressed : action == GLFW_RELEASE ? KeyEvent::Released : KeyEvent::None;
+		Input::key_callback(state, key);
 	}
 
 	void Wrapper::Window::MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
-		Input::key_callback(action == GLFW_PRESS ? KeyState::Pressed : KeyState::Released, button);
+		const KeyEvent state = action == GLFW_PRESS ? KeyEvent::Pressed : action == GLFW_RELEASE ? KeyEvent::Released : KeyEvent::None;
+		Input::key_callback(state, button);
 	}
 
 	void Wrapper::Window::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)

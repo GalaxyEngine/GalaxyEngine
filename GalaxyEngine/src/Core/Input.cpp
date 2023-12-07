@@ -18,13 +18,13 @@ namespace GALAXY
 
 	Vec2f Input::m_mouseDragDelta = Vec2f(0.f);
 
-	void Input::key_callback(KeyState keyState, int key)
+	void Input::key_callback(KeyEvent keyState, int key)
 	{
-		if (keyState == KeyState::Pressed)
+		if (keyState == KeyEvent::Pressed)
 		{
 			m_keyPressed[key] = true;
 		}
-		else if (keyState == KeyState::Released)
+		else if (keyState == KeyEvent::Released)
 		{
 			m_keyPressed.erase(key);
 			m_keyDown.erase(key);
@@ -32,13 +32,13 @@ namespace GALAXY
 		}
 	}
 
-	void Input::mouse_button_callback(KeyState keyState, int button)
+	void Input::mouse_button_callback(KeyEvent keyState, int button)
 	{
-		if (keyState == KeyState::Pressed)
+		if (keyState == KeyEvent::Pressed)
 		{
 			m_keyPressed[button] = true;
 		}
-		else if (keyState == KeyState::Released)
+		else if (keyState == KeyEvent::Released)
 		{
 			m_keyPressed.erase(button);
 			m_keyDown.erase(button);
@@ -74,7 +74,6 @@ namespace GALAXY
 
 	Vec2f Input::GetMousePosition()
 	{
-		Vec2f mousePosition = Core::Application::GetInstance().GetWindow()->GetMousePosition();
-		return mousePosition;
+		return Core::Application::GetInstance().GetWindow()->GetMousePosition();;
 	}
 }

@@ -146,12 +146,6 @@ namespace GALAXY
 		BUTTON_MIDDLE = BUTTON_3,
 	};
 
-	enum class KeyState
-	{
-		Pressed,
-		Released
-	};
-
 	enum class KeyEvent
 	{
 		None,
@@ -177,8 +171,8 @@ namespace GALAXY
 		static inline Vec2f GetMouseDragDelta();
 	private:
 		friend Wrapper::Window;
-		static void key_callback(KeyState keyState, int key);
-		static void mouse_button_callback(KeyState keyState, int button);
+		static void key_callback(KeyEvent keyState, int key);
+		static void mouse_button_callback(KeyEvent keyState, int button);
 		static void scroll_callback(double yoffset);
 
 		static UMap<int, bool> m_keyPressed;
