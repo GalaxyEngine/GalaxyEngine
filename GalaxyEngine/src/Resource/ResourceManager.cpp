@@ -48,9 +48,33 @@ namespace GALAXY {
 			}
 		}
 	}
+	void ImportResource(const Path& resourcePath)
+	{
+		/*
+		auto resource = AddResource<T>(resourcePath);
+		auto result = resource.ParseData();
+		// Check for .gdata file
+		if (result == SUCCESS)
+		{
+			// .gdata opened and parsed success
+		}
+		else if (result == FAILED)
+		{
+			// create the .gdata file with only uuid
+		}
+		else if (result == PARTIAL)
+		{
+			// Need to load the resource because of either:
+			// 1. Need to be load at start
+			// 2. .gdata file is out of data and the resource is a model
+			// 3.
+		}
+		*/
+	}
 
 	void Resource::ResourceManager::ImportResource(const Path& resourcePath)
 	{
+		// DO NOT TOUCH THIS
 		if (!resourcePath.has_extension())
 			return;
 		const Path extension = resourcePath.extension();
@@ -64,7 +88,7 @@ namespace GALAXY {
 			GetOrLoad<Texture>(resourcePath);
 			break;
 		case Resource::ResourceType::Shader:
-			GetOrLoad<Shader>(resourcePath);
+			AddResource<Shader>(resourcePath);
 			break;
 		case Resource::ResourceType::PostProcessShader:
 			AddResource<PostProcessShader>(resourcePath);
@@ -133,6 +157,8 @@ namespace GALAXY {
 
 	void Resource::ResourceManager::ProcessDataFile(const Path& dataPath)
 	{
+		// TODO : only check if the resource still exist
+		// Do the parsing in a new method ParseData
 		std::fstream file = Utils::FileSystem::OpenFile(dataPath);
 		std::string line;
 		bool process = false;

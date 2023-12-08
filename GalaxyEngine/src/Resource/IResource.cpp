@@ -26,10 +26,47 @@ namespace GALAXY {
 		PrintWarning("Expired %s", p_fileInfo.GetFullPath().string().c_str());
 	}
 
+	void Resource::IResource::CreateDataFile()
+	{
+		//TODO : Call on end loading file in get or load method
+		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
+		Serializer serializer(dataPath);
+
+		serializer << Pair::BEGIN_MAP << "Data";
+		Serialize(serializer);
+		serializer << Pair::END_MAP << "Data";
+	}
+
+	void Resource::IResource::Serialize(Utils::Serializer& serializer)
+	{
+		serializer << Pair::KEY << "UUID" << Pair::VALUE << 0; //TODO
+	}
+
+	Resource::ParseResult Resource::IResource::ParseDataFile()
+	{
+		//TODO : Call on import resource
+		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
+		Parser parser(dataPath);
+
+		if (!parser.IsFileOpen())
+			return ParseResult::Failed;
+
+		return Deserialize(parser);
+	}
+
+	Resource::ParseResult Resource::IResource::Deserialize(Utils::Parser& parser)
+	{
+		//TODO:
+		parser["UUID"].As<uint64_t>();
+		return ParseResult::Sucess;
+	}
+
 	void Resource::IResource::SendRequest() const
 	{
 		Core::ThreadManager::Lock();
 		Core::Application::GetInstance().AddResourceToSend(p_fileInfo.GetFullPath());
 		Core::ThreadManager::Unlock();
 	}
+
+
 }

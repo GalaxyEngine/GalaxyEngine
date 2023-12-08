@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Utils/FileInfo.h"
+#include "Utils/Parser.h"
 
 namespace GALAXY::Resource {
 	enum class ResourceType
@@ -25,6 +26,13 @@ namespace GALAXY::Resource {
 		Data,
 		Script,
 		Scene,
+	};
+
+	enum class ParseResult
+	{
+		Sucess,
+		Failed,
+		NeedToLoad
 	};
 
 	class IResource
@@ -47,10 +55,18 @@ namespace GALAXY::Resource {
 
 		void SendRequest() const;
 
+		void CreateDataFile();
+		virtual void Serialize(Utils::Serializer& serializer);
+
+		ParseResult ParseDataFile();
+
 		void ShouldBeDisplayOnInspector(const bool val) { p_displayOnInspector = val; }
 
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
+	protected:
+
+	virtual ParseResult Deserialize(Utils::Parser& parser);
 	protected:
 		friend class ResourceManager;
 

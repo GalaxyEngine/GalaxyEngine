@@ -12,23 +12,26 @@ namespace GALAXY
 {
 	inline void Resource::ResourceManager::AddResource(const Shared<IResource>& resource)
 	{
-		if (m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
+		if (m_instance->m_resources.contains(resource->GetFileInfo().GetRelativePath())) {
 			PrintWarning("Already Contain %s", resource->GetFileInfo().GetRelativePath().string().c_str());
 			return;
 		}
-		m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
+		m_instance->m_resources[resource->GetFileInfo().GetRelativePath()] = resource;
 	}
 
 	template<typename T>
 	inline Weak<T> Resource::ResourceManager::AddResource(const Path& fullPath)
 	{
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
-		if (m_resources.contains(relativePath)) {
+		if (m_instance->m_resources.contains(relativePath)) {
 			PrintWarning("Already Contain %s", relativePath.string().c_str());
-			return Weak<T>();
+			return {};
 		}
-		m_resources[relativePath] = std::make_shared<T>(fullPath);
-		return std::dynamic_pointer_cast<T>(m_resources[relativePath]);
+		auto resource = std::make_shared<T>(fullPath);
+		//resource->ParseDataFile();
+		m_instance->m_resources[relativePath] = resource;
+
+		return std::dynamic_pointer_cast<T>(m_instance->m_resources[relativePath]);
 	}
 
 	inline void Resource::ResourceManager::RemoveResource(IResource* resource)
@@ -82,7 +85,7 @@ namespace GALAXY
 				&& T::GetResourceType() != Resource::ResourceType::Mesh)
 				return Weak<T>{};
 
-			m_instance->AddResource<T>(fullPath);
+			AddResource<T>(fullPath);
 			resource = m_instance->m_resources.find(relativePath);
 		}
 		if (resource != m_instance->m_resources.end())
@@ -95,7 +98,7 @@ namespace GALAXY
 #else
 				resource->second->Load();
 #endif // ENABLE_MULTITHREAD
-
+				// resoure->second->CreateDataFile();
 				return std::dynamic_pointer_cast<T>(resource->second);
 			}
 			else
