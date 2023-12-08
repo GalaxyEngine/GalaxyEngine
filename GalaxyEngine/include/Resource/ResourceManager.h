@@ -22,14 +22,15 @@ namespace GALAXY {
 
 			static void Release();
 
-			inline void AddResource(const Shared<IResource>& resource);
+			// Only add the resource to the map of resource, do not add if already contain
+			static inline void AddResource(const Shared<IResource>& resource);
 
 			template<typename T>
-			inline Weak<T> AddResource(const Path& fullPath);
+			static inline Weak<T> AddResource(const Path& fullPath);
 
 			inline bool Contains(const Path& fullPath) const;
 
-			// Remove the Resource to the resource Manager
+			// Remove the Resource of the resource Manager
 			inline void RemoveResource(IResource* resource);
 
 			inline void RemoveResource(const Shared<IResource>& resource);

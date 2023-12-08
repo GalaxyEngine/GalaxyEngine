@@ -28,7 +28,7 @@ namespace GALAXY {
 		s_indexArray.emplace(m_index);
 
 		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer_" + std::to_string(m_index) + ".png");
-		Resource::ResourceManager::GetInstance()->AddResource(m_renderTexture);
+		Resource::ResourceManager::AddResource(m_renderTexture);
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);

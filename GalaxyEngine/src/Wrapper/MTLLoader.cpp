@@ -47,8 +47,7 @@ namespace GALAXY
 				}
 				else
 				{
-					currentMaterial = std::make_shared<Resource::Material>(matFullPath);
-					Resource::ResourceManager::GetInstance()->AddResource(currentMaterial);
+					currentMaterial = Resource::ResourceManager::AddResource<Resource::Material>(matFullPath).lock();
 				}
 			}
 			if (token == "Ka")

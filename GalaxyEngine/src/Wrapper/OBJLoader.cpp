@@ -24,8 +24,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		Resource::Mesh* mesh = meshWeak.lock().get();
 		if (!meshWeak.lock()) {
 			// If mesh not in resource manager
-			auto sharedMesh = std::make_shared<Resource::Mesh>(meshFullPath);
-			Resource::ResourceManager::GetInstance()->AddResource(sharedMesh);
+			auto sharedMesh = Resource::ResourceManager::AddResource<Resource::Mesh>(meshFullPath).lock();
 			mesh = sharedMesh.get();
 			meshWeak = sharedMesh;
 		}
