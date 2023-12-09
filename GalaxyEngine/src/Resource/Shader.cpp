@@ -14,6 +14,7 @@ namespace GALAXY
 		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock())
 		{
+			CreateDataFile();
 			SendRequest();
 			return;
 		}
@@ -33,8 +34,11 @@ namespace GALAXY
 					SetVertex(vertexShader.lock(), thisShader);
 
 					m_pickingVariant = Create(vertPath, PICKING_PATH);
-					if (m_pickingVariant.lock())
-						m_pickingVariant.lock()->ShouldBeDisplayOnInspector(false);
+					if (auto picking = m_pickingVariant.lock())
+					{
+						picking->SetDisplayOnInspector(false);
+						picking->SetCreateDataFile(false);
+					}
 				}
 				else if (line[0] == 'G')
 				{
@@ -51,6 +55,7 @@ namespace GALAXY
 					SetFragment(fragmentShader.lock(), thisShader);
 				}
 			}
+			CreateDataFile();
 			SendRequest();
 		}
 	}
@@ -111,8 +116,8 @@ namespace GALAXY
 	{
 		if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
 			return {};
-		const Weak<VertexShader> vertexShader = Resource::ResourceManager::GetOrLoad<VertexShader>(vertPath);
-		const Weak<FragmentShader> fragShader = Resource::ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+		const Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<VertexShader>(vertPath);
+		const Weak<FragmentShader> fragShader = ResourceManager::GetOrLoad<FragmentShader>(fragPath);
 
 		// temporary add this to check if it's work to not expire the shader
 		Shared<VertexShader> LockVertex = vertexShader.lock();
@@ -122,11 +127,11 @@ namespace GALAXY
 
 		// Add shader before because of mono thread
 		shaderPath = shaderPath + ".shader";
-		auto shader = Resource::ResourceManager::GetInstance()->AddResource<Shader>(shaderPath);
+		auto shader = ResourceManager::AddResource<Shader>(shaderPath);
 		shader.lock()->SetFragment(fragShader.lock(), shader);
 		shader.lock()->SetVertex(vertexShader.lock(), shader);
 
-		Resource::ResourceManager::GetOrLoad<Shader>(shaderPath);
+		ResourceManager::GetOrLoad<Shader>(shaderPath);
 		return shader;
 	}
 

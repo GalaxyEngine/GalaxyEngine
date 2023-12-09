@@ -74,7 +74,6 @@ namespace GALAXY
 
 			bool m_visible;
 
-			//TODO: Change to Rect struct
 			Physic2D::Recti m_rect;
 
 			Path m_workingDirectory;

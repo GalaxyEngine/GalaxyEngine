@@ -4,7 +4,7 @@
 #include <filesystem>
 #include <atomic>
 #include <memory>
-#include <vector>
+#include "Core/UUID.h"
 
 #include "Utils/FileInfo.h"
 #include "Utils/Parser.h"
@@ -28,12 +28,27 @@ namespace GALAXY::Resource {
 		Scene,
 	};
 
-	enum class ParseResult
+	enum class ResourceStatus
 	{
-		Sucess,
-		Failed,
-		NeedToLoad
+		None = 0,
+		DisplayOnInspector = 1,
+		CreateDataFile = 2,
 	};
+
+	inline constexpr ResourceStatus
+		operator|(const ResourceStatus a, const ResourceStatus b) {
+		return static_cast<ResourceStatus>(static_cast<int>(a) | static_cast<int>(b));
+	}
+
+	inline constexpr ResourceStatus
+		operator&(const ResourceStatus a, const ResourceStatus b) {
+		return static_cast<ResourceStatus>(static_cast<int>(a) & static_cast<int>(b));
+	}
+
+	inline constexpr ResourceStatus
+		operator~(const ResourceStatus a) {
+		return static_cast<ResourceStatus>(~static_cast<int>(a));
+	}
 
 	class IResource
 	{
@@ -55,18 +70,30 @@ namespace GALAXY::Resource {
 
 		void SendRequest() const;
 
-		void CreateDataFile();
-		virtual void Serialize(Utils::Serializer& serializer);
+		void CreateDataFile() const;
 
-		ParseResult ParseDataFile();
+		void ParseDataFile();
 
-		void ShouldBeDisplayOnInspector(const bool val) { p_displayOnInspector = val; }
+		inline void SetDisplayOnInspector(const bool val)
+		{
+			p_status = val ? (p_status | ResourceStatus::DisplayOnInspector) : (p_status & ~ResourceStatus::DisplayOnInspector);
+		}
+		inline void SetCreateDataFile(const bool val)
+		{
+			p_status = val ? (p_status | ResourceStatus::CreateDataFile) : (p_status & ~ResourceStatus::CreateDataFile);
+		}
 
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
+		inline Core::UUID GetUUID() const { return p_uuid; }
 	protected:
+		virtual void Serialize(Utils::Serializer& serializer) const;
+		virtual void Deserialize(Utils::Parser& parser);
 
-	virtual ParseResult Deserialize(Utils::Parser& parser);
+	private:
+		bool GetDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }
+		bool GetCreateDataFile() const { return (p_status & ResourceStatus::CreateDataFile) != ResourceStatus::None; }
+
 	protected:
 		friend class ResourceManager;
 
@@ -76,7 +103,8 @@ namespace GALAXY::Resource {
 		std::atomic_bool p_loaded = false;
 		std::atomic_bool p_hasBeenSent = false;
 
-		bool p_displayOnInspector = true;
+		ResourceStatus p_status = ResourceStatus::DisplayOnInspector | ResourceStatus::CreateDataFile;
 
+		Core::UUID p_uuid;
 	};
 }

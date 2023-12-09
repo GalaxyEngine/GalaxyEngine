@@ -1,2 +1,8 @@
-Origin: CoreResources/models/Cube.obj
-	Cube
+ ------------- Data ------------- 
+[UUID] : 3663044338247653875
+ ------------- Model ------------- 
+[Model] : CoreResources/models/Cube.obj
+[Mesh Count] : 1
+ [Mesh 0] : Cube
+ ============= Model ============= 
+ ============= Data ============= 

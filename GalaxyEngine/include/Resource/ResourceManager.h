@@ -43,6 +43,9 @@ namespace GALAXY {
 			static inline Weak<T> GetOrLoad(const Path& fullPath);
 
 			template <typename T>
+			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
+
+			template <typename T>
 			static inline Shared<T> TemporaryLoad(const Path& fullPath);
 
 			template <typename T>
@@ -66,9 +69,7 @@ namespace GALAXY {
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);
-			static bool CheckForDataFile(const Path& resourcePath);
-
-			void ProcessDataFile(const Path& dataPath);
+			static bool IsDataFileUpToDate(const Path& resourcePath);
 
 			template <typename T>
 			inline bool ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter = {});

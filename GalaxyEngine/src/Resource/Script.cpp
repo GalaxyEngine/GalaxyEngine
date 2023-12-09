@@ -107,7 +107,6 @@ CLASS(%s)
 
 		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
 #else
-		// TODO : Test this
 		std::string command = "code " + path.string();
 		system(command.c_str());
 #endif

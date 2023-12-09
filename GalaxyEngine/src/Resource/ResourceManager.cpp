@@ -13,7 +13,7 @@
 #include "Resource/Scene.h"
 
 #define AUTO_IMPORT
-// Automatic import all model that not get a .gdata
+// Automatic import all model that not get a .gdata up to date
 
 namespace GALAXY {
 	std::unique_ptr<Resource::ResourceManager> Resource::ResourceManager::m_instance = nullptr;
@@ -48,29 +48,6 @@ namespace GALAXY {
 			}
 		}
 	}
-	void ImportResource(const Path& resourcePath)
-	{
-		/*
-		auto resource = AddResource<T>(resourcePath);
-		auto result = resource.ParseData();
-		// Check for .gdata file
-		if (result == SUCCESS)
-		{
-			// .gdata opened and parsed success
-		}
-		else if (result == FAILED)
-		{
-			// create the .gdata file with only uuid
-		}
-		else if (result == PARTIAL)
-		{
-			// Need to load the resource because of either:
-			// 1. Need to be load at start
-			// 2. .gdata file is out of data and the resource is a model
-			// 3.
-		}
-		*/
-	}
 
 	void Resource::ResourceManager::ImportResource(const Path& resourcePath)
 	{
@@ -80,35 +57,35 @@ namespace GALAXY {
 		const Path extension = resourcePath.extension();
 		switch (ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension))
 		{
-		case Resource::ResourceType::None:
+		case ResourceType::None:
 			PrintError("Cannot Import resource with this extension : %s", extension.string().c_str());
 			break;
-		case Resource::ResourceType::Texture:
+		case ResourceType::Texture:
 			// Default load all textures.
-			GetOrLoad<Texture>(resourcePath);
+			AddResource<Texture>(resourcePath);
 			break;
-		case Resource::ResourceType::Shader:
+		case ResourceType::Shader:
 			AddResource<Shader>(resourcePath);
 			break;
-		case Resource::ResourceType::PostProcessShader:
+		case ResourceType::PostProcessShader:
 			AddResource<PostProcessShader>(resourcePath);
 			break;
-		case Resource::ResourceType::VertexShader:
+		case ResourceType::VertexShader:
 			AddResource<VertexShader>(resourcePath);
 			break;
-		case Resource::ResourceType::FragmentShader:
+		case ResourceType::FragmentShader:
 			AddResource<FragmentShader>(resourcePath);
 			break;
-		case Resource::ResourceType::Material:
+		case ResourceType::Material:
 			AddResource<Material>(resourcePath);
 			break;
-		case Resource::ResourceType::Scene:
+		case ResourceType::Scene:
 			AddResource<Scene>(resourcePath);
 			break;
-		case Resource::ResourceType::Model:
+		case ResourceType::Model:
 		{
 #ifdef AUTO_IMPORT
-			if (!CheckForDataFile(resourcePath))
+			if (!IsDataFileUpToDate(resourcePath))
 				GetOrLoad<Model>(resourcePath);
 			else
 				AddResource<Model>(resourcePath);
@@ -117,7 +94,7 @@ namespace GALAXY {
 #endif
 			break;
 		}
-		case Resource::ResourceType::Data:
+		case ResourceType::Data:
 		{
 			const Path path = resourcePath.parent_path() / resourcePath.stem();
 			if (!std::filesystem::exists(path)) {
@@ -125,13 +102,12 @@ namespace GALAXY {
 				Utils::FileSystem::RemoveFile(resourcePath);
 				break;
 			}
-			ProcessDataFile(resourcePath);
 			break;
 		}
-		case Resource::ResourceType::Script:
+		case ResourceType::Script:
 		{
 			// Default load all scripts
-			GetOrLoad<Resource::Script>(resourcePath);
+			GetOrLoad<Script>(resourcePath);
 		}
 		break;
 		default:
@@ -139,7 +115,7 @@ namespace GALAXY {
 		}
 	}
 
-	bool Resource::ResourceManager::CheckForDataFile(const Path& resourcePath)
+	bool Resource::ResourceManager::IsDataFileUpToDate(const Path& resourcePath)
 	{
 		const Path dataFilePath = resourcePath.string() + ".gdata";
 
@@ -153,44 +129,6 @@ namespace GALAXY {
 		if (dataFileTime > ResourceFileTime)
 			return true;
 		return false;
-	}
-
-	void Resource::ResourceManager::ProcessDataFile(const Path& dataPath)
-	{
-		// TODO : only check if the resource still exist
-		// Do the parsing in a new method ParseData
-		std::fstream file = Utils::FileSystem::OpenFile(dataPath);
-		std::string line;
-		bool process = false;
-		ResourceType type;
-		Path originFilePath;
-
-		while (std::getline(file, line))
-		{
-			std::istringstream iss(line);
-			std::string token;
-			iss >> token;
-			if (token == "Origin:")
-			{
-				process = true;
-				iss >> originFilePath;
-				type = Utils::FileInfo::GetTypeFromExtension(dataPath.stem().extension());
-			}
-			else if (process)
-			{
-				switch (type)
-				{
-				case Resource::ResourceType::Model:
-				{
-					auto meshPath = Mesh::CreateMeshPath(originFilePath, token);
-					AddResource<Mesh>(meshPath);
-					break;
-				}
-				default :
-					break;
-				}
-			}
-		}
 	}
 
 	void Resource::ResourceManager::Release()

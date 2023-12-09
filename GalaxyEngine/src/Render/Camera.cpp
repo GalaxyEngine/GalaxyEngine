@@ -21,13 +21,8 @@ namespace GALAXY
 
 	Render::Camera::Camera()
 	{
-		m_framebuffer = new Render::Framebuffer(Core::Application::GetInstance().GetWindow()->GetSize());
+		m_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
 		m_framebuffer->SetClearColor(p_clearColor);
-	}
-
-	Render::Camera::~Camera()
-	{
-		delete m_framebuffer;
 	}
 
 	void Render::Camera::DisplayCameraSettings()

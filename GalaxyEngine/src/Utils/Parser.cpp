@@ -268,7 +268,6 @@ namespace GALAXY
 	{
 		auto file = std::fstream(path, std::ios::in);
 		if (!file.is_open()) {
-			PrintError("File %s could'nt be open", path.string().c_str());
 			file.close();
 			m_fileOpen = false;
 			return;

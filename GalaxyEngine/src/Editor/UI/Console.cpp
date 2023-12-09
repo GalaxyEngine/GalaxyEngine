@@ -187,7 +187,7 @@ namespace GALAXY {
 			m_errorNumber++;
 			break;
 		}
-		//TODO : Test this
+
 		Core::ThreadManager::Lock();
 		m_texts.emplace_back(type, text);
 		Core::ThreadManager::Unlock();

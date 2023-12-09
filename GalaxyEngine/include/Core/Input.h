@@ -153,8 +153,7 @@ namespace GALAXY
 		Down,
 		Released
 	};
-
-	//TODO : Fix inputs
+	
 	class GALAXY_API Input {
 	public:
 		static void Update();

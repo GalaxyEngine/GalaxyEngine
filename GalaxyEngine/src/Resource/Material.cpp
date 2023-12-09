@@ -21,58 +21,28 @@ namespace GALAXY {
 		}
 		else
 		{
-			bool sucess = LoadMatFile();
-			if (!sucess)
+			if (!LoadMatFile())
 				return;
 		}
 
 		p_loaded = true;
+
+		CreateDataFile();
+		SendRequest();
 	}
 
 	bool Resource::Material::LoadMatFile()
 	{
-		std::ifstream matFile(p_fileInfo.GetFullPath());
-		if (!matFile.is_open())
-		{
-			PrintError("Failed to load Material %s", p_fileInfo.GetFullPath().string().c_str());
+		Utils::Parser parser(p_fileInfo.GetFullPath());
+		if (!parser.IsFileOpen())
 			return false;
-		}
+		m_shader = ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>());
+		m_albedo = ResourceManager::GetOrLoad<Texture>(parser["Albedo"].As<uint64_t>());
+		m_normal = ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>());
+		m_ambient = parser["Ambient"].As<Vec4f>();
+		m_diffuse = parser["Diffuse"].As<Vec4f>();
+		m_specular = parser["Specular"].As<Vec4f>();
 
-		std::string line;
-		while (std::getline(matFile, line)) {
-			size_t pos = line.find(" : ");
-			if (pos != std::string::npos) {
-				std::string key = line.substr(0, pos);
-				std::string value = line.substr(pos + 3);
-
-				if (key == "Shader") {
-					if (value != NONE_RESOURCE)
-						m_shader = ResourceManager::GetOrLoad<Shader>(value);
-				}
-				else if (key == "Albedo") {
-					if (value != NONE_RESOURCE)
-						m_albedo = ResourceManager::GetOrLoad<Texture>(value);
-				}
-				else if (key == "Normal") {
-					if (value != NONE_RESOURCE)
-						m_normal = ResourceManager::GetOrLoad<Texture>(value);
-				}
-				else if (key == "Ambient") {
-					std::istringstream iss(value);
-					iss >> m_ambient.x >> m_ambient.y >> m_ambient.z >> m_ambient.w;
-				}
-				else if (key == "Diffuse") {
-					std::istringstream iss(value);
-					iss >> m_diffuse.x >> m_diffuse.y >> m_diffuse.z >> m_diffuse.w;
-				}
-				else if (key == "Specular") {
-					std::istringstream iss(value);
-					iss >> m_specular.x >> m_specular.y >> m_specular.z >> m_specular.w;
-				}
-			}
-		}
-
-		matFile.close();
 		return true;
 	}
 
@@ -83,17 +53,14 @@ namespace GALAXY {
 
 	void Resource::Material::Save() const
 	{
-		std::ofstream matFile(p_fileInfo.GetFullPath());
-		if (matFile.is_open())
-		{
-			matFile << "Shader : " << (m_shader.lock() ? m_shader.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
-			matFile << "Albedo : " << (m_albedo.lock() ? m_albedo.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
-			matFile << "Normal : " << (m_normal.lock() ? m_normal.lock()->GetFileInfo().GetRelativePath().generic_string() : NONE_RESOURCE) + '\n';
-			matFile << "Ambient : " << m_ambient << '\n';
-			matFile << "Diffuse : " << m_diffuse << '\n';
-			matFile << "Specular : " << m_specular << '\n';
-			matFile.close();
-		}
+		Utils::Serializer serializer(p_fileInfo.GetFullPath());
+		serializer << Pair::BEGIN_MAP << "Material";
+		serializer << Pair::KEY << "Shader" << Pair::VALUE << (m_shader.lock() ? m_shader.lock()->GetUUID() : INDEX_NONE);
+		serializer << Pair::KEY << "Albedo" << Pair::VALUE << (m_albedo.lock() ? m_albedo.lock()->GetUUID() : INDEX_NONE);
+		serializer << Pair::KEY << "Normal" << Pair::VALUE << (m_normal.lock() ? m_normal.lock()->GetUUID() : INDEX_NONE);
+		serializer << Pair::KEY << "Ambient" << Pair::VALUE << m_ambient;
+		serializer << Pair::KEY << "Diffuse" << Pair::VALUE << m_diffuse;
+		serializer << Pair::KEY << "Specular" << Pair::VALUE << m_specular;
 	}
 
 	void Resource::Material::ShowInInspector()
@@ -137,6 +104,10 @@ namespace GALAXY {
 			if (Resource::ResourceManager::GetInstance()->ResourcePopup("TexturePopup", tex))
 			{
 				m_albedo = tex;
+			}
+			if (ImGui::Button("Save"))
+			{
+				Save();
 			}
 		}
 	}

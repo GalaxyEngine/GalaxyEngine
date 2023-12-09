@@ -26,6 +26,7 @@ namespace GALAXY {
 	{
 		if (p_shouldBeLoaded)
 			return;
+		ASSERT(HasModel());
 		p_shouldBeLoaded = true;
 		Resource::ResourceManager::GetOrLoad<Model>(m_modelPath);
 		p_loaded = true;

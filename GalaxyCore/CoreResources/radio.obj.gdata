@@ -1,2 +1,8 @@
-Origin: CoreResources/radio.obj
-	SM_Prop_Radio
+ ------------- Data ------------- 
+[UUID] : 3092272068896481965
+ ------------- Model ------------- 
+[Model] : CoreResources/radio.obj
+[Mesh Count] : 1
+ [Mesh 0] : SM_Prop_Radio
+ ============= Model ============= 
+ ============= Data ============= 

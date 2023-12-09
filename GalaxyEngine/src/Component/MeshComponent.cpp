@@ -25,26 +25,26 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::Pair::KEY << "Mesh" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetRelativePath() : "");
+		serializer << Utils::Pair::KEY << "Mesh" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetUUID() : INDEX_NONE);
 		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
 		serializer << Utils::Pair::BEGIN_TAB;
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
-			serializer << Utils::Pair::KEY << ("Material " + std::to_string(i)) << Utils::Pair::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetRelativePath() : "");
+			serializer << Utils::Pair::KEY << ("Material " + std::to_string(i)) << Utils::Pair::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetUUID() : INDEX_NONE);
 		}
 		serializer << Utils::Pair::END_TAB;
 	}
 
 	void Component::MeshComponent::Deserialize(Utils::Parser& parser)
 	{
-		const std::string meshPath = parser["Mesh"];
-		m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshPath);
+		const uint64_t meshUUID = parser["Mesh"].As<uint64_t>();
+		m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshUUID);
 		const size_t materialCount = parser["Material Count"].As<int>();
 		for (size_t i = 0; i < materialCount; i++)
 		{
-			std::string materialPath = parser["Material " + std::to_string(i)];
-			Weak<Resource::Material> material = Resource::ResourceManager::GetOrLoad<Resource::Material>(materialPath);
+			const uint64_t materialUUID = parser["Material " + std::to_string(i)].As<uint64_t>();
+			Weak<Resource::Material> material = Resource::ResourceManager::GetOrLoad<Resource::Material>(materialUUID);
 			m_materials.push_back(material);
 		}
 	}
@@ -69,7 +69,7 @@ namespace GALAXY {
 			{
 				ImGui::PushID(i);
 				ImGui::BeginGroup();
-				Vec2f size = Vec2f(0, 16);
+				Vec2f size = Vec2f(0, 16 * Wrapper::GUI::GetScaleFactor());
 				if (ImGui::Selectable(("Element " + std::to_string(i)).c_str(), selected == i, ImGuiSelectableFlags_AllowItemOverlap, size))
 				{
 					selected = i;

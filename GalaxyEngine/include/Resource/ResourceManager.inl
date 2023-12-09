@@ -28,7 +28,7 @@ namespace GALAXY
 			return {};
 		}
 		auto resource = std::make_shared<T>(fullPath);
-		//resource->ParseDataFile();
+		resource->ParseDataFile();
 		m_instance->m_resources[relativePath] = resource;
 
 		return std::dynamic_pointer_cast<T>(m_instance->m_resources[relativePath]);
@@ -98,7 +98,6 @@ namespace GALAXY
 #else
 				resource->second->Load();
 #endif // ENABLE_MULTITHREAD
-				// resoure->second->CreateDataFile();
 				return std::dynamic_pointer_cast<T>(resource->second);
 			}
 			else
@@ -108,6 +107,22 @@ namespace GALAXY
 		}
 
 		return Weak<T>{};
+	}
+
+	template <typename T>
+	Weak<T> Resource::ResourceManager::GetOrLoad(const Core::UUID& uuid)
+	{
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& resource)
+			{
+				return resource.second->GetUUID() == uuid;
+			});
+		if (resource == m_instance->m_resources.end())
+		{
+			// Not found
+			return {};
+		}
+
+		return GetOrLoad<T>(resource->first);
 	}
 
 	template <typename T>
@@ -187,12 +202,12 @@ namespace GALAXY
 		if (m_temporaryResources.contains(fullPath))
 		{
 			const Weak<IResource> resource = m_temporaryResources.at(fullPath);
-			if (resource.expired()) 
+			if (resource.expired())
 			{
 				m_temporaryResources.erase(fullPath);
 				return nullptr;
 			}
-				
+
 			return std::dynamic_pointer_cast<T>(resource.lock());
 		}
 		return nullptr;
@@ -239,7 +254,7 @@ namespace GALAXY
 					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
 
 				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
-					&& resource->p_displayOnInspector)
+					&& resource->GetDisplayOnInspector())
 				{
 					ImGui::PushID(static_cast<int>(i++));
 					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))

@@ -67,6 +67,7 @@ namespace GALAXY {
 			return;
 		const auto postProcessFramebuffer = m_postProcess.get();
 
+		m_postProcess->Update(Core::Application::GetInstance().GetWindow()->GetSize());
 		m_renderer->BindRenderBuffer(postProcessFramebuffer);
 
 		m_renderer->ClearColorAndBuffer(m_clearColor);

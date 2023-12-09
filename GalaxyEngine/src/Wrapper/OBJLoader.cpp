@@ -56,8 +56,6 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 bool Wrapper::OBJLoader::Parse()
 {
-	// TODO support :
-	// color
 	std::ifstream file(m_path);
 	if (!file.is_open()) {
 		PrintError("Failed to open OBJ file %s", m_path.string().c_str());

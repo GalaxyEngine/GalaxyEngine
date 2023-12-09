@@ -23,6 +23,8 @@ void Resource::Texture::Load()
 		PrintError("Failed to load Image %s", p_fileInfo.GetFullPath().string().c_str());
 		return;
 	}
+
+	CreateDataFile();
 	SendRequest();
 }
 
@@ -37,6 +39,8 @@ void Resource::Texture::Send()
 
 void Resource::Texture::Bind(const uint32_t index /* = 0 */)
 {
+	if (!p_hasBeenSent)
+		return;
 	Wrapper::Renderer::GetInstance()->BindTexture(this, index);
 }
 

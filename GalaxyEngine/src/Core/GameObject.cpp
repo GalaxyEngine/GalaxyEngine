@@ -26,7 +26,7 @@ namespace GALAXY
 
 	GameObject::~GameObject()
 	{
-		PrintError("GameObject \"%s\" deleted !", m_name.c_str());
+		//PrintError("GameObject \"%s\" deleted !", m_name.c_str());
 	}
 
 	void GameObject::Destroy()

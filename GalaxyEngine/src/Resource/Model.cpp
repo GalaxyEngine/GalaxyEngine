@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
+#include "Resource/ResourceManager.h"
 
 #include "Wrapper/OBJLoader.h"
 
@@ -25,22 +27,37 @@ namespace GALAXY {
 			Wrapper::OBJLoader::Load(p_fileInfo.GetFullPath(), this);
 		}
 
-		CreateDataFiles();
+		CreateDataFile();
+		SendRequest();
 	}
 
-	void Resource::Model::CreateDataFiles() const
+	void Resource::Model::Serialize(Utils::Serializer& serializer) const
 	{
-		const Path path = p_fileInfo.GetFullPath().string() + ".gdata";
-		std::ofstream file = Utils::FileSystem::GenerateFile(path);
-		if (file.is_open()) {
-			file << "Origin: " << p_fileInfo.GetRelativePath().generic_string() << std::endl;
-			for (auto& mesh : m_meshes)
-			{
-				file << '\t' << mesh.lock()->GetFileInfo().GetFileName() << std::endl;
-			}
-			file.close();
+		IResource::Serialize(serializer);
+		serializer << Pair::BEGIN_MAP << "Model";
+		serializer << Pair::KEY << "Model" << Pair::VALUE << p_fileInfo.GetRelativePath();
+		serializer << Pair::KEY << "Mesh Count" << Pair::VALUE << m_meshes.size();
+		serializer << Pair::BEGIN_TAB;
+		for (size_t i = 0; i < m_meshes.size(); i++)
+		{
+			serializer << Pair::KEY << "Mesh " + std::to_string(i) << Pair::VALUE << m_meshes[i].lock()->GetFileInfo().GetFileName();
 		}
-		//todo : fix this
+		serializer << Pair::END_TAB;
+		serializer << Pair::END_MAP << "Model";
+	}
+
+	void Resource::Model::Deserialize(Utils::Parser& parser)
+	{
+		IResource::Deserialize(parser);
+		parser.NewDepth();
+		const std::string ModelPath = parser["Model"];
+		const size_t meshCount = parser["Mesh Count"].As<size_t>();
+		for (int i = 0; i < meshCount; i++)
+		{
+			std::string meshName = parser["Mesh " + std::to_string(i)];
+			auto meshPath = Mesh::CreateMeshPath(ModelPath, meshName);
+			Resource::ResourceManager::AddResource<Mesh>(meshPath);
+		}
 	}
 
 	void Resource::Model::ComputeBoundingBox()

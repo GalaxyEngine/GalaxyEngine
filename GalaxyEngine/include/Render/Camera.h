@@ -1,6 +1,5 @@
 #pragma once
 #include "GalaxyAPI.h"
-//#include <galaxymath/Maths.h>
 #include "Component/Transform.h"
 namespace GALAXY
 {
@@ -21,7 +20,7 @@ namespace GALAXY
 			Camera& operator=(const Camera& other) = default;
 			Camera(const Camera&) = default;
 			Camera(Camera&&) noexcept = default;
-			virtual ~Camera();
+			virtual ~Camera() = default;
 
 			static Shared<class EditorCamera> GetEditorCamera();
 			static Weak<Camera> GetCurrentCamera();
@@ -68,7 +67,7 @@ namespace GALAXY
 
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 
-			class Framebuffer* m_framebuffer = nullptr;
+			Shared<class Framebuffer> m_framebuffer = nullptr;
 		};
 	}
 }

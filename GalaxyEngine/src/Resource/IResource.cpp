@@ -23,12 +23,14 @@ namespace GALAXY {
 
 	Resource::IResource::~IResource()
 	{
-		PrintWarning("Expired %s", p_fileInfo.GetFullPath().string().c_str());
+		//PrintWarning("Expired %s", p_fileInfo.GetFullPath().string().c_str());
 	}
 
-	void Resource::IResource::CreateDataFile()
+	void Resource::IResource::CreateDataFile() const
 	{
-		//TODO : Call on end loading file in get or load method
+		if (!GetCreateDataFile())
+			return;
+
 		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
 		Serializer serializer(dataPath);
 
@@ -37,28 +39,28 @@ namespace GALAXY {
 		serializer << Pair::END_MAP << "Data";
 	}
 
-	void Resource::IResource::Serialize(Utils::Serializer& serializer)
+	void Resource::IResource::Serialize(Utils::Serializer& serializer) const
 	{
-		serializer << Pair::KEY << "UUID" << Pair::VALUE << 0; //TODO
+		serializer << Pair::KEY << "UUID" << Pair::VALUE << p_uuid;
 	}
 
-	Resource::ParseResult Resource::IResource::ParseDataFile()
+	void Resource::IResource::ParseDataFile()
 	{
-		//TODO : Call on import resource
-		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
+		const auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
 		Parser parser(dataPath);
 
 		if (!parser.IsFileOpen())
-			return ParseResult::Failed;
+		{
+			//PrintWarning("Failed to open %s", dataPath.generic_string().c_str());
+			return;
+		}
 
 		return Deserialize(parser);
 	}
 
-	Resource::ParseResult Resource::IResource::Deserialize(Utils::Parser& parser)
+	void Resource::IResource::Deserialize(Utils::Parser& parser)
 	{
-		//TODO:
-		parser["UUID"].As<uint64_t>();
-		return ParseResult::Sucess;
+		p_uuid = parser["UUID"].As<uint64_t>();
 	}
 
 	void Resource::IResource::SendRequest() const

@@ -34,6 +34,8 @@ namespace GALAXY
 
 			static Path CreateMeshPath(const Path& modelPath, const Path& fileName);
 			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
+
+			bool HasModel() const { return !m_modelPath.empty(); }
 		private:
 			void ComputeBoundingBox();
 

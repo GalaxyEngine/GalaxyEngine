@@ -50,10 +50,10 @@ namespace GALAXY
 		m_extension = m_fullPath.extension();
 		m_resourceType = GetTypeFromExtension(m_extension);
 
-		if (!m_exist)
-		{
-			PrintWarning("File %s does not exist", path.string().c_str());
-		}
+		//if (!m_exist)
+		//{
+			//PrintWarning("File %s does not exist", path.string().c_str());
+		//}
 	}
 
 	Path Utils::FileInfo::ToPath(const Path& path)
@@ -79,7 +79,7 @@ namespace GALAXY
 		}
 		else
 		{
-			PrintWarning("%s file is not inside the asset folder, no relative path created", path.string().c_str());
+			//PrintWarning("%s file is not inside the asset folder, no relative path created", path.string().c_str());
 			return path;
 		}
 	}

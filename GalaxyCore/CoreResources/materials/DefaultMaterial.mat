@@ -1,6 +1,7 @@
-Shader : CoreResources/shaders/LitShader/lit.shader
-Albedo : None
-Normal : None
-Ambient : 1 1 1 1
-Diffuse : 1 1 1 1
-Specular : 1 1 1 1
+ ------------- Material ------------- 
+[Shader] : 7605523269144270028
+[Albedo] : 18446744073709551615
+[Normal] : 18446744073709551615
+[Ambient] : 1.000000, 1.000000, 1.000000, 1.000000
+[Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
+[Specular] : 1.000000, 1.000000, 1.000000, 1.000000

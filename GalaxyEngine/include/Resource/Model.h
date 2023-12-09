@@ -33,9 +33,11 @@ namespace GALAXY {
 		
 			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
 		private:
-			void CreateDataFiles() const;
-
 			void ComputeBoundingBox();
+
+			void Serialize(Utils::Serializer& serializer) const override;
+			void Deserialize(Utils::Parser& parser) override;
+
 		private:
 
 			friend Wrapper::OBJLoader;
