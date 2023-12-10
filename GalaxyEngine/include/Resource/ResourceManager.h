@@ -76,6 +76,9 @@ namespace GALAXY {
 
 			Path GetAssetPath() const { return m_assetPath; }
 			Path GetProjectPath() const { return m_projectPath; }
+
+			void ReadCache();
+			void CreateCache();
 		private:
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;

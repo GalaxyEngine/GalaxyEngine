@@ -131,6 +131,64 @@ namespace GALAXY {
 		return false;
 	}
 
+	std::size_t HashContent(const std::string& content)
+	{
+		// For simplicity, we're just using the string's hash function here
+		// In practice, you would want to use a proper hash function
+		return std::hash<std::string>{}(content);
+	}
+
+	void Resource::ResourceManager::ReadCache()
+	{
+		const Path cachePath = this->GetProjectPath() / "Cache";
+		Utils::Parser parser(cachePath / "resource.cache");
+		if (!parser.IsFileOpen())
+			return;
+		auto map = parser.GetValueMap()[0];
+		for (auto& resource : m_resources)
+		{
+			if (resource.second->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(resource.second->GetFileInfo().GetFullPath()))
+				continue;
+			/*
+			const std::string path = content.first;
+			const std::size_t hash = parser[content.first].As<std::size_t>();
+			const Path resourcePath = this->GetProjectPath() / path;
+			if (m_resources.contains(path))
+				continue;
+
+			*/
+			if (map.contains(resource.first.string()))
+				continue;
+			PrintLog("Detected new Resource %s", resource.first.c_str());
+			//TODO : 
+
+		}
+	}
+
+	void Resource::ResourceManager::CreateCache()
+	{
+		const Path cachePath = this->GetProjectPath() / "Cache";
+		if (!std::filesystem::exists(cachePath))
+			std::filesystem::create_directory(cachePath);
+
+		Utils::Serializer serializer(cachePath / "resource.cache");
+		serializer << Pair::BEGIN_MAP << "Resources";
+		for (auto& val : m_resources | std::views::values)
+		{
+			if (val->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(val->GetFileInfo().GetFullPath()))
+				continue;
+
+			auto content = Utils::FileSystem::ReadFile(val->GetFileInfo().GetFullPath());
+			if (!content.empty())
+			{
+				const std::string path = val->GetFileInfo().GetRelativePath().string();
+				const std::size_t hash = HashContent(content);
+				serializer << Pair::KEY << path << Pair::VALUE << hash;
+			}
+		}
+		serializer << Pair::END_MAP << "Resources";
+	}
+
 	void Resource::ResourceManager::Release()
 	{
 		m_instance.reset();

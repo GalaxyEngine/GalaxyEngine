@@ -14,7 +14,7 @@ namespace GALAXY
 
 	void Render::Grid::Initialize()
 	{
-		m_shader = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Shader>(GRID_PATH);
+		m_shader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GRID_PATH);
 
 		//TODO: Move to Renderer
 		glGenVertexArrays(1, &m_vao);

@@ -77,6 +77,7 @@ namespace GALAXY {
 
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
+		m_resourceManager->ReadCache();
 
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
@@ -84,9 +85,9 @@ namespace GALAXY {
 		// Initialize Editor::UI
 		Editor::UI::EditorUIManager::Initialize();
 		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
-		std::function<void(bool)> shouldCloseCallback = std::bind(&Editor::UI::EditorUIManager::SetShouldDisplayClosePopup, m_editorUI, std::placeholders::_1);
+		const std::function<void(bool)> shouldCloseCallback = std::bind(&Editor::UI::EditorUIManager::SetShouldDisplayClosePopup, m_editorUI, std::placeholders::_1);
 		m_window->SetShouldCloseCallback(shouldCloseCallback);
-		std::function<bool()> shouldDisplaySafeCloseCallback = std::bind(&Editor::UI::EditorUIManager::ShouldDisplaySafeClose, m_editorUI);
+		const std::function<bool()> shouldDisplaySafeCloseCallback = std::bind(&Editor::UI::EditorUIManager::ShouldDisplaySafeClose, m_editorUI);
 		m_window->SetShouldDisplaySafeClose(shouldDisplaySafeCloseCallback);
 
 		// Load dll scripting
@@ -242,6 +243,7 @@ namespace GALAXY {
 
 	void Core::Application::Destroy() const
 	{
+		m_resourceManager->CreateCache();
 		// Cleanup:
 		// Scene Holder
 		if (m_editorUI)

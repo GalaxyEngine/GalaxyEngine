@@ -11,27 +11,27 @@ std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap
 	{".jpeg",		Resource::ResourceType::Texture},
 	{".obj",		Resource::ResourceType::Model},
 	{".fbx",		Resource::ResourceType::Model},
-	{".shader",		Resource::ResourceType::Shader},
+	{".shader",	Resource::ResourceType::Shader},
 	{".vert",		Resource::ResourceType::VertexShader},
-	{".vs",			Resource::ResourceType::VertexShader},
+	{".vs",		Resource::ResourceType::VertexShader},
 	{".vsh",		Resource::ResourceType::VertexShader},
-	{".glslv",		Resource::ResourceType::VertexShader},
+	{".glslv",	Resource::ResourceType::VertexShader},
 	{".frag",		Resource::ResourceType::FragmentShader},
-	{".fs",			Resource::ResourceType::FragmentShader},
+	{".fs",		Resource::ResourceType::FragmentShader},
 	{".fsh",		Resource::ResourceType::FragmentShader},
-	{".glslf",		Resource::ResourceType::FragmentShader},
+	{".glslf",	Resource::ResourceType::FragmentShader},
 	{".geom",		Resource::ResourceType::GeometryShader},
-	{".gs",			Resource::ResourceType::GeometryShader},
+	{".gs",		Resource::ResourceType::GeometryShader},
 	{".gsh",		Resource::ResourceType::GeometryShader},
-	{".glslg",		Resource::ResourceType::GeometryShader},
+	{".glslg",	Resource::ResourceType::GeometryShader},
 	{".mat",		Resource::ResourceType::Material},
 	{".mtl",		Resource::ResourceType::Materials},
-	{".gdata",		Resource::ResourceType::Data},
-	{".h",			Resource::ResourceType::Script},
+	{".gdata",	Resource::ResourceType::Data},
+	{".h",		Resource::ResourceType::Script},
 	{".hpp",		Resource::ResourceType::Script},
 	{".cpp",		Resource::ResourceType::Script},
-	{".cc",			Resource::ResourceType::Script},
-	{".galaxy",		Resource::ResourceType::Scene},
+	{".cc",		Resource::ResourceType::Script},
+	{".galaxy",	Resource::ResourceType::Scene},
 	{".ppshader",	Resource::ResourceType::PostProcessShader},
 };
 
@@ -49,6 +49,18 @@ namespace GALAXY
 		m_fileNameNoExtension = m_fileName.substr(0, m_fileName.find_last_of('.'));
 		m_extension = m_fullPath.extension();
 		m_resourceType = GetTypeFromExtension(m_extension);
+
+		if (!m_relativePath.empty())
+		{
+			if (m_relativePath.string().find(ENGINE_RESOURCE_FOLDER_NAME) != std::string::npos)
+			{
+				m_resourceDir = ResourceDir::Editor;
+			}
+			else if (m_relativePath.string().find(ASSET_FOLDER_NAME) != std::string::npos)
+			{
+				m_resourceDir = ResourceDir::Project;
+			}
+		}
 
 		//if (!m_exist)
 		//{

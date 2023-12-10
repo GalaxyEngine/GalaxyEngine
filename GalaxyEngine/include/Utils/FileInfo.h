@@ -12,6 +12,12 @@ namespace GALAXY
 		class Mesh;
 		enum class ResourceType;
 	}
+	enum class ResourceDir
+	{
+		None,
+		Editor,
+		Project,
+	};
 	namespace Wrapper
 	{
 		class OBJLoader;
@@ -35,6 +41,7 @@ namespace GALAXY
 			inline String GetFileNameNoExtension() const { return m_fileNameNoExtension; }
 			inline Path GetExtension() const { return m_extension; }
 			inline Resource::ResourceType GetResourceType() const { return m_resourceType; }
+			inline ResourceDir GetResourceDir() const { return m_resourceDir; }
 
 			inline bool isDirectory() const { return std::filesystem::is_directory(m_fullPath); }
 			inline bool Exist() const { return std::filesystem::exists(m_fullPath); }
@@ -49,6 +56,7 @@ namespace GALAXY
 			String m_fileNameNoExtension;
 			Path m_extension;
 			bool m_exist = false;
+			ResourceDir m_resourceDir = ResourceDir::None;
 
 			Resource::ResourceType m_resourceType = static_cast<Resource::ResourceType>(0);
 		};
