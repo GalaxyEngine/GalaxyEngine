@@ -417,6 +417,7 @@ namespace GALAXY {
 					}
 				}
 
+				ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 				if (ImGui::Button("Delete", buttonSize))
 				{
 					for (const Shared<File>& file : m_rightClickedFiles)
@@ -427,6 +428,7 @@ namespace GALAXY {
 					quitPopup();
 					ReloadContent();
 				}
+				ImGui::PopStyleColor();
 				ImGui::Separator();
 
 			}

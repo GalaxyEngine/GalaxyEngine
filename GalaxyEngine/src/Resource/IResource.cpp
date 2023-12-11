@@ -39,6 +39,12 @@ namespace GALAXY {
 		serializer << Pair::END_MAP << "Data";
 	}
 
+	void Resource::IResource::SetUUID(const Core::UUID& uuid)
+	{
+		p_uuid = uuid;
+		CreateDataFile();
+	}
+
 	void Resource::IResource::Serialize(Utils::Serializer& serializer) const
 	{
 		serializer << Pair::KEY << "UUID" << Pair::VALUE << p_uuid;

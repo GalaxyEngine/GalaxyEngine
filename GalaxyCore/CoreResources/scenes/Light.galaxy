@@ -23,7 +23,8 @@
    ------------- BEGIN COMPONENT ------------- 
   [Name] : Mesh Component
   [Enable] : 1
-  [Mesh] : 2309776832754077205
+  [Model] : 11472492821642185203
+  [Mesh Name] : Cube
   [Material Count] : 1
    [Material 0] : 482361550447954360
    ============= END COMPONENT ============= 

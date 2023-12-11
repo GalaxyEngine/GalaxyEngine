@@ -22,7 +22,11 @@ void Main(int argc, char** argv)
 	
 	//TODO : Remove this
 	#ifdef _WIN32
+#if 0
 	std::filesystem::path projectPath = "D:/Code/Moteurs/ProjectTest/ProjectTest.gProject";
+#else
+	std::filesystem::path projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
+#endif
 	#elif defined(__linux__)
 	std::filesystem::path projectPath = "/home/uwu/Documents/ProjectTest/ProjectTest.gProject";
 	#endif

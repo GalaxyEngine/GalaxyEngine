@@ -19,6 +19,7 @@ namespace GALAXY {
 		p_fileInfo.m_resourceType = GetResourceType();
 		const std::string fullPathString = p_fileInfo.m_fullPath.string();
 		p_fileInfo.m_fileName = fullPathString.substr(fullPathString.find_last_of(':') + 1);
+		p_fileInfo.m_fileNameNoExtension = p_fileInfo.m_fileName;
 		m_modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 	}
 

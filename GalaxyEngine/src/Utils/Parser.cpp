@@ -121,27 +121,6 @@ namespace GALAXY
 		return *this;
 	}
 
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec2f& value)
-	{
-		const std::string stringValue = value.ToString();
-		*this << stringValue.c_str();
-		return *this;
-	}
-
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec3f& value)
-	{
-		const std::string stringValue = value.ToString();
-		*this << stringValue.c_str();
-		return *this;
-	}
-
-	template<> Utils::Serializer& Utils::Serializer::operator<<(const Vec4f& value)
-	{
-		const std::string stringValue = value.ToString();
-		*this << stringValue.c_str();
-		return *this;
-	}
-
 	template<> Utils::Serializer& Utils::Serializer::operator<<(const Quat& value)
 	{
 		const std::string stringValue = value.ToString();
@@ -286,7 +265,7 @@ namespace GALAXY
 		std::stringstream ss(content);
 
 		std::string line;
-		std::unordered_map<std::string, std::string>* currentMap = nullptr;
+		std::unordered_map<std::string, StringSerializer>* currentMap = nullptr;
 
 		while (std::getline(ss, line)) {
 			if (line.find(MAP_SEPARATOR_BEGIN) != std::string::npos)
@@ -308,6 +287,7 @@ namespace GALAXY
 
 	void Utils::Parser::PrintData()
 	{
+		/*
 		for (auto& maps : m_valueMap)
 		{
 			for (auto& [key, value] : maps)
@@ -316,6 +296,7 @@ namespace GALAXY
 			}
 			std::cout << "---------------------------" << std::endl;
 		}
+		*/
 	}
 
 	void Utils::Parser::NewDepth()
@@ -327,7 +308,7 @@ namespace GALAXY
 	{
 		ASSERT(m_valueMap.size() > m_currentDepth);
 		ASSERT(m_valueMap[m_currentDepth].contains(key));
-		return { m_valueMap[m_currentDepth][key] };
+		return m_valueMap[m_currentDepth][key];
 	}
 
 #pragma endregion
@@ -390,6 +371,12 @@ namespace GALAXY
 
 	template <>
 	Vec2f Utils::StringSerializer::As()
+	{
+		return { m_content };
+	}
+
+	template <>
+	Vec2<uint64_t> Utils::StringSerializer::As()
 	{
 		return { m_content };
 	}

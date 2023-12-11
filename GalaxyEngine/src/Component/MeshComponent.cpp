@@ -25,7 +25,8 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::Pair::KEY << "Mesh" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetUUID() : INDEX_NONE);
+		serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetModel()->GetUUID() : INDEX_NONE);
+		serializer << Utils::Pair::KEY << "Mesh Name" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
 		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
 		serializer << Utils::Pair::BEGIN_TAB;
@@ -38,8 +39,20 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Deserialize(Utils::Parser& parser)
 	{
-		const uint64_t meshUUID = parser["Mesh"].As<uint64_t>();
-		m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshUUID);
+		const uint64_t modelUUID = parser["Model"].As<uint64_t>();
+		const std::string meshName = parser["Mesh Name"];
+		const auto model = Resource::ResourceManager::GetOrLoad<Resource::Model>(modelUUID);
+
+		if (model.lock())
+		{
+			auto meshPath = Resource::Mesh::CreateMeshPath(model.lock()->GetFileInfo().GetFullPath(), meshName);
+			m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshPath);
+		}
+		else
+		{
+			PrintError("Model with uuid %llu not found", modelUUID);
+		}
+
 		const size_t materialCount = parser["Material Count"].As<int>();
 		for (size_t i = 0; i < materialCount; i++)
 		{
@@ -53,7 +66,7 @@ namespace GALAXY {
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
-		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str(): "Empty", buttonSize))
+		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str() : "Empty", buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}
@@ -94,7 +107,7 @@ namespace GALAXY {
 						const size_t index = *static_cast<uint32_t*>(payload->Data);
 						auto mat = m_materials[index];
 						m_materials.erase(m_materials.begin() + index);
-						m_materials.insert(m_materials.begin() +  i, mat);
+						m_materials.insert(m_materials.begin() + i, mat);
 					}
 					ImGui::EndDragDropTarget();
 				}
@@ -113,7 +126,7 @@ namespace GALAXY {
 			}
 			ImGui::PopStyleColor();
 			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.8f, 0.15f, 0.1f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 			if (ImGui::Button("Remove"))
 			{
 				if (selected >= 0 && selected < m_materials.size())

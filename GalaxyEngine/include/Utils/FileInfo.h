@@ -15,9 +15,27 @@ namespace GALAXY
 	enum class ResourceDir
 	{
 		None,
-		Editor,
 		Project,
+		Editor,
+		Both,
 	};
+
+	inline const char* SerializeResourceDirEnum()
+	{
+		return "Project\0Editor\0Both\0";
+	}
+
+	inline const char* SerializeResourceDirValue(ResourceDir space)
+	{
+		switch (space)
+		{
+		case ResourceDir::Editor:	return "Editor";
+		case ResourceDir::Project:	return "Project";
+		case ResourceDir::Both:	return "Both";
+		default:			return "None";
+		}
+	}
+
 	namespace Wrapper
 	{
 		class OBJLoader;

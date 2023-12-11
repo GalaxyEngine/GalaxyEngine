@@ -7,6 +7,7 @@
 #include "Editor/UI/SceneWindow.h"
 #include "Editor/UI/Console.h"
 #include "Editor/UI/FileExplorer.h"
+#include "Editor/UI/ResourceWindow.h"
 
 #include <optional>
 
@@ -41,6 +42,7 @@ namespace GALAXY::Editor::UI {
 		inline SceneWindow* GetSceneWindow() const { return m_sceneWindow.get(); }
 		inline Console* GetConsole() const { return m_console.get(); }
 		inline FileExplorer* GetFileExplorer() const { return m_fileExplorer.get(); }
+		inline ResourceWindow* GetResourceWindow() const { return m_resourceWindow.get(); }
 	private:
 		static Unique<EditorUIManager> m_instance;
 		Unique<MainBar> m_mainBar;
@@ -49,6 +51,7 @@ namespace GALAXY::Editor::UI {
 		Unique<SceneWindow> m_sceneWindow;
 		Unique<Console> m_console;
 		Unique<FileExplorer> m_fileExplorer;
+		Unique<ResourceWindow> m_resourceWindow;
 
 		bool m_shouldDisplayClosePopup = false;
 		std::optional<bool> m_shouldDisplaySafeClose;

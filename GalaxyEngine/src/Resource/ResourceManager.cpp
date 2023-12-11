@@ -12,6 +12,8 @@
 #include "Resource/Script.h"
 #include "Resource/Scene.h"
 
+#include <set>
+
 #define AUTO_IMPORT
 // Automatic import all model that not get a .gdata up to date
 
@@ -140,33 +142,73 @@ namespace GALAXY {
 
 	void Resource::ResourceManager::ReadCache()
 	{
+		/*
+		* Check for every resources if it was on the previous launch
+		* if no, check the it's a new resource
+		*	and so check if a deleted file was with the same content
+		* if yes continue
+		 */
+		if (!m_projectExists)
+			return;
 		const Path cachePath = this->GetProjectPath() / "Cache";
 		Utils::Parser parser(cachePath / "resource.cache");
+
+		// Return if no cache or failed to open
 		if (!parser.IsFileOpen())
 			return;
+
+		std::set<Path> newFiles;
 		auto map = parser.GetValueMap()[0];
+
 		for (auto& resource : m_resources)
 		{
 			if (resource.second->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(resource.second->GetFileInfo().GetFullPath()))
+			{	
+				map.erase(resource.first.string());
 				continue;
-			/*
-			const std::string path = content.first;
-			const std::size_t hash = parser[content.first].As<std::size_t>();
-			const Path resourcePath = this->GetProjectPath() / path;
-			if (m_resources.contains(path))
-				continue;
+			}
+			if (map.contains(resource.first.string())) {
 
-			*/
-			if (map.contains(resource.first.string()))
+				map.erase(resource.first.string());
 				continue;
-			PrintLog("Detected new Resource %s", resource.first.c_str());
-			//TODO : 
+			}
+			newFiles.emplace(resource.second->GetFileInfo().GetFullPath());
+			PrintLog("Detected new Resource %s", resource.first.string().c_str());
+		}
 
+		if (newFiles.empty() || map.empty())
+			return;
+		for (auto& newFile : newFiles)
+		{
+			auto content = Utils::FileSystem::ReadFile(newFile);
+			if (!content.empty())
+			{
+				const uint64_t hash = HashContent(content);
+				for (auto& deletedMap : map)
+				{
+					const Vec2<uint64_t> uuidHash = deletedMap.second.As<Vec2<uint64_t>>();
+					if (uuidHash.y == hash)
+					{
+						PrintLog("File %s was rename in %s", newFile.string().c_str(), deletedMap.first.c_str());
+
+						/* -- Handle rename --
+						* Get UUID of the previous resource
+						* Set it to the new by creating a .gdata file even if it already exist
+						*/
+						
+						auto resource = GetResource<IResource>(newFile);
+						resource.lock()->SetUUID(uuidHash.x);
+						break;
+					}
+				}
+			}
 		}
 	}
 
 	void Resource::ResourceManager::CreateCache()
 	{
+		if (!m_projectExists)
+			return;
 		const Path cachePath = this->GetProjectPath() / "Cache";
 		if (!std::filesystem::exists(cachePath))
 			std::filesystem::create_directory(cachePath);
@@ -182,8 +224,9 @@ namespace GALAXY {
 			if (!content.empty())
 			{
 				const std::string path = val->GetFileInfo().GetRelativePath().string();
-				const std::size_t hash = HashContent(content);
-				serializer << Pair::KEY << path << Pair::VALUE << hash;
+				const uint64_t hash = HashContent(content);
+				const Vec2<uint64_t> uuidHash = { val->GetUUID(), hash };
+				serializer << Pair::KEY << path << Pair::VALUE << uuidHash;
 			}
 		}
 		serializer << Pair::END_MAP << "Resources";

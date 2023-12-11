@@ -83,6 +83,9 @@ namespace GALAXY::Resource {
 			p_status = val ? (p_status | ResourceStatus::CreateDataFile) : (p_status & ~ResourceStatus::CreateDataFile);
 		}
 
+		//Editor Only!
+		void SetUUID(const Core::UUID& uuid);
+
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 		inline Core::UUID GetUUID() const { return p_uuid; }

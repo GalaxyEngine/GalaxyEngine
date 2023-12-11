@@ -308,6 +308,10 @@ namespace GALAXY {
 
 	void Wrapper::Window::ComputeScale()
 	{
+		// Check window size for null
+		auto windowSize = GetSize();
+		if (windowSize.LengthSquared() == 0)
+			return;
 		float yScale = 0;
 		glfwGetMonitorContentScale(static_cast<GLFWmonitor*>(GetCurrentMonitor()), &m_scale, &yScale);
 	}

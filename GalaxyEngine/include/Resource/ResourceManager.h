@@ -62,6 +62,8 @@ namespace GALAXY {
 			template <typename T>
 			[[nodiscard]] inline std::vector<Weak<T>> GetAllResources();
 
+			inline UMap<Path, Shared<IResource>>* GetAllResourcesPtr() { return &m_resources; }
+
 			inline Weak<class Material> GetDefaultMaterial();
 			inline Weak<Shader> GetDefaultShader();
 			inline Weak<Shader> GetUnlitShader();
@@ -94,6 +96,8 @@ namespace GALAXY {
 			Path m_assetPath;
 			Path m_projectPath;
 			String m_projectName;
+
+			bool m_projectExists = false;
 		};
 
 	}

@@ -193,7 +193,7 @@ namespace GALAXY
 		{
 			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
 		}
-		return Weak<T>{};
+		return {};
 	}
 
 	template <typename T>
@@ -234,7 +234,7 @@ namespace GALAXY
 		if (ImGui::BeginPopup(popupName))
 		{
 			const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
-			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.8f, 0.15f, 0.1f, 1.f));
+			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 			if (ImGui::Button("Reset", buttonSize)) {
 				outResource.reset();
 				result = true;

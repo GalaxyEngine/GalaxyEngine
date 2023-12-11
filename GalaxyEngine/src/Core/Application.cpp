@@ -70,6 +70,7 @@ namespace GALAXY {
 
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
+		m_resourceManager->m_projectExists = std::filesystem::exists(projectPath);
 		m_resourceManager->m_projectPath = projectPath.parent_path();
 		m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
 		std::string filename = projectPath.filename().generic_string();
@@ -91,7 +92,8 @@ namespace GALAXY {
 		m_window->SetShouldDisplaySafeClose(shouldDisplaySafeCloseCallback);
 
 		// Load dll scripting
-		m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
+		if (m_resourceManager->m_projectExists)
+			m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();

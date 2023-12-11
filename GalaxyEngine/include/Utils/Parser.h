@@ -14,9 +14,9 @@ namespace GALAXY
 			VALUE,
 			BEGIN_TAB,
 			END_TAB,
-			BEGIN_MAP,
-			END_MAP,
-			TITLE,
+		BEGIN_MAP,
+		END_MAP,
+		TITLE,
 		};
 
 		class Serializer
@@ -31,6 +31,30 @@ namespace GALAXY
 
 			template<typename T>
 			Serializer& operator<<(const T& value);
+
+			template<typename T>
+			Serializer& operator<<(const Vec2<T>& value)
+			{
+				const std::string stringValue = value.ToString();
+				*this << stringValue.c_str();
+				return *this;
+			}
+
+			template<typename T>
+			Serializer& operator<<(const Vec3<T>& value)
+			{
+				const std::string stringValue = value.ToString();
+				*this << stringValue.c_str();
+				return *this;
+			}
+
+			template<typename T>
+			Serializer& operator<<(const Vec4<T>& value)
+			{
+				const std::string stringValue = value.ToString();
+				*this << stringValue.c_str();
+				return *this;
+			}
 
 			template<typename T>
 			Serializer& operator<<(T* value);
@@ -74,7 +98,9 @@ namespace GALAXY
 		private:
 			std::string m_content;
 		public:
-			StringSerializer(std::string value) : m_content(value) {}
+			StringSerializer() {}
+			StringSerializer(std::string value) : m_content(std::move(value)) {}
+			StringSerializer(const StringSerializer& value) : m_content(value) {}
 
 			StringSerializer& operator=(const std::string& str) {
 				m_content = str;
@@ -129,11 +155,11 @@ namespace GALAXY
 			void NewDepth();
 
 			StringSerializer operator[](const std::string& key);
-			const List<UMap<std::string, std::string>>& GetValueMap() const { return m_valueMap; }
+			const List<UMap<std::string, StringSerializer>>& GetValueMap() const { return m_valueMap; }
 			size_t GetCurrentDepth() const { return m_currentDepth; }
 		private:
 			// Parser
-			List<UMap<std::string, std::string>> m_valueMap;
+			List<UMap<std::string, StringSerializer>> m_valueMap;
 
 			size_t m_currentDepth = 0;
 
