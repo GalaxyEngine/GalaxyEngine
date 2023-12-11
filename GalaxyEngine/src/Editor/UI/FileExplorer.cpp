@@ -209,7 +209,7 @@ namespace GALAXY {
 				auto cursorPos = ImGui::GetCursorPos();
 
 				// Handle file selection logic
-				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnClick, Vec2f(m_iconSize))) {
+				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnNav, Vec2f(m_iconSize))) {
 					if (child->m_selected || (!child->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)))
 					{
 						if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
@@ -222,6 +222,77 @@ namespace GALAXY {
 					else if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 					{
 						RemoveFileSelected(child);
+					}
+				}
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+#if 0
+					auto path = child->m_info.GetFullPath().string();
+					ImGui::SetDragDropPayload("FILE", path.c_str(), sizeof(char) * (path.size() + 1));
+					ImGui::TextUnformatted(info.GetFileName().c_str());
+					ImGui::EndDragDropSource();
+#else
+					std::vector<std::string> filePaths;
+
+					// Assuming you have a collection of items to drag (e.g., selected items in your UI)
+					for (const auto& files : m_selectedFiles) {
+						auto path = files->m_info.GetFullPath().string();
+						filePaths.push_back(path);
+						ImGui::TextUnformatted(files->m_info.GetFileName().c_str());
+					}
+
+					// Set the drag and drop payload with the array of file paths
+					if (!filePaths.empty()) {
+						// Set the drag and drop payload with the array of file paths
+						const size_t dataSize = filePaths.size() * sizeof(char*);
+						char** dataCopy = (char**)malloc(dataSize);
+
+						for (size_t i = 0; i < filePaths.size(); ++i) {
+							dataCopy[i] = strdup(filePaths[i].c_str());
+						}
+
+						ImGui::SetDragDropPayload("FILE", dataCopy, dataSize);
+					}
+#endif
+					ImGui::EndDragDropSource();
+				}
+				if (info.isDirectory())
+				{
+					if (ImGui::BeginDragDropTarget()) {
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
+							/*
+							auto str = static_cast<const char*>(payload->Data);
+							PrintLog("Dropped file: %s", str);
+							Path oldPath = Path(str);
+							Path newPath = info.GetFullPath() / oldPath.filename();
+
+							// Rename Resource in resourceManager
+							Resource::ResourceManager::HandleRename(oldPath, newPath);
+							std::filesystem::rename(oldPath, newPath);
+
+							ReloadContent();
+							*/
+
+							auto fileCount = payload->DataSize / sizeof(char*);
+							auto filePaths = static_cast<char**>(payload->Data);
+
+							for (int i = 0; i < fileCount; ++i) {
+								auto str = filePaths[i];
+								PrintLog("Dropped file: %s", str);
+								Path oldPath = Path(str);
+								Path newPath = info.GetFullPath() / oldPath.filename();
+
+								// Rename Resource in resourceManager
+								Resource::ResourceManager::HandleRename(oldPath, newPath);
+								std::filesystem::rename(oldPath, newPath);
+
+								// Remove gdata file
+								std::remove((oldPath.string() + ".gdata").c_str());
+
+								free(str); // Free each string allocated with strdup
+							}
+							ReloadContent();
+						}
+						ImGui::EndDragDropTarget();
 					}
 				}
 

@@ -253,7 +253,7 @@ namespace GALAXY {
 		for (auto& resourceKey : resourceKeys)
 		{
 			Path newResourcePath;
-			auto resource = m_instance->m_resources[resourceKey];
+			const auto resource = m_instance->m_resources[resourceKey];
 			if (std::filesystem::is_directory(oldPath))
 			{
 				// Calculate the relative path from the oldPath to the oldResourcePath
@@ -264,7 +264,9 @@ namespace GALAXY {
 			}
 			else
 			{
-				newResourcePath = oldPath.parent_path() / newPath.filename();
+				newResourcePath = resource->GetFileInfo().GetFullPath().string();
+				auto it = newResourcePath.string().find(oldPath.string());
+				newResourcePath = newResourcePath.string().replace(it, oldPath.string().length(), newPath.string());
 			}
 
 			// Update file infos

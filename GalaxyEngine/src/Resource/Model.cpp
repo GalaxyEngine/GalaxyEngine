@@ -53,7 +53,7 @@ namespace GALAXY {
 		for (int i = 0; i < meshCount; i++)
 		{
 			std::string meshName = parser["Mesh " + std::to_string(i)];
-			auto meshPath = Mesh::CreateMeshPath(GetFileInfo().GetRelativePath(), meshName);
+			auto meshPath = Mesh::CreateMeshPath(GetFileInfo().GetFullPath(), meshName);
 			Resource::ResourceManager::AddResource<Mesh>(meshPath);
 		}
 	}
