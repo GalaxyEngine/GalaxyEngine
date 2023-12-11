@@ -83,6 +83,9 @@ namespace GALAXY
 
 			List<Shared<File>> m_selectedFiles;
 			List<Shared<File>> m_rightClickedFiles;
+			Shared<File> m_renameFile;
+			bool m_openRename;
+			std::string m_renameFileName;
 
 			float m_iconSize = 86.0f;
 			float m_space = 15.f;

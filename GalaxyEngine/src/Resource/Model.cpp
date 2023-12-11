@@ -35,7 +35,6 @@ namespace GALAXY {
 	{
 		IResource::Serialize(serializer);
 		serializer << Pair::BEGIN_MAP << "Model";
-		serializer << Pair::KEY << "Model" << Pair::VALUE << p_fileInfo.GetRelativePath();
 		serializer << Pair::KEY << "Mesh Count" << Pair::VALUE << m_meshes.size();
 		serializer << Pair::BEGIN_TAB;
 		for (size_t i = 0; i < m_meshes.size(); i++)
@@ -50,12 +49,11 @@ namespace GALAXY {
 	{
 		IResource::Deserialize(parser);
 		parser.NewDepth();
-		const std::string ModelPath = parser["Model"];
 		const size_t meshCount = parser["Mesh Count"].As<size_t>();
 		for (int i = 0; i < meshCount; i++)
 		{
 			std::string meshName = parser["Mesh " + std::to_string(i)];
-			auto meshPath = Mesh::CreateMeshPath(ModelPath, meshName);
+			auto meshPath = Mesh::CreateMeshPath(GetFileInfo().GetRelativePath(), meshName);
 			Resource::ResourceManager::AddResource<Mesh>(meshPath);
 		}
 	}

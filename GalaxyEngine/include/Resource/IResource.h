@@ -89,6 +89,8 @@ namespace GALAXY::Resource {
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 		inline Core::UUID GetUUID() const { return p_uuid; }
+
+		static void SerializeResource(Utils::Serializer& serializer, const char* name, Weak<IResource> resource);
 	protected:
 		virtual void Serialize(Utils::Serializer& serializer) const;
 		virtual void Deserialize(Utils::Parser& parser);

@@ -163,7 +163,7 @@ namespace GALAXY {
 		for (auto& resource : m_resources)
 		{
 			if (resource.second->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(resource.second->GetFileInfo().GetFullPath()))
-			{	
+			{
 				map.erase(resource.first.string());
 				continue;
 			}
@@ -195,7 +195,7 @@ namespace GALAXY {
 						* Get UUID of the previous resource
 						* Set it to the new by creating a .gdata file even if it already exist
 						*/
-						
+
 						auto resource = GetResource<IResource>(newFile);
 						resource.lock()->SetUUID(uuidHash.x);
 						break;
@@ -230,6 +230,53 @@ namespace GALAXY {
 			}
 		}
 		serializer << Pair::END_MAP << "Resources";
+	}
+
+	void Resource::ResourceManager::HandleRename(const Path& oldPath, const Path& newPath)
+	{
+		Path relativeOld = FileInfo::ToRelativePath(oldPath);
+		Path relativeNew = FileInfo::ToRelativePath(newPath);
+		std::set<Path> resourceKeys;
+
+		for (auto& resource : m_instance->m_resources)
+		{
+			if (!resource.second || resource.second->GetFileInfo().GetResourceDir() == ResourceDir::Editor)
+				continue;
+			std::string relativeOldResource = resource.first.string();
+			auto it = relativeOldResource.find(relativeOld.string());
+			if (it != std::string::npos)
+			{    
+				resourceKeys.emplace(resource.first);
+			}
+		}
+
+		for (auto& resourceKey : resourceKeys)
+		{
+			Path newResourcePath;
+			auto resource = m_instance->m_resources[resourceKey];
+			if (std::filesystem::is_directory(oldPath))
+			{
+				// Calculate the relative path from the oldPath to the oldResourcePath
+				Path relativePath = std::filesystem::relative(resource->GetFileInfo().GetFullPath(), oldPath);
+
+				// Construct the new resource path by appending the relative path to the new path
+				newResourcePath = newPath / relativePath;
+			}
+			else
+			{
+				newResourcePath = oldPath.parent_path() / newPath.filename();
+			}
+
+			// Update file infos
+			resource->p_fileInfo = FileInfo(newResourcePath);
+
+			// Recreate Data file
+			resource->CreateDataFile();
+
+			// Add to map the new key and erase the previous one
+			m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;
+			m_instance->m_resources.erase(resourceKey);
+		}
 	}
 
 	void Resource::ResourceManager::Release()

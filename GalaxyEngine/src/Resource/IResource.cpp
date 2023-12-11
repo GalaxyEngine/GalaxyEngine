@@ -45,6 +45,14 @@ namespace GALAXY {
 		CreateDataFile();
 	}
 
+	void Resource::IResource::SerializeResource(Utils::Serializer& serializer, const char* name, Weak<IResource> resource)
+	{
+		if (resource.lock())
+			serializer << Pair::KEY << name << Pair::VALUE << resource.lock()->GetUUID();
+		else
+			serializer << Pair::KEY << name << Pair::VALUE << INDEX_NONE;
+	}
+
 	void Resource::IResource::Serialize(Utils::Serializer& serializer) const
 	{
 		serializer << Pair::KEY << "UUID" << Pair::VALUE << p_uuid;

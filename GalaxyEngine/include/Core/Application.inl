@@ -4,6 +4,8 @@ namespace GALAXY
 {
 	inline void Core::Application::AddResourceToSend(const std::filesystem::path& fullPath)
 	{
+		if (fullPath.empty())
+			return;
 		if (!std::ranges::count(m_resourceToSend, fullPath))
 			m_resourceToSend.push_back(fullPath);
 	}

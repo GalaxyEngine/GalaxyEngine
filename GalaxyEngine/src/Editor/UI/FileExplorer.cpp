@@ -199,7 +199,8 @@ namespace GALAXY {
 			// Iterate through each child of the current file
 			for (size_t i = 0, j = 0; i < m_currentFile->m_children.size(); i++) {
 				Shared<File>& child = m_currentFile->m_children[i];
-				if (!child || !child->m_icon.lock() || child->m_info.GetResourceType() == Resource::ResourceType::Data) {
+				FileInfo& info = child->m_info;
+				if (!child || !child->m_icon.lock() || info.GetResourceType() == Resource::ResourceType::Data) {
 					continue;
 				}
 
@@ -226,7 +227,7 @@ namespace GALAXY {
 
 				// Handle double-click to open the file
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-					if (child->m_info.isDirectory())
+					if (info.isDirectory())
 					{
 						SetCurrentFile(child);
 						break;
@@ -244,24 +245,60 @@ namespace GALAXY {
 				}
 				else if (ImGui::IsItemHovered())
 				{
-					ImGui::SetTooltip(child->m_info.GetFileName().c_str());
+					ImGui::SetTooltip(info.GetFileName().c_str());
 				}
 
 				// Positioning for the file icon and text
 				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
 				ImGui::BeginGroup();
 				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(m_iconSize - 24.f));
+				if (m_renameFile != child) {
+					// Truncate and display file name
+					const size_t length = info.GetFileName().length();
+					std::string fileName = info.GetFileName();
+					if (length > textLength + 3) {
+						fileName = fileName.substr(0, textLength);
+						fileName.append("...");
+					}
 
-				// Truncate and display file name
-				const size_t length = child->m_info.GetFileName().length();
-				std::string fileName = child->m_info.GetFileName();
-				if (length > textLength + 3) {
-					fileName = fileName.substr(0, textLength);
-					fileName.append("...");
+					Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + m_iconSize / 2.f, m_iconSize - 24.f + 5.f);
+					ImGui::SetCursorPos(cursorPos + TextPos);
+					ImGui::TextUnformatted(fileName.c_str());
 				}
-				Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + m_iconSize / 2.f, m_iconSize - 24.f + 5.f);
-				ImGui::SetCursorPos(cursorPos + TextPos);
-				ImGui::TextUnformatted(fileName.c_str());
+#pragma region Rename
+				else
+				{
+					// Display input text for rename
+					if (m_openRename)
+					{
+						ImGui::SetKeyboardFocusHere();
+					}
+					Vec2f TextPos = { 0, m_iconSize - 24.f + 5.f };
+					ImGui::SetCursorPos(cursorPos + TextPos);
+					ImGui::SetNextItemWidth(m_iconSize);
+					bool enter = Wrapper::GUI::InputText("##InputText", &m_renameFileName, ImGuiInputTextFlags_EnterReturnsTrue);
+					if (m_renameFile && !m_openRename && enter)
+					{
+						const Path oldPath = m_renameFile->m_info.GetFullPath();
+						const Path newPath = m_renameFile->m_info.GetFullPath().parent_path() 
+							/ (m_renameFileName + m_renameFile->m_info.GetExtension().string());
+						
+						// Rename Resource in resourceManager
+						Resource::ResourceManager::HandleRename(oldPath, newPath);
+						std::filesystem::rename(oldPath, newPath);
+
+						// Remove gdata file
+						std::remove((oldPath.string() + ".gdata").c_str());
+						ReloadContent();
+					}
+					if (m_renameFile && !m_openRename && !ImGui::IsItemActive())
+					{
+						m_renameFile = nullptr;
+						m_renameFileName = "";
+					}
+					m_openRename = false;
+				}
+#pragma endregion
 				ImGui::EndGroup();
 
 				if (ImGui::GetWindowWidth() - (j + 1) * (m_iconSize + m_space) > m_iconSize) {
@@ -359,10 +396,10 @@ namespace GALAXY {
 		if (ImGui::BeginPopup("RightClickPopup"))
 		{
 			static auto quitPopup = [this]()
-			{
-				m_rightClickedFiles.clear();
-				ImGui::CloseCurrentPopup();
-			};
+				{
+					m_rightClickedFiles.clear();
+					ImGui::CloseCurrentPopup();
+				};
 
 			Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 			if (!m_rightClickedFiles.empty()) {
@@ -417,13 +454,22 @@ namespace GALAXY {
 					}
 				}
 
+				if (ImGui::Button("Rename", buttonSize))
+				{
+					m_renameFile = m_rightClickedFiles[0];
+					m_openRename = true;
+					m_renameFileName = m_renameFile->m_info.GetFileNameNoExtension();
+					quitPopup();
+				}
 				ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 				if (ImGui::Button("Delete", buttonSize))
 				{
 					for (const Shared<File>& file : m_rightClickedFiles)
 					{
+						// Remove Resource file
 						Resource::ResourceManager::GetInstance()->RemoveResource(file->m_info.GetRelativePath());
 						std::remove(file->m_info.GetFullPath().string().c_str());
+						std::remove((file->m_info.GetFullPath().string() + ".gdata").c_str());
 					}
 					quitPopup();
 					ReloadContent();
@@ -451,20 +497,19 @@ namespace GALAXY {
 				{
 					ImGui::OpenPopup("Create Script");
 				}
-			if (ImGui::BeginPopupModal("Create Script"))
-			{
-				static std::string scriptName;
-				Wrapper::GUI::InputText("Script Name", &scriptName);
-				if (ImGui::Button("Create") && !scriptName.empty())
+				if (ImGui::BeginPopupModal("Create Script"))
 				{
-					Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);
-
-					ReloadContent();
-					ImGui::CloseCurrentPopup();
-					quitPopup();
+					static std::string scriptName;
+					Wrapper::GUI::InputText("Script Name", &scriptName);
+					if (ImGui::Button("Create") && !scriptName.empty())
+					{
+						Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);
+						ReloadContent();
+						ImGui::CloseCurrentPopup();
+						quitPopup();
+					}
+					ImGui::EndPopup();
 				}
-				ImGui::EndPopup();
-			}
 				if (ImGui::Button("Material", buttonSize))
 				{
 					Resource::Material::Create(m_currentFile->m_info.GetFullPath() / "New Material.mat");
@@ -482,10 +527,10 @@ namespace GALAXY {
 #ifdef _WIN32
 		// TODO : Move to OS Specific 
 
-		const char *explorerPath = "explorer.exe";
+		const char* explorerPath = "explorer.exe";
 
 		// Construct the command
-		const char *command = select ? "/select,\"" : "\"";
+		const char* command = select ? "/select,\"" : "\"";
 		char fullCommand[MAX_PATH + sizeof(command) + 2];
 		snprintf(fullCommand, sizeof(fullCommand), "%s%s\"", command, files[0]->m_info.GetFullPath().string().c_str());
 
@@ -495,27 +540,27 @@ namespace GALAXY {
 			const DWORD error = GetLastError();
 			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
 		}
-		
-			/*
-		const char* explorerPath = "explorer.exe";
 
-		// Construct the command
-		std::string command = select ? "/select,\"" : "\"";
-		for (auto& file : files) {
-			command += file->m_info.GetFullPath().string() + ",";
-		}
-		command.pop_back();  // Remove the trailing comma
-		command += "\"";
+		/*
+	const char* explorerPath = "explorer.exe";
 
-		// Launch File Explorer
-		HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, command.c_str(), nullptr, SW_SHOWNORMAL);
+	// Construct the command
+	std::string command = select ? "/select,\"" : "\"";
+	for (auto& file : files) {
+		command += file->m_info.GetFullPath().string() + ",";
+	}
+	command.pop_back();  // Remove the trailing comma
+	command += "\"";
 
-		if ((intptr_t)result <= 32) {
-			DWORD error = GetLastError();
-			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
-			// You might also use FormatMessage to get a more detailed error description
-		}
-		*/
+	// Launch File Explorer
+	HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, command.c_str(), nullptr, SW_SHOWNORMAL);
+
+	if ((intptr_t)result <= 32) {
+		DWORD error = GetLastError();
+		PrintError("Failed to Open Explorer (Error Code: %lu)", error);
+		// You might also use FormatMessage to get a more detailed error description
+	}
+	*/
 #elif defined(__linux__)
 		std::string command = "xdg-open ";
 		std::string fullCommand;
@@ -527,10 +572,10 @@ namespace GALAXY {
 		if (std::system(fullCommand.c_str()) != 0) {
 			std::perror("Failed to open file explorer");
 			// Handle error as needed
-		}
-		
-#endif
 	}
+
+#endif
+}
 
 	void Editor::UI::FileExplorer::ReloadContent() const
 	{

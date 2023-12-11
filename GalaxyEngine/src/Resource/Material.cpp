@@ -55,9 +55,11 @@ namespace GALAXY {
 	{
 		Utils::Serializer serializer(p_fileInfo.GetFullPath());
 		serializer << Pair::BEGIN_MAP << "Material";
-		serializer << Pair::KEY << "Shader" << Pair::VALUE << (m_shader.lock() ? m_shader.lock()->GetUUID() : INDEX_NONE);
-		serializer << Pair::KEY << "Albedo" << Pair::VALUE << (m_albedo.lock() ? m_albedo.lock()->GetUUID() : INDEX_NONE);
-		serializer << Pair::KEY << "Normal" << Pair::VALUE << (m_normal.lock() ? m_normal.lock()->GetUUID() : INDEX_NONE);
+
+		SerializeResource(serializer, "Shader", m_shader);
+		SerializeResource(serializer, "Albedo", m_albedo);
+		SerializeResource(serializer, "Normal", m_normal);
+
 		serializer << Pair::KEY << "Ambient" << Pair::VALUE << m_ambient;
 		serializer << Pair::KEY << "Diffuse" << Pair::VALUE << m_diffuse;
 		serializer << Pair::KEY << "Specular" << Pair::VALUE << m_specular;
@@ -85,13 +87,7 @@ namespace GALAXY {
 					ImGui::OpenPopup("TexturePopup");
 				}
 				ImGui::SameLine();
-				ImGui::BeginGroup();
 				ImGui::TextUnformatted(GetName().c_str());
-				if (ImGui::Button("Clear"))
-				{
-					m_albedo.reset();
-				}
-				ImGui::EndGroup();
 			}
 			else
 			{
