@@ -234,6 +234,14 @@ namespace GALAXY {
 
 	void Resource::ResourceManager::HandleRename(const Path& oldPath, const Path& newPath)
 	{
+		if (oldPath == newPath)
+			return;
+
+		if (is_directory(oldPath))
+		{
+			std::filesystem::rename(oldPath, newPath);
+		}
+
 		Path relativeOld = FileInfo::ToRelativePath(oldPath);
 		Path relativeNew = FileInfo::ToRelativePath(newPath);
 		std::set<Path> resourceKeys;
@@ -245,35 +253,32 @@ namespace GALAXY {
 			std::string relativeOldResource = resource.first.string();
 			auto it = relativeOldResource.find(relativeOld.string());
 			if (it != std::string::npos)
-			{    
+			{
 				resourceKeys.emplace(resource.first);
 			}
 		}
 
 		for (auto& resourceKey : resourceKeys)
 		{
-			Path newResourcePath;
 			const auto resource = m_instance->m_resources[resourceKey];
-			if (std::filesystem::is_directory(oldPath))
-			{
-				// Calculate the relative path from the oldPath to the oldResourcePath
-				Path relativePath = std::filesystem::relative(resource->GetFileInfo().GetFullPath(), oldPath);
 
-				// Construct the new resource path by appending the relative path to the new path
-				newResourcePath = newPath / relativePath;
-			}
-			else
-			{
-				newResourcePath = resource->GetFileInfo().GetFullPath().string();
-				auto it = newResourcePath.string().find(oldPath.string());
-				newResourcePath = newResourcePath.string().replace(it, oldPath.string().length(), newPath.string());
-			}
+			Path oldResourcePath = resource->GetFileInfo().GetFullPath();
+			Path newResourcePath = oldResourcePath;
+
+			auto it = newResourcePath.string().find(oldPath.string());
+			newResourcePath = newResourcePath.string().replace(it, oldPath.string().length(), newPath.string());
+
+			if (exists(oldResourcePath))
+				std::filesystem::rename(oldResourcePath, newResourcePath);
+
+			// Rename .gdata file
+			Path oldGDataFile = (resource->GetFileInfo().GetFullPath().string() + ".gdata").c_str();
+			Path newGDataFile = (newResourcePath.string() + ".gdata").c_str();
+			if (exists(oldGDataFile))
+				std::filesystem::rename(oldGDataFile, newGDataFile);
 
 			// Update file infos
 			resource->p_fileInfo = FileInfo(newResourcePath);
-
-			// Recreate Data file
-			resource->CreateDataFile();
 
 			// Add to map the new key and erase the previous one
 			m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;

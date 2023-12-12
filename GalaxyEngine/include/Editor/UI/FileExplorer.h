@@ -29,6 +29,7 @@ namespace GALAXY
 
 			void DisplayOnExplorer() const;
 
+			Shared<File> GetWithPath(const Path& path) const;
 		private:
 			friend class FileExplorer;
 			friend class FileDialog;
@@ -54,6 +55,8 @@ namespace GALAXY
 
 			void Draw() override;
 
+			void DragAndDrop(Shared<File>& child);
+
 			void AddFileSelected(const Shared<File>& child);
 			void RemoveFileSelected(const Shared<File>& child);
 
@@ -68,9 +71,12 @@ namespace GALAXY
 
 			static void ShowInExplorer(const List<Shared<File>>& files, bool select);
 
-			void ReloadContent() const;
+			void ReloadContent();
+
+			void UpdateReloadContent();
 		private:
 			friend class MainBar;
+			friend File;
 
 			bool m_visible;
 
@@ -83,9 +89,14 @@ namespace GALAXY
 
 			List<Shared<File>> m_selectedFiles;
 			List<Shared<File>> m_rightClickedFiles;
+
 			Shared<File> m_renameFile;
 			bool m_openRename;
 			std::string m_renameFileName;
+
+			List<Shared<File>> m_draggedFiles;
+
+			bool m_shouldReloadContent = false;
 
 			float m_iconSize = 86.0f;
 			float m_space = 15.f;

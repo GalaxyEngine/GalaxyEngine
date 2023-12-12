@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/FileExplorer.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
 #include "Core/Input.h"
@@ -116,6 +117,7 @@ namespace GALAXY {
 
 	void Editor::UI::File::DisplayOnExplorer() const
 	{
+		static FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
 		if (m_info.isDirectory())
 		{
 			ImGui::BeginGroup();
@@ -131,7 +133,44 @@ namespace GALAXY {
 				}
 			}
 			ImGui::EndGroup();
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
+
+					auto draggedFiles = explorer->m_draggedFiles;
+					for (int i = 0; i < draggedFiles.size(); ++i) {
+
+						Path oldPath = draggedFiles[i]->m_info.GetFullPath();
+
+						if (oldPath == m_info.GetFullPath())
+							continue;
+
+						Path newPath = m_info.GetFullPath() / oldPath.filename();
+
+						// Rename Resource in resourceManager and file explorer
+						Resource::ResourceManager::HandleRename(oldPath, newPath);
+					}
+					explorer->ReloadContent();
+				}
+				ImGui::EndDragDropTarget();
+			}
+
 		}
+	}
+
+	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path) const
+	{
+		for (const Shared<File>& child : m_children)
+		{
+			if (child->m_info.GetFullPath() == path)
+				return child;
+			else {
+				Shared<File> result = child->GetWithPath(path);
+				if (result)
+					return result;
+			}
+		}
+		return nullptr;
 	}
 
 #pragma endregion
@@ -224,77 +263,8 @@ namespace GALAXY {
 						RemoveFileSelected(child);
 					}
 				}
-				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
-#if 0
-					auto path = child->m_info.GetFullPath().string();
-					ImGui::SetDragDropPayload("FILE", path.c_str(), sizeof(char) * (path.size() + 1));
-					ImGui::TextUnformatted(info.GetFileName().c_str());
-					ImGui::EndDragDropSource();
-#else
-					std::vector<std::string> filePaths;
 
-					// Assuming you have a collection of items to drag (e.g., selected items in your UI)
-					for (const auto& files : m_selectedFiles) {
-						auto path = files->m_info.GetFullPath().string();
-						filePaths.push_back(path);
-						ImGui::TextUnformatted(files->m_info.GetFileName().c_str());
-					}
-
-					// Set the drag and drop payload with the array of file paths
-					if (!filePaths.empty()) {
-						// Set the drag and drop payload with the array of file paths
-						const size_t dataSize = filePaths.size() * sizeof(char*);
-						char** dataCopy = (char**)malloc(dataSize);
-
-						for (size_t i = 0; i < filePaths.size(); ++i) {
-							dataCopy[i] = strdup(filePaths[i].c_str());
-						}
-
-						ImGui::SetDragDropPayload("FILE", dataCopy, dataSize);
-					}
-#endif
-					ImGui::EndDragDropSource();
-				}
-				if (info.isDirectory())
-				{
-					if (ImGui::BeginDragDropTarget()) {
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
-							/*
-							auto str = static_cast<const char*>(payload->Data);
-							PrintLog("Dropped file: %s", str);
-							Path oldPath = Path(str);
-							Path newPath = info.GetFullPath() / oldPath.filename();
-
-							// Rename Resource in resourceManager
-							Resource::ResourceManager::HandleRename(oldPath, newPath);
-							std::filesystem::rename(oldPath, newPath);
-
-							ReloadContent();
-							*/
-
-							auto fileCount = payload->DataSize / sizeof(char*);
-							auto filePaths = static_cast<char**>(payload->Data);
-
-							for (int i = 0; i < fileCount; ++i) {
-								auto str = filePaths[i];
-								PrintLog("Dropped file: %s", str);
-								Path oldPath = Path(str);
-								Path newPath = info.GetFullPath() / oldPath.filename();
-
-								// Rename Resource in resourceManager
-								Resource::ResourceManager::HandleRename(oldPath, newPath);
-								std::filesystem::rename(oldPath, newPath);
-
-								// Remove gdata file
-								std::remove((oldPath.string() + ".gdata").c_str());
-
-								free(str); // Free each string allocated with strdup
-							}
-							ReloadContent();
-						}
-						ImGui::EndDragDropTarget();
-					}
-				}
+				DragAndDrop(child);
 
 				// Handle double-click to open the file
 				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
@@ -351,15 +321,12 @@ namespace GALAXY {
 					if (m_renameFile && !m_openRename && enter)
 					{
 						const Path oldPath = m_renameFile->m_info.GetFullPath();
-						const Path newPath = m_renameFile->m_info.GetFullPath().parent_path() 
+						const Path newPath = m_renameFile->m_info.GetFullPath().parent_path()
 							/ (m_renameFileName + m_renameFile->m_info.GetExtension().string());
-						
-						// Rename Resource in resourceManager
-						Resource::ResourceManager::HandleRename(oldPath, newPath);
-						std::filesystem::rename(oldPath, newPath);
 
-						// Remove gdata file
-						std::remove((oldPath.string() + ".gdata").c_str());
+						// Rename Resource in resourceManager and file explorer
+						Resource::ResourceManager::HandleRename(oldPath, newPath);
+
 						ReloadContent();
 					}
 					if (m_renameFile && !m_openRename && !ImGui::IsItemActive())
@@ -401,6 +368,7 @@ namespace GALAXY {
 			}
 			RightClickWindow();
 			ImGui::EndChild();
+			UpdateReloadContent();
 		}
 
 		ImGui::End();
@@ -643,14 +611,62 @@ namespace GALAXY {
 		if (std::system(fullCommand.c_str()) != 0) {
 			std::perror("Failed to open file explorer");
 			// Handle error as needed
-	}
+		}
 
 #endif
-}
-
-	void Editor::UI::FileExplorer::ReloadContent() const
-	{
-		m_currentFile->m_children.clear();
-		m_currentFile->FindAllChildren();
 	}
+
+	void Editor::UI::FileExplorer::ReloadContent()
+	{
+		m_shouldReloadContent = true;
+	}
+
+	void Editor::UI::FileExplorer::UpdateReloadContent()
+	{
+		if (!m_shouldReloadContent)
+			return;
+		m_shouldReloadContent = false;
+		auto currentPath = m_currentFile->m_info.GetFullPath();
+		m_mainFile->m_children.clear();
+		m_mainFile->FindAllChildren();
+		m_currentFile = m_mainFile->GetWithPath(currentPath);
+		if (!m_currentFile)
+			m_currentFile = m_mainFile;
+	}
+
+	void Editor::UI::FileExplorer::DragAndDrop(Shared<File>& child)
+	{
+		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID)) {
+			m_draggedFiles.clear();
+			if (!child->m_selected)
+				m_draggedFiles.push_back(child);
+			for (int i = 0; i < m_selectedFiles.size(); ++i) {
+				m_draggedFiles.push_back(m_selectedFiles[i]);
+			}
+			for (int i = 0; i < m_draggedFiles.size(); i++)
+			{
+				ImGui::TextUnformatted(m_draggedFiles[i]->m_info.GetFileName().c_str());
+			}
+			ImGui::SetDragDropPayload("FILE", nullptr, 0);
+			ImGui::EndDragDropSource();
+		}
+		if (child->m_info.isDirectory())
+		{
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
+
+					for (int i = 0; i < m_draggedFiles.size(); ++i) {
+						Path oldPath = m_draggedFiles[i]->m_info.GetFullPath();
+						Path newPath = child->m_info.GetFullPath() / oldPath.filename();
+
+						// Rename Resource in resourceManager
+						Resource::ResourceManager::HandleRename(oldPath, newPath);
+					}
+					ReloadContent();
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+	}
+
 }
