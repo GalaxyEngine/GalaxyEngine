@@ -237,10 +237,7 @@ namespace GALAXY {
 		if (oldPath == newPath)
 			return;
 
-		if (is_directory(oldPath))
-		{
-			std::filesystem::rename(oldPath, newPath);
-		}
+		std::filesystem::rename(oldPath, newPath);
 
 		Path relativeOld = FileInfo::ToRelativePath(oldPath);
 		Path relativeNew = FileInfo::ToRelativePath(newPath);

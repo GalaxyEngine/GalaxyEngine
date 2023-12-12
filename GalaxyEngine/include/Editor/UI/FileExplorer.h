@@ -31,6 +31,7 @@ namespace GALAXY
 
 			Shared<File> GetWithPath(const Path& path) const;
 		private:
+			friend class Inspector;
 			friend class FileExplorer;
 			friend class FileDialog;
 
@@ -59,11 +60,11 @@ namespace GALAXY
 
 			void AddFileSelected(const Shared<File>& child);
 			void RemoveFileSelected(const Shared<File>& child);
+			void ClearSelected();
 
 			void HandleDropFile(int count, const char** paths) const;
 
 		private:
-			void ClearSelected();
 
 			void SetCurrentFile(const Shared<File>& file);
 

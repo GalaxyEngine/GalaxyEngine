@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/Inspector.h"
+#include "Editor/UI/FileExplorer.h"
 
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
@@ -9,9 +10,9 @@
 #include "Render/Camera.h"
 #include "Render/EditorCamera.h"
 
-#include "Editor/Gizmo.h"
 
-#include "Wrapper/Reflection.h"
+#include "Editor/Gizmo.h"
+#include "Editor/UI/EditorUIManager.h"
 
 void Editor::UI::Inspector::Draw()
 {
@@ -19,10 +20,14 @@ void Editor::UI::Inspector::Draw()
 		return;
 	if (ImGui::Begin("Inspector"))
 	{
-		if (m_selectedGameObject.size() == 1)
+		if (m_mode == InspectorMode::Scene && m_selectedGameObject.size() == 1)
 		{
 			if (!m_selectedGameObject[0].expired())
 				ShowGameObject(m_selectedGameObject[0].lock().get());
+		}
+		else if (m_mode == InspectorMode::Asset && m_selectedFiles->size() == 1)
+		{
+			ShowFile((*m_selectedFiles)[0].get());
 		}
 	}
 	ImGui::End();
@@ -95,7 +100,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		}
 		if (ImGui::BeginDragDropTarget())
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMPONENT")) 
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("COMPONENT"))
 			{
 				const uint32_t payloadData = *static_cast<uint32_t*>(payload->Data);
 				object->ChangeComponentIndex(payloadData, i);
@@ -138,11 +143,22 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	}
 }
 
+void Editor::UI::Inspector::ShowFile(const File* file)
+{
+	ImGui::TextUnformatted(file->m_info.GetFileName().c_str());
+	const auto resource = file->m_resource.lock();
+	if (!resource || !resource->IsLoaded())
+		return;
+
+	resource->ShowInInspector();
+}
+
 
 void Editor::UI::Inspector::AddSelected(const Weak<Core::GameObject>& gameObject)
 {
+	m_mode = InspectorMode::Scene;
 	auto it = std::ranges::remove_if(m_selectedGameObject,
-	                                 [&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); }).begin();
+		[&](const Weak<Core::GameObject>& c) {	return c.lock() == gameObject.lock(); }).begin();
 	if (it != m_selectedGameObject.end()) {
 		m_selectedGameObject.erase(it);
 		gameObject.lock()->m_selected = false;
@@ -154,7 +170,7 @@ void Editor::UI::Inspector::AddSelected(const Weak<Core::GameObject>& gameObject
 			const Shared<Editor::Gizmo> gizmo = gameObject.lock()->GetScene()->GetGizmo();
 			gizmo->SetGameObject(gameObject);
 		}
-			
+
 		m_selectedGameObject.push_back(gameObject);
 		gameObject.lock()->m_selected = true;
 	}
@@ -166,6 +182,23 @@ void Editor::UI::Inspector::SetSelected(const Weak<Core::GameObject>& gameObject
 	AddSelected(gameObject);
 }
 
+void Editor::UI::Inspector::SetFileSelected(List<Shared<File>>* files)
+{
+	m_selectedFiles = files;
+}
+
+void Editor::UI::Inspector::UpdateFileSelected()
+{
+	if (m_selectedFiles->empty())
+	{
+		m_mode = InspectorMode::None;
+	}
+	else
+	{
+		m_mode = InspectorMode::Asset;
+	}
+}
+
 void Editor::UI::Inspector::ClearSelected()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
@@ -175,11 +208,15 @@ void Editor::UI::Inspector::ClearSelected()
 	}
 	m_selectedGameObject.clear();
 
+	EditorUIManager::GetInstance()->GetFileExplorer()->ClearSelected();
+
 	const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 	gizmo->SetGameObject({});
+
+	m_mode = InspectorMode::None;
 }
 
-const List<Weak<Core::GameObject>>& Editor::UI::Inspector::GetSelected()
+const List<Weak<Core::GameObject>>& Editor::UI::Inspector::GetSelectedGameObjects()
 {
 	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
 	{

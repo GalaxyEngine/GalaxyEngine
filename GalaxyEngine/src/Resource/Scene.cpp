@@ -92,7 +92,7 @@ namespace GALAXY
 				renderer->ClearColorAndBuffer(Vec4f(0));
 
 				renderer->SetRenderingType(Render::RenderType::Outline);
-				for (auto& selected : inspector->GetSelected())
+				for (auto& selected : inspector->GetSelectedGameObjects())
 				{
 					selected.lock()->DrawSelfAndChild();
 				}

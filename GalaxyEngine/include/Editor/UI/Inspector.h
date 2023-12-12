@@ -5,6 +5,15 @@ namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Editor::UI
 	{
+		class File;
+
+		enum class InspectorMode
+		{
+			None,
+			Scene,
+			Asset
+		};
+
 		class Inspector : public EditorWindow
 		{
 		public:
@@ -14,19 +23,25 @@ namespace GALAXY {
 
 			void ShowGameObject(Core::GameObject* object);
 
-			void AddSelected(const Weak<Core::GameObject>& gameObject);
+			void ShowFile(const File* file);
 
+			void AddSelected(const Weak<Core::GameObject>& gameObject);
 			void SetSelected(const Weak<Core::GameObject>& gameObject);
+
+			void SetFileSelected(List<Shared<File>>* files);
+			void UpdateFileSelected();
 
 			void ClearSelected();
 
 			void RightClickPopup();
 			
-			const List<Weak<Core::GameObject>>& GetSelected();
+			const List<Weak<Core::GameObject>>& GetSelectedGameObjects();
 		private:
 			friend class MainBar;
+			InspectorMode m_mode = InspectorMode::None;
 
 			List<Weak<Core::GameObject>> m_selectedGameObject;
+			List<Shared<File>>* m_selectedFiles;
 
 			Weak<Component::BaseComponent> m_rightClicked;
 

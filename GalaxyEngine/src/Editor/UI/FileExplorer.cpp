@@ -3,11 +3,11 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
-#include "Core/Input.h"
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Script.h"
 #include "Resource/Material.h"
+#include "Resource/Model.h"
 #include "Wrapper/Window.h"
 
 /* TODO:
@@ -23,7 +23,6 @@
  */
 
 namespace GALAXY {
-
 #pragma region File
 	Editor::UI::File::File(const Path& path)
 	{
@@ -184,6 +183,8 @@ namespace GALAXY {
 		m_currentFile = m_mainFile;
 
 		m_iconSize = m_iconSize * Wrapper::GUI::GetScaleFactor();
+
+		EditorUIManager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
 	}
 
 	void Editor::UI::FileExplorer::Draw()
@@ -381,6 +382,7 @@ namespace GALAXY {
 			return;
 		child->m_selected = true;
 		m_selectedFiles.push_back(child);
+		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::RemoveFileSelected(const Shared<File>& child)
@@ -391,6 +393,7 @@ namespace GALAXY {
 				break;
 			}
 		}
+		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::HandleDropFile(const int count, const char** paths) const
@@ -422,6 +425,7 @@ namespace GALAXY {
 			selectedFile->m_selected = false;
 		}
 		m_selectedFiles.clear();
+		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::SetCurrentFile(const Shared<File>& file)
@@ -469,17 +473,28 @@ namespace GALAXY {
 						case Resource::ResourceType::FragmentShader:
 							break;
 						case Resource::ResourceType::Model:
-							if (ImGui::Button("Import", buttonSize))
+							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
+								break;
+							if (ImGui::Button("Load", buttonSize))
 							{
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
-									file->m_resource.lock()->Load();
+									Resource::ResourceManager::GetOrLoad<Resource::Model>(file->m_info.GetFullPath());
 								}
 							}
 							break;
 						case Resource::ResourceType::Mesh:
 							break;
 						case Resource::ResourceType::Material:
+							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
+								break;
+							if (ImGui::Button("Load", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									Resource::ResourceManager::GetOrLoad<Resource::Material>(file->m_info.GetFullPath());
+								}
+							}
 							break;
 						case Resource::ResourceType::Script:
 							if (ImGui::Button("Edit", buttonSize))

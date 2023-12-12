@@ -179,7 +179,7 @@ namespace GALAXY {
 	void Core::Application::PasteObject() const
 	{
 		auto parser = Utils::Parser(m_clipboard);
-		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelected();
+		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelectedGameObjects();
 
 		if (selected.empty())
 			return;
@@ -206,7 +206,7 @@ namespace GALAXY {
 
 	void Core::Application::CopyObject()
 	{
-		const List<Weak<GameObject>>& selected = m_editorUI->GetInspector()->GetSelected();
+		const List<Weak<GameObject>>& selected = m_editorUI->GetInspector()->GetSelectedGameObjects();
 
 		List<Weak<GameObject>> objects;
 

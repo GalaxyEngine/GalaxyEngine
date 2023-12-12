@@ -98,7 +98,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 	{
 		if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
 		{
-			const Shared<GameObject> lastSelected = m_inspector->GetSelected()[0].lock();
+			const Shared<GameObject> lastSelected = m_inspector->GetSelectedGameObjects()[0].lock();
 			const size_t lastSelectedId = lastSelected->GetSceneGraphID();
 			const size_t objectId = gameobject->GetSceneGraphID();
 			const bool inferior = lastSelectedId > objectId;
@@ -122,7 +122,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 		else if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 			m_inspector->AddSelected(weakGO);
 		// already selected and not in multi select -> rename
-		else if (gameobject->m_selected && m_inspector->GetSelected().size() == 1)
+		else if (gameobject->m_selected && m_inspector->GetSelectedGameObjects().size() == 1)
 		{
 			SetRename(gameobject);
 		}
@@ -162,7 +162,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 	}
 	if ((ImGui::IsWindowFocused() || EditorUIManager::GetInstance()->GetSceneWindow()->IsFocused()) && ImGui::IsKeyPressed(ImGuiKey_Delete))
 	{
-		for (const Weak<Core::GameObject>& object : m_inspector->GetSelected())
+		for (const Weak<Core::GameObject>& object : m_inspector->GetSelectedGameObjects())
 		{
 			if (!object.lock())
 				continue;
@@ -176,7 +176,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 
 		List<uint64_t> indices;
 		if (gameobject->m_selected) {
-			List<Weak<Core::GameObject>> selected = m_inspector->GetSelected();
+			List<Weak<Core::GameObject>> selected = m_inspector->GetSelectedGameObjects();
 			for (size_t i = 0; i < selected.size(); i++)
 			{
 				indices.push_back(selected[i].lock()->GetSceneGraphID());
@@ -279,7 +279,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
 {
 	if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
 	{
-		const List<Weak<GameObject>> selected = m_inspector->GetSelected();
+		const List<Weak<GameObject>> selected = m_inspector->GetSelectedGameObjects();
 		const Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 		if (ImGui::Button("Create GameObject", buttonSize))
 		{
