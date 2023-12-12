@@ -102,12 +102,13 @@ CLASS(%s)
 	void Resource::Script::OpenWithVSCode(const Path& path)
 	{
 #ifdef _WIN32
-		std::string command = path.string();
+		std::string command = "\"" + ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"";
 		const std::string env = "code";
 
-		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
+		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_HIDE);
 #else
-		std::string command = "code " + path.string();
+		std::string command = "code ";
+		command += "\"" + ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"";
 		system(command.c_str());
 #endif
 	}
