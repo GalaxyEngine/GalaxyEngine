@@ -24,6 +24,8 @@ namespace GALAXY {
 			virtual void Load() override;
 			void Send() override;
 
+			const char* GetResourceName() const override { return "Shader"; }
+
 			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this);
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
 			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
@@ -91,6 +93,8 @@ namespace GALAXY {
 
 			void Send() override;
 
+			const char* GetResourceName() const override { return "Vertex Shader"; }
+
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::VertexShader; }
 		protected:
@@ -104,6 +108,8 @@ namespace GALAXY {
 		{
 		public:
 			explicit GeometryShader(const Path& fullPath) : BaseShader(fullPath) {}
+
+			const char* GetResourceName() const override { return "GeometryShader Shader"; }
 
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::GeometryShader; }
@@ -121,6 +127,8 @@ namespace GALAXY {
 			~FragmentShader() override;
 
 			void Send() override;
+
+			const char* GetResourceName() const override { return "Fragment Shader"; }
 
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::FragmentShader; }

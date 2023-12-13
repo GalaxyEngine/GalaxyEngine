@@ -29,6 +29,8 @@ namespace GALAXY {
 
 			void Load() override;
 
+			const char* GetResourceName() const override { return "Default Resource"; }
+
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
 		
 			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }

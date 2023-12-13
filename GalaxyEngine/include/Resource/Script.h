@@ -16,8 +16,9 @@ namespace GALAXY
 			~Script() override {}
 
 			void Load() override;
-
 			void Unload() override;
+
+			const char* GetResourceName() const override { return "Script"; }
 
 			static Weak<Script> Create(const Path& path);
 

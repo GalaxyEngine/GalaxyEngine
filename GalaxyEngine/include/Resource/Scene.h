@@ -39,6 +39,8 @@ namespace GALAXY {
 			void Send() override;
 			void Save(const Path& fullPath = "") const;
 
+			const char* GetResourceName() const override { return "Scene"; }
+
 			static Weak<Scene> Create(const Path& path);
 
 			static inline ResourceType GetResourceType() { return ResourceType::Scene; }

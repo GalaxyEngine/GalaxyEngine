@@ -20,6 +20,8 @@ namespace GALAXY
 
 			void Load() override;
 
+			const char* GetResourceName() const override { return "Material"; }
+
 			bool LoadMatFile();
 
 			static bool LoadMTLFile();

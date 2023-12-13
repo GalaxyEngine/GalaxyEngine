@@ -101,16 +101,9 @@ CLASS(%s)
 
 	void Resource::Script::OpenWithVSCode(const Path& path)
 	{
-#ifdef _WIN32
-		std::string command = "\"" + ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"";
-		const std::string env = "code";
-
-		ShellExecuteA(NULL, "open", env.c_str(), command.c_str(), NULL, SW_HIDE);
-#else
 		std::string command = "code ";
 		command += "\"" + ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"";
 		system(command.c_str());
-#endif
 	}
 
 #ifdef _WIN32
@@ -135,33 +128,32 @@ CLASS(%s)
 	void Resource::Script::OpenWithVS(const Path& path)
 	{
 #ifdef _WIN32
-		// Find the Visual Studio window by its class name or window title
-		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string() + " - Microsoft Visual Studio";
+	// Find the Visual Studio window by its class name or window title
+		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().stem().string() + " - Microsoft Visual Studio";
 
 		HWND hwnd = nullptr; // This will hold the window handle of the specific instance
 
 		// Enumerate windows to find the specific instance of Visual Studio
 		EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnd));
-		if (hwnd)
+		if (!hwnd) {
+			const auto resourceManager = ResourceManager::GetInstance();
+			std::string slnPath = (resourceManager->GetAssetPath().parent_path() / "vsxmake2022" / (resourceManager->GetProjectPath().filename().stem().string() + ".sln")).string();
+			std::string command = "start \"\" \"" + slnPath + "\"";
+			system(command.c_str());
+		}
+		else
 		{
 			// Visual Studio window exists, bring it to the foreground
 			SetForegroundWindow(hwnd);
 			SetActiveWindow(hwnd);
 
-			std::string command = " /edit ";
-			const std::string env = "devenv.exe";
-			const std::string newPath = path.string();
-			command += newPath;
+			//std::string command = " /edit ";
+			//const std::string env = "devenv.exe";
+			//const std::string newPath = "\"" + path.string() + "\"";
+			//command += newPath;
 
-			// Open file with the first instance of Visual Studio
-			ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
-		}
-		else
-		{
-			// No Visual Studio window found, open a new window
-			const std::string newPath = path.string();
-			const std::string commandLineArgs = "\"" + path.string() + "\" /command \"Edit.OpenFile " + newPath + "\"";
-			ShellExecuteA(nullptr, "open", "devenv.exe", commandLineArgs.c_str(), nullptr, SW_SHOWNORMAL);
+			//// Open file with the first instance of Visual Studio
+			//ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
 		}
 #endif
 	}

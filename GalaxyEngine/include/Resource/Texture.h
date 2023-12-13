@@ -39,6 +39,8 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
+			const char* GetResourceName() const override { return "Texture"; }
+
 			void Bind(uint32_t index = 0);
 			static void UnBind();
 

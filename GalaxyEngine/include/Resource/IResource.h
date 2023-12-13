@@ -64,6 +64,8 @@ namespace GALAXY::Resource {
 		virtual void ShowInInspector() {}
 		virtual void Unload() {}
 
+		virtual const char* GetResourceName() const { return "Default Resource"; }
+
 		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
 		inline bool IsLoaded() const { return p_loaded.load(); }
 		inline bool HasBeenSent() const { return p_hasBeenSent.load(); }

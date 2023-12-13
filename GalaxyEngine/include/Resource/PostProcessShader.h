@@ -16,6 +16,8 @@ namespace GALAXY
 
 			void Load() override;
 
+			const char* GetResourceName() const override { return "Post Process Shader"; }
+
 			static inline ResourceType GetResourceType() { return ResourceType::PostProcessShader; }
 		};
 	}
