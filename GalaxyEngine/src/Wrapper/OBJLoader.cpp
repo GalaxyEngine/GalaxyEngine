@@ -62,16 +62,11 @@ bool Wrapper::OBJLoader::Parse()
 		return false;
 	}
 
-	bool quadOBJ = false;
 
 	auto endSubMesh = [&](OBJMesh& mesh) {
 		std::vector<OBJSubMesh>& subMeshes = mesh.subMeshes;
 		if (subMeshes.size() > 0) {
-			if (!quadOBJ)
-				subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
-			else
-				//TODO : check if it's work
-				subMeshes.back().count = static_cast<size_t>(mesh.indices.size() * 1.5f - subMeshes.back().startIndex);
+			subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
 		}
 	};
 
@@ -135,16 +130,37 @@ bool Wrapper::OBJLoader::Parse()
 				currentMesh.subMeshes.push_back(subMesh);
 			}
 
+			size_t count = 0;
 			std::string indexStr;
 			while (iss >> indexStr) {
 				Vec3i indices = ParseFaceIndex(indexStr);
 				currentMesh.indices.push_back(indices);
+				count++;
 			}
 
-			// This will happen only one time by mesh, check if it's a quad model
-			if (currentMesh.indices.size() == 4 && !quadOBJ)
+			if (count == 4)
 			{
-				quadOBJ = true;
+				size_t lastIndex = currentMesh.indices.size() - 1;
+				Vec3i i1 = currentMesh.indices[lastIndex - 3];
+				Vec3i i2 = currentMesh.indices[lastIndex - 2];
+				Vec3i i3 = currentMesh.indices[lastIndex - 1];
+				Vec3i i4 = currentMesh.indices[lastIndex];
+
+				// Remove the quad indices
+				currentMesh.indices.pop_back();
+				currentMesh.indices.pop_back();
+				currentMesh.indices.pop_back();
+				currentMesh.indices.pop_back();
+
+				// Push the first triangle indices
+				currentMesh.indices.push_back(i1);
+				currentMesh.indices.push_back(i2);
+				currentMesh.indices.push_back(i3);
+
+				// Push the second triangle indices
+				currentMesh.indices.push_back(i1);
+				currentMesh.indices.push_back(i3);
+				currentMesh.indices.push_back(i4);
 			}
 		}
 	}
@@ -153,21 +169,9 @@ bool Wrapper::OBJLoader::Parse()
 		m_meshes.push_back(currentMesh);
 	}
 
-	// Convert to Triangulate faces if it's a quad model
-	if (quadOBJ)
+	for (auto& m_mesh : m_meshes)
 	{
-		std::vector<Vec3i> triangulateFace;
-
-		for (auto& mesh : m_meshes)
-		{
-			ConvertQuadToTriangles(mesh.indices, triangulateFace);
-			mesh.indices = triangulateFace;
-		}
-	}
-
-	for (auto& m_meshe : m_meshes)
-	{
-		ComputeVertices(m_meshe);
+		ComputeVertices(m_mesh);
 	}
 
 	return true;
@@ -248,17 +252,16 @@ void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIn
 
 	const size_t numQuads = quadIndices.size() / 4;
 
-	for (int i = 0; i < numQuads; ++i) {
-		const int quadOffset = i * 4;
+	// Ensure that the input quadIndices vector contains elements representing quads
+	for (const Vec3i& quad : quadIndices) {
+		// A quad can be converted into two triangles. Here's how the indices are used:
+		// Assuming quad contains indices [i1, i2, i3, i4]
 
-		// Convertit chaque quad en deux triangles
-		triangleIndices.push_back(quadIndices[quadOffset]);
-		triangleIndices.push_back(quadIndices[quadOffset + 1]);
-		triangleIndices.push_back(quadIndices[quadOffset + 2]);
+		// First triangle uses indices [i1, i2, i3]
+		triangleIndices.push_back(Vec3i(quad[0], quad[1], quad[2]));
 
-		triangleIndices.push_back(quadIndices[quadOffset]);
-		triangleIndices.push_back(quadIndices[quadOffset + 2]);
-		triangleIndices.push_back(quadIndices[quadOffset + 3]);
+		// Second triangle uses indices [i1, i3, i4]
+		triangleIndices.push_back(Vec3i(quad[0], quad[2], quad[3]));
 	}
 }
 

@@ -25,7 +25,11 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
-		Resource::IResource::SerializeResource(serializer, "Model", m_mesh);
+		if (m_mesh.lock())
+			serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << m_mesh.lock()->GetModel()->GetUUID();
+		else
+			serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << INDEX_NONE;
+
 		serializer << Utils::Pair::KEY << "Mesh Name" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
 		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
