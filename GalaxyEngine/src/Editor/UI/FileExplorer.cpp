@@ -307,9 +307,9 @@ namespace GALAXY {
 					ImGui::SetCursorPos(cursorPos + TextPos);
 					ImGui::TextUnformatted(fileName.c_str());
 				}
-#pragma region Rename
 				else
 				{
+#pragma region Rename
 					// Display input text for rename
 					if (m_openRename)
 					{
@@ -336,8 +336,8 @@ namespace GALAXY {
 						m_renameFileName = "";
 					}
 					m_openRename = false;
-				}
 #pragma endregion
+				}
 				ImGui::EndGroup();
 
 				if (ImGui::GetWindowWidth() - (j + 1) * (m_iconSize + m_space) > m_iconSize) {

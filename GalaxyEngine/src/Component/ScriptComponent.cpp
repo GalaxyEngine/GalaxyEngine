@@ -70,7 +70,7 @@ namespace GALAXY
 		if (const Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock())
 		{
 			const Scripting::VariableData variable = scriptInstance->m_variables.at(variableName);
-			switch (const Scripting::VariableType variableType = variable.type)
+			switch (variable.type)
 			{
 			case Scripting::VariableType::Unknown:
 				break;
@@ -108,7 +108,7 @@ namespace GALAXY
 		if (const Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock())
 		{
 			const Scripting::VariableData variable = scriptInstance->m_variables.at(variableName);
-			switch (const Scripting::VariableType variableType = variable.type)
+			switch (variable.type)
 			{
 			case Scripting::VariableType::Unknown:
 				break;

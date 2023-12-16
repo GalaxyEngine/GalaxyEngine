@@ -25,14 +25,14 @@ namespace GALAXY {
 
 	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
 	{
-		serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetModel()->GetUUID() : INDEX_NONE);
+		Resource::IResource::SerializeResource(serializer, "Model", m_mesh);
 		serializer << Utils::Pair::KEY << "Mesh Name" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
 		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
 
 		serializer << Utils::Pair::BEGIN_TAB;
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
-			serializer << Utils::Pair::KEY << ("Material " + std::to_string(i)) << Utils::Pair::VALUE << (m_materials[i].lock() ? m_materials[i].lock()->GetUUID() : INDEX_NONE);
+			Resource::IResource::SerializeResource(serializer, ("Material " + std::to_string(i)).c_str(), m_materials[i]);
 		}
 		serializer << Utils::Pair::END_TAB;
 	}

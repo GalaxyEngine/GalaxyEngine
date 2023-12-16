@@ -17,7 +17,7 @@ namespace GALAXY {
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
-		auto context = ImGui::CreateContext();
+		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -228,7 +228,6 @@ namespace GALAXY {
 		if (lockButton && _lock)
 		{
 			const float value = values[0];
-			ImGuiIO& io = ImGui::GetIO();
 
 			ImGui::PushID(label.c_str());
 
@@ -286,8 +285,6 @@ namespace GALAXY {
 		}
 		else
 		{
-			ImGuiIO& io = ImGui::GetIO();
-
 			ImGui::PushID(label.c_str());
 
 			ImGui::Columns(2);
