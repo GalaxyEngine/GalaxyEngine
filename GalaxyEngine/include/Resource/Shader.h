@@ -51,6 +51,8 @@ namespace GALAXY {
 
 			static Weak<Shader> Create(const Path& vertPath, const Path& fragPath);
 
+			static Weak<Shader> Create(const Path& path);
+
 			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
 		protected:
 			UMap<std::string, int> p_locations = {};

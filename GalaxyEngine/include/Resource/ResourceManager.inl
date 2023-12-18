@@ -238,6 +238,7 @@ namespace GALAXY
 			if (ImGui::Button("Reset", buttonSize)) {
 				outResource.reset();
 				result = true;
+				ImGui::CloseCurrentPopup();
 			}
 			ImGui::PopStyleColor();
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);

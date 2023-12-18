@@ -128,7 +128,7 @@ vec4 CalculatePointLight(PointLight point)
     float distance = length(point.position - pos);
     float attenuation = 1.0 / (point.constant + point.linear * distance + point.quadratic * (distance * distance));
 
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(finalNormal, lightDir), 0.0);
     vec4 diffuseColor;
 
     if (material.hasAlbedo) {

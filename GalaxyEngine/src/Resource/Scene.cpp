@@ -29,9 +29,10 @@ namespace GALAXY
 	Scene::Scene(const Path& path) : IResource(path)
 	{
 		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
+		m_root->Initialize();
 		m_root->m_scene = this;
 	}
-	
+
 	void Scene::Initialize()
 	{
 		m_editorCamera = std::make_unique<Render::EditorCamera>();
@@ -44,7 +45,7 @@ namespace GALAXY
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 	}
-	
+
 	bool Scene::WasModified() const
 	{
 		// Compare current scene to last saved
@@ -52,7 +53,7 @@ namespace GALAXY
 		if (!file.is_open()) {
 			file.close();
 			return true;
-		}		
+		}
 		const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
 		Utils::Serializer serializer(p_fileInfo.GetFullPath());
@@ -72,7 +73,7 @@ namespace GALAXY
 		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 		static Render::LightManager* lightManager = Render::LightManager::GetInstance();
 		static Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
-		
+
 		editorUIManager->DrawUI();
 		if (!HasBeenSent()) // if it reload the current scene from the Main Bar menu
 			return;
@@ -131,7 +132,8 @@ namespace GALAXY
 				const auto pickedID = static_cast<uint64_t>(color.x + color.y * 256 + color.z * 256 * 256);
 
 				if (m_gizmo->IsGizmoClicked())
-				{ }
+				{
+				}
 				else if (const Shared<Core::GameObject> gameObject = GetWithSceneGraphID(pickedID).lock())
 					inspector->SetSelected(gameObject);
 				else
@@ -153,7 +155,7 @@ namespace GALAXY
 
 			m_root->DrawSelfAndChild();
 			m_gizmo->Draw();
-			
+
 			m_currentCamera.lock()->End();
 		}
 	}

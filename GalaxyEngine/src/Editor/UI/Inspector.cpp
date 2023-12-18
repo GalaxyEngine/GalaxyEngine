@@ -214,9 +214,9 @@ void Editor::UI::Inspector::UpdateFileSelected()
 
 void Editor::UI::Inspector::ClearSelected()
 {
-	for (size_t i = 0; i < m_selectedGameObject.size(); i++)
+	for (const auto& selected : m_selectedGameObject)
 	{
-		if (const Shared<Core::GameObject> object = m_selectedGameObject[i].lock())
+		if (const Shared<Core::GameObject> object = selected.lock())
 			object->m_selected = false;
 	}
 	m_selectedGameObject.clear();

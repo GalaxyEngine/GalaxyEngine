@@ -9,6 +9,9 @@
 #include "Utils/Parser.h"
 
 #include "Editor/ActionManager.h"
+/*TODO :
+ * Implement missing methods
+ */
 namespace GALAXY
 {
 	Component::Transform::Transform()
@@ -55,6 +58,7 @@ namespace GALAXY
 
 	void Component::Transform::ForceUpdate()
 	{
+		ASSERT(p_gameObject.lock());
 		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
 			ComputeModelMatrix(p_gameObject.lock()->GetParent()->GetTransform()->GetModelMatrix());
 		else

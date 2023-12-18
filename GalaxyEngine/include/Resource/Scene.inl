@@ -7,8 +7,8 @@ namespace GALAXY
 	template<typename... Args> inline Weak<Core::GameObject> Resource::Scene::CreateObject(Args&&... args)
 	{
 		std::shared_ptr<Core::GameObject> shared = std::make_shared<Core::GameObject>(std::forward<Args>(args)...);
-		shared->Initialize();
 		shared->m_scene = this;
+		shared->Initialize();
 
 		AddObject(shared);
 

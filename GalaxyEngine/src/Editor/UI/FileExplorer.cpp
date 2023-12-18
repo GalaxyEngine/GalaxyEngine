@@ -12,12 +12,9 @@
 
 /* TODO:
 * Drag and Drop (folders, models, ...)
-* Delete
-* Rename
 * Thumbnails
 * Specification Right Click : (Ex. Recompile Shader)
 * Bottom bar too see clicked file
-* Inspector files selected
 * All this need to work with multiple selected files
 * Improve left child
  */
@@ -155,6 +152,11 @@ namespace GALAXY {
 			}
 
 		}
+	}
+
+	void Editor::UI::File::AddChild(Shared<File> file)
+	{
+		m_children.push_back(file);
 	}
 
 	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path) const
@@ -510,9 +512,8 @@ namespace GALAXY {
 
 				if (ImGui::Button("Rename", buttonSize))
 				{
-					m_renameFile = m_rightClickedFiles[0];
-					m_openRename = true;
-					m_renameFileName = m_renameFile->m_info.GetFileNameNoExtension();
+					SetRenameFile(m_rightClickedFiles[0]);
+
 					quitPopup();
 				}
 				ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
@@ -522,11 +523,12 @@ namespace GALAXY {
 					{
 						// Remove Resource file
 						Resource::ResourceManager::GetInstance()->RemoveResource(file->m_info.GetRelativePath());
-						std::remove(file->m_info.GetFullPath().string().c_str());
-						std::remove((file->m_info.GetFullPath().string() + ".gdata").c_str());
+						std::filesystem::remove(file->m_info.GetFullPath().string().c_str());
+						std::filesystem::remove((file->m_info.GetFullPath().string() + ".gdata").c_str());
 					}
-					quitPopup();
+					m_rightClickedFiles.clear();
 					ReloadContent();
+					quitPopup();
 				}
 				ImGui::PopStyleColor();
 				ImGui::Separator();
@@ -541,8 +543,12 @@ namespace GALAXY {
 			}
 			if (ImGui::Button("New Folder", buttonSize))
 			{
-				std::filesystem::create_directory(m_currentFile->m_info.GetFullPath() / "New Folder");
-				ReloadContent();
+				const auto folderPath = m_currentFile->m_info.GetFullPath() / "New Folder";
+				std::filesystem::create_directory(folderPath);
+				const Shared<File> file = std::make_shared<File>(folderPath);
+				m_currentFile->AddChild(file);
+				SetRenameFile(file);
+
 				quitPopup();
 			}
 			if (ImGui::BeginMenu("Create"))
@@ -559,21 +565,58 @@ namespace GALAXY {
 					{
 						Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);
 						ReloadContent();
-						ImGui::CloseCurrentPopup();
+						quitPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel"))
+					{
 						quitPopup();
 					}
 					ImGui::EndPopup();
 				}
 				if (ImGui::Button("Material", buttonSize))
 				{
-					Resource::Material::Create(m_currentFile->m_info.GetFullPath() / "New Material.mat");
-					ReloadContent();
+					const auto materialPath = m_currentFile->m_info.GetFullPath() / "New Material.mat";
+					Resource::Material::Create(materialPath);
+					const Shared<File> file = std::make_shared<File>(materialPath);
+					m_currentFile->AddChild(file);
+					SetRenameFile(file);
+
 					quitPopup();
+				}
+				if (ImGui::Button("Shader", buttonSize))
+				{
+					ImGui::OpenPopup("Create Shader");
+				}
+				if (ImGui::BeginPopupModal("Create Shader"))
+				{
+					static std::string shaderName;
+					Wrapper::GUI::InputText("	Shader Name", &shaderName);
+					if (ImGui::Button("Create") && !shaderName.empty())
+					{
+						Resource::Shader::Create(m_currentFile->m_info.GetFullPath() / shaderName);
+						ReloadContent();
+						ImGui::CloseCurrentPopup();
+						quitPopup();
+					}
+					ImGui::SameLine();
+					if (ImGui::Button("Cancel"))
+					{
+						quitPopup();
+					}
+					ImGui::EndPopup();
 				}
 				ImGui::EndMenu();
 			}
 			ImGui::EndPopup();
 		}
+	}
+
+	void Editor::UI::FileExplorer::SetRenameFile(const Shared<File>& file)
+	{
+		m_renameFile = file;
+		m_openRename = true;
+		m_renameFileName = file->m_info.GetFileNameNoExtension();
 	}
 
 	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, const bool select)

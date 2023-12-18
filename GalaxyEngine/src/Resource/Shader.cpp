@@ -6,6 +6,117 @@
 
 namespace GALAXY
 {
+
+#pragma region Content Shader
+	const char* vertShaderContent = R"(#version 450 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTex;
+layout (location = 2) in vec3 aNor;
+layout (location = 3) in vec3 aTan;
+
+out vec3 pos;  
+out vec2 uv;
+out vec3 normal;
+out vec3 tangent;
+
+uniform mat4 MVP;
+uniform mat4 Model;
+
+void main()
+{
+    gl_Position = MVP * vec4(aPos, 1.0f);
+    pos = vec3(Model * vec4(aPos, 1.0f)); 
+	normal = mat3(transpose(inverse(Model))) * aNor;
+    tangent = mat3(Model) * aTan;
+    uv = aTex;
+})";
+
+	const char* fragShaderContent = 
+		R"(#version 450 core
+
+const int LightNumber = 8;
+
+struct Material
+{
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    sampler2D albedo;
+    bool hasAlbedo;
+    sampler2D normalMap;
+    bool hasNormalMap;
+};
+
+struct DirectionalLight {
+    bool enable;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    vec3 direction;
+};
+
+struct PointLight {
+    bool enable;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+
+    vec3 position;
+    float constant;
+    float linear;
+    float quadratic;
+};
+
+struct SpotLight {
+    bool enable;
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+
+    vec3 position;
+    float constant;
+    float linear;
+    float quadratic;
+
+    vec3 direction;
+    float cutOff;
+    float outerCutOff;
+};
+
+struct Camera
+{
+    vec3 viewPos;
+};
+
+out vec4 FragColor;
+
+in vec3 pos;
+in vec2 uv;
+in vec3 normal;
+in vec3 tangent;
+
+uniform Material material;
+uniform DirectionalLight directionals[LightNumber];
+uniform PointLight points[LightNumber];
+uniform SpotLight spots[LightNumber];
+uniform Camera camera;
+
+uniform bool UseLights;
+
+void main()
+{
+    if (material.hasAlbedo)
+        FragColor = texture(material.albedo, uv);
+    else
+        FragColor = material.diffuse;
+} )";
+
+	const char* shaderContent = 
+		R"(V : %s.vert
+F : %s.frag
+)";
+#pragma endregion
+
 	void Resource::Shader::Load()
 	{
 		if (p_shouldBeLoaded)
@@ -133,6 +244,38 @@ namespace GALAXY
 
 		ResourceManager::GetOrLoad<Shader>(shaderPath);
 		return shader;
+	}
+
+	Weak<Resource::Shader> Resource::Shader::Create(const Path& path)
+	{
+		std::filesystem::create_directory(path);
+		const auto shaderPath = path / path.filename().stem();
+
+		// Create vertex File
+		std::ofstream vertFile(shaderPath.string() + ".vert");
+		if (vertFile.is_open()) {
+			vertFile << vertShaderContent;
+			vertFile.close();
+		}
+
+		// Create fragment File
+		std::ofstream fragFile(shaderPath.string() + ".frag");
+		if (fragFile.is_open()) {
+			fragFile << fragShaderContent;
+			fragFile.close();
+		}
+
+		// Create shader File
+		std::string shaderResourcePath = shaderPath.string() + ".shader";
+		std::ofstream shaderFile(shaderResourcePath);
+		char content[512];
+		snprintf(content, sizeof(content), shaderContent, shaderPath.filename().string().c_str(), shaderPath.filename().string().c_str());
+		if (shaderFile.is_open()) {
+			shaderFile << content;  // Write the formatted content, not the original m_shaderContent
+			shaderFile.close();
+		}
+
+		return ResourceManager::GetOrLoad<Shader>(shaderResourcePath);
 	}
 
 	// === Base Shader === //

@@ -31,7 +31,8 @@ namespace GALAXY
 
 	void Component::Light::OnEditorDraw()
 	{
-		m_editorIcon.Render(GetTransform()->GetModelMatrix(), GetGameObject()->GetSceneGraphID());
+		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
+		m_editorIcon.Render(GetGameObject()->GetSceneGraphID());
 	}
 
 	void Component::Light::ShowInInspector()

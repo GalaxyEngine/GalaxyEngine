@@ -4,7 +4,7 @@ namespace GALAXY
 {
 	inline void Component::Transform::ComputeModelMatrix(const Mat4& parentMatrix)
 	{
-		m_modelMatrix = GetLocalMatrix() * parentMatrix;
+		m_modelMatrix = parentMatrix * GetLocalMatrix();
 		m_dirty = false;
 	}
 
@@ -39,7 +39,6 @@ namespace GALAXY
 		m_dirty = true;
 		m_localScale = localScale;
 	}
-
 
 	inline Vec3f Component::Transform::GetLocalPosition() const
 	{

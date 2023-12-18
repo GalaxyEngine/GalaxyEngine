@@ -29,6 +29,8 @@ namespace GALAXY
 
 			void DisplayOnExplorer() const;
 
+			void AddChild(Shared<File> file);
+
 			Shared<File> GetWithPath(const Path& path) const;
 		private:
 			friend class Inspector;
@@ -69,6 +71,8 @@ namespace GALAXY
 			void SetCurrentFile(const Shared<File>& file);
 
 			void RightClickWindow();
+
+			void SetRenameFile(const Shared<File>& file);
 
 			static void ShowInExplorer(const List<Shared<File>>& files, bool select);
 

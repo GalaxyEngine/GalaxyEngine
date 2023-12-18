@@ -8,7 +8,7 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Mesh.h"
 
-namespace GALAXY 
+namespace GALAXY
 {
 
 	Editor::EditorIcon::EditorIcon()
@@ -27,8 +27,16 @@ namespace GALAXY
 		m_material->SetAlbedo(iconTexture);
 	}
 
-	void Editor::EditorIcon::Render(const Mat4& model, const uint64_t id /*= -1*/)
-{
+	void Editor::EditorIcon::SetPosition(const Vec3f& position)
+	{
+		if (m_currentPosition == position)
+			return;
+		m_currentPosition = position;
+		m_translationMatrix = Mat4::CreateTranslationMatrix(m_currentPosition);
+	}
+
+	void Editor::EditorIcon::Render(uint64_t id/*= -1*/)
+	{
 		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		// Don't render outline of the plane because it's ugly
@@ -39,7 +47,7 @@ namespace GALAXY
 		ASSERT(m_material);
 		ASSERT(m_material->GetShader());
 
-		m_plane.lock()->Render(model, { m_material }, id);
+		m_plane.lock()->Render(m_translationMatrix, { m_material }, id);
 	}
 
 }
