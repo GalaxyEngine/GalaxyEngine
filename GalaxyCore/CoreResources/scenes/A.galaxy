@@ -1,0 +1,54 @@
+ ------------- BEGIN GAMEOBJECT ------------- 
+[Name] : Scene
+[Active] : 1
+[UUID] : 16195290779364996392
+[Component Number] : 0
+[Child Number] : 2
+ ------------- BEGIN TRANSFORM ------------- 
+[Position] : 0.000000, 0.000000, 0.000000
+[Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+[Scale] : 1.000000, 1.000000, 1.000000
+ ============= END TRANSFORM ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : GameObject
+ [Active] : 1
+ [UUID] : 6595732094750363816
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 0.000000, 0.000000
+ [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Mesh Component
+  [Enable] : 1
+  [Model] : 8147286694128235369
+  [Mesh Name] : Plane
+  [Material Count] : 1
+   [Material 0] : 482361550447954360
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : GameObject
+ [Active] : 1
+ [UUID] : 5150147071653011840
+ [Component Number] : 1
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : -0.381931, 0.326636, 0.628898
+ [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+   ------------- BEGIN COMPONENT ------------- 
+  [Name] : Point Light
+  [Enable] : 1
+  [Ambient] : 0.000000, 0.000000, 0.000000, 0.000000
+  [Diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Specular] : 1.000000, 1.000000, 1.000000, 1.000000
+  [Constant] : 1.000000
+  [Linear] : 0.350000
+  [Quadratic] : 0.440000
+   ============= END COMPONENT ============= 
+  ============= END GAMEOBJECT ============= 
+ ============= END GAMEOBJECT ============= 

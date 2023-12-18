@@ -30,6 +30,8 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
+			void DisplayTexture(const char* textureLabel, Weak<Texture>& textureRef);
+
 			Weak<Shader> SendValues(uint64_t id = -1) const;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Material; }
@@ -59,7 +61,7 @@ namespace GALAXY
 			Vec4f m_specular;
 
 			Weak<class Texture> m_albedo;
-			Weak<class Texture> m_normal;
+			Weak<class Texture> m_normalMap;
 
 
 		};

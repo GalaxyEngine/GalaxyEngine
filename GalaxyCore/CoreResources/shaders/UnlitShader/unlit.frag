@@ -3,7 +3,7 @@
 struct Material
 {
     vec4 diffuse;
-    bool enableTexture;
+    bool hasAlbedo;
     sampler2D albedo;
 };
 
@@ -16,7 +16,7 @@ uniform Material material;
 
 void main()
 {
-    if (material.enableTexture)
+    if (material.hasAlbedo)
         FragColor = texture(material.albedo, uv);
     else
         FragColor = material.diffuse;

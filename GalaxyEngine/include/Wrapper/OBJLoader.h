@@ -27,6 +27,7 @@ namespace GALAXY
 				std::vector<Vec3f> positions;
 				std::vector<Vec2f> textureUVs;
 				std::vector<Vec3f> normals;
+				std::vector<Vec3f> tangents;
 				std::vector<Vec3i> indices;
 				std::vector<float> finalVertices;
 			};

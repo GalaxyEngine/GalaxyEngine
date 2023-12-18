@@ -45,12 +45,15 @@ namespace GALAXY {
 
 		renderer->CreateIndexBuffer(m_indexBufferIndex, m_indices.data()->Data(), sizeof(Vec3i) * m_indices.size());
 
+		const int vertexSize = 11 * sizeof(float);
 		const auto textureOffset = reinterpret_cast<void*>(3 * sizeof(float));
 		const auto normalsOffset = reinterpret_cast<void*>(5 * sizeof(float));
+		const auto tangentsOffset = reinterpret_cast<void*>(8 * sizeof(float));
 
-		renderer->VertexAttribPointer(0, 3, 8 * sizeof(float), nullptr);
-		renderer->VertexAttribPointer(1, 2, 8 * sizeof(float), textureOffset);
-		renderer->VertexAttribPointer(2, 3, 8 * sizeof(float), normalsOffset);
+		renderer->VertexAttribPointer(0, 3, vertexSize, nullptr);
+		renderer->VertexAttribPointer(1, 2, vertexSize, textureOffset);
+		renderer->VertexAttribPointer(2, 3, vertexSize, normalsOffset);
+		renderer->VertexAttribPointer(3, 3, vertexSize, tangentsOffset);
 
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();

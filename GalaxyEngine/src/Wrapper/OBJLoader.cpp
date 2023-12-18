@@ -225,6 +225,34 @@ bool AreVerticesSimilar(const Vec3f& v1, const Vec2f& uv1, const Vec3f& n1,
 
 void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 {
+	mesh.tangents.resize(mesh.indices.size());
+
+	for (size_t k = 0; k < mesh.indices.size(); k += 3)
+	{
+		const Vec3f& idx0 = mesh.indices[k];
+		const Vec3f& idx1 = mesh.indices[k + 1];
+		const Vec3f& idx2 = mesh.indices[k + 2];
+
+		const Vec3f& Edge1 = mesh.positions[(int)idx1.x] - mesh.positions[(int)idx0.x];
+		const Vec3f& Edge2 = mesh.positions[(int)idx2.x] - mesh.positions[(int)idx0.x];
+
+		const float DeltaU1 = mesh.textureUVs[(int)idx1.y].x - mesh.textureUVs[(int)idx0.y].x;
+		const float DeltaV1 = mesh.textureUVs[(int)idx1.y].y - mesh.textureUVs[(int)idx0.y].y;
+		const float DeltaU2 = mesh.textureUVs[(int)idx2.y].x - mesh.textureUVs[(int)idx0.y].x;
+		const float DeltaV2 = mesh.textureUVs[(int)idx2.y].y - mesh.textureUVs[(int)idx0.y].y;
+
+		const float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
+
+		Vec3f Tangent;
+
+		Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
+		Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
+		Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
+
+		mesh.tangents[k] = Tangent;
+		mesh.tangents[k + 1] = Tangent;
+		mesh.tangents[k + 2] = Tangent;
+	}
 
 	for (size_t i = 0; i < mesh.indices.size(); i++)
 	{
@@ -240,6 +268,10 @@ void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 		mesh.finalVertices.push_back(mesh.normals[idx.z].x);
 		mesh.finalVertices.push_back(mesh.normals[idx.z].y);
 		mesh.finalVertices.push_back(mesh.normals[idx.z].z);
+
+		mesh.finalVertices.push_back(mesh.tangents[i].x);
+		mesh.finalVertices.push_back(mesh.tangents[i].y);
+		mesh.finalVertices.push_back(mesh.tangents[i].z);
 	}
 }
 

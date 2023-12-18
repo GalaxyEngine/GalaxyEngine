@@ -38,7 +38,7 @@ namespace GALAXY {
 			return false;
 		m_shader = ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>());
 		m_albedo = ResourceManager::GetOrLoad<Texture>(parser["Albedo"].As<uint64_t>());
-		m_normal = ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>());
+		m_normalMap = ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>());
 		m_ambient = parser["Ambient"].As<Vec4f>();
 		m_diffuse = parser["Diffuse"].As<Vec4f>();
 		m_specular = parser["Specular"].As<Vec4f>();
@@ -58,7 +58,7 @@ namespace GALAXY {
 
 		SerializeResource(serializer, "Shader", m_shader);
 		SerializeResource(serializer, "Albedo", m_albedo);
-		SerializeResource(serializer, "Normal", m_normal);
+		SerializeResource(serializer, "Normal", m_normalMap);
 
 		serializer << Pair::KEY << "Ambient" << Pair::VALUE << m_ambient;
 		serializer << Pair::KEY << "Diffuse" << Pair::VALUE << m_diffuse;
@@ -81,31 +81,41 @@ namespace GALAXY {
 			ImGui::ColorEdit4("Ambient", &m_ambient.x);
 			ImGui::ColorEdit4("Diffuse", &m_diffuse.x);
 			ImGui::ColorEdit4("Specular", &m_specular.x);
-			if (auto texture = m_albedo.lock()) {
-				if (Wrapper::GUI::TextureButton(m_albedo.lock().get(), Vec2f(32)))
-				{
-					ImGui::OpenPopup("TexturePopup");
-				}
-				ImGui::SameLine();
-				ImGui::TextUnformatted(GetName().c_str());
-			}
-			else
-			{
-				if (ImGui::Button("Set Texture", { ImGui::GetContentRegionAvail().x, 0 }))
-				{
-					ImGui::OpenPopup("TexturePopup");
-				}
-			}
-			Weak<Texture> tex;
-			if (Resource::ResourceManager::GetInstance()->ResourcePopup("TexturePopup", tex))
-			{
-				m_albedo = tex;
-			}
+
+			DisplayTexture("Set Albedo",m_albedo);
+			DisplayTexture("Set Normal Map",m_normalMap);
+
 			if (ImGui::Button("Save"))
 			{
 				Save();
 			}
 		}
+	}
+
+	void Resource::Material::DisplayTexture(const char* textureLabel, Weak<Texture>& textureRef)
+	{
+		ImGui::PushID(textureLabel);
+		if (auto texture = textureRef.lock()) {
+			if (Wrapper::GUI::TextureButton(texture.get(), Vec2f(32)))
+			{
+				ImGui::OpenPopup("TexturePopup");
+			}
+			ImGui::SameLine();
+			ImGui::TextUnformatted(GetName().c_str());
+		}
+		else
+		{
+			if (ImGui::Button(textureLabel, { ImGui::GetContentRegionAvail().x, 0 }))
+			{
+				ImGui::OpenPopup("TexturePopup");
+			}
+		}
+		Weak<Texture> tex;
+		if (Resource::ResourceManager::GetInstance()->ResourcePopup("TexturePopup", tex))
+		{
+			textureRef = tex;
+		}
+		ImGui::PopID();
 	}
 
 	Weak<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const
@@ -122,10 +132,15 @@ namespace GALAXY {
 				return {};
 			shader->Use();
 
-			shader->SendInt("material.enableTexture", m_albedo.lock() ? true : false);
+			shader->SendInt("material.hasAlbedo", m_albedo.lock() ? true : false);
 			if (const Shared<Texture> texture = m_albedo.lock()) {
 				texture->Bind(0);
 				shader->SendInt("material.albedo", 0);
+			}
+			shader->SendInt("material.hasNormalMap", m_normalMap.lock() ? true : false);
+			if (const Shared<Texture> texture = m_normalMap.lock()) {
+				texture->Bind(1);
+				shader->SendInt("material.normalMap", 1);
 			}
 			shader->SendVec4f("material.ambient", m_ambient);
 			shader->SendVec4f("material.diffuse", m_diffuse);
@@ -153,7 +168,7 @@ namespace GALAXY {
 				return {};
 			unlitShader->Use();
 
-			unlitShader->SendInt("material.enableTexture", false);
+			unlitShader->SendInt("material.hasAlbedo", false);
 			unlitShader->SendVec4f("material.diffuse", Vec4f(1));
 			return unlitShader;
 		}

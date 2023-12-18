@@ -7,8 +7,10 @@ struct Material
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
-    bool enableTexture;
     sampler2D albedo;
+    bool hasAlbedo;
+    sampler2D normalMap;
+    bool hasNormalMap;
 };
 
 struct DirectionalLight {
@@ -57,6 +59,7 @@ out vec4 FragColor;
 in vec3 pos;
 in vec2 uv;
 in vec3 normal;
+in vec3 tangent;
 
 uniform Material material;
 uniform DirectionalLight directionals[LightNumber];
@@ -66,17 +69,38 @@ uniform Camera camera;
 
 uniform bool UseLights;
 
-// Function to calculate directional light
+vec3 finalNormal;
+
+// ----------------------- Normal --------------------------------------
+vec3 CalculateNormal()
+{
+    if (!material.hasNormalMap)
+        return normal;
+
+    vec3 N = normalize(normal);
+    vec3 T = normalize(tangent);
+    // Compute the bitangent
+    vec3 B = cross(N, T);
+    mat3 TBN = transpose(mat3(T, B, N)); // Construct the TBN matrix
+
+    vec3 normalFromMap = texture(material.normalMap, uv).rgb;
+    normalFromMap = normalFromMap * 2.0 - 1.0; // Convert from [0, 1] to [-1, 1]
+    vec3 N_world = normalize(TBN * normalFromMap); // Transform to world space
+
+    return N_world;
+}
+
+// ----------------------- Lights --------------------------------------
 vec4 CalculateDirectionalLight(DirectionalLight directional)
 {
     vec3 lightDir = normalize(-directional.direction);
     vec3 viewDir = normalize(camera.viewPos - pos);
 
     // Lambertian reflection (diffuse)
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(finalNormal, lightDir), 0.0);
     vec4 diffuseColor;
 
-    if (material.enableTexture) {
+    if (material.hasAlbedo) {
         vec4 textureColor = texture(material.albedo, uv);
         diffuseColor = textureColor * directional.diffuse * diff;
     } 
@@ -85,7 +109,7 @@ vec4 CalculateDirectionalLight(DirectionalLight directional)
     }
 
     // Specular reflection
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec4 specularColor = material.specular * directional.specular * spec;
 
@@ -107,7 +131,7 @@ vec4 CalculatePointLight(PointLight point)
     float diff = max(dot(normal, lightDir), 0.0);
     vec4 diffuseColor;
 
-    if (material.enableTexture) {
+    if (material.hasAlbedo) {
         vec4 textureColor = texture(material.albedo, uv);
         diffuseColor = textureColor * point.diffuse * diff * attenuation;
     } 
@@ -115,7 +139,7 @@ vec4 CalculatePointLight(PointLight point)
         diffuseColor = material.diffuse * point.diffuse * diff * attenuation;
     }
 
-    vec3 reflectDir = reflect(-lightDir, normal);
+    vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
     vec4 specularColor = material.specular * point.specular * spec * attenuation;
 
@@ -126,37 +150,8 @@ vec4 CalculatePointLight(PointLight point)
 
 vec4 CalculateSpotLight(SpotLight spot)
 {
-/*
-    vec3 lightDir = normalize(spot.position - pos);
-    vec3 viewDir = normalize(camera.viewPos - pos);
-
-    float distance = length(spot.position - pos);
-    float attenuation = 1.0 / (spot.constant + spot.linear * distance + spot.quadratic * (distance * distance));
-
-    float spotEffect = dot(normalize(-lightDir), normalize(spot.direction));
-    float spotIntensity = smoothstep(spot.outerCutOff, spot.cutOff, spotEffect);
-
-    float diff = max(dot(normal, lightDir), 0.0);
     vec4 diffuseColor;
-
-    if (material.enableTexture) {
-        vec4 textureColor = texture(material.albedo, uv);
-        diffuseColor = textureColor * spot.diffuse * diff * attenuation * spotIntensity;
-    } 
-    else {
-        diffuseColor = material.diffuse * spot.diffuse * diff * attenuation * spotIntensity;
-    }
-
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec4 specularColor = material.specular * spot.specular * spec * attenuation * spotIntensity;
-
-    vec4 ambientColor = material.ambient * spot.ambient * attenuation * spotIntensity;
-
-    return ambientColor + diffuseColor + specularColor;
-    */
-    vec4 diffuseColor;
-    if (material.enableTexture) {
+    if (material.hasAlbedo) {
         diffuseColor = texture(material.albedo, uv);
     } 
     else {
@@ -167,7 +162,7 @@ vec4 CalculateSpotLight(SpotLight spot)
     vec3 ambient = spot.ambient.rgb * diffuseColor.rgb;
     
     // diffuse 
-    vec3 norm = normalize(normal);
+    vec3 norm = normalize(finalNormal);
     vec3 lightDir = normalize(spot.position - pos);
     float diff = max(dot(norm, lightDir), 0.0);
     vec3 diffuse = spot.diffuse.rgb * diff * diffuseColor.rgb;  
@@ -196,12 +191,15 @@ vec4 CalculateSpotLight(SpotLight spot)
     return vec4(result, 1.f);
 }
 
+// ----------------------- Main --------------------------------------
 void main()
 {
     // if UseLights is never used it will not be detected.
     // this is why we do this :
     if (UseLights)
         discard;
+
+    finalNormal = CalculateNormal();
     
     vec4 globalLight = vec4(0.f, 0.f, 0.f, 1.f);
     for (int i = 0; i < LightNumber; i++)
