@@ -3,12 +3,16 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
+
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/Script.h"
 #include "Resource/Material.h"
 #include "Resource/Model.h"
+
 #include "Wrapper/Window.h"
+
+#include "Utils/OS.h"
 
 /* TODO:
 * Drag and Drop (folders, models, ...)
@@ -438,6 +442,7 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::RightClickWindow()
 	{
+		using namespace Resource;
 		if (ImGui::BeginPopup("RightClickPopup"))
 		{
 			static auto quitPopup = [this]()
@@ -452,56 +457,95 @@ namespace GALAXY {
 				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
 				if (m_rightClickedFiles[0]->m_resource.lock()) {
 					bool allSame = true;
+					bool allShader = true;
 					const Resource::ResourceType commonType = m_rightClickedFiles[0]->m_resource.lock()->GetFileInfo().GetResourceType();
-
+					
 					for (const Shared<File>& file : m_rightClickedFiles)
 					{
-						if (!file->m_resource.lock() || commonType != file->m_resource.lock()->GetFileInfo().GetResourceType())
+						auto resourceType = file->m_resource.lock()->GetFileInfo().GetResourceType();
+						if (resourceType != ResourceType::FragmentShader && resourceType != ResourceType::VertexShader)
+						{
+							allShader = false;
+						}
+						if (!file->m_resource.lock() || commonType != resourceType)
 						{
 							allSame = false;
 						}
 					}
-					if (allSame) {
+					if (allSame || allShader) {
 						switch (commonType)
 						{
-						case Resource::ResourceType::Texture:
+						case ResourceType::Texture:
 							break;
-						case Resource::ResourceType::Shader:
-							break;
-						case Resource::ResourceType::VertexShader:
-							break;
-						case Resource::ResourceType::GeometryShader:
-							break;
-						case Resource::ResourceType::FragmentShader:
-							break;
-						case Resource::ResourceType::Model:
-							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
-								break;
-							if (ImGui::Button("Load", buttonSize))
-							{
-								for (const Shared<File>& file : m_rightClickedFiles)
-								{
-									Resource::ResourceManager::GetOrLoad<Resource::Model>(file->m_info.GetFullPath());
-								}
-							}
-							break;
-						case Resource::ResourceType::Mesh:
-							break;
-						case Resource::ResourceType::Material:
-							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
-								break;
-							if (ImGui::Button("Load", buttonSize))
-							{
-								for (const Shared<File>& file : m_rightClickedFiles)
-								{
-									Resource::ResourceManager::GetOrLoad<Resource::Material>(file->m_info.GetFullPath());
-								}
-							}
-							break;
-						case Resource::ResourceType::Script:
+						case ResourceType::Shader:
 							if (ImGui::Button("Edit", buttonSize))
 							{
-								Resource::Script::OpenScript(m_rightClickedFiles[0]->m_info.GetFullPath());
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									auto shader = dynamic_pointer_cast<Shader>(file->m_resource.lock());
+
+									if (auto vertex = shader->GetVertex().lock())
+										Utils::OS::OpenWithVSCode(vertex->GetFileInfo().GetFullPath());
+									if (auto geom = shader->GetGeometry().lock())
+										Utils::OS::OpenWithVSCode(geom->GetFileInfo().GetFullPath());
+									if (auto frag = shader->GetFragment().lock())
+										Utils::OS::OpenWithVSCode(frag->GetFileInfo().GetFullPath());
+								}
+							}
+							if (ImGui::Button("Recompile", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									dynamic_pointer_cast<Shader>(file->m_resource.lock())->Recompile();
+								}
+							}
+							break;
+						case ResourceType::FragmentShader:
+						case ResourceType::GeometryShader:
+						case ResourceType::VertexShader:
+							if (ImGui::Button("Edit", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									Utils::OS::OpenWithVSCode(file->m_info.GetFullPath());
+								}
+							}
+							if (ImGui::Button("Recompile", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									dynamic_pointer_cast<BaseShader>(file->m_resource.lock())->Recompile();
+								}
+							}
+							break;
+						case ResourceType::Model:
+							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
+								break;
+							if (ImGui::Button("Load", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									ResourceManager::GetOrLoad<Model>(file->m_info.GetFullPath());
+								}
+							}
+							break;
+						case ResourceType::Mesh:
+							break;
+						case ResourceType::Material:
+							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
+								break;
+							if (ImGui::Button("Load", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									ResourceManager::GetOrLoad<Material>(file->m_info.GetFullPath());
+								}
+							}
+							break;
+						case ResourceType::Script:
+							if (ImGui::Button("Edit", buttonSize))
+							{
+								Script::OpenScript(m_rightClickedFiles[0]->m_info.GetFullPath());
 							}
 							break;
 						default:

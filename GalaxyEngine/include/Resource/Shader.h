@@ -30,6 +30,10 @@ namespace GALAXY {
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
 			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
 
+			Weak<VertexShader> GetVertex() { return std::get<0>(p_subShaders); }
+			Weak<GeometryShader> GetGeometry() { return std::get<1>(p_subShaders); }
+			Weak<FragmentShader> GetFragment() { return std::get<2>(p_subShaders); }
+
 			void Recompile() const;
 
 			void Use();

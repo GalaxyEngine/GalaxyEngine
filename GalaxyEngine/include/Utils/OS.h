@@ -34,6 +34,8 @@ namespace GALAXY
 		inline T GetDLLMethod(void* dll, const char* name);
 
 		const char* GetDLLExtension();
+
+		void OpenWithVSCode(const std::filesystem::path& filePath);
 	}
 }
 #include "Utils/OS.inl" 

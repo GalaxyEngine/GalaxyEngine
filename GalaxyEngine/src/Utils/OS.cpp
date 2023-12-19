@@ -118,7 +118,7 @@ namespace GALAXY
 			PrintError("Failed to load DLL %s. Error : %s", DllPath.generic_string().c_str(), errorMessage.c_str());
 		}
 		return handle;
-		}
+	}
 
 	void Utils::OS::FreeDLL(void* dll)
 	{
@@ -142,4 +142,11 @@ namespace GALAXY
 #endif
 	}
 
+	void Utils::OS::OpenWithVSCode(const std::filesystem::path& filePath)
+	{
+		std::string command = "code ";
+		command += "\"" + filePath.string();
+		system(command.c_str());
 	}
+
+}

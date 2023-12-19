@@ -5,6 +5,9 @@
 #include "Editor/EditorSettings.h"
 
 #include "Scripting/ScriptEngine.h"
+
+#include "Utils/OS.h"
+
 namespace GALAXY
 {
 	const char* hFileContent =
@@ -101,9 +104,7 @@ CLASS(%s)
 
 	void Resource::Script::OpenWithVSCode(const Path& path)
 	{
-		std::string command = "code ";
-		command += "\"" + ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"";
-		system(command.c_str());
+		Utils::OS::OpenWithVSCode(ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
 	}
 
 #ifdef _WIN32
