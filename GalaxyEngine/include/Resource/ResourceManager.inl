@@ -214,6 +214,18 @@ namespace GALAXY
 		return GetOrLoad<T>(resource->first);
 	}
 
+	template<typename T>
+	inline Shared<T> Resource::ResourceManager::TemporaryAdd(const Path& fullPath)
+	{
+		if (m_instance->m_temporaryResources.contains(fullPath)) {
+			PrintWarning("Already Contain %s", fullPath.string().c_str());
+			return std::dynamic_pointer_cast<T>(m_instance->m_temporaryResources[fullPath].lock());
+		}
+		auto resource = std::make_shared<T>(fullPath);
+		m_instance->m_temporaryResources[fullPath] = resource;
+		return resource;
+	}
+
 	template <typename T>
 	inline Shared<T> Resource::ResourceManager::GetTemporaryResource(const Path& fullPath)
 	{

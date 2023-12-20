@@ -1,2 +1,5 @@
-V : unlit.vert
-F : unlit.frag
+ ------------- Shader ------------- 
+[Vertex] : 5568761161764130581
+[Geometry] : -1
+[Fragment] : 5234303035547942248
+ ============= Shader ============= 

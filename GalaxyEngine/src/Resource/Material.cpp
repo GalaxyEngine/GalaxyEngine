@@ -7,11 +7,11 @@ namespace GALAXY {
 
 	Resource::Material::Material(const Path& fullPath) : IResource(fullPath)
 	{
-		m_shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
 	}
 
 	void Resource::Material::Load()
 	{
+		m_shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;

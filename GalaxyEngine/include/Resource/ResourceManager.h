@@ -44,10 +44,6 @@ namespace GALAXY {
 
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
-
-			template <typename T>
-			static inline Shared<T> TemporaryLoad(const Path& fullPath);
-
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath);
 
@@ -58,6 +54,12 @@ namespace GALAXY {
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
 			[[nodiscard]] static inline Weak<T> GetResource(const Core::UUID& uuid);
+
+			template <typename T>
+			static inline Shared<T> TemporaryAdd(const Path& fullPath);
+
+			template <typename T>
+			static inline Shared<T> TemporaryLoad(const Path& fullPath);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
@@ -75,6 +77,8 @@ namespace GALAXY {
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);
+			// This method will load all resources that need to be load at the start (eg. shaders)
+			void LoadNeededResources();
 			static bool IsDataFileUpToDate(const Path& resourcePath);
 
 			template <typename T>

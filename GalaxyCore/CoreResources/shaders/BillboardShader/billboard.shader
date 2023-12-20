@@ -1,2 +1,5 @@
-V : billboard.vert
-F : ../UnlitShader/unlit.frag
+ ------------- Shader ------------- 
+[Vertex] : 1138605173555398507
+[Geometry] : -1
+[Fragment] : 5234303035547942248
+ ============= Shader ============= 

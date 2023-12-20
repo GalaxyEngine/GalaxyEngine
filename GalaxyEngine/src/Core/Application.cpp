@@ -76,8 +76,13 @@ namespace GALAXY {
 		std::string filename = projectPath.filename().generic_string();
 		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
 
+
+		/* Import all resources and parse UUID
+		*  Load all resources that need to be load but after import because of reference resources
+		*/
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
+		m_resourceManager->LoadNeededResources();
 		m_resourceManager->ReadCache();
 
 		// Initialize Scene

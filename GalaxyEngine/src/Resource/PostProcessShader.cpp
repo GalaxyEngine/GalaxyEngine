@@ -19,7 +19,7 @@ namespace GALAXY
 
 		Weak<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
 		auto vertexShader = ResourceManager::GetOrLoad<VertexShader>(VERTEX_PP_PATH);
-		SetVertex(vertexShader.lock(), thisShader);
+		SetVertex(vertexShader.lock(), thisShader, false);
 
 		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())

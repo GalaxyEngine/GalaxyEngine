@@ -23,10 +23,16 @@ namespace GALAXY {
 
 			virtual void Load() override;
 			void Send() override;
+			void Save();
 
 			const char* GetResourceName() const override { return "Shader"; }
 
-			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this);
+			// Get the enum with the class
+			static ResourceType GetResourceType() { return ResourceType::Shader; }
+
+			virtual void ShowInInspector() override;
+
+			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant = true);
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
 			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
 
@@ -50,10 +56,7 @@ namespace GALAXY {
 			void SendVec4i(const char* locationName, const Vec4i& value);
 			void SendMat4(const char* locationName, const Mat4& value);
 
-			// Get the enum with the class
-			static ResourceType GetResourceType() { return ResourceType::Shader; }
-
-			static Weak<Shader> Create(const Path& vertPath, const Path& fragPath);
+			static Shared<Shader> Create(const Path& vertPath, const Path& fragPath);
 
 			static Weak<Shader> Create(const Path& path);
 
@@ -70,12 +73,14 @@ namespace GALAXY {
 			uint32_t p_id = -1;
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> p_subShaders = {};
+		
+			bool p_isAVariant = false;
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
 			friend class BaseShader;
 
-			Weak<Shader> m_pickingVariant;
+			Shared<Shader> m_pickingVariant;
 		};
 
 		class BaseShader : public IResource
@@ -87,6 +92,8 @@ namespace GALAXY {
 			void AddShader(const Weak<Shader>& shader);
 
 			void Recompile();
+
+			void RemoveShader(Shader* shader);
 
 			List<Weak<Shader>> GetShaders() const { return p_shaders; }
 		protected:

@@ -69,7 +69,7 @@ namespace GALAXY {
 		case ResourceType::Shader:
 //#ifdef AUTO_IMPORT
 			//if (!IsDataFileUpToDate(resourcePath))
-				GetOrLoad<Shader>(resourcePath);
+				AddResource<Shader>(resourcePath);
 			//else
 				//AddResource<Shader>(resourcePath);
 //#else
@@ -93,6 +93,7 @@ namespace GALAXY {
 			break;
 		case ResourceType::Model:
 		{
+				//TODO Move to Needed Load method
 #ifdef AUTO_IMPORT
 			if (!IsDataFileUpToDate(resourcePath))
 				GetOrLoad<Model>(resourcePath);
@@ -121,6 +122,17 @@ namespace GALAXY {
 		break;
 		default:
 			break;
+		}
+	}
+
+	void Resource::ResourceManager::LoadNeededResources()
+	{
+		for (auto& resource : m_resources)
+		{
+			if (auto shader = dynamic_pointer_cast<Shader>(resource.second))
+			{
+				GetOrLoad<Shader>(resource.first);
+			}
 		}
 	}
 
