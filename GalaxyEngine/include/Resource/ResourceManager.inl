@@ -25,7 +25,7 @@ namespace GALAXY
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_instance->m_resources.contains(relativePath)) {
 			PrintWarning("Already Contain %s", relativePath.string().c_str());
-			return {};
+			return std::dynamic_pointer_cast<T>(m_instance->m_resources[relativePath]);
 		}
 		auto resource = std::make_shared<T>(fullPath);
 		resource->ParseDataFile();
@@ -189,11 +189,29 @@ namespace GALAXY
 	inline Weak<T> Resource::ResourceManager::GetResource(const Path& fullPath)
 	{
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
-		if (m_resources.contains(relativePath))
+		if (m_instance->m_resources.contains(relativePath))
 		{
-			return std::dynamic_pointer_cast<T>(m_resources.at(relativePath));
+			return std::dynamic_pointer_cast<T>(m_instance->m_resources.at(relativePath));
 		}
 		return {};
+	}
+
+	template <typename T>
+	Weak<T> Resource::ResourceManager::GetResource(const Core::UUID& uuid)
+	{
+		if (uuid == INDEX_NONE)
+			return {};
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& resource)
+			{
+				return resource.second->GetUUID() == uuid;
+			});
+		if (resource == m_instance->m_resources.end())
+		{
+			// Not found
+			return {};
+		}
+
+		return GetOrLoad<T>(resource->first);
 	}
 
 	template <typename T>

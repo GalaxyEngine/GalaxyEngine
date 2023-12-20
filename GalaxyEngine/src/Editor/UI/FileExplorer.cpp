@@ -482,15 +482,16 @@ namespace GALAXY {
 							{
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
-									auto shader = dynamic_pointer_cast<Shader>(file->m_resource.lock());
+									const auto shader = ResourceManager::GetResource<Shader>(file->m_info.GetFullPath()).lock();
 
-									if (auto vertex = shader->GetVertex().lock())
-										Utils::OS::OpenWithVSCode(vertex->GetFileInfo().GetFullPath());
-									if (auto geom = shader->GetGeometry().lock())
-										Utils::OS::OpenWithVSCode(geom->GetFileInfo().GetFullPath());
-									if (auto frag = shader->GetFragment().lock())
-										Utils::OS::OpenWithVSCode(frag->GetFileInfo().GetFullPath());
+									if (const auto vertex = shader->GetVertex().lock())
+										OS::OpenWithVSCode(vertex->GetFileInfo().GetFullPath());
+									if (const auto geom = shader->GetGeometry().lock())
+										OS::OpenWithVSCode(geom->GetFileInfo().GetFullPath());
+									if (const auto frag = shader->GetFragment().lock())
+										OS::OpenWithVSCode(frag->GetFileInfo().GetFullPath());
 								}
+								quitPopup();
 							}
 							if (ImGui::Button("Recompile", buttonSize))
 							{
@@ -498,6 +499,7 @@ namespace GALAXY {
 								{
 									dynamic_pointer_cast<Shader>(file->m_resource.lock())->Recompile();
 								}
+								quitPopup();
 							}
 							break;
 						case ResourceType::FragmentShader:
@@ -507,15 +509,20 @@ namespace GALAXY {
 							{
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
-									Utils::OS::OpenWithVSCode(file->m_info.GetFullPath());
+									OS::OpenWithVSCode(file->m_info.GetFullPath());
 								}
+								quitPopup();
 							}
 							if (ImGui::Button("Recompile", buttonSize))
 							{
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
-									dynamic_pointer_cast<BaseShader>(file->m_resource.lock())->Recompile();
+									if (!file->m_resource.lock() || !file->m_resource.lock()->ShouldBeLoaded())
+										ResourceManager::GetOrLoad<Shader>(file->m_info.GetFullPath());
+									else 
+										dynamic_pointer_cast<BaseShader>(file->m_resource.lock())->Recompile();
 								}
+								quitPopup();
 							}
 							break;
 						case ResourceType::Model:
@@ -551,9 +558,9 @@ namespace GALAXY {
 						default:
 							break;
 						}
+						ImGui::Separator();
 					}
 				}
-
 				if (ImGui::Button("Rename", buttonSize))
 				{
 					SetRenameFile(m_rightClickedFiles[0]);

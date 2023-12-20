@@ -31,7 +31,7 @@ void main()
     uv = aTex;
 })";
 
-	const char* fragShaderContent = 
+	const char* fragShaderContent =
 		R"(#version 450 core
 
 const int LightNumber = 8;
@@ -111,7 +111,7 @@ void main()
         FragColor = material.diffuse;
 } )";
 
-	const char* shaderContent = 
+	const char* shaderContent =
 		R"(V : %s.vert
 F : %s.frag
 )";
@@ -125,7 +125,6 @@ F : %s.frag
 		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock())
 		{
-			CreateDataFile();
 			SendRequest();
 			return;
 		}
@@ -166,7 +165,6 @@ F : %s.frag
 					SetFragment(fragmentShader.lock(), thisShader);
 				}
 			}
-			CreateDataFile();
 			SendRequest();
 		}
 	}
@@ -182,6 +180,7 @@ F : %s.frag
 		if (p_hasBeenSent) {
 			const auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
 			Render::LightManager::AddShader(weak_this);
+			CreateDataFile();
 		}
 	}
 
@@ -278,6 +277,45 @@ F : %s.frag
 		return ResourceManager::GetOrLoad<Shader>(shaderResourcePath);
 	}
 
+	void Resource::Shader::Serialize(Utils::Serializer& serializer) const
+	{
+		IResource::Serialize(serializer);
+		/*
+		serializer << Pair::BEGIN_MAP << "Shader";
+		serializer << Pair::BEGIN_TAB;
+
+		const Shared<VertexShader> vertex = std::get<0>(p_subShaders).lock();
+		const Shared<GeometryShader> geometry = std::get<1>(p_subShaders).lock();
+		const Shared<FragmentShader> fragment = std::get<2>(p_subShaders).lock();
+
+		ASSERT(vertex != nullptr);
+		ASSERT(fragment != nullptr);
+
+		SerializeResource(serializer, "Vertex", std::get<0>(p_subShaders));
+		SerializeResource(serializer, "Geometry", std::get<1>(p_subShaders));
+		SerializeResource(serializer, "Fragment", std::get<2>(p_subShaders));
+
+		serializer << Pair::END_TAB;
+		serializer << Pair::END_MAP << "Shader";
+		*/
+	}
+
+	void Resource::Shader::Deserialize(Utils::Parser& parser)
+	{
+		IResource::Deserialize(parser);
+		/*
+		parser.NewDepth();
+
+		const Core::UUID vertexUUID = parser["Vertex"].As<uint64_t>();
+		const Core::UUID geometryUUID = parser["Geometry"].As<uint64_t>();
+		const Core::UUID fragmentUUID = parser["Fragment"].As<uint64_t>();
+
+		std::get<0>(p_subShaders) = ResourceManager::GetResource<VertexShader>(vertexUUID);
+		std::get<1>(p_subShaders) = ResourceManager::GetResource<GeometryShader>(geometryUUID);
+		std::get<2>(p_subShaders) = ResourceManager::GetResource<FragmentShader>(fragmentUUID);
+		*/
+	}
+
 	// === Base Shader === //
 	void Resource::BaseShader::AddShader(const Weak<Shader>& shader)
 	{
@@ -321,6 +359,7 @@ F : %s.frag
 		p_shouldBeLoaded = true;
 		p_content = Utils::FileSystem::ReadFile(p_fileInfo.GetFullPath());
 		p_loaded = true;
+		CreateDataFile();
 		SendRequest();
 	}
 

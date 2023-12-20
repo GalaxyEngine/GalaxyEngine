@@ -53,7 +53,11 @@ namespace GALAXY {
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
-			[[nodiscard]] inline Weak<T> GetResource(const Path& fullPath);
+			[[nodiscard]] static inline Weak<T> GetResource(const Path& fullPath);
+
+			// Get The Resource, return null if the type is wrong
+			template <typename T>
+			[[nodiscard]] static inline Weak<T> GetResource(const Core::UUID& uuid);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>

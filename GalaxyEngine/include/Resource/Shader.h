@@ -30,9 +30,9 @@ namespace GALAXY {
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
 			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
 
-			Weak<VertexShader> GetVertex() { return std::get<0>(p_subShaders); }
-			Weak<GeometryShader> GetGeometry() { return std::get<1>(p_subShaders); }
-			Weak<FragmentShader> GetFragment() { return std::get<2>(p_subShaders); }
+			Weak<VertexShader> GetVertex() const { return std::get<0>(p_subShaders); }
+			Weak<GeometryShader> GetGeometry() const { return std::get<1>(p_subShaders); }
+			Weak<FragmentShader> GetFragment() const { return std::get<2>(p_subShaders); }
 
 			void Recompile() const;
 
@@ -58,6 +58,10 @@ namespace GALAXY {
 			static Weak<Shader> Create(const Path& path);
 
 			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
+		protected:
+			void Serialize(Utils::Serializer& serializer) const override;
+			void Deserialize(Utils::Parser& parser) override;
+
 		protected:
 			UMap<std::string, int> p_locations = {};
 

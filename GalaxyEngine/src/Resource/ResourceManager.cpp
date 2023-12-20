@@ -67,7 +67,14 @@ namespace GALAXY {
 			AddResource<Texture>(resourcePath);
 			break;
 		case ResourceType::Shader:
-			AddResource<Shader>(resourcePath);
+//#ifdef AUTO_IMPORT
+			//if (!IsDataFileUpToDate(resourcePath))
+				GetOrLoad<Shader>(resourcePath);
+			//else
+				//AddResource<Shader>(resourcePath);
+//#else
+			//AddResource<Shader>(resourcePath);
+//#endif
 			break;
 		case ResourceType::PostProcessShader:
 			AddResource<PostProcessShader>(resourcePath);
