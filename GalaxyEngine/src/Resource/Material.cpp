@@ -28,7 +28,6 @@ namespace GALAXY {
 		p_loaded = true;
 
 		CreateDataFile();
-		SendRequest();
 	}
 
 	bool Resource::Material::LoadMatFile()

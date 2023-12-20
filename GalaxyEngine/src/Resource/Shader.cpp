@@ -112,8 +112,12 @@ void main()
 } )";
 
 	const char* shaderContent =
-		R"(V : %llu
-		   F : %llu
+		R"( ------------- Shader ------------- 
+[Vertex] : %llu
+[Geometry] : -1
+[Fragment] : %llu
+ ============= Shader ============= 
+
 )";
 #pragma endregion
 
@@ -130,7 +134,7 @@ void main()
 			return;
 		}
 
-		const Weak<Shader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
+		const Weak<Shader> thisShader = ResourceManager::GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
 		Parser parser(GetFileInfo().GetFullPath());
 		if (parser.IsFileOpen())
@@ -192,12 +196,12 @@ void Resource::Shader::Save()
 
 void Resource::Shader::ShowInInspector()
 {
-	Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
-
+	// Vertex Shader
 	ImGui::TextUnformatted("Vertex Shader");
 	ImGui::SameLine();
 	Shared<VertexShader> vertex = GetVertex().lock();
-	if (ImGui::Button(vertex ? vertex->GetFileInfo().GetFileName().c_str() : "Empty##0", buttonSize))
+	Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
+	if (ImGui::Button(vertex ? vertex->GetFileInfo().GetFileName().c_str() : "Empty##0",buttonSize))
 	{
 		ImGui::OpenPopup("VertexPopup");
 	}
@@ -208,9 +212,11 @@ void Resource::Shader::ShowInInspector()
 		Recompile();
 	}
 
+	// Geometry Shader
 	ImGui::TextUnformatted("Geometry Shader");
 	ImGui::SameLine();
 	Shared<GeometryShader> geometry = GetGeometry().lock();
+	buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 	if (ImGui::Button(geometry ? GetVertex().lock()->GetFileInfo().GetFileName().c_str() : "Empty##1", buttonSize))
 	{
 		ImGui::OpenPopup("GeometryPopup");
@@ -222,9 +228,11 @@ void Resource::Shader::ShowInInspector()
 		Recompile();
 	}
 
+	// Fragment Shader
 	ImGui::TextUnformatted("Fragment Shader");
 	ImGui::SameLine();
-	Shared<FragmentShader> frag = GetFragment().lock();
+	const Shared<FragmentShader> frag = GetFragment().lock();
+	buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 	if (ImGui::Button(frag ? frag->GetFileInfo().GetFileName().c_str() : "Empty##2", buttonSize))
 	{
 		ImGui::OpenPopup("FragmentPopup");
@@ -246,9 +254,8 @@ void Resource::Shader::SetVertex(const Shared<VertexShader>& vertexShader, const
 {
 	Shared<BaseShader> shader = std::get<0>(p_subShaders).lock();
 	if (shader)
-	{
 		shader->RemoveShader(this);
-	}
+
 	std::get<0>(p_subShaders) = vertexShader;
 	if (vertexShader)
 		vertexShader->AddShader(weak_this);
@@ -267,9 +274,8 @@ void Resource::Shader::SetGeometry(const Shared<GeometryShader>& geometryShader,
 {
 	Shared<BaseShader> shader = std::get<1>(p_subShaders).lock();
 	if (shader)
-	{
 		shader->RemoveShader(this);
-	}
+
 	std::get<1>(p_subShaders) = geometryShader;
 	if (geometryShader)
 		geometryShader->AddShader(weak_this);
@@ -304,30 +310,66 @@ void Resource::Shader::Recompile() const
 	}
 }
 
+
+Shared<Resource::Shader> Resource::Shader::Create(const Path& vertPath, const Path& fragPath)
+{
+	if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
+		return {};
+	const Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<VertexShader>(vertPath);
+	const Weak<FragmentShader> fragShader = ResourceManager::GetOrLoad<FragmentShader>(fragPath);
+
+	// temporary add this to check if it's work to not expire the shader
+	Shared<VertexShader> LockVertex = vertexShader.lock();
+	Shared<FragmentShader> LockFrag = fragShader.lock();
+
+	std::string shaderPath = vertexShader.lock()->GetFileInfo().GetFullPath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
+
+	// Add shader before because of mono thread
+	shaderPath = shaderPath + ".shader";
+	auto shader = ResourceManager::TemporaryAdd<Shader>(shaderPath);
+	shader->p_isAVariant = true;
+	shader->SetFragment(fragShader.lock(), shader);
+	shader->SetVertex(vertexShader.lock(), shader, false);
+
+	shader = ResourceManager::TemporaryLoad<Shader>(shaderPath);
+	return shader;
+}
+
+
 Weak<Resource::Shader> Resource::Shader::Create(const Path& path)
 {
 	std::filesystem::create_directory(path);
 	const auto shaderPath = path / path.filename().stem();
 
+	const std::string vertexPath = shaderPath.string() + ".vert";
+	const std::string fragPath = shaderPath.string() + ".frag";
+
 	// Create vertex File
-	std::ofstream vertFile(shaderPath.string() + ".vert");
+	std::ofstream vertFile(vertexPath);
 	if (vertFile.is_open()) {
 		vertFile << vertShaderContent;
 		vertFile.close();
 	}
 
 	// Create fragment File
-	std::ofstream fragFile(shaderPath.string() + ".frag");
+	std::ofstream fragFile(fragPath);
 	if (fragFile.is_open()) {
 		fragFile << fragShaderContent;
 		fragFile.close();
 	}
+	auto vertex = ResourceManager::AddResource<VertexShader>(vertexPath).lock();
+	vertex->CreateDataFile();
+	auto frag = ResourceManager::AddResource<FragmentShader>(fragPath).lock();
+	frag->CreateDataFile();
+
+	uint64_t vUUID = vertex->GetUUID();
+	uint64_t fUUID = frag->GetUUID();
 
 	// Create shader File
 	std::string shaderResourcePath = shaderPath.string() + ".shader";
 	std::ofstream shaderFile(shaderResourcePath);
-	char content[512];
-	snprintf(content, sizeof(content), shaderContent, shaderPath.filename().string().c_str(), shaderPath.filename().string().c_str());
+	char content[1024];
+	snprintf(content, sizeof(content), shaderContent, vUUID, fUUID);
 	if (shaderFile.is_open()) {
 		shaderFile << content;  // Write the formatted content, not the original m_shaderContent
 		shaderFile.close();
@@ -548,28 +590,4 @@ void Resource::Shader::SendMat4(const char* locationName, const Mat4& value)
 	if (locationID == -1)
 		return;
 	p_renderer->ShaderSendMat4(locationID, value);
-}
-
-Shared<Resource::Shader> Resource::Shader::Create(const Path& vertPath, const Path& fragPath)
-{
-	if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(fragPath))
-		return {};
-	const Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<VertexShader>(vertPath);
-	const Weak<FragmentShader> fragShader = ResourceManager::GetOrLoad<FragmentShader>(fragPath);
-
-	// temporary add this to check if it's work to not expire the shader
-	Shared<VertexShader> LockVertex = vertexShader.lock();
-	Shared<FragmentShader> LockFrag = fragShader.lock();
-
-	std::string shaderPath = vertexShader.lock()->GetFileInfo().GetFullPath().string() + " + " + fragShader.lock()->GetFileInfo().GetRelativePath().string();
-
-	// Add shader before because of mono thread
-	shaderPath = shaderPath + ".shader";
-	auto shader = ResourceManager::TemporaryAdd<Shader>(shaderPath);
-	shader->p_isAVariant = true;
-	shader->SetFragment(fragShader.lock(), shader);
-	shader->SetVertex(vertexShader.lock(), shader, false);
-
-	shader = ResourceManager::TemporaryLoad<Shader>(shaderPath);
-	return shader;
 }

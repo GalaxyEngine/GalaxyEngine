@@ -28,7 +28,6 @@ namespace GALAXY {
 		}
 
 		CreateDataFile();
-		SendRequest();
 	}
 
 	void Resource::Model::Serialize(Utils::Serializer& serializer) const

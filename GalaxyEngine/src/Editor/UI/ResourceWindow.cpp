@@ -23,8 +23,13 @@ namespace GALAXY
 			{
 				m_resourceDirDisplay = static_cast<ResourceDir>(value + 1);
 			}
+			ImGui::SameLine();
+			static ImGuiTextFilter filter;
+			filter.Draw();
 			for (auto& resource : *m_resources)
 			{
+				if (!filter.PassFilter(resource.first.string().c_str()))
+					continue;
 				if (m_resourceDirDisplay != ResourceDir::Both) {
 					if (m_resourceDirDisplay != resource.second->GetFileInfo().GetResourceDir())
 						continue;
