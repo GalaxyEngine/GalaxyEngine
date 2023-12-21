@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/ResourceWindow.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 
@@ -26,6 +27,7 @@ namespace GALAXY
 			ImGui::SameLine();
 			static ImGuiTextFilter filter;
 			filter.Draw();
+			ImGui::BeginChild("List", Vec2f(0), true);
 			for (auto& resource : *m_resources)
 			{
 				if (!filter.PassFilter(resource.first.string().c_str()))
@@ -34,7 +36,7 @@ namespace GALAXY
 					if (m_resourceDirDisplay != resource.second->GetFileInfo().GetResourceDir())
 						continue;
 				}
-				if (ImGui::TreeNode(resource.first.string().c_str()))
+				if (ImGui::TreeNodeEx(resource.first.string().c_str(), ImGuiTreeNodeFlags_OpenOnArrow))
 				{
 					ImGui::BeginDisabled(true);
 					bool shouldBeLoaded = resource.second->ShouldBeLoaded();
@@ -46,8 +48,16 @@ namespace GALAXY
 					ImGui::EndDisabled();
 					ImGui::TreePop();
 				}
+				if (ImGui::IsItemClicked())
+				{
+					static auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+					Shared<File> file = std::make_shared<File>(resource.second->GetFileInfo().GetFullPath());
+					fileExplorer->ClearSelected();
+					fileExplorer->AddFileSelected({ file });
+				}
 
 			}
+			ImGui::EndChild();
 		}
 		ImGui::End();
 	}

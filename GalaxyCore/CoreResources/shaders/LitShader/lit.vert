@@ -16,7 +16,7 @@ void main()
 {
     gl_Position = MVP * vec4(aPos, 1.0f);
     pos = vec3(Model * vec4(aPos, 1.0f)); 
-	normal = mat3(transpose(inverse(Model))) * aNor;
-    tangent = mat3(Model) * aTan;
+	normal = vec3(Model * vec4(aNor, 0.0f));
+    tangent = vec3(Model * vec4(aTan, 0.0f));
     uv = aTex;
 }

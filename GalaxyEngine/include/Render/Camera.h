@@ -29,7 +29,7 @@ namespace GALAXY
 
 			void End() const;
 
-			void DisplayCameraSettings();
+			virtual void DisplayCameraSettings();
 
 			inline virtual Component::Transform* GetTransform() const = 0;
 

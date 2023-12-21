@@ -77,17 +77,19 @@ vec3 CalculateNormal()
     if (!material.hasNormalMap)
         return normal;
 
-    vec3 N = normalize(normal);
-    vec3 T = normalize(tangent);
-    // Compute the bitangent
-    vec3 B = cross(N, T);
-    mat3 TBN = transpose(mat3(T, B, N)); // Construct the TBN matrix
-
-    vec3 normalFromMap = texture(material.normalMap, uv).rgb;
-    normalFromMap = normalFromMap * 2.0 - 1.0; // Convert from [0, 1] to [-1, 1]
-    vec3 N_world = normalize(TBN * normalFromMap); // Transform to world space
-
-    return N_world;
+    
+    vec3 norm = normalize(normal);
+    vec3 tang = normalize(tangent);
+    // Re-orthogonalize tangent.
+    tang = normalize(tang - dot(tang, norm) * norm);
+    vec3 Bitangent = cross(tang, norm);
+    vec3 BumpMapNormal = texture(material.normalMap, uv).xyz;
+    BumpMapNormal = 2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0);
+    vec3 NewNormal;
+    mat3 TBN = mat3(tang, Bitangent, norm);
+    NewNormal = TBN * BumpMapNormal;
+    NewNormal = normalize(NewNormal);
+    return NewNormal;
 }
 
 // ----------------------- Lights --------------------------------------

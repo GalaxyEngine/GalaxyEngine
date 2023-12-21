@@ -17,6 +17,8 @@ namespace GALAXY
 
 			void Update();
 
+			void DisplayCameraSettings() override;
+
 			inline Component::Transform* GetTransform() const override {
 				return m_transform.get();
 			}
@@ -33,6 +35,7 @@ namespace GALAXY
 
 		private:
 			float m_movementSpeed = 10.f;
+			float m_multiplierSpeed = 1.f;
 			float m_fastMovementSpeed = 100.f;
 			float m_freeLookSensitivity = 500.f;
 			float m_zoomSensitivity = 1.f;

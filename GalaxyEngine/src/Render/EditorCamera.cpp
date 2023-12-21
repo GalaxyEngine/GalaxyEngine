@@ -55,34 +55,35 @@ namespace GALAXY
 
 		const float deltaTime = Utils::Time::DeltaTime();
 
+		const float moveSpeed = movementSpeed * m_multiplierSpeed * deltaTime;
 		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * moveSpeed));
 		}
 
 		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * moveSpeed));
 		}
 
 		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * moveSpeed));
 		}
 
 		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * moveSpeed));
 		}
 
 		if (Input::IsKeyDown(Key::Q))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * moveSpeed));
 		}
 
 		if (Input::IsKeyDown(Key::E))
 		{
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * movementSpeed * deltaTime));
+			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * moveSpeed));
 		}
 
 		const Vec2f mousePos = Input::GetMousePosition();
@@ -108,9 +109,15 @@ namespace GALAXY
 		const float axis = Input::GetScrollWheelValue();
 		if (axis != 0)
 		{
-			const float zoomSensitivity = fastMode ? m_fastZoomSensitivity : m_zoomSensitivity;
-			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + m_transform->GetForward() * axis * zoomSensitivity);
+			m_multiplierSpeed += fastMode ? axis * 0.5f : axis * 0.1f;
+			m_multiplierSpeed = std::clamp(m_multiplierSpeed, 0.1f, 10.f);
 		}
+	}
+
+	void Render::EditorCamera::DisplayCameraSettings()
+	{
+		Camera::DisplayCameraSettings();
+		ImGui::DragFloat("Speed Multiplier", &m_multiplierSpeed, 0.1f);
 	}
 
 	void Render::EditorCamera::StartLooking()

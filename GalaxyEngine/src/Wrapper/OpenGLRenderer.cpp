@@ -472,7 +472,7 @@ namespace GALAXY
 
 		shader->SendMat4("MVP", VP);
 		shader->SendVec4f("material.diffuse", color);
-		shader->SendInt("material.enableTexture", false);
+		shader->SendInt("material.hasAlbedo", false);
 
 		// Draw vertices
 		glBindVertexArray(VAO);
@@ -500,6 +500,7 @@ namespace GALAXY
 		if (!framebuffer)
 			return;
 		framebuffer->m_renderTexture->m_bytes = nullptr;
+		framebuffer->m_renderTexture->p_shouldBeLoaded = true;
 		framebuffer->m_renderTexture->p_loaded = true;
 		framebuffer->m_renderTexture->m_format = Resource::TextureFormat::RGBA;
 		framebuffer->m_renderTexture->m_size = framebuffer->m_size;

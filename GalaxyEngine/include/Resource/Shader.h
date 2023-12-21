@@ -91,6 +91,8 @@ namespace GALAXY {
 			virtual void Load() override;
 			void AddShader(const Weak<Shader>& shader);
 
+			virtual void ShowInInspector() override;
+
 			void Recompile();
 
 			void RemoveShader(Shader* shader);
