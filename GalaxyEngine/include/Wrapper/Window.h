@@ -6,6 +6,8 @@ struct GLFWwindow;
 #include <Windows.h>
 #endif
 
+#include "Utils/Type.h"
+
 #include <galaxymath/Maths.h>
 #include <functional>
 
@@ -40,6 +42,16 @@ namespace GALAXY
 			Screen
 		};
 
+		struct VideoMode
+		{
+			VideoMode() = default;
+			VideoMode(int width, int height, int refreshRate) : size(width, height), refreshRate(refreshRate) {}
+			VideoMode(const Vec2i& size, int refreshRate) : size(size), refreshRate(refreshRate) {}
+
+			Vec2i size;
+			int refreshRate;
+		};
+
 		class Window
 		{
 		public:
@@ -72,6 +84,8 @@ namespace GALAXY
 			Vec2i GetSize() const;
 			Vec2i GetPosition() const;
 			Vec2i GetMousePosition(CoordinateSpace coordinate = CoordinateSpace::Window) const;
+			List<VideoMode> GetSupportedFullScreenResolutions() const;
+			VideoMode GetVideoMode() const;
 
 			Vec2i ToWindowSpace(const Vec2i& pos) const;
 			Vec2i ToScreenSpace(const Vec2i& pos) const;

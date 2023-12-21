@@ -56,6 +56,7 @@ namespace GALAXY {
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
 		m_renderer = Wrapper::Renderer::GetInstance();
+		m_window->SetSize(m_window->GetSize() * m_window->GetScreenScale());
 
 		// Initialize Thread Manager
 		m_threadManager = Core::ThreadManager::GetInstance();

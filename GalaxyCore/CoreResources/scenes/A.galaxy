@@ -26,7 +26,7 @@
   [Model] : 8147286694128235369
   [Mesh Name] : Plane
   [Material Count] : 1
-   [Material 0] : 482361550447954360
+   [Material 0] : 1438659823957638138
    ============= END COMPONENT ============= 
   ============= END GAMEOBJECT ============= 
   ------------- BEGIN GAMEOBJECT ------------- 
@@ -36,7 +36,7 @@
  [Component Number] : 1
  [Child Number] : 0
   ------------- BEGIN TRANSFORM ------------- 
- [Position] : -0.381931, 0.326636, 0.628898
+ [Position] : -0.381931, 0.904325, 0.628898
  [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
  [Scale] : 1.000000, 1.000000, 1.000000
   ============= END TRANSFORM ============= 

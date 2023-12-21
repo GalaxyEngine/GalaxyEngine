@@ -14,7 +14,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 namespace GALAXY {
-	// boolean to check if glfw has been initalized
+	// boolean to check if glfw has been initialized
 	static bool s_initialized = false;
 
 	static void glfw_error_callback(const int error, const char* description)
@@ -265,6 +265,25 @@ namespace GALAXY {
 			mousePos = ToScreenSpace(mousePos);
 		}
 		return mousePos;
+	}
+
+	List<Wrapper::VideoMode> Wrapper::Window::GetSupportedFullScreenResolutions() const
+	{
+		List<VideoMode> resolutions;
+		int count;
+		const GLFWvidmode* modes = glfwGetVideoModes(static_cast<GLFWmonitor*>(GetCurrentMonitor()), &count);
+		resolutions.resize(count);
+		for (int i = 0; i < count; i++)
+		{
+			resolutions[i] = VideoMode(modes[i].width, modes[i].height, modes[i].refreshRate);
+		}
+		return resolutions;
+	}
+
+	Wrapper::VideoMode Wrapper::Window::GetVideoMode() const
+	{
+		const GLFWvidmode* mode = glfwGetVideoMode(static_cast<GLFWmonitor*>(GetCurrentMonitor()));
+		return { mode->width, mode->height, mode->refreshRate };
 	}
 
 	Vec2i Wrapper::Window::ToWindowSpace(const Vec2i& pos) const

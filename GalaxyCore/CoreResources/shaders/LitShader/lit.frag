@@ -11,6 +11,8 @@ struct Material
     bool hasAlbedo;
     sampler2D normalMap;
     bool hasNormalMap;
+    sampler2D parallaxMap;
+    float heightScale;
 };
 
 struct DirectionalLight {

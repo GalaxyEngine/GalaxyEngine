@@ -306,8 +306,11 @@ namespace GALAXY
 
 	Utils::StringSerializer Utils::Parser::operator[](const std::string& key)
 	{
-		ASSERT(m_valueMap.size() > m_currentDepth);
-		ASSERT(m_valueMap[m_currentDepth].contains(key));
+		//ASSERT(m_valueMap.size() > m_currentDepth);
+		//ASSERT(m_valueMap[m_currentDepth].contains(key));
+		if (m_valueMap.size() <= m_currentDepth || !m_valueMap[m_currentDepth].contains(key))
+			return {};
+
 		return m_valueMap[m_currentDepth][key];
 	}
 
@@ -330,43 +333,92 @@ namespace GALAXY
 	template <>
 	float Utils::StringSerializer::As()
 	{
-		return std::stof(m_content);
+		try
+		{
+			return std::stof(m_content);
+		}
+		catch (...)
+		{
+			return 0.f;
+		}
 	}
 
 	template <>
 	double Utils::StringSerializer::As()
 	{
-		return std::stod(m_content);
+		try
+		{
+			return std::stod(m_content);
+		}
+		catch (...)
+		{
+			return 0.0;
+		}
 	}
 
 	template <>
 	unsigned long long Utils::StringSerializer::As()
 	{
-		return std::stoull(m_content);
+		try
+		{
+			return std::stoull(m_content);
+		}
+		catch (...)
+		{
+			return -1;
+		}
 	}
 
 	template <>
 	long long Utils::StringSerializer::As()
 	{
-		return std::stoll(m_content);
+		try
+		{
+			return std::stoll(m_content);
+		}
+		catch (...)
+		{
+			return 0;
+		}
 	}
 
 	template <>
 	unsigned long Utils::StringSerializer::As()
 	{
-		return std::stoul(m_content);
+		try
+		{
+			return std::stoul(m_content);
+		}
+		catch (...)
+		{
+			return -1;
+		}
 	}
 
 	template <>
 	int Utils::StringSerializer::As()
 	{
-		return std::stoi(m_content);
+		try
+		{
+			return std::stoi(m_content);
+		}
+		catch (...)
+		{
+			return 0;
+		}
 	}
 
 	template <>
 	bool Utils::StringSerializer::As()
 	{
-		return std::stoi(m_content);
+		try
+		{
+			return std::stoi(m_content);
+		}
+		catch (...)
+		{
+			return 0;
+		}
 	}
 
 	template <>

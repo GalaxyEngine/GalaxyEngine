@@ -38,6 +38,8 @@ namespace GALAXY {
 		m_shader = ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>());
 		m_albedo = ResourceManager::GetOrLoad<Texture>(parser["Albedo"].As<uint64_t>());
 		m_normalMap = ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>());
+		m_parallaxMap = ResourceManager::GetOrLoad<Texture>(parser["Parallax"].As<uint64_t>());
+		m_heightScale = parser["Height_Scale"].As<float>();
 		m_ambient = parser["Ambient"].As<Vec4f>();
 		m_diffuse = parser["Diffuse"].As<Vec4f>();
 		m_specular = parser["Specular"].As<Vec4f>();
@@ -58,7 +60,9 @@ namespace GALAXY {
 		SerializeResource(serializer, "Shader", m_shader);
 		SerializeResource(serializer, "Albedo", m_albedo);
 		SerializeResource(serializer, "Normal", m_normalMap);
+		SerializeResource(serializer, "Parallax", m_parallaxMap);
 
+		serializer << Pair::KEY << "Height_Scale" << Pair::VALUE << m_heightScale;
 		serializer << Pair::KEY << "Ambient" << Pair::VALUE << m_ambient;
 		serializer << Pair::KEY << "Diffuse" << Pair::VALUE << m_diffuse;
 		serializer << Pair::KEY << "Specular" << Pair::VALUE << m_specular;
@@ -83,6 +87,11 @@ namespace GALAXY {
 
 			DisplayTexture("Set Albedo",m_albedo);
 			DisplayTexture("Set Normal Map",m_normalMap);
+			DisplayTexture("Set Parallax Map", m_parallaxMap);
+			if (m_parallaxMap.lock())
+			{
+				ImGui::DragFloat("Height Scale", &m_heightScale, 0.1f);
+			}
 
 			if (ImGui::Button("Save"))
 			{
@@ -91,10 +100,10 @@ namespace GALAXY {
 		}
 	}
 
-	void Resource::Material::DisplayTexture(const char* textureLabel, Weak<Texture>& textureRef)
+	void Resource::Material::DisplayTexture(const char* textureLabel, Weak<Texture>& textureRef) const
 	{
 		ImGui::PushID(textureLabel);
-		if (auto texture = textureRef.lock()) {
+		if (const auto texture = textureRef.lock()) {
 			if (Wrapper::GUI::TextureButton(texture.get(), Vec2f(32)))
 			{
 				ImGui::OpenPopup("TexturePopup");
