@@ -150,6 +150,12 @@ namespace GALAXY {
 				texture->Bind(1);
 				shader->SendInt("material.normalMap", 1);
 			}
+			shader->SendInt("material.hasParallaxMap", m_parallaxMap.lock() ? true : false);
+			if (const Shared<Texture> texture = m_parallaxMap.lock()) {
+				texture->Bind(2);
+				shader->SendInt("material.parallaxMap", 2);
+				shader->SendFloat("material.heightScale", m_heightScale);
+			}
 			shader->SendVec4f("material.ambient", m_ambient);
 			shader->SendVec4f("material.diffuse", m_diffuse);
 			shader->SendVec4f("material.specular", m_specular);

@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Resource/Mesh.h"
-#include "Wrapper/Renderer.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Shader.h"
@@ -12,6 +11,9 @@
 
 #include "Component/Transform.h"
 
+#include "Wrapper/Renderer.h"
+
+#include "Render/Camera.h"
 namespace GALAXY {
 
 	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
@@ -68,6 +70,7 @@ namespace GALAXY {
 			return;
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		renderer->BindVertexArray(m_vertexArrayIndex);
+		const Vec3f viewPos = Render::Camera::GetCurrentCamera().lock()->GetTransform()->GetLocalPosition();
 
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || i >= m_subMeshes.size())
@@ -79,6 +82,7 @@ namespace GALAXY {
 			const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 			shader->SendMat4("Model", modelMatrix);
 			shader->SendMat4("MVP", currentScene->GetVP() * modelMatrix);
+			shader->SendVec3f("ViewPos", viewPos);
 			shader->SendVec3f("CamUp", currentScene->GetCameraUp());
 			shader->SendVec3f("CamRight", currentScene->GetCameraRight());
 

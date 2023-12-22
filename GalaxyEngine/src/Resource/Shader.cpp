@@ -448,6 +448,7 @@ void main()
 			}
 		}
 
+		//TODO Fix this, data race
 		p_shaders.push_back(shader.lock());
 	}
 

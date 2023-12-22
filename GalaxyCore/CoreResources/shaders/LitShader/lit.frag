@@ -12,6 +12,7 @@ struct Material
     sampler2D normalMap;
     bool hasNormalMap;
     sampler2D parallaxMap;
+    bool hasParallaxMap;
     float heightScale;
 };
 
@@ -79,7 +80,6 @@ vec3 CalculateNormal()
     if (!material.hasNormalMap)
         return normal;
 
-    
     vec3 norm = normalize(normal);
     vec3 tang = normalize(tangent);
     // Re-orthogonalize tangent.

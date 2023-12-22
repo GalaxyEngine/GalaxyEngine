@@ -5,6 +5,7 @@ layout (location = 2) in vec3 aNor;
 
 out vec2 uv;
 out vec3 normal;
+out vec3 viewDir;
 
 uniform mat4 MVP;
 uniform vec3 CamUp;
@@ -18,4 +19,5 @@ void main()
 
 	normal = aNor;
 	uv = aTex;
+	viewDir = vec3(0.f);
 }
