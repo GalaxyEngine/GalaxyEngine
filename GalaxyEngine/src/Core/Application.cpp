@@ -155,6 +155,10 @@ namespace GALAXY {
 			{
 				m_window->ToggleFullscreen();
 			}
+			if (Input::IsKeyPressed(Key::F5))
+			{
+				m_resourceManager->GetUnlitShader().lock()->Recompile();
+			}
 			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C))
 			{
 				CopyObject();

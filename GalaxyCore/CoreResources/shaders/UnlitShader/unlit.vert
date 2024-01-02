@@ -5,8 +5,7 @@ layout (location = 2) in vec3 aNor;
 layout (location = 3) in vec3 aTan;
 
 out vec2 uv;
-out vec3 normal;
-out vec3 viewDir;
+out vec3 viewDir; // Changed from viewPos to viewDir
 
 uniform mat4 MVP;
 uniform mat4 Model;
@@ -14,15 +13,15 @@ uniform vec3 ViewPos;
 
 void main()
 {
-    gl_Position = MVP * vec4(aPos, 1.0);
-    vec4 worldPosition = Model * vec4(aPos, 1.0);
-    vec3 T = normalize(vec3(Model * vec4(aTan, 0.0)));
-    vec3 N = normalize(vec3(Model * vec4(aNor, 0.0)));
-    T = normalize(T - dot(T, N) * N);
-    vec3 B = cross(N, T);
+  gl_Position = MVP * vec4(aPos, 1.0);
+  uv = aTex;
 
-    mat3 TBN = transpose(mat3(T, B, N)); // Transpose since we want to transform from tangent space to world space
-    viewDir = TBN * normalize(ViewPos - worldPosition.xyz); // Correct view direction calculation
-    normal = N; // Pass the transformed normal to the fragment shader
-    uv = aTex;
+  vec3 worldPosition = vec3(Model * vec4(aPos, 1.0));
+  vec3 T = normalize(mat3(Model) * aTan);
+  vec3 N = normalize(mat3(Model) * aNor);
+  T = normalize(T - dot(T, N) * N);
+  vec3 B = cross(N, T);
+
+  mat3 TBN = transpose(mat3(T, B, N));
+  viewDir = TBN * (ViewPos - worldPosition); // Corrected to calculate the view direction
 }
