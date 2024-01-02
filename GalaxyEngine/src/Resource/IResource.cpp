@@ -28,7 +28,7 @@ namespace GALAXY {
 
 	void Resource::IResource::CreateDataFile() const
 	{
-		if (!GetCreateDataFile())
+		if (!ShouldCreateDataFile())
 			return;
 
 		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");

@@ -9,7 +9,7 @@
 
 /*
 * TODO:
-*	Normal mapping
+*	Parallax mapping with normal mapping
 */
 
 namespace GALAXY

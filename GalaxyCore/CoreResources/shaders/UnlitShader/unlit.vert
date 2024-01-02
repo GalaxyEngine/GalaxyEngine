@@ -13,8 +13,6 @@ uniform vec3 ViewPos;
 
 void main()
 {
-  gl_Position = MVP * vec4(aPos, 1.0);
-  uv = aTex;
 
   vec3 worldPosition = vec3(Model * vec4(aPos, 1.0));
   vec3 T = normalize(mat3(Model) * aTan);
@@ -23,5 +21,8 @@ void main()
   vec3 B = cross(N, T);
 
   mat3 TBN = transpose(mat3(T, B, N));
-  viewDir = TBN * (ViewPos - worldPosition); // Corrected to calculate the view direction
+
+  viewDir = normalize(TBN * (ViewPos - worldPosition));
+  uv = aTex;
+  gl_Position = MVP * vec4(aPos, 1.0);
 }

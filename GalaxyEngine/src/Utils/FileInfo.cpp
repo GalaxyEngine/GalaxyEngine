@@ -40,15 +40,11 @@ namespace GALAXY
 	Utils::FileInfo::FileInfo(const Path& path, bool createRelativePath/* = true*/)
 	{
 		createRelativePath |= path == NONE_RESOURCE;
-		m_exist = std::filesystem::exists(path);
 
 		m_fullPath = ToPath(path);
 		if (createRelativePath)
 			m_relativePath = ToRelativePath(m_fullPath);
 		m_fileName = m_fullPath.filename().string();
-		m_fileNameNoExtension = m_fileName.substr(0, m_fileName.find_last_of('.'));
-		m_extension = m_fullPath.extension();
-		m_resourceType = GetTypeFromExtension(m_extension);
 
 		if (!m_relativePath.empty())
 		{
@@ -61,11 +57,6 @@ namespace GALAXY
 				m_resourceDir = ResourceDir::Project;
 			}
 		}
-
-		//if (!m_exist)
-		//{
-			//PrintWarning("File %s does not exist", path.string().c_str());
-		//}
 	}
 
 	Path Utils::FileInfo::ToPath(const Path& path)

@@ -285,7 +285,7 @@ namespace GALAXY
 					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
 
 				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
-					&& resource->GetDisplayOnInspector())
+					&& resource->ShouldDisplayOnInspector())
 				{
 					ImGui::PushID(static_cast<int>(i++));
 					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))

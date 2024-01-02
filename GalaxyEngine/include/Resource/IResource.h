@@ -28,7 +28,7 @@ namespace GALAXY::Resource {
 		Scene,
 	};
 
-	enum class ResourceStatus
+	enum class ResourceStatus : int
 	{
 		None = 0,
 		DisplayOnInspector = 1,
@@ -98,8 +98,8 @@ namespace GALAXY::Resource {
 		virtual void Deserialize(Utils::Parser& parser);
 
 	private:
-		bool GetDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }
-		bool GetCreateDataFile() const { return (p_status & ResourceStatus::CreateDataFile) != ResourceStatus::None; }
+		bool ShouldDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }
+		bool ShouldCreateDataFile() const { return (p_status & ResourceStatus::CreateDataFile) != ResourceStatus::None; }
 
 	protected:
 		friend class ResourceManager;
@@ -114,4 +114,5 @@ namespace GALAXY::Resource {
 
 		Core::UUID p_uuid;
 	};
+
 }

@@ -20,12 +20,15 @@ namespace GALAXY
 
 			// === Texture === //
 			void CreateTexture(Resource::Texture* texture) override;
+			void SetTextureWrapping(Resource::Texture* texture, Resource::TextureWrapping wrapping) override;
+			void SetTextureFiltering(Resource::Texture* texture, Resource::TextureFiltering filtering) override;
 			void DestroyTexture(Resource::Texture* texture) override;
 
 			void BindTexture(Resource::Texture* texture, uint32_t id = 0) override;
 			void UnbindTexture() override;
 
 			uint32_t TextureFormatToAPI(Resource::TextureFormat format) override;
+			uint32_t TextureWrappingToAPI(Resource::TextureWrapping wrapping) override;
 			uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) override;
 
 			// === Shader === //

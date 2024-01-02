@@ -2,10 +2,11 @@
 #include "GalaxyAPI.h"
 #include <vector>
 #include <string>
-namespace GALAXY 
+namespace GALAXY
 {
-	namespace Resource { 
+	namespace Resource {
 		enum class TextureFormat;
+		enum class TextureWrapping;
 		enum class TextureFiltering;
 		class Texture;
 		class Shader;
@@ -28,7 +29,7 @@ namespace GALAXY
 	{
 		class Transform;
 	}
-	namespace Wrapper 
+	namespace Wrapper
 	{
 		enum class RenderAPI
 		{
@@ -62,12 +63,15 @@ namespace GALAXY
 
 			// === Texture === //
 			virtual void CreateTexture(Resource::Texture* texture) {}
+			virtual void SetTextureWrapping(Resource::Texture* texture, Resource::TextureWrapping wrapping) {}
+			virtual void SetTextureFiltering(Resource::Texture* texture, Resource::TextureFiltering filtering) {}
 			virtual void DestroyTexture(Resource::Texture* texture) {}
 
 			virtual void BindTexture(Resource::Texture* texture, uint32_t id = 0) {}
 			virtual void UnbindTexture() {}
 
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
+			virtual uint32_t TextureWrappingToAPI(Resource::TextureWrapping filtering) { return -1; }
 			virtual uint32_t TextureFilteringToAPI(Resource::TextureFiltering filtering) { return -1; }
 
 			// === Shader === //
@@ -116,7 +120,7 @@ namespace GALAXY
 
 			virtual void ActiveDepth(bool active = true) {}
 			virtual void SetDepthRange(float _near, float _far) {}
-			
+
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
 
 			// Debug

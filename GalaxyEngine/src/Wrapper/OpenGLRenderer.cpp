@@ -18,7 +18,7 @@
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
 
-namespace GALAXY 
+namespace GALAXY
 {
 	// OpenGL Renderer
 	Wrapper::OpenGLRenderer::OpenGLRenderer() {}
@@ -189,17 +189,18 @@ namespace GALAXY
 
 	void Wrapper::OpenGLRenderer::CreateTexture(Resource::Texture* texture)
 	{
+		const uint32_t wrap = TextureWrappingToAPI(texture->m_wrapping);
 		const uint32_t filter = TextureFilteringToAPI(texture->m_filtering);
 		const uint32_t format = TextureFormatToAPI(texture->m_format);
 
 		glGenTextures(1, &texture->m_id);
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, format, texture->m_size.x, texture->m_size.y, 0, format, GL_UNSIGNED_BYTE, texture->m_bytes);
 
@@ -207,6 +208,34 @@ namespace GALAXY
 			glGenerateMipmap(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void Wrapper::OpenGLRenderer::SetTextureWrapping(Resource::Texture* texture, Resource::TextureWrapping wrapping)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture->m_id);
+
+		auto wrap = TextureWrappingToAPI(wrapping);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		texture->m_wrapping = wrapping;
+	}
+
+	void Wrapper::OpenGLRenderer::SetTextureFiltering(Resource::Texture* texture, Resource::TextureFiltering filtering)
+	{
+		glBindTexture(GL_TEXTURE_2D, texture->m_id);
+
+		auto filter = TextureFilteringToAPI(filtering);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		texture->m_filtering = filtering;
 	}
 
 	void Wrapper::OpenGLRenderer::DestroyTexture(Resource::Texture* texture)
@@ -217,21 +246,35 @@ namespace GALAXY
 		}
 	}
 
-	uint32_t Wrapper::OpenGLRenderer::TextureFilteringToAPI(const Resource::TextureFiltering filtering)
+	uint32_t Wrapper::OpenGLRenderer::TextureWrappingToAPI(Resource::TextureWrapping filtering)
 	{
 		switch (filtering)
 		{
-		case Resource::TextureFiltering::REPEAT:
+		case Resource::TextureWrapping::REPEAT:
 			return GL_REPEAT;
-		case Resource::TextureFiltering::MIRRORED_REPEAT:
+		case Resource::TextureWrapping::MIRRORED_REPEAT:
 			return GL_MIRRORED_REPEAT;
-		case Resource::TextureFiltering::CLAMP_TO_EDGE:
+		case Resource::TextureWrapping::CLAMP_TO_EDGE:
 			return GL_CLAMP_TO_EDGE;
-		case Resource::TextureFiltering::CLAMP_TO_BORDER:
+		case Resource::TextureWrapping::CLAMP_TO_BORDER:
 			return GL_CLAMP_TO_BORDER;
 		default:
-			PrintError("Texture filtering not recognize");
+			PrintError("Texture wrapping not recognize");
 			return GL_REPEAT;
+		}
+	}
+
+	uint32_t Wrapper::OpenGLRenderer::TextureFilteringToAPI(Resource::TextureFiltering filtering)
+	{
+		switch (filtering)
+		{
+		case Resource::TextureFiltering::NEAREST:
+			return GL_NEAREST;
+		case Resource::TextureFiltering::LINEAR:
+			return GL_LINEAR;
+		default:
+			PrintError("Texture filtering not recognize");
+			return GL_NEAREST;
 		}
 	}
 
@@ -247,7 +290,7 @@ namespace GALAXY
 		case Resource::TextureFormat::LUMINANCE:
 			//return GL_LUMINANCE;
 		case Resource::TextureFormat::LUMINANCE_ALPHA:
-			//return GL_LUMINANCE_ALPHA
+			//return GL_LUMINANCE_ALPHA;
 		default:
 			PrintError("Texture format not recognize");
 			return GL_RGBA;

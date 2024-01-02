@@ -448,8 +448,9 @@ void main()
 			}
 		}
 
-		//TODO Fix this, data race
+		Core::ThreadManager::Lock();
 		p_shaders.push_back(shader.lock());
+		Core::ThreadManager::Unlock();
 	}
 
 	void Resource::BaseShader::Recompile()

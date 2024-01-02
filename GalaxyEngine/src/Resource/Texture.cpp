@@ -48,3 +48,48 @@ void Resource::Texture::UnBind()
 {
 	Wrapper::Renderer::GetInstance()->UnbindTexture();
 }
+
+void Resource::Texture::Serialize(Utils::Serializer& serializer) const
+{
+	IResource::Serialize(serializer);
+	serializer << Pair::BEGIN_MAP << "Texture";
+	serializer << Pair::KEY << "Filtering" << Pair::VALUE << (int)m_filtering;
+	serializer << Pair::KEY << "Wrapping" << Pair::VALUE << (int)m_wrapping;
+	serializer << Pair::END_MAP << "Texture";
+}
+
+void Resource::Texture::Deserialize(Utils::Parser& parser)
+{
+	IResource::Deserialize(parser);
+	parser.NewDepth();
+	m_filtering = (TextureFiltering)parser["Filtering"].As<int>();
+	m_wrapping = (TextureWrapping)parser["Wrapping"].As<int>();
+}
+
+void Resource::Texture::ShowInInspector()
+{
+	int filteringMode = (int)m_filtering;
+	if (ImGui::Combo("Filtering", &filteringMode, SerializeTextureFilteringEnum()))
+	{
+		Wrapper::Renderer::GetInstance()->SetTextureFiltering(this, (TextureFiltering)filteringMode);
+	}
+
+	int wrappingMode = (int)m_wrapping;
+	if (ImGui::Combo("Wrapping", &wrappingMode, SerializeTextureWrappingEnum()))
+	{
+		Wrapper::Renderer::GetInstance()->SetTextureWrapping(this, (TextureWrapping)wrappingMode);
+	}
+
+	if (ImGui::Button("Save"))
+	{
+		Save();
+	}
+}
+
+void Resource::Texture::Save()
+{
+	if (!p_loaded)
+		return;
+
+	CreateDataFile();
+}

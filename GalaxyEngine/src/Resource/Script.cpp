@@ -100,7 +100,6 @@ CLASS(%s)
 			break;
 		}
 	}
-	//TODO : Move to os specific file
 
 	void Resource::Script::OpenWithVSCode(const Path& path)
 	{

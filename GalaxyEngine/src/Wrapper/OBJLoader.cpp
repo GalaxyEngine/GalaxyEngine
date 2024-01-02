@@ -229,25 +229,33 @@ void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 
 	for (size_t k = 0; k < mesh.indices.size(); k += 3)
 	{
-		const Vec3f& idx0 = mesh.indices[k];
-		const Vec3f& idx1 = mesh.indices[k + 1];
-		const Vec3f& idx2 = mesh.indices[k + 2];
+		const Vec3i& idx0 = mesh.indices[k];
+		const Vec3i& idx1 = mesh.indices[k + 1];
+		const Vec3i& idx2 = mesh.indices[k + 2];
 
-		const Vec3f& Edge1 = mesh.positions[(int)idx1.x] - mesh.positions[(int)idx0.x];
-		const Vec3f& Edge2 = mesh.positions[(int)idx2.x] - mesh.positions[(int)idx0.x];
+		const Vec3f& Edge1 = mesh.positions[idx1.x] - mesh.positions[idx0.x];
+		const Vec3f& Edge2 = mesh.positions[idx2.x] - mesh.positions[idx0.x];
 
-		const float DeltaU1 = mesh.textureUVs[(int)idx1.y].x - mesh.textureUVs[(int)idx0.y].x;
-		const float DeltaV1 = mesh.textureUVs[(int)idx1.y].y - mesh.textureUVs[(int)idx0.y].y;
-		const float DeltaU2 = mesh.textureUVs[(int)idx2.y].x - mesh.textureUVs[(int)idx0.y].x;
-		const float DeltaV2 = mesh.textureUVs[(int)idx2.y].y - mesh.textureUVs[(int)idx0.y].y;
+		const float DeltaU1 = mesh.textureUVs[idx1.y].x - mesh.textureUVs[idx0.y].x;
+		const float DeltaV1 = mesh.textureUVs[idx1.y].y - mesh.textureUVs[idx0.y].y;
+		const float DeltaU2 = mesh.textureUVs[idx2.y].x - mesh.textureUVs[idx0.y].x;
+		const float DeltaV2 = mesh.textureUVs[idx2.y].y - mesh.textureUVs[idx0.y].y;
 
-		const float f = 1.0f / (DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1);
+		float f = DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1;
+		if (fabs(f) < 1e-6) {
+			f = 1.0f; // Prevent division by zero and provide a default value for 'f'
+		}
+		else {
+			f = 1.0f / f;
+		}
 
 		Vec3f Tangent;
 
 		Tangent.x = f * (DeltaV2 * Edge1.x - DeltaV1 * Edge2.x);
 		Tangent.y = f * (DeltaV2 * Edge1.y - DeltaV1 * Edge2.y);
 		Tangent.z = f * (DeltaV2 * Edge1.z - DeltaV1 * Edge2.z);
+
+		Tangent.Normalize();
 
 		mesh.tangents[k] = Tangent;
 		mesh.tangents[k + 1] = Tangent;
