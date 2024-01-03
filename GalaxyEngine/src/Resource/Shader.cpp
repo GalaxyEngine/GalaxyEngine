@@ -126,7 +126,6 @@ void main()
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-		p_renderer = Wrapper::Renderer::GetInstance();
 		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock())
 		{
 			SendRequest();
@@ -513,7 +512,7 @@ void main()
 
 	void Resource::Shader::Use()
 	{
-		p_renderer->UseShader(this);
+		Wrapper::Renderer::GetInstance()->UseShader(this);
 	}
 
 	int Resource::Shader::GetLocation(const char* locationName)
@@ -525,7 +524,7 @@ void main()
 			return it->second;
 		}
 		else
-			return p_locations[locationName] = p_renderer->GetShaderLocation(p_id, locationName);
+			return p_locations[locationName] = Wrapper::Renderer::GetInstance()->GetShaderLocation(p_id, locationName);
 	}
 
 	void Resource::Shader::SendInt(const char* locationName, const int value)
@@ -533,7 +532,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendInt(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, value);
 	}
 
 	void Resource::Shader::SendFloat(const char* locationName, const float value)
@@ -541,7 +540,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendFloat(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendFloat(locationID, value);
 	}
 
 	void Resource::Shader::SendDouble(const char* locationName, const double value)
@@ -549,7 +548,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendDouble(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendDouble(locationID, value);
 	}
 
 	void Resource::Shader::SendVec2f(const char* locationName, const Vec2f& value)
@@ -557,7 +556,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec2f(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec2f(locationID, value);
 	}
 
 	void Resource::Shader::SendVec3f(const char* locationName, const Vec3f& value)
@@ -565,7 +564,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec3f(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec3f(locationID, value);
 	}
 
 	void Resource::Shader::SendVec4f(const char* locationName, const Vec4f& value)
@@ -573,7 +572,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec4f(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec4f(locationID, value);
 	}
 
 	void Resource::Shader::SendVec2i(const char* locationName, const Vec2i& value)
@@ -581,7 +580,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec2i(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec2i(locationID, value);
 	}
 
 	void Resource::Shader::SendVec3i(const char* locationName, const Vec3i& value)
@@ -589,7 +588,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec3i(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec3i(locationID, value);
 	}
 
 	void Resource::Shader::SendVec4i(const char* locationName, const Vec4i& value)
@@ -597,7 +596,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendVec4i(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendVec4i(locationID, value);
 	}
 
 	void Resource::Shader::SendMat4(const char* locationName, const Mat4& value)
@@ -605,7 +604,7 @@ void main()
 		const int locationID = GetLocation(locationName);
 		if (locationID == -1)
 			return;
-		p_renderer->ShaderSendMat4(locationID, value);
+		Wrapper::Renderer::GetInstance()->ShaderSendMat4(locationID, value);
 	}
 
 }

@@ -1,0 +1,39 @@
+ ------------- BEGIN GAMEOBJECT ------------- 
+[Name] : Scene
+[Active] : 1
+[UUID] : 18286675418857872079
+[Component Number] : 0
+[Child Number] : 2
+ ------------- BEGIN TRANSFORM ------------- 
+[Position] : 0.000000, 0.000000, 0.000000
+[Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+[Scale] : 1.000000, 1.000000, 1.000000
+ ============= END TRANSFORM ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : GameObject
+ [Active] : 1
+ [UUID] : 14075326334519080099
+ [Component Number] : 0
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 0.000000, 0.000000, 0.000000
+ [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+ [Scale] : 1.000000, 1.000000, 1.000000
+  ============= END TRANSFORM ============= 
+  ============= END GAMEOBJECT ============= 
+  ------------- BEGIN GAMEOBJECT ------------- 
+ [Name] : a🗿🗿🗿
+ [Active] : 1
+ [UUID] : 12362168566501742391
+ [Component Number] : 0
+ [Child Number] : 0
+  ------------- BEGIN TRANSFORM ------------- 
+ [Position] : 1e3, inf, nan
+ [Rotation] : 0/0, 0;000000, 0.000000sus, amogus
+ [Scale] : 0x3f, 0b1100101010101, 1.000000public ItemStack(GenericItem item)
+{
+    Item = item;
+}
+  ============= END TRANSFORM ============= 
+  ============= END GAMEOBJECT ============= 
+ ============= END GAMEOBJECT ============= 

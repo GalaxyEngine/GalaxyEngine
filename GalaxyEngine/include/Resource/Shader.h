@@ -68,13 +68,12 @@ namespace GALAXY {
 		protected:
 			UMap<std::string, int> p_locations = {};
 
-			Wrapper::Renderer* p_renderer = nullptr;
-
 			uint32_t p_id = -1;
+
+			bool p_isAVariant = false;
 
 			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> p_subShaders = {};
 		
-			bool p_isAVariant = false;
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;

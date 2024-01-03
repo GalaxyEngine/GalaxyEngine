@@ -62,6 +62,9 @@ namespace GALAXY
 
 			void SetVariableVoid(const std::string& variableName, void* value);
 
+			// De-serialization variables
+			std::unordered_map<std::string, uint64_t> p_tempGameObjectIDs;
+			std::unordered_map<std::string, ComponentID> p_tempComponentIDs;
 		};
 
 		struct ComponentInfo

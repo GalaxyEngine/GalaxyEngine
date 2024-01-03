@@ -100,10 +100,6 @@ namespace GALAXY {
 			bool p_enable = true;
 
 			uint32_t p_id = -1;
-
-			// De-serialization variables
-			std::unordered_map<std::string, uint64_t> p_tempGameObjectIDs;
-			std::unordered_map<std::string, ComponentID> p_tempComponentIDs;
 		};
 
 		template <typename Derived>

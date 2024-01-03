@@ -354,6 +354,9 @@ namespace GALAXY
 				SetVariable(variableName, object.get());
 			}
 		}
+
+		p_tempComponentIDs.clear();
+		p_tempGameObjectIDs.clear();
 	}
 
 #pragma region ReloadScript

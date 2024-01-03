@@ -21,7 +21,6 @@ namespace GALAXY {
 		p_status = ResourceStatus::DisplayOnInspector;
 		const std::string fullPathString = p_fileInfo.m_fullPath.string();
 		p_fileInfo.m_fileName = fullPathString.substr(fullPathString.find_last_of(':') + 1);
-		m_modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 	}
 
 	void Resource::Mesh::Load()
@@ -30,7 +29,10 @@ namespace GALAXY {
 			return;
 		ASSERT(HasModel());
 		p_shouldBeLoaded = true;
-		Resource::ResourceManager::GetOrLoad<Model>(m_modelPath);
+
+		const std::string fullPathString = GetFileInfo().GetFullPath().string();
+		const std::string modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
+		Resource::ResourceManager::GetOrLoad<Model>(modelPath);
 		p_loaded = true;
 	}
 

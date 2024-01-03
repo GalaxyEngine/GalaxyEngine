@@ -106,13 +106,13 @@ namespace GALAXY::Resource {
 
 		Utils::FileInfo p_fileInfo;
 
-		std::atomic_bool p_shouldBeLoaded = false;
-		std::atomic_bool p_loaded = false;
-		std::atomic_bool p_hasBeenSent = false;
+		Core::UUID p_uuid;
 
 		ResourceStatus p_status = ResourceStatus::DisplayOnInspector | ResourceStatus::CreateDataFile;
 
-		Core::UUID p_uuid;
+		std::atomic_bool p_shouldBeLoaded = false;
+		std::atomic_bool p_loaded = false;
+		std::atomic_bool p_hasBeenSent = false;
 	};
 
 }

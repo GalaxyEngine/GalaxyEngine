@@ -29,8 +29,8 @@ namespace GALAXY
 			Weak<Resource::Mesh> m_plane;
 			Shared<Resource::Material> m_material;
 
-			Vec3f m_currentPosition;
-			Mat4 m_translationMatrix;
+			Vec3f m_currentPosition = Vec3f{ -1 };
+			Mat4 m_translationMatrix = Mat4::Identity();
 		};
 	}
 }

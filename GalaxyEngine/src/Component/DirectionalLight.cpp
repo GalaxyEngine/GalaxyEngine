@@ -32,6 +32,7 @@ namespace GALAXY
 
 	void Component::DirectionalLight::OnEditorDraw()
 	{
+		Light::OnEditorDraw();
 		Vec3f worldPosition = GetTransform()->GetWorldPosition();
 		Vec3f rayEndPosition = worldPosition + m_direction.value;
 		Wrapper::Renderer::GetInstance()->DrawLine(worldPosition, rayEndPosition, Vec4f(1, 1, 0, 1), 5.f);

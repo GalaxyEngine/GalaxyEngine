@@ -213,8 +213,6 @@ namespace GALAXY
 		for (const Shared<Component::BaseComponent>& component : m_components)
 		{
 			component->AfterLoad();
-			component->p_tempComponentIDs.clear();
-			component->p_tempGameObjectIDs.clear();
 		}
 		for (auto& children : m_children)
 		{

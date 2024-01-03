@@ -45,4 +45,7 @@ void main()
   {
     FragColor = material.diffuse;
   }
+
+  if (FragColor.a <= 0.1f)
+    discard;
 }

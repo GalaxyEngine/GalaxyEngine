@@ -75,12 +75,13 @@ namespace GALAXY {
 			friend Wrapper::OpenGLRenderer;
 
 			uint32_t m_id = -1;
-			unsigned char* m_bytes = nullptr;
-			Vec2i m_size = {};
 
+			TextureFiltering m_filtering = TextureFiltering::NEAREST;
 			TextureFormat m_format = TextureFormat::RGBA;
 			TextureWrapping m_wrapping = TextureWrapping::REPEAT;
-			TextureFiltering m_filtering = TextureFiltering::NEAREST;
+
+			unsigned char* m_bytes = nullptr;
+			Vec2i m_size = {};
 
 			bool m_generateMipmaps = false;
 		};

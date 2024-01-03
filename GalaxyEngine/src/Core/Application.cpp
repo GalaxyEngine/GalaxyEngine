@@ -191,12 +191,17 @@ namespace GALAXY {
 		auto parser = Utils::Parser(m_clipboard);
 		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelectedGameObjects();
 
+		Shared<GameObject> parent;
 		if (selected.empty())
-			return;
-
-		Shared<GameObject> parent = selected[0].lock()->GetParent();
-		if (!parent)
-			parent = selected[0].lock();
+		{
+			parent = SceneHolder::GetCurrentScene()->GetRootGameObject().lock();
+		}
+		else 
+		{
+			parent = selected[0].lock()->GetParent();
+			if (!parent)
+				parent = selected[0].lock();
+		}
 
 		m_editorUI->GetInspector()->ClearSelected();
 		// Parse all gameObject

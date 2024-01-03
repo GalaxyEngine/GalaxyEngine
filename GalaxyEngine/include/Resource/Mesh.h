@@ -37,7 +37,7 @@ namespace GALAXY
 
 			Model* GetModel() const { return m_model; }
 
-			bool HasModel() const { return !m_modelPath.empty(); }
+			bool HasModel() const { return !m_model; }
 		private:
 			void ComputeBoundingBox();
 
@@ -47,9 +47,11 @@ namespace GALAXY
 
 			BoundingBox m_boundingBox;
 
-			Model* m_model = nullptr;
+			uint32_t m_vertexArrayIndex = -1;
+			uint32_t m_vertexBufferIndex = -1;
+			uint32_t m_indexBufferIndex = -1;
 
-			Path m_modelPath;
+			Model* m_model = nullptr;
 
 			std::vector<Vec3f> m_positions;
 			std::vector<Vec2f> m_textureUVs;
@@ -57,11 +59,6 @@ namespace GALAXY
 			std::vector<Vec3i> m_indices;
 			std::vector<float> m_finalVertices;
 			std::vector<SubMesh> m_subMeshes;
-
-			uint32_t m_vertexArrayIndex = -1;
-			uint32_t m_vertexBufferIndex = -1;
-			uint32_t m_indexBufferIndex = -1;
-
 		};
 	}
 }

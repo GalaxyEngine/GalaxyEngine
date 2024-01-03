@@ -69,7 +69,7 @@ namespace GALAXY
 			Weak<Texture> m_albedo;
 			Weak<Texture> m_normalMap;
 			Weak<Texture> m_parallaxMap;
-			float m_heightScale;
+			float m_heightScale = 1.f;
 
 
 		};

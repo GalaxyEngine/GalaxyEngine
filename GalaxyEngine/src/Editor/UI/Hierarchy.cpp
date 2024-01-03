@@ -3,6 +3,7 @@
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
+#include "Core/Application.h"
 
 #include "Resource/Scene.h"
 
@@ -96,7 +97,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 	// Selectable Field
 	else if (ImGui::Selectable(gameobject->m_name.c_str(), gameobject->m_selected, ImGuiSelectableFlags_SelectOnNav))
 	{
-		if (ImGui::IsKeyDown(ImGuiKey_LeftShift))
+		if (ImGui::IsKeyDown(ImGuiKey_LeftShift) && !m_inspector->GetSelectedGameObjects().empty())
 		{
 			const Shared<GameObject> lastSelected = m_inspector->GetSelectedGameObjects()[0].lock();
 			const size_t lastSelectedId = lastSelected->GetSceneGraphID();
@@ -288,7 +289,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
 		}
 
 		// === At least one selected === //
-		ImGui::BeginDisabled(selected.empty());
+		if (!selected.empty())
 		{
 			// === if selected are sibling === //
 			if (!selected.empty()) {
@@ -328,11 +329,21 @@ void Editor::UI::Hierarchy::RightClickPopup()
 				for (const Weak<GameObject>& i : selected)
 				{
 					i.lock()->Destroy();
-					ImGui::CloseCurrentPopup();
 				}
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Copy", buttonSize))
+			{
+				Core::Application::GetInstance().CopyObject();
+				ImGui::CloseCurrentPopup();
 			}
 		}
-		ImGui::EndDisabled();
+		if (ImGui::Button("Paste", buttonSize))
+		{
+			Core::Application::GetInstance().PasteObject();
+			ImGui::CloseCurrentPopup();
+		}
 		ImGui::EndPopup();
 	}
 }
