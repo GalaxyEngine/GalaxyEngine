@@ -5,6 +5,7 @@ namespace GALAXY {
 	namespace Wrapper { 
 		class Renderer;
 		class OpenGLRenderer;
+		class Window;
 	}
 	namespace Resource {
 
@@ -73,6 +74,7 @@ namespace GALAXY {
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::Window;
 
 			uint32_t m_id = -1;
 

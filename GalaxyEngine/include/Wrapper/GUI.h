@@ -37,6 +37,10 @@ namespace GALAXY {
 			
 			void TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 = Vec2i(0, 0), const Vec2i& uv1 = Vec2i(1, 1));
 
+			void SetNearestFiltering();
+
+			void ResetNearestFiltering();
+
 			void ToggleButton(const char* name, bool* toggle, const Vec2f& size = Vec2f(0, 0));
 
 			void TextSelectable(const std::string& label, const Vec4f& color = Vec4f(1));

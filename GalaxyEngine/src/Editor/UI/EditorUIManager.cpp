@@ -28,6 +28,7 @@ namespace GALAXY {
 	{
 		if (!m_instance)
 			m_instance = std::make_unique<EditorUIManager>();
+		m_instance->m_mainBar->Initialize();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
 	}

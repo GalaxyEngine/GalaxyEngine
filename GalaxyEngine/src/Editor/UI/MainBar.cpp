@@ -11,7 +11,13 @@
 #include "Utils/OS.h"
 
 namespace GALAXY
-{	void Editor::UI::MainBar::Draw()
+{
+
+	void Editor::UI::MainBar::Initialize()
+	{
+	}
+
+	void Editor::UI::MainBar::Draw()
 	{
 		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		static EditorUIManager* editorInstance = EditorUIManager::GetInstance();

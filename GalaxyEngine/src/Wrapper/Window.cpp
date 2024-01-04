@@ -11,7 +11,12 @@
 #endif
 
 #include "Core/Application.h"
+
 #include "Editor/UI/EditorUIManager.h"
+
+#include "Wrapper/ImageLoader.h"
+#include "Resource/ResourceManager.h"
+#include "Resource/Texture.h"
 
 namespace GALAXY {
 	// boolean to check if glfw has been initialized
@@ -246,6 +251,24 @@ namespace GALAXY {
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		const int modeValue = CursorModeToAPI(mode);
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, modeValue);
+	}
+
+	void Wrapper::Window::SetIcon(const std::filesystem::path& pathToIcon)
+	{
+		int number = 1;
+		Wrapper::Image image = Wrapper::ImageLoader::Load(pathToIcon.string().c_str(), 4);
+
+		if (image.data) {
+			GLFWimage icons[1];
+
+			icons[0].width = image.size.x;
+			icons[0].height = image.size.y;
+			icons[0].pixels = image.data;
+
+			glfwSetWindowIcon(static_cast<GLFWwindow*>(m_window), 1, icons);
+
+				Wrapper::ImageLoader::ImageFree(image);
+		}
 	}
 
 	Math::Vec2i Wrapper::Window::GetPosition() const

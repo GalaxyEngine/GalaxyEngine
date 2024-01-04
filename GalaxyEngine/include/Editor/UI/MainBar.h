@@ -9,14 +9,15 @@ namespace GALAXY
 		public:
 			~MainBar() = default;
 
-			static void Draw();
+			void Initialize();
+
+			void Draw();
 
 			static void SaveScene(std::string path);
 
 			static void OpenScene(const std::string& path);
 
 		private:
-
 		};
 	}
 }

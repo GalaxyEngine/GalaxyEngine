@@ -6,6 +6,8 @@ struct GLFWwindow;
 #include <Windows.h>
 #endif
 
+#include <filesystem>
+
 #include "Utils/Type.h"
 
 #include <galaxymath/Maths.h>
@@ -98,6 +100,8 @@ namespace GALAXY
 			void SetSize(const Vec2i& size) const;
 			void SetMousePosition(const Vec2i& pos, bool physicalPos = false) const;
 			void SetCursorMode(CursorMode mode) const;
+
+			void SetIcon(const std::filesystem::path& pathToIcon);
 
 			bool ShouldClose() const;
 			void Close() const;

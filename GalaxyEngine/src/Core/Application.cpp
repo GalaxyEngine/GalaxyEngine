@@ -47,6 +47,7 @@ namespace GALAXY {
 		windowConfig.name = "Galaxy Engine";
 		m_window->Create(windowConfig);
 		m_window->SetVSync(false);
+		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
 		m_editorSettings.LoadSettings();
 
@@ -167,6 +168,13 @@ namespace GALAXY {
 			{
 				PasteObject();
 			}
+			if (ImGui::IsKeyDown(ImGuiKey_F1))
+			{
+				while (true)
+				{
+
+				}
+			}
 
 			UpdateResources();
 
@@ -188,6 +196,8 @@ namespace GALAXY {
 
 	void Core::Application::PasteObject() const
 	{
+		if (m_clipboard.empty())
+			return;
 		auto parser = Utils::Parser(m_clipboard);
 		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelectedGameObjects();
 

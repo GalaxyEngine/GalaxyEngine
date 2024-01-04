@@ -281,8 +281,9 @@ namespace GALAXY
 				bool typeChecked;
 				if (checkTypeInRange)
 					typeChecked = std::ranges::find(typeFilter, resource->GetFileInfo().GetResourceType()) != typeFilter.end();
-				else
-					typeChecked = resource->GetFileInfo().GetResourceType() == T::GetResourceType();
+				else {
+					typeChecked = dynamic_pointer_cast<T>(resource) != nullptr;
+				}
 
 				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
 					&& resource->ShouldDisplayOnInspector())

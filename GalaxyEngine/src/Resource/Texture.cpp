@@ -7,7 +7,7 @@ Resource::Texture::~Texture()
 {
 	Wrapper::Renderer::GetInstance()->DestroyTexture(this);
 	if (p_shouldBeLoaded && !p_hasBeenSent)
-		Wrapper::ImageLoader::ImageFree(this->m_bytes);
+		Wrapper::ImageLoader::ImageFree(m_bytes);
 }
 
 void Resource::Texture::Load()
@@ -15,9 +15,11 @@ void Resource::Texture::Load()
 	if (p_shouldBeLoaded)
 		return;
 	p_shouldBeLoaded = true;
-	int numColCh;
-	if ((m_bytes = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), &m_size.x, &m_size.y, &numColCh, 4)))
+	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
+	if (m_bytes = image.data) {
 		p_loaded = true;
+		m_size = image.size;
+	}
 	else
 	{
 		PrintError("Failed to load Image %s", p_fileInfo.GetFullPath().string().c_str());
@@ -33,7 +35,7 @@ void Resource::Texture::Send()
 	if (p_hasBeenSent)
 		return;
 	Wrapper::Renderer::GetInstance()->CreateTexture(this);
-	Wrapper::ImageLoader::ImageFree(this->m_bytes);
+	Wrapper::ImageLoader::ImageFree(m_bytes);
 	p_hasBeenSent = true;
 }
 
@@ -80,6 +82,10 @@ void Resource::Texture::ShowInInspector()
 		Wrapper::Renderer::GetInstance()->SetTextureWrapping(this, (TextureWrapping)wrappingMode);
 	}
 
+	if (ImGui::Button("Save"))
+	{
+		Save();
+	}
 }
 
 void Resource::Texture::Save()
