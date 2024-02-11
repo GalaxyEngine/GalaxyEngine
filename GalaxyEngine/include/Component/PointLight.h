@@ -38,8 +38,8 @@ namespace GALAXY
 
 			void ComputeLocationName() override;
 
-			void Serialize(Utils::Serializer& serializer) override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 		protected:
 			LightData<Vec3f> p_position;
 			LightData<float> p_constant = 1.0f;

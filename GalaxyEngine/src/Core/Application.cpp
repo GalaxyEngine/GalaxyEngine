@@ -25,8 +25,9 @@
 #include "Resource/IResource.h"
 
 #include "Utils/FileInfo.h"
-#include "Utils/Parser.h"
 #include "Utils/Time.h"
+
+#include <cpp_serializer/CppSerializer.h>
 
 namespace GALAXY {
 #pragma region static
@@ -145,7 +146,7 @@ namespace GALAXY {
 	{
 		while (!m_window->ShouldClose())
 		{
-			Time::UpdateDeltaTime();
+			Utils::Time::UpdateDeltaTime();
 			//TODO : Fix this
 			Wrapper::GUI::SetDefaultFontSize(13 * Wrapper::GUI::GetScaleFactor());
 
@@ -190,7 +191,7 @@ namespace GALAXY {
 
 			m_window->SwapBuffers();
 
-			m_benchmark.UpdateBenchmark(Time::DeltaTime());
+			m_benchmark.UpdateBenchmark(Utils::Time::DeltaTime());
 		}
 	}
 
@@ -198,7 +199,7 @@ namespace GALAXY {
 	{
 		if (m_clipboard.empty())
 			return;
-		auto parser = Utils::Parser(m_clipboard);
+		auto parser = CppSer::Parser(m_clipboard);
 		const List<Weak<GameObject>> selected = m_editorUI->GetInspector()->GetSelectedGameObjects();
 
 		Shared<GameObject> parent;
@@ -225,7 +226,7 @@ namespace GALAXY {
 
 			m_editorUI->GetInspector()->AddSelected(object);
 
-			parser.NewDepth();
+			parser.PushDepth();
 		} while (parser.GetValueMap().size() != parser.GetCurrentDepth());
 	}
 
@@ -258,7 +259,7 @@ namespace GALAXY {
 				return a.lock()->GetSceneGraphID() < b.lock()->GetSceneGraphID();
 			});
 
-		auto serializer = Utils::Serializer();
+		auto serializer = CppSer::Serializer();
 		// Temporary : TODO : move this directly int the canBeAdded if bracket
 		for (Weak<GameObject>& object : objects)
 		{

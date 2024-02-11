@@ -5,7 +5,7 @@
 
 #include "Resource/Shader.h"
 
-#include "Utils/Parser.h"
+
 
 #include "Core/GameObject.h"
 
@@ -64,15 +64,15 @@ namespace GALAXY
 		ImGui::TreePop();
 	}
 
-	void Component::SpotLight::Serialize(Utils::Serializer& serializer)
+	void Component::SpotLight::Serialize(CppSer::Serializer& serializer)
 	{
 		PointLight::Serialize(serializer);
 
-		serializer << Utils::Pair::KEY << "CutOff" << Utils::Pair::VALUE << m_cutOff.value;
-		serializer << Utils::Pair::KEY << "OuterCutOff" << Utils::Pair::VALUE << m_outerCutOff.value;
+		serializer << CppSer::Pair::Key << "CutOff" << CppSer::Pair::Value << m_cutOff.value;
+		serializer << CppSer::Pair::Key << "OuterCutOff" << CppSer::Pair::Value << m_outerCutOff.value;
 	}
 
-	void Component::SpotLight::Deserialize(Utils::Parser& parser)
+	void Component::SpotLight::Deserialize(CppSer::Parser& parser)
 	{
 		PointLight::Deserialize(parser);
 

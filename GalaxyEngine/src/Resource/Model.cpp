@@ -30,24 +30,24 @@ namespace GALAXY {
 		CreateDataFile();
 	}
 
-	void Resource::Model::Serialize(Utils::Serializer& serializer) const
+	void Resource::Model::Serialize(CppSer::Serializer& serializer) const
 	{
 		IResource::Serialize(serializer);
-		serializer << Pair::BEGIN_MAP << "Model";
-		serializer << Pair::KEY << "Mesh Count" << Pair::VALUE << m_meshes.size();
-		serializer << Pair::BEGIN_TAB;
+		serializer <<CppSer::Pair::BeginMap << "Model";
+		serializer << CppSer::Pair::Key << "Mesh Count" << CppSer::Pair::Value << m_meshes.size();
+		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
-			serializer << Pair::KEY << "Mesh " + std::to_string(i) << Pair::VALUE << m_meshes[i].lock()->GetFileInfo().GetFileName();
+			serializer << CppSer::Pair::Key << "Mesh " + std::to_string(i) << CppSer::Pair::Value << m_meshes[i].lock()->GetFileInfo().GetFileName();
 		}
-		serializer << Pair::END_TAB;
-		serializer << Pair::END_MAP << "Model";
+		serializer << CppSer::Pair::EndTab;
+		serializer <<CppSer::Pair::EndMap << "Model";
 	}
 
-	void Resource::Model::Deserialize(Utils::Parser& parser)
+	void Resource::Model::Deserialize(CppSer::Parser& parser)
 	{
 		IResource::Deserialize(parser);
-		parser.NewDepth();
+		parser.PushDepth();
 		const size_t meshCount = parser["Mesh Count"].As<size_t>();
 		for (int i = 0; i < meshCount; i++)
 		{

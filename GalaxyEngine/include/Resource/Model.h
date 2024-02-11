@@ -37,8 +37,8 @@ namespace GALAXY {
 		private:
 			void ComputeBoundingBox();
 
-			void Serialize(Utils::Serializer& serializer) const override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) const override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 		private:
 

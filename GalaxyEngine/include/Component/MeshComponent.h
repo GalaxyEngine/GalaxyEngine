@@ -18,8 +18,8 @@ namespace GALAXY {
 
 			inline void SetMesh(const Weak<Resource::Mesh>& mesh) { if (mesh.lock()) { m_mesh = mesh; } }
 
-			void Serialize(Utils::Serializer& serializer) override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 			void ShowInInspector() override;
 		private:

@@ -7,7 +7,7 @@
 #include "Core/UUID.h"
 
 #include "Utils/FileInfo.h"
-#include "Utils/Parser.h"
+
 
 namespace GALAXY::Resource {
 	enum class ResourceType
@@ -92,10 +92,10 @@ namespace GALAXY::Resource {
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 		inline Core::UUID GetUUID() const { return p_uuid; }
 
-		static void SerializeResource(Utils::Serializer& serializer, const char* name, Weak<IResource> resource);
+		static void SerializeResource(CppSer::Serializer& serializer, const char* name, Weak<IResource> resource);
 	protected:
-		virtual void Serialize(Utils::Serializer& serializer) const;
-		virtual void Deserialize(Utils::Parser& parser);
+		virtual void Serialize(CppSer::Serializer& serializer) const;
+		virtual void Deserialize(CppSer::Parser& parser);
 
 	private:
 		bool ShouldDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }

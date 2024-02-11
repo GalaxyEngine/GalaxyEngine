@@ -6,7 +6,7 @@
 
 #include "Core/Application.h"
 
-#include "Utils/Parser.h"
+
 #include "Utils/FileInfo.h"
 
 namespace GALAXY
@@ -152,15 +152,15 @@ namespace GALAXY
 
 	void Editor::EditorSettings::SaveSettings() const
 	{
-		Utils::Serializer serializer("Editor.settings");
-		serializer << Pair::BEGIN_MAP << "Editor Settings";
-		serializer << Pair::KEY << "Script Editor Tool" << Pair::VALUE << static_cast<int>(GetScriptEditorTool());
-		serializer << Pair::END_MAP << "Editor Settings";
+		CppSer::Serializer serializer("Editor.settings");
+		serializer << CppSer::Pair::BeginMap << "Editor Settings";
+		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
+		serializer << CppSer::Pair::EndMap << "Editor Settings";
 	}
 
 	void Editor::EditorSettings::LoadSettings()
 	{
-		Utils::Parser parser(Path("Editor.settings"));
+		CppSer::Parser parser(Path("Editor.settings"));
 		if (!parser.IsFileOpen())
 		{
 			PrintError("Can't open Editor.settings");

@@ -46,8 +46,8 @@ namespace GALAXY
 
 			virtual void ShowInInspector() override;
 
-			virtual void Serialize(Utils::Serializer& serializer) override;
-			virtual void Deserialize(Utils::Parser& parser) override;
+			virtual void Serialize(CppSer::Serializer& serializer) override;
+			virtual void Deserialize(CppSer::Parser& parser) override;
 
 			virtual void SendLightValues(Resource::Shader* shader);
 			virtual void ResetLightValues(Resource::Shader* shader);

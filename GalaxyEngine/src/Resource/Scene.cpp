@@ -17,7 +17,7 @@
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
 
-#include "Utils/Parser.h"
+
 
 #include "Wrapper/Window.h"
 
@@ -56,7 +56,7 @@ namespace GALAXY
 		}
 		const std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
-		Utils::Serializer serializer(p_fileInfo.GetFullPath());
+		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
 		serializer.SetShouldSaveOnDestroy(false);
 		m_root->Serialize(serializer);
 
@@ -176,7 +176,7 @@ namespace GALAXY
 			return;
 		p_shouldBeLoaded = true;
 
-		Utils::Parser parser(GetFileInfo().GetFullPath());
+		CppSer::Parser parser(GetFileInfo().GetFullPath());
 		m_root->m_scene = this;
 		m_root->Deserialize(parser);
 
@@ -197,7 +197,7 @@ namespace GALAXY
 
 	void Scene::Save(const Path& fullPath) const
 	{
-		Utils::Serializer serializer(fullPath.empty() ? p_fileInfo.GetFullPath() : fullPath);
+		CppSer::Serializer serializer(fullPath.empty() ? p_fileInfo.GetFullPath() : fullPath);
 
 		if (!m_root)
 			return;

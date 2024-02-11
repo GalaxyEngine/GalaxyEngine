@@ -6,7 +6,7 @@
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
 
-#include "Utils/Parser.h"
+
 
 #include "Editor/ActionManager.h"
 /*TODO :
@@ -193,14 +193,14 @@ namespace GALAXY
 		}
 	}
 
-	void Component::Transform::Serialize(Utils::Serializer& serializer)
+	void Component::Transform::Serialize(CppSer::Serializer& serializer)
 	{
-		serializer << Utils::Pair::KEY << "Position" << Utils::Pair::VALUE << m_localPosition;
-		serializer << Utils::Pair::KEY << "Rotation" << Utils::Pair::VALUE << m_localRotation;
-		serializer << Utils::Pair::KEY << "Scale" << Utils::Pair::VALUE << m_localScale;
+		serializer << CppSer::Pair::Key << "Position" << CppSer::Pair::Value << m_localPosition;
+		serializer << CppSer::Pair::Key << "Rotation" << CppSer::Pair::Value << m_localRotation;
+		serializer << CppSer::Pair::Key << "Scale" << CppSer::Pair::Value << m_localScale;
 	}
 
-	void Component::Transform::Deserialize(Utils::Parser& parser)
+	void Component::Transform::Deserialize(CppSer::Parser& parser)
 	{
 		SetLocalPosition(parser["Position"].As<Vec3f>());
 		SetLocalRotation(parser["Rotation"].As<Quat>());

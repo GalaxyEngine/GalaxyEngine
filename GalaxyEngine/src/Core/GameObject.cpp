@@ -6,8 +6,6 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
-#include "Utils/Parser.h"
-
 #include "Component/ComponentHolder.h"
 
 using namespace Core;
@@ -231,53 +229,53 @@ namespace GALAXY
 		return children;
 	}
 
-	void SerializeTransform(Utils::Serializer& serializer, Component::Transform* transform)
+	void SerializeTransform(CppSer::Serializer& serializer, Component::Transform* transform)
 	{
-		serializer << Pair::BEGIN_MAP << "BEGIN TRANSFORM";
+		serializer << CppSer::Pair::BeginMap << "BEGIN TRANSFORM";
 		transform->Serialize(serializer);
-		serializer << Pair::END_MAP << "END TRANSFORM";
+		serializer << CppSer::Pair::EndMap << "END TRANSFORM";
 	}
 
-	void SerializeComponent(Utils::Serializer& serializer, const Shared<Component::BaseComponent>& components)
+	void SerializeComponent(CppSer::Serializer& serializer, const Shared<Component::BaseComponent>& components)
 	{
-		serializer << Pair::BEGIN_MAP << "BEGIN COMPONENT";
-		serializer << Pair::KEY << "Name" << Pair::VALUE << components->GetComponentName();
-		serializer << Pair::KEY << "Enable" << Pair::VALUE << components->IsEnable();
+		serializer << CppSer::Pair::BeginMap << "BEGIN COMPONENT";
+		serializer << CppSer::Pair::Key << "Name" << CppSer::Pair::Value << components->GetComponentName();
+		serializer << CppSer::Pair::Key << "Enable" << CppSer::Pair::Value << components->IsEnable();
 		components->Serialize(serializer);
-		serializer << Pair::END_MAP << "END COMPONENT";
+		serializer << CppSer::Pair::EndMap << "END COMPONENT";
 	}
 
-	void GameObject::Serialize(Utils::Serializer& serializer)
+	void GameObject::Serialize(CppSer::Serializer& serializer)
 	{
-		serializer << Pair::BEGIN_MAP << "BEGIN GAMEOBJECT";
+		serializer << CppSer::Pair::BeginMap << "BEGIN GAMEOBJECT";
 
-		serializer << Pair::KEY << "Name" << Pair::VALUE << m_name;
-		serializer << Pair::KEY << "Active" << Pair::VALUE << m_active;
-		serializer << Pair::KEY << "UUID" << Pair::VALUE << m_UUID;
+		serializer << CppSer::Pair::Key << "Name" << CppSer::Pair::Value << m_name;
+		serializer << CppSer::Pair::Key << "Active" << CppSer::Pair::Value << m_active;
+		serializer << CppSer::Pair::Key << "UUID" << CppSer::Pair::Value << m_UUID;
 
-		serializer << Pair::KEY << "Component Number" << Pair::VALUE << m_components.size();
-		serializer << Pair::KEY << "Child Number" << Pair::VALUE << m_children.size();
+		serializer << CppSer::Pair::Key << "Component Number" << CppSer::Pair::Value << (unsigned long long)m_components.size();
+		serializer << CppSer::Pair::Key << "Child Number" << CppSer::Pair::Value << (unsigned long long)m_children.size();
 
 		SerializeTransform(serializer, m_transform.get());
 
-		serializer << Pair::BEGIN_TAB;
+		serializer << CppSer::Pair::BeginTab;
 		for (Shared<Component::BaseComponent>& component : m_components)
 		{
 			SerializeComponent(serializer, component);
 		}
-		serializer << Pair::END_TAB;
+		serializer << CppSer::Pair::EndTab;
 
-		serializer << Pair::BEGIN_TAB;
+		serializer << CppSer::Pair::BeginTab;
 		for (const Shared<GameObject>& child : m_children)
 		{
 			child->Serialize(serializer);
 		}
-		serializer << Pair::END_TAB;
+		serializer << CppSer::Pair::EndTab;
 
-		serializer << Pair::END_MAP << "END GAMEOBJECT";
+		serializer << CppSer::Pair::EndMap << "END GAMEOBJECT";
 	}
 
-	void GameObject::Deserialize(Utils::Parser& parser, const bool parseUUID /*= true*/)
+	void GameObject::Deserialize(CppSer::Parser& parser, const bool parseUUID /*= true*/)
 	{
 		m_name = parser["Name"];
 		m_active = parser["Active"].As<bool>();
@@ -287,13 +285,13 @@ namespace GALAXY
 		const size_t componentNumber = parser["Component Number"].As<size_t>();
 		m_children.resize(parser["Child Number"].As<size_t>());
 
-		parser.NewDepth();
+		parser.PushDepth();
 		m_transform->Deserialize(parser);
 		m_transform->SetGameObject(shared_from_this());
 
 		for (size_t i = 0; i < componentNumber; i++)
 		{
-			parser.NewDepth();
+			parser.PushDepth();
 			Shared<Component::BaseComponent> component;
 			String componentNameString = parser["Name"];
 			const bool enable = parser["Enable"].As<bool>();
@@ -315,7 +313,7 @@ namespace GALAXY
 
 		for (Shared<GameObject>& child : m_children)
 		{
-			parser.NewDepth();
+			parser.PushDepth();
 
 			child = std::make_shared<GameObject>();
 			child->m_scene = m_scene;

@@ -226,7 +226,7 @@ namespace GALAXY {
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
 			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
 			{
-				Shared<GALAXY::Editor::UI::File> parent = m_currentFile->m_parent.lock();
+				Shared<File> parent = m_currentFile->m_parent.lock();
 				SetCurrentFile(parent);
 			}
 			ImGui::SameLine();
@@ -245,7 +245,7 @@ namespace GALAXY {
 			// Iterate through each child of the current file
 			for (size_t i = 0, j = 0; i < m_currentFile->m_children.size(); i++) {
 				Shared<File>& child = m_currentFile->m_children[i];
-				FileInfo& info = child->m_info;
+				Utils::FileInfo& info = child->m_info;
 				if (!child || !child->m_icon.lock() || info.GetResourceType() == Resource::ResourceType::Data) {
 					continue;
 				}
@@ -485,11 +485,11 @@ namespace GALAXY {
 									const auto shader = ResourceManager::GetResource<Shader>(file->m_info.GetFullPath()).lock();
 
 									if (const auto vertex = shader->GetVertex().lock())
-										OS::OpenWithVSCode(vertex->GetFileInfo().GetFullPath());
+										Utils::OS::OpenWithVSCode(vertex->GetFileInfo().GetFullPath());
 									if (const auto geom = shader->GetGeometry().lock())
-										OS::OpenWithVSCode(geom->GetFileInfo().GetFullPath());
+										Utils::OS::OpenWithVSCode(geom->GetFileInfo().GetFullPath());
 									if (const auto frag = shader->GetFragment().lock())
-										OS::OpenWithVSCode(frag->GetFileInfo().GetFullPath());
+										Utils::OS::OpenWithVSCode(frag->GetFileInfo().GetFullPath());
 								}
 								quitPopup();
 							}
@@ -509,7 +509,7 @@ namespace GALAXY {
 							{
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
-									OS::OpenWithVSCode(file->m_info.GetFullPath());
+									Utils::OS::OpenWithVSCode(file->m_info.GetFullPath());
 								}
 								quitPopup();
 							}

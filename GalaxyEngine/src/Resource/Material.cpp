@@ -32,7 +32,7 @@ namespace GALAXY {
 
 	bool Resource::Material::LoadMatFile()
 	{
-		Utils::Parser parser(p_fileInfo.GetFullPath());
+		CppSer::Parser parser(p_fileInfo.GetFullPath());
 		if (!parser.IsFileOpen())
 			return false;
 		m_shader = ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>());
@@ -54,18 +54,18 @@ namespace GALAXY {
 
 	void Resource::Material::Save() const
 	{
-		Utils::Serializer serializer(p_fileInfo.GetFullPath());
-		serializer << Pair::BEGIN_MAP << "Material";
+		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
+		serializer <<CppSer::Pair::BeginMap << "Material";
 
 		SerializeResource(serializer, "Shader", m_shader);
 		SerializeResource(serializer, "Albedo", m_albedo);
 		SerializeResource(serializer, "Normal", m_normalMap);
 		SerializeResource(serializer, "Parallax", m_parallaxMap);
 
-		serializer << Pair::KEY << "Height_Scale" << Pair::VALUE << m_heightScale;
-		serializer << Pair::KEY << "Ambient" << Pair::VALUE << m_ambient;
-		serializer << Pair::KEY << "Diffuse" << Pair::VALUE << m_diffuse;
-		serializer << Pair::KEY << "Specular" << Pair::VALUE << m_specular;
+		serializer << CppSer::Pair::Key << "Height_Scale" << CppSer::Pair::Value << m_heightScale;
+		serializer << CppSer::Pair::Key << "Ambient" << CppSer::Pair::Value << m_ambient;
+		serializer << CppSer::Pair::Key << "Diffuse" << CppSer::Pair::Value << m_diffuse;
+		serializer << CppSer::Pair::Key << "Specular" << CppSer::Pair::Value << m_specular;
 	}
 
 	void Resource::Material::ShowInInspector()

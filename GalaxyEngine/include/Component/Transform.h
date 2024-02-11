@@ -30,8 +30,8 @@ namespace GALAXY {
 
 			void ShowInInspector() override;
 
-			void Serialize(Utils::Serializer& serializer) override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 			// === Setters === //
 			void SetWorldPosition(const Vec3f& worldPosition);

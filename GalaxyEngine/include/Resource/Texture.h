@@ -68,8 +68,8 @@ namespace GALAXY {
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::Texture; }
 		private:
-			void Serialize(Utils::Serializer& serializer) const override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) const override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 		private:
 			friend Wrapper::Renderer;

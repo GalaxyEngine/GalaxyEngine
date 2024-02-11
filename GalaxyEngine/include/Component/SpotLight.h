@@ -32,8 +32,8 @@ namespace GALAXY
 
 			void SendLightValues(Resource::Shader* shader) override;
 
-			void Serialize(Utils::Serializer& serializer) override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 			inline void SetCutOff(const float angle) { m_cutOff.value = angle; SetDirty(); }
 			inline float GetCutOff() const { return m_cutOff.value; }

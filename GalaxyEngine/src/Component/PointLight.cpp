@@ -4,7 +4,7 @@
 
 #include "Resource/Shader.h"
 
-#include "Utils/Parser.h"
+
 namespace GALAXY
 {
 	void Component::PointLight::SendLightValues(Resource::Shader* shader)
@@ -55,16 +55,16 @@ namespace GALAXY
 		p_quadratic.string = prefixString + "].quadratic";
 	}
 
-	void Component::PointLight::Serialize(Utils::Serializer& serializer)
+	void Component::PointLight::Serialize(CppSer::Serializer& serializer)
 	{
 		Light::Serialize(serializer);
 
-		serializer << Utils::Pair::KEY << "Constant" << Utils::Pair::VALUE << p_constant.value;
-		serializer << Utils::Pair::KEY << "Linear" << Utils::Pair::VALUE << p_linear.value;
-		serializer << Utils::Pair::KEY << "Quadratic" << Utils::Pair::VALUE << p_quadratic.value;
+		serializer << CppSer::Pair::Key << "Constant" << CppSer::Pair::Value << p_constant.value;
+		serializer << CppSer::Pair::Key << "Linear" << CppSer::Pair::Value << p_linear.value;
+		serializer << CppSer::Pair::Key << "Quadratic" << CppSer::Pair::Value << p_quadratic.value;
 	}
 
-	void Component::PointLight::Deserialize(Utils::Parser& parser)
+	void Component::PointLight::Deserialize(CppSer::Parser& parser)
 	{
 		Light::Deserialize(parser);
 

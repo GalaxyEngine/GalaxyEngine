@@ -9,7 +9,7 @@
 
 #include "Core/GameObject.h"
 
-#include "Utils/Parser.h"
+
 
 namespace GALAXY {
 
@@ -23,25 +23,25 @@ namespace GALAXY {
 			m_mesh.lock()->DrawBoundingBox(GetGameObject()->GetTransform());
 	}
 
-	void Component::MeshComponent::Serialize(Utils::Serializer& serializer)
+	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)
 	{
 		if (m_mesh.lock())
-			serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << m_mesh.lock()->GetModel()->GetUUID();
+			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << m_mesh.lock()->GetModel()->GetUUID();
 		else
-			serializer << Utils::Pair::KEY << "Model" << Utils::Pair::VALUE << INDEX_NONE;
+			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << INDEX_NONE;
 
-		serializer << Utils::Pair::KEY << "Mesh Name" << Utils::Pair::VALUE << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
-		serializer << Utils::Pair::KEY << "Material Count" << Utils::Pair::VALUE << m_materials.size();
+		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
+		serializer << CppSer::Pair::Key << "Material Count" << CppSer::Pair::Value << m_materials.size();
 
-		serializer << Utils::Pair::BEGIN_TAB;
+		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
 			Resource::IResource::SerializeResource(serializer, ("Material " + std::to_string(i)).c_str(), m_materials[i]);
 		}
-		serializer << Utils::Pair::END_TAB;
+		serializer << CppSer::Pair::EndTab;
 	}
 
-	void Component::MeshComponent::Deserialize(Utils::Parser& parser)
+	void Component::MeshComponent::Deserialize(CppSer::Parser& parser)
 	{
 		const uint64_t modelUUID = parser["Model"].As<uint64_t>();
 		const std::string meshName = parser["Mesh Name"];

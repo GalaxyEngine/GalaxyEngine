@@ -46,8 +46,8 @@ namespace GALAXY
 
 			UMap<std::string, Scripting::VariableData> GetAllVariables() const;
 
-			void Serialize(Utils::Serializer& serializer) override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 			void AfterLoad() override;
 

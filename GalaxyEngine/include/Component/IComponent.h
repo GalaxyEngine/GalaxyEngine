@@ -4,10 +4,7 @@
 #include "Core/UUID.h"
 #include "Utils/Define.h"
 
-#include "Wrapper/Reflection.h"
-
 namespace GALAXY {
-	namespace Utils { class Serializer; class Parser; }
 	namespace Core { class GameObject; }
 	namespace Component {
 
@@ -67,8 +64,8 @@ namespace GALAXY {
 
 			virtual void Reset() {}
 
-			virtual void Serialize(Utils::Serializer& serializer) {}
-			virtual void Deserialize(Utils::Parser& parser) {}
+			virtual void Serialize(CppSer::Serializer& serializer) {}
+			virtual void Deserialize(CppSer::Parser& parser) {}
 
 			// ========= Getters ========= //
 

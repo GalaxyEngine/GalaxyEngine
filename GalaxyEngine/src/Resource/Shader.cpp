@@ -135,7 +135,7 @@ void main()
 
 		const Weak<Shader> thisShader = ResourceManager::GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
-		Parser parser(GetFileInfo().GetFullPath());
+		CppSer::Parser parser(GetFileInfo().GetFullPath());
 		if (parser.IsFileOpen())
 		{
 			Core::UUID vertexUUID = parser["Vertex"].As<uint64_t>();
@@ -199,12 +199,12 @@ void main()
 		// Debug
 		ASSERT(GetVertex().lock() || GetFragment().lock());
 
-		Utils::Serializer serializer(p_fileInfo.GetFullPath());
-		serializer << Pair::BEGIN_MAP << "Shader";
+		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
+		serializer <<CppSer::Pair::BeginMap << "Shader";
 		SerializeResource(serializer, "Vertex", GetVertex());
 		SerializeResource(serializer, "Geometry", GetGeometry());
 		SerializeResource(serializer, "Fragment", GetFragment());
-		serializer << Pair::END_MAP << "Shader";
+		serializer <<CppSer::Pair::EndMap << "Shader";
 	}
 
 	void Resource::Shader::ShowInInspector()
@@ -391,12 +391,12 @@ void main()
 		return ResourceManager::GetOrLoad<Shader>(shaderResourcePath);
 	}
 
-	void Resource::Shader::Serialize(Utils::Serializer& serializer) const
+	void Resource::Shader::Serialize(CppSer::Serializer& serializer) const
 	{
 		IResource::Serialize(serializer);
 		/*
-		serializer << Pair::BEGIN_MAP << "Shader";
-		serializer << Pair::BEGIN_TAB;
+		serializer <<CppSer::Pair::BeginMap << "Shader";
+		serializer << CppSer::Pair::BeginTab;
 
 		const Shared<VertexShader> vertex = std::get<0>(p_subShaders).lock();
 		const Shared<GeometryShader> geometry = std::get<1>(p_subShaders).lock();
@@ -409,16 +409,16 @@ void main()
 		SerializeResource(serializer, "Geometry", std::get<1>(p_subShaders));
 		SerializeResource(serializer, "Fragment", std::get<2>(p_subShaders));
 
-		serializer << Pair::END_TAB;
-		serializer << Pair::END_MAP << "Shader";
+		serializer << CppSer::Pair::EndTab;
+		serializer <<CppSer::Pair::EndMap << "Shader";
 		*/
 	}
 
-	void Resource::Shader::Deserialize(Utils::Parser& parser)
+	void Resource::Shader::Deserialize(CppSer::Parser& parser)
 	{
 		IResource::Deserialize(parser);
 		/*
-		parser.NewDepth();
+		parser.PushDepth();
 
 		const Core::UUID vertexUUID = parser["Vertex"].As<uint64_t>();
 		const Core::UUID geometryUUID = parser["Geometry"].As<uint64_t>();

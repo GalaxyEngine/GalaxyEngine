@@ -21,6 +21,8 @@
 #define IMGUI_IMPLEMENTATION
 #include <galaxymath/Maths.h>
 
+#include "Wrapper/Serializer.h"
+
 #include "Debug/Log.h"
 #include "Wrapper/Renderer.h"
 #include "Wrapper/GUI.h"

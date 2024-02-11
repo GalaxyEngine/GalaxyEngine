@@ -14,11 +14,6 @@ namespace GALAXY {
 	{
 		class ScriptEngine;
 	}
-	namespace Utils
-	{
-		class Serializer;
-		class Parser;
-	}
 	namespace Resource
 	{
 		class Scene;
@@ -100,8 +95,8 @@ namespace GALAXY {
 			inline bool IsAParent(GameObject* object) const;
 			bool IsSibling(const List<Weak<GameObject>>& siblings) const;
 
-			void Serialize(Utils::Serializer& serializer);
-			void Deserialize(Utils::Parser& parser, bool parseUUID = true);
+			void Serialize(CppSer::Serializer& serializer);
+			void Deserialize(CppSer::Parser& parser, bool parseUUID = true);
 
 			inline void SetHierarchyOpen(bool val);
 

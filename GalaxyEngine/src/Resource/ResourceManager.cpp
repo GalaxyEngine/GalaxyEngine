@@ -170,7 +170,7 @@ namespace GALAXY {
 		if (!m_projectExists)
 			return;
 		const Path cachePath = this->GetProjectPath() / "Cache";
-		Utils::Parser parser(cachePath / "resource.cache");
+		CppSer::Parser parser(cachePath / "resource.cache");
 
 		// Return if no cache or failed to open
 		if (!parser.IsFileOpen())
@@ -232,8 +232,8 @@ namespace GALAXY {
 		if (!std::filesystem::exists(cachePath))
 			std::filesystem::create_directory(cachePath);
 
-		Utils::Serializer serializer(cachePath / "resource.cache");
-		serializer << Pair::BEGIN_MAP << "Resources";
+		CppSer::Serializer serializer(cachePath / "resource.cache");
+		serializer <<CppSer::Pair::BeginMap << "Resources";
 		for (auto& val : m_resources | std::views::values)
 		{
 			if (val->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(val->GetFileInfo().GetFullPath()))
@@ -245,10 +245,10 @@ namespace GALAXY {
 				const std::string path = val->GetFileInfo().GetRelativePath().string();
 				const uint64_t hash = HashContent(content);
 				const Vec2<uint64_t> uuidHash = { val->GetUUID(), hash };
-				serializer << Pair::KEY << path << Pair::VALUE << uuidHash;
+				serializer << CppSer::Pair::Key << path << CppSer::Pair::Value << uuidHash;
 			}
 		}
-		serializer << Pair::END_MAP << "Resources";
+		serializer <<CppSer::Pair::EndMap << "Resources";
 	}
 
 	void Resource::ResourceManager::HandleRename(const Path& oldPath, const Path& newPath)
@@ -258,8 +258,8 @@ namespace GALAXY {
 
 		std::filesystem::rename(oldPath, newPath);
 
-		Path relativeOld = FileInfo::ToRelativePath(oldPath);
-		Path relativeNew = FileInfo::ToRelativePath(newPath);
+		Path relativeOld = Utils::FileInfo::ToRelativePath(oldPath);
+		Path relativeNew = Utils::FileInfo::ToRelativePath(newPath);
 		std::set<Path> resourceKeys;
 
 		for (auto& resource : m_instance->m_resources)
@@ -294,7 +294,7 @@ namespace GALAXY {
 				std::filesystem::rename(oldGDataFile, newGDataFile);
 
 			// Update file infos
-			resource->p_fileInfo = FileInfo(newResourcePath);
+			resource->p_fileInfo = Utils::FileInfo(newResourcePath);
 
 			// Add to map the new key and erase the previous one
 			m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;

@@ -7,7 +7,7 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
-#include "Utils/Parser.h"
+
 
 #define GETVARIABLE(x)\
 	if (!variable.isAList)\
@@ -30,19 +30,19 @@
 #define SERIALIZE_LIST(x)\
 {\
 	std::vector<x> list = GET_VARIABLE_LIST(x);\
-	serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << list.size();\
-	serializer << Utils::Pair::BEGIN_MAP << variable.first;\
+	serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << list.size();\
+	serializer << CppSer::Pair::BeginMap << variable.first;\
 	for (size_t i = 0; i < list.size(); i++)\
 	{\
 		x value = list.at(i);\
-		serializer << Utils::Pair::KEY << std::to_string(i) << Utils::Pair::VALUE << value;\
+		serializer << CppSer::Pair::Key << std::to_string(i) << CppSer::Pair::Value << value;\
 	}\
-	serializer << Utils::Pair::END_MAP << variable.first;\
+	serializer << CppSer::Pair::EndMap << variable.first;\
 }\
 
 #define DESERIALIZE_LIST(x)\
 {\
-	parser.NewDepth();\
+	parser.PushDepth();\
 	std::vector<x> list(parser[variable.first].As<size_t>());\
 	for (size_t i = 0; i < list.size(); i++)\
 	{\
@@ -156,7 +156,7 @@ namespace GALAXY
 		return {};
 	}
 
-	void Component::ScriptComponent::Serialize(Utils::Serializer& serializer)
+	void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
 	{
 		for (auto& variable : GetAllVariables())
 		{
@@ -207,34 +207,34 @@ namespace GALAXY
 				case Scripting::VariableType::Unknown:
 					break;
 				case Scripting::VariableType::Bool:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(bool);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(bool);
 					break;
 				case Scripting::VariableType::Int:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(int);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(int);
 					break;
 				case Scripting::VariableType::Float:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(float);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(float);
 					break;
 				case Scripting::VariableType::Double:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(double);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(double);
 					break;
 				case Scripting::VariableType::Vector2:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec2f);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(Vec2f);
 					break;
 				case Scripting::VariableType::Vector3:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec3f);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(Vec3f);
 					break;
 				case Scripting::VariableType::Vector4:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Vec4f);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(Vec4f);
 					break;
 				case Scripting::VariableType::String:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(std::string);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(std::string);
 					break;
 				case Scripting::VariableType::Component:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Component::BaseComponent*);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(Component::BaseComponent*);
 					break;
 				case Scripting::VariableType::GameObject:
-					serializer << Utils::Pair::KEY << variable.first << Utils::Pair::VALUE << GET_VARIABLE(Core::GameObject*);
+					serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << GET_VARIABLE(Core::GameObject*);
 					break;
 				default:
 					break;
@@ -243,14 +243,14 @@ namespace GALAXY
 		}
 	}
 
-	void Component::ScriptComponent::Deserialize(Utils::Parser& parser)
+	void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 	{
 		for (auto& variable : GetAllVariables())
 		{
 			if (variable.second.isAList)
 			{
 				//TODO:
-				//serializer << Utils::PAIR::KEY << variable.first << Utils::PAIR::VALUE << std::any_cast<std::vector<Scripting::VariableData>>(variable.second);
+				//serializer << CppSer::Pair::Key << variable.first << CppSer::Pair::Value << std::any_cast<std::vector<Scripting::VariableData>>(variable.second);
 
 				switch (variable.second.type)
 				{

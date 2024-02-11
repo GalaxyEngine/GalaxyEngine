@@ -9,7 +9,7 @@
 #include "Core/GameObject.h"
 
 #include "Utils/Define.h"
-#include "Utils/Parser.h"
+
 
 namespace GALAXY 
 {
@@ -46,14 +46,14 @@ namespace GALAXY
 		p_dirty |= ImGui::ColorEdit4("Specular", p_specular.value.Data());
 	}
 
-	void Component::Light::Serialize(Utils::Serializer& serializer)
+	void Component::Light::Serialize(CppSer::Serializer& serializer)
 	{
-		serializer << Utils::Pair::KEY << "Ambient" << Utils::Pair::VALUE << p_ambient.value;
-		serializer << Utils::Pair::KEY << "Diffuse" << Utils::Pair::VALUE << p_diffuse.value;
-		serializer << Utils::Pair::KEY << "Specular" << Utils::Pair::VALUE << p_specular.value;
+		serializer << CppSer::Pair::Key << "Ambient" << CppSer::Pair::Value << p_ambient.value;
+		serializer << CppSer::Pair::Key << "Diffuse" << CppSer::Pair::Value << p_diffuse.value;
+		serializer << CppSer::Pair::Key << "Specular" << CppSer::Pair::Value << p_specular.value;
 	}
 
-	void Component::Light::Deserialize(Utils::Parser& parser)
+	void Component::Light::Deserialize(CppSer::Parser& parser)
 	{
 		p_ambient.value = parser["Ambient"].As<Vec4f>();
 		p_diffuse.value = parser["Diffuse"].As<Vec4f>();

@@ -62,8 +62,8 @@ namespace GALAXY {
 
 			Weak<Shader> GetPickingVariant() const { return m_pickingVariant; }
 		protected:
-			void Serialize(Utils::Serializer& serializer) const override;
-			void Deserialize(Utils::Parser& parser) override;
+			void Serialize(CppSer::Serializer& serializer) const override;
+			void Deserialize(CppSer::Parser& parser) override;
 
 		protected:
 			UMap<std::string, int> p_locations = {};

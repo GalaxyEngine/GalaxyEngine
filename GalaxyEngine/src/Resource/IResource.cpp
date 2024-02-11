@@ -32,11 +32,11 @@ namespace GALAXY {
 			return;
 
 		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
-		Serializer serializer(dataPath);
+		CppSer::Serializer serializer(dataPath);
 
-		serializer << Pair::BEGIN_MAP << "Data";
+		serializer << CppSer::Pair::BeginMap << "Data";
 		Serialize(serializer);
-		serializer << Pair::END_MAP << "Data";
+		serializer << CppSer::Pair::EndMap << "Data";
 	}
 
 	void Resource::IResource::SetUUID(const Core::UUID& uuid)
@@ -45,23 +45,23 @@ namespace GALAXY {
 		CreateDataFile();
 	}
 
-	void Resource::IResource::SerializeResource(Utils::Serializer& serializer, const char* name, Weak<IResource> resource)
+	void Resource::IResource::SerializeResource(CppSer::Serializer& serializer, const char* name, Weak<IResource> resource)
 	{
 		if (resource.lock())
-			serializer << Pair::KEY << name << Pair::VALUE << resource.lock()->GetUUID();
+			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << resource.lock()->GetUUID();
 		else
-			serializer << Pair::KEY << name << Pair::VALUE << INDEX_NONE;
+			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << INDEX_NONE;
 	}
 
-	void Resource::IResource::Serialize(Utils::Serializer& serializer) const
+	void Resource::IResource::Serialize(CppSer::Serializer& serializer) const
 	{
-		serializer << Pair::KEY << "UUID" << Pair::VALUE << p_uuid;
+		serializer << CppSer::Pair::Key << "UUID" << CppSer::Pair::Value << p_uuid;
 	}
 
 	void Resource::IResource::ParseDataFile()
 	{
 		const auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
-		Parser parser(dataPath);
+		CppSer::Parser parser(dataPath);
 
 		if (!parser.IsFileOpen())
 		{
@@ -72,7 +72,7 @@ namespace GALAXY {
 		return Deserialize(parser);
 	}
 
-	void Resource::IResource::Deserialize(Utils::Parser& parser)
+	void Resource::IResource::Deserialize(CppSer::Parser& parser)
 	{
 		p_uuid = parser["UUID"].As<uint64_t>();
 	}
