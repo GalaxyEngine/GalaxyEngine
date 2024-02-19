@@ -1,7 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "IComponent.h"
-#include "Scripting/ScriptEngine.h"
 
 #include "Core/UUID.h"
 
@@ -9,11 +8,14 @@
 #include <any>
 #include <optional>
 
+#include "Scripting/ScriptEngine.h"
+
 namespace GALAXY
 {
-	namespace Scripting {}
+	namespace Scripting { class ScriptEngine; }
 	namespace Component
 	{
+		
 		class GALAXY_API ScriptComponent : public IComponent<ScriptComponent>
 		{
 		public:
@@ -26,7 +28,8 @@ namespace GALAXY
 			inline virtual const char* GetComponentName() const override { return "Script Component"; }
 
 			virtual void ShowInInspector() override;
-
+			/*
+			
 			template<typename T>
 			inline T* GetVariable(const std::string& variableName)
 			{
@@ -50,8 +53,30 @@ namespace GALAXY
 			void Deserialize(CppSer::Parser& parser) override;
 
 			void AfterLoad() override;
+			*/
+
+			template<typename T>
+			inline T* GetVariable(const std::string& variableName)
+			{
+				return Scripting::ScriptEngine::GetInstance()->GetScriptVariable<T>(this, GetComponentName(), variableName);
+			}
+
+			template<typename T>
+			inline void SetVariable(const std::string& variableName, T value)
+			{
+				Scripting::ScriptEngine::GetInstance()->SetScriptVariable<T>(this, GetComponentName(), variableName, value);
+			}
+
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
+		private:
+			void SetupVariables();
 
 		private:
+			friend Scripting::ScriptEngine;
+			std::unordered_map<std::string, Scripting::VariableInfo> m_variablesInfo;
+			std::unordered_map<std::string, void*> m_variablesPtr;
+			/*
 			template<typename T> inline void DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable);
 
 			template<typename T> void DisplayVariableT(const std::pair<std::string, Scripting::VariableData>& variable, T* value);
@@ -65,8 +90,10 @@ namespace GALAXY
 			// De-serialization variables
 			std::unordered_map<std::string, uint64_t> p_tempGameObjectIDs;
 			std::unordered_map<std::string, ComponentID> p_tempComponentIDs;
+			*/
 		};
 
+		/*
 		struct ComponentInfo
 		{
 			Core::UUID gameObjectID = -1;
@@ -104,6 +131,7 @@ namespace GALAXY
 
 			UMap<std::string, std::pair<std::any, Scripting::VariableData>> m_tempVariables;
 		};
+		*/
 	}
 }
 #include "Component/ScriptComponent.inl" 

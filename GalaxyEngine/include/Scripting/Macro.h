@@ -1,36 +1,16 @@
 #pragma once
-#include "GalaxyAPI.h"
+
 #ifdef _WIN32
-#define EXPORT_FUNC extern "C" __declspec(dllexport)
+#define EXPORT_FUNC extern "C" __declspec(dllexport) inline
 #elif defined(__linux__)
-#define EXPORT_FUNC extern "C"
+#define EXPORT_FUNC extern "C" __attribute__((visibility("default")))
 #endif
-#define CLASS(x) \
-	EXPORT_FUNC Component::BaseComponent* Create##_##x() { return new x(); }
 
-#define PROPERTY(x, y) \
-	EXPORT_FUNC void* Get_##x##_##y(x* object) { return &object->y;} \
-	EXPORT_FUNC void Set_##x##_##y(x* object, void* variable){ object->y = *reinterpret_cast<decltype(object->y)*>(variable); }
+#define BODY_MACRO_COMBINE_INNER(A,B,C,D) A##B##C##D
+#define BODY_MACRO_COMBINE(A,B,C,D) BODY_MACRO_COMBINE_INNER(A,B,C,D)
 
-#define GENERATED_BODY(x, y)\
-public:\
-	typedef y Super;\
-	x() {}\
-	x& operator=(const x& other) = default;\
-	x(const x&) = default;\
-	x(x&&) noexcept = default;\
-	virtual ~x() {}\
-	const char* GetComponentName() const override \
-		{ \
-			return #x;\
-		}\
-	virtual List<const char*> GetComponentNames() const override\
-	{\
-		auto vector = Super::GetComponentNames();\
-		vector.insert(vector.end(), x::GetComponentName());\
-		return vector;\
-	}\
-	virtual Shared<Component::BaseComponent> Clone() override {\
-		return std::make_shared<x>(*dynamic_cast<x*>(this));\
-	}\
-private:
+#define GENERATED_BODY(...) BODY_MACRO_COMBINE(CURRENT_FILE_ID,_,__LINE__,_GENERATED_BODY)
+#define GPROPERTY(...)
+#define GFUNCTION(...)
+#define GCLASS()
+#define END_FILE()

@@ -10,7 +10,8 @@ add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 
 -- Packages
 add_requires("galaxymath ~1.2")
-add_requires("galaxyscript")
+add_requires("cpp_serializer")
+--add_requires("galaxyscript")
 add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
@@ -51,12 +52,19 @@ target("GalaxyEngine")
     
     -- Packages --
     add_packages("galaxymath")
-    add_packages("galaxyscript")
+    --add_packages("galaxyscript")
+    add_packages("cpp_serializer")
     add_packages("glfw")
     add_packages("imgui")
     add_packages("glad")
     add_packages("stb")
     add_packages("nativefiledialog-extended")
+
+    -- Temp
+    add_includedirs("D:/Code/Moteurs/GalaxyScript/include")
+    add_headerfiles("D:/Code/Moteurs/GalaxyScript/include/**.h");
+    add_linkdirs("D:/Code/Moteurs/GalaxyScript/build/windows/x64/debug/")
+    add_links("GalaxyScript")
     
     if is_plat("mingw") then
     	set_prefixname("")

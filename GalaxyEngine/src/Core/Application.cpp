@@ -20,9 +20,9 @@
 
 #include "Component/ComponentHolder.h"
 
-#include "Scripting/ScriptEngine.h"
-
 #include "Resource/IResource.h"
+
+#include "Scripting/ScriptEngine.h"
 
 #include "Utils/FileInfo.h"
 #include "Utils/Time.h"
@@ -36,6 +36,7 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
+		std::cout << projectPath << std::endl;
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");
@@ -67,10 +68,6 @@ namespace GALAXY {
 		// Initialize Light Manager
 		m_lightManager = Render::LightManager::GetInstance();
 
-		// Initialize Scripting
-		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
-
-
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
 		m_resourceManager->m_projectExists = std::filesystem::exists(projectPath);
@@ -79,6 +76,8 @@ namespace GALAXY {
 		std::string filename = projectPath.filename().generic_string();
 		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
 
+		// Initialize Scripting
+		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
 
 		/* Import all resources and parse UUID
 		*  Load all resources that need to be load but after import because of reference resources
@@ -101,15 +100,19 @@ namespace GALAXY {
 
 		// Load dll scripting
 		if (m_resourceManager->m_projectExists)
-			m_scriptEngine->LoadDLL(projectPath.parent_path() / "Generate", filename);
+		{
+			std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
+			m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
+		}
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
+		m_scriptEngine->RegisterScriptComponents();
 	}
 
 	void Core::Application::UpdateResources()
 	{
-		m_scriptEngine->UpdateFileWatcherDLL();
+		//m_scriptEngine->UpdateFileWatcherDLL();
 
 		if (!m_resourceToSend.empty())
 		{
@@ -207,7 +210,7 @@ namespace GALAXY {
 		{
 			parent = SceneHolder::GetCurrentScene()->GetRootGameObject().lock();
 		}
-		else 
+		else
 		{
 			parent = selected[0].lock()->GetParent();
 			if (!parent)

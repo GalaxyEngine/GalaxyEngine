@@ -179,7 +179,7 @@ namespace GALAXY
 	{
 		for (const Shared<Component::BaseComponent>& component : m_components)
 		{
-			List<const char*> names = component->GetComponentNames();
+			std::set<const char*> names = component->GetComponentNames();
 			for (const auto& curComponentName : names)
 			{
 				if (componentName == curComponentName) {

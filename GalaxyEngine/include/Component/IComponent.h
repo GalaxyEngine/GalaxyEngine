@@ -4,6 +4,7 @@
 #include "Core/UUID.h"
 #include "Utils/Define.h"
 
+namespace CppSer { class Serializer; class Parser; }
 namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
@@ -27,10 +28,10 @@ namespace GALAXY {
 			inline virtual const char* GetComponentName() const { return "BaseComponent"; }
 
 			// Return the list of component names
-			inline virtual List<const char*> GetComponentNames() const {
-				List<const char*> names;
-				names.push_back(BaseComponent::GetComponentName());
-				names.push_back(GetComponentName());
+			inline virtual std::set<const char*> GetComponentNames() const {
+				std::set<const char*> names;
+				names.insert(BaseComponent::GetComponentName());
+				names.insert(GetComponentName());
 				return names;
 			}
 

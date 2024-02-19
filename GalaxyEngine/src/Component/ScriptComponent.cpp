@@ -1,14 +1,14 @@
 #include "pch.h"
 #include "Component/ScriptComponent.h"
 
-#include "Scripting/ScriptEngine.h"
-#include "Scripting/ScriptInstance.h"
+//#include "Scripting/ScriptEngine.h"
+//#include "Scripting/ScriptInstance.h"
 
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
 
-
+/*
 #define GETVARIABLE(x)\
 	if (!variable.isAList)\
 		return *GetVariable<x>(variableName);\
@@ -65,7 +65,7 @@ namespace GALAXY
 
 	std::any Component::ScriptComponent::GetVariable(const std::string& variableName)
 	{
-		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		Scripting::ScriptEngine* scriptEngine = GS::ScriptEngine::Get();
 		const Weak<Scripting::ScriptInstance> scriptInstanceWeakPtr = scriptEngine->GetScriptInstance(GetComponentName());
 		if (const Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock())
 		{
@@ -103,7 +103,7 @@ namespace GALAXY
 
 	void Component::ScriptComponent::SetVariable(const std::string& variableName, std::any value)
 	{
-		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		Scripting::ScriptEngine* scriptEngine = GS::ScriptEngine::Get();
 		const Weak<Scripting::ScriptInstance> scriptInstanceWeakPtr = scriptEngine->GetScriptInstance(GetComponentName());
 		if (const Shared<Scripting::ScriptInstance> scriptInstance = scriptInstanceWeakPtr.lock())
 		{
@@ -150,7 +150,7 @@ namespace GALAXY
 
 	UMap<std::string, Scripting::VariableData> Component::ScriptComponent::GetAllVariables() const
 	{
-		Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+		Scripting::ScriptEngine* scriptEngine = GS::ScriptEngine::Get();
 		if (Shared<Scripting::ScriptInstance> scriptInstance = scriptEngine->GetScriptInstance(this->GetComponentName()).lock())
 			return scriptInstance->GetAllVariables();
 		return {};
@@ -410,7 +410,7 @@ namespace GALAXY
 
 	void Component::ReloadScript::AfterReloadScript()
 	{
-		m_component = Scripting::ScriptEngine::GetInstance()->CreateScript(GetScriptName());
+		m_component = GS::ScriptEngine::Get()->CreateScript(GetScriptName());
 
 		ASSERT(m_component);
 
@@ -760,12 +760,50 @@ namespace GALAXY
 
 	void* Component::ScriptComponent::GetVariableVoid(const std::string& variableName)
 	{
-		void* variableVoid = Scripting::ScriptEngine::GetInstance()->GetVariableOfScript(this, GetComponentName(), variableName);
+		void* variableVoid = GS::ScriptEngine::Get()->GetVariableOfScript(this, GetComponentName(), variableName);
 		return variableVoid;
 	}
 
 	void Component::ScriptComponent::SetVariableVoid(const std::string& variableName, void* value)
 	{
-		Scripting::ScriptEngine::GetInstance()->SetVariableOfScript(this, GetComponentName(), variableName, value);
+		GS::ScriptEngine::Get()->SetVariableOfScript(this, GetComponentName(), variableName, value);
 	}
+}
+*/
+
+void Component::ScriptComponent::SetupVariables()
+{
+	m_variablesInfo = Scripting::ScriptEngine::GetInstance()->GetAllScriptVariablesInfo(GetComponentName());
+
+	m_variablesPtr.clear();
+	for (const auto& variable : m_variablesInfo) {
+		auto value = GetVariable<void*>(variable.first); 
+		m_variablesPtr[variable.first] = value;
+	}
+}
+
+void Component::ScriptComponent::ShowInInspector()
+{
+	for (const auto& variable : m_variablesInfo) {
+		if (variable.second.displayValue)
+		{
+			void* variableValue = m_variablesPtr[variable.first];
+			if (!variableValue)
+				continue;
+			variable.second.displayValue(variable.first, variableValue);
+		}
+	}
+}
+
+void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
+{
+	for (auto& variable : m_variablesInfo)
+	{
+		//TODO:
+	}
+}
+
+void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
+{
+	//TODO:
 }

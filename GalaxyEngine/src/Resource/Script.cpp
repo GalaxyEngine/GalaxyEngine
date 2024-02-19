@@ -4,7 +4,7 @@
 
 #include "Editor/EditorSettings.h"
 
-#include "Scripting/ScriptEngine.h"
+#include "ScriptEngine.h"
 
 #include "Utils/OS.h"
 
@@ -42,7 +42,7 @@ CLASS(%s)
 		if (p_loaded || this->p_fileInfo.GetExtension() == ".cpp")
 			return;
 		std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
-		Scripting::ScriptEngine::GetInstance()->AddScript(resource);
+		//GS::ScriptEngine::Get()->AddHeader(resource);
 		p_loaded = true;
 
 		//OpenScript(GetFileInfo().GetFullPath());
@@ -52,7 +52,7 @@ CLASS(%s)
 	{
 		// Remove the resource from ScriptEngine, remove all component when the user rebuild the dll
 		const std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
-		Scripting::ScriptEngine::GetInstance()->RemoveScript(resource);
+		//GS::ScriptEngine::Get()->RemoveScript(resource);
 		p_loaded = false;
 	}
 
