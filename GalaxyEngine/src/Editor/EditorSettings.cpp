@@ -111,6 +111,10 @@ namespace GALAXY
 		{
 			Scripting::ScriptEngine::GetInstance()->ReloadDLL();
 		}
+		if (ImGui::Button("Compile code"))
+		{
+			Scripting::ScriptEngine::CompileCode();
+		}
 	}
 
 	void Editor::EditorSettings::DisplayExternalToolTab()

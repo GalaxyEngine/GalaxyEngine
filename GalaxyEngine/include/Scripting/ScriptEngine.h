@@ -4,9 +4,9 @@
 #include <functional>
 #include <unordered_map>
 
-#include <Wrapper/GUI.h>
+#include "Wrapper/GUI.h"
 
-#include <Scripting/VariableInfo.h>
+#include "Scripting/VariableInfo.h"
 
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
@@ -21,7 +21,7 @@ namespace GALAXY
 			void RegisterScriptComponents();
 			void UnregisterScriptComponents();
 
-			void UpdateFileWatch() {} // TODO
+			void UpdateFileWatch(); // TODO
 
 			void FreeDLL();
 
@@ -44,6 +44,8 @@ namespace GALAXY
 				SetScriptVariable(scriptComponent, scriptName, variableName, reinterpret_cast<void*>(value));
 			}
 
+			static void CompileCode();
+
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
 
 			static ScriptEngine* GetInstance();
@@ -53,6 +55,11 @@ namespace GALAXY
 			GS::ScriptEngine* m_scriptEngine = nullptr;
 
 			std::filesystem::path m_dllPath;
+
+			float m_currentTime = 0;
+			const float m_updateInterval = 1.f;
+			std::optional<std::filesystem::file_time_type> m_lastWriteTime;
+
 		};
 	}
 }

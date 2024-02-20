@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Scripting/ScriptEngine.h"
 
-#include "ScriptEngine.h"
+#include <galaxyScript/ScriptEngine.h>
 
 
 #include "Core/SceneHolder.h"
@@ -12,6 +12,7 @@
 
 #include "Component/ComponentHolder.h"
 #include "Component/ScriptComponent.h"
+#include "Utils/OS.h"
 
 namespace GALAXY
 {
@@ -47,6 +48,22 @@ namespace GALAXY
 		}
 	}
 
+	void Scripting::ScriptEngine::UpdateFileWatch()
+	{
+		m_currentTime += Wrapper::GUI::DeltaTime();
+		if (m_currentTime > m_updateInterval)
+		{
+			std::filesystem::path dllPathExt = m_dllPath.string() + Utils::OS::GetDLLExtension();
+			std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(dllPathExt);
+			if (m_lastWriteTime < lastWriteTime || !m_lastWriteTime.has_value())
+			{
+				PrintLog("Reloading DLL: %s", dllPathExt.string());
+				ReloadDLL();
+			}
+			m_currentTime = 0;
+		}
+	}
+
 	Scripting::ScriptEngine* Scripting::ScriptEngine::GetInstance()
 	{
 		if (s_instance == nullptr)
@@ -67,12 +84,13 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath)
 	{
+		m_dllPath = dllPath;
 		if (!m_scriptEngine->LoadDLL(dllPath))
 		{
 			PrintError("Failed to load DLL: %s", dllPath.string().c_str());
 			return;
 		}
-		m_dllPath = dllPath;
+		m_lastWriteTime = std::filesystem::last_write_time(m_dllPath.string() + Utils::OS::GetDLLExtension());
 	}
 
 
@@ -103,7 +121,7 @@ namespace GALAXY
 		content = serializer.GetContent();
 
 		FreeDLL();
-		
+
 		LoadDLL(m_dllPath);
 		RegisterScriptComponents();
 
@@ -141,7 +159,7 @@ namespace GALAXY
 
 			parser.PushDepth();
 		} while (parser.GetCurrentDepth() < parser.GetValueMap().size());
-		
+
 	}
 
 	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName)
@@ -152,6 +170,22 @@ namespace GALAXY
 	void Scripting::ScriptEngine::SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value)
 	{
 		m_scriptEngine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
+	}
+
+	void Scripting::ScriptEngine::CompileCode()
+	{
+		const Path prevPath = std::filesystem::current_path();
+		const Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
+		std::filesystem::current_path(projectPath);
+
+		// Execute your build commands
+#ifdef MSVC
+		system("xmake f -p windows --vs=2022 -a x64 -m debug");
+#elif defined(__linux__)
+		system("xmake f -p linux --vs=2022 -a x64" -m debug);
+#endif
+		system("xmake");
+		std::filesystem::current_path(prevPath);
 	}
 
 	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)

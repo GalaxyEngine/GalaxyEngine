@@ -5,6 +5,7 @@
 #include "Editor/EditorSettings.h"
 
 #include "ScriptEngine.h"
+#include "Scripting/ScriptEngine.h"
 
 #include "Utils/OS.h"
 
@@ -12,13 +13,16 @@ namespace GALAXY
 {
 	const char* hFileContent =
 		R"(
+#pragma once
 #include "Scripting/Macro.h"
 #include "Component/ScriptComponent.h"
+#include "%s.generated.h"
 // Note : all ptr variable need to be initialized with nullptr
 
+GCLASS()
 class %s : public Component::ScriptComponent
 {
-	GENERATED_BODY(%s, Component::ScriptComponent)
+	GENERATED_BODY()
 public:
 
 public:
@@ -33,7 +37,8 @@ public:
 	}
 
 };
-CLASS(%s)
+
+END_FILE()
 	)";
 
 	void Resource::Script::Load()
@@ -61,7 +66,7 @@ CLASS(%s)
 		std::ofstream hFile(path.string() + ".h");
 		auto className = path.filename();
 		char content[512];
-		snprintf(content, sizeof(content), hFileContent, className.string().c_str(), className.string().c_str(), className.string().c_str());
+		snprintf(content, sizeof(content), hFileContent, className.string().c_str(), className.string().c_str());
 		if (hFile.is_open()) {
 
 			hFile << content;
@@ -75,8 +80,11 @@ CLASS(%s)
 			cppFile << cppContent;
 			cppFile.close();
 		}
+
 		Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".cpp");
-		return Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".h");
+		auto scriptHeader = Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".h");
+		Scripting::ScriptEngine::CompileCode();
+		return scriptHeader;
 	}
 
 	void Resource::Script::OpenScript(const Path& path)

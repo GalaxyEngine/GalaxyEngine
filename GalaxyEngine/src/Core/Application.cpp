@@ -112,7 +112,7 @@ namespace GALAXY {
 
 	void Core::Application::UpdateResources()
 	{
-		//m_scriptEngine->UpdateFileWatcherDLL();
+		m_scriptEngine->UpdateFileWatch();
 
 		if (!m_resourceToSend.empty())
 		{
