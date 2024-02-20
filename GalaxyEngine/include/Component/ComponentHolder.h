@@ -21,7 +21,7 @@ namespace GALAXY::Component
 		template<typename T>
 		static inline void UnregisterComponent(T* component);
 
-		static void UnregisterComponent(const char* componentName);
+		static void UnregisterComponentByName(const std::string& componentName);
 
 		static List<Shared<BaseComponent>>& GetList() { return m_componentList; }
 

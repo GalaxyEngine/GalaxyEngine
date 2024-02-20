@@ -74,7 +74,7 @@ namespace GALAXY
 
 		private:
 			friend Scripting::ScriptEngine;
-			std::unordered_map<std::string, Scripting::VariableInfo> m_variablesInfo;
+			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> m_variablesInfo;
 			std::unordered_map<std::string, void*> m_variablesPtr;
 			/*
 			template<typename T> inline void DisplayAndManageVariable(const std::pair<std::string, Scripting::VariableData>& variable);

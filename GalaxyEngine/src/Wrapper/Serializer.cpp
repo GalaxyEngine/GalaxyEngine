@@ -116,6 +116,12 @@ template<> CppSer::Serializer& CppSer::Serializer::operator<<(Component::BaseCom
 }
 
 // --------------------------------------- Parser ---------------------------------------
+template<>
+uint32_t CppSer::StringSerializer::As() const
+{
+	return std::stoi(m_content);
+}
+
 template <>
 Vec2f CppSer::StringSerializer::As() const
 {

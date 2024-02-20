@@ -167,6 +167,7 @@ namespace GALAXY {
 	inline void Core::GameObject::AddComponent(Shared<T> component, uint32_t index)
 	{
 		component->SetGameObject(weak_from_this());
+		component->p_id = index;
 		m_components.insert(m_components.begin() + index, component);
 	}
 

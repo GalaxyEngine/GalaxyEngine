@@ -782,15 +782,16 @@ void Component::ScriptComponent::SetupVariables()
 	}
 }
 
+static std::string content;
 void Component::ScriptComponent::ShowInInspector()
 {
 	for (const auto& variable : m_variablesInfo) {
-		if (variable.second.displayValue)
+		if (variable.second->displayValue)
 		{
 			void* variableValue = m_variablesPtr[variable.first];
 			if (!variableValue)
 				continue;
-			variable.second.displayValue(variable.first, variableValue);
+			variable.second->displayValue(variable.first, variableValue);
 		}
 	}
 }
@@ -799,11 +800,15 @@ void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
 {
 	for (auto& variable : m_variablesInfo)
 	{
-		//TODO:
+		variable.second->Serialize(serializer, variable.first, m_variablesPtr[variable.first]);
 	}
 }
 
 void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 {
+	for (auto& variable : m_variablesInfo)
+	{
+		variable.second->Deserialize(parser, variable.first, m_variablesPtr[variable.first]);
+	}
 	//TODO:
 }

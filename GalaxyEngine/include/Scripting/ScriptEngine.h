@@ -6,101 +6,24 @@
 
 #include <Wrapper/GUI.h>
 
+#include <Scripting/VariableInfo.h>
+
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
 {
 	namespace Scripting
 	{
-
-
-		enum class VariableType
-		{
-			None,
-			Unknown,
-			Bool,
-			Int,
-			Float,
-			Double,
-			String,
-			Vector2f,
-			Vector3f,
-			Vector4f,
-			Quaternion,
-		};
-
-		struct VariableInfo
-		{
-			VariableInfo() = default;
-			VariableInfo(const GS::Property& variable);
-
-			std::vector<std::string> args;
-			std::string name;
-			std::string typeName;
-
-			VariableType type = VariableType::None;
-			bool isAList = false;
-			std::function<void(const std::string& name, void* value)> displayValue = nullptr;
-			std::function<void(const std::string& name, void* value)> displayValue = nullptr;
-		private:
-			template<typename T>
-			inline void ManageValue()
-			{
-				if (isAList)
-				{
-					this->displayValue = [&](const std::string& name, void* value) {
-						std::vector<T>* list = (std::vector<T>*)value;
-						if (!list)
-							return
-
-							Wrapper::GUI::SetNextItemOpen();
-						if (Wrapper::GUI::TreeNode(name.c_str())) {
-							for (size_t i = 0; i < list->size(); i++) {
-								Wrapper::GUI::PushID(static_cast<int>(i));
-								T valueList = (*list)[i];
-
-								DisplayValue<T>(name, &valueList);
-								(*list)[i] = valueList;
-								Wrapper::GUI::PopID();
-							}
-							if (Wrapper::GUI::Button("+")) {
-								list->push_back({});
-							}
-							Wrapper::GUI::SameLine();
-							if (Wrapper::GUI::Button("-") && !list->empty()) {
-								list->pop_back();
-							}
-							Wrapper::GUI::TreePop();
-						}
-						};
-				}
-				else
-				{
-					auto boundFunction = std::bind(
-						&Scripting::VariableInfo::DisplayValue<T>,
-						this,
-						std::placeholders::_1,
-						std::placeholders::_2
-					);
-
-					displayValue = boundFunction;
-				}
-			}
-
-			void SetDisplayValue();
-
-			template<typename T>
-			void DisplayValue(const std::string& name, void* value);
-
-		};
-
 		class ScriptEngine
 		{
 		public:
 			ScriptEngine();
+			~ScriptEngine();
 			void RegisterScriptComponents();
 			void UnregisterScriptComponents();
 
 			void UpdateFileWatch() {} // TODO
+
+			void FreeDLL();
 
 			void LoadDLL(const std::filesystem::path& dllPath);
 
@@ -121,7 +44,7 @@ namespace GALAXY
 				SetScriptVariable(scriptComponent, scriptName, variableName, reinterpret_cast<void*>(value));
 			}
 
-			std::unordered_map<std::string, Scripting::VariableInfo> GetAllScriptVariablesInfo(const std::string& scriptName);
+			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
 
 			static ScriptEngine* GetInstance();
 		private:

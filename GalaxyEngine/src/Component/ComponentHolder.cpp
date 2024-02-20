@@ -16,11 +16,12 @@ void ComponentHolder::Initialize()
 	RegisterComponent<SpotLight>();
 }
 
-void ComponentHolder::UnregisterComponent(const char* componentName)
+void ComponentHolder::UnregisterComponentByName(const std::string& componentName)
 {
 	for (auto it = m_componentList.begin(); it != m_componentList.end(); it++)
 	{
-		if ((*it)->GetComponentName() == componentName)
+		std::string componentName2 = (*it)->GetComponentName();
+		if (componentName2 == componentName)
 		{
 			m_componentList.erase(it);
 			return;

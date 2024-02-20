@@ -5,6 +5,7 @@
 #include "Editor/EditorSettings.h"
 
 #include "Core/Application.h"
+#include "Scripting/ScriptEngine.h"
 
 
 #include "Utils/FileInfo.h"
@@ -106,6 +107,10 @@ namespace GALAXY
 
 	void Editor::EditorSettings::DisplayGeneralTab()
 	{
+		if (ImGui::Button("Reload Project DLL"))
+		{
+			Scripting::ScriptEngine::GetInstance()->ReloadDLL();
+		}
 	}
 
 	void Editor::EditorSettings::DisplayExternalToolTab()

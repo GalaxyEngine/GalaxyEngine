@@ -12,7 +12,7 @@ using namespace GALAXY;
 void Main(int argc, char** argv)
 {
 	/*TODO :
-	 * Fix crash on hot reload
+	 * Implement GameObject and Component on Scripting
 	*/
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory

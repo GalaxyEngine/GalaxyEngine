@@ -15,142 +15,6 @@
 
 namespace GALAXY
 {
-	using namespace Scripting;
-	std::unordered_map<std::string, VariableType> variableTypeMap =
-	{
-		{"bool", VariableType::Bool},
-		{"int", VariableType::Int},
-		{"float", VariableType::Float},
-		{"double", VariableType::Double},
-		{"string", VariableType::String},
-		{"Vec2f", VariableType::Vector2f},
-		{"Vec3f", VariableType::Vector3f},
-		{"Vec4f", VariableType::Vector4f},
-		{"Quat", VariableType::Quaternion},
-	};
-
-	Scripting::VariableInfo::VariableInfo(const GS::Property& variable)
-	{
-		this->args = variable.args;
-		this->name = variable.name;
-		this->typeName = variable.type;
-
-		std::string variableType = variable.type;
-		if (variableType.find("::") != std::string::npos)
-		{
-			variableType = variable.type.substr(variable.type.find_last_of("::") + 1);
-			if (variableType.find("vector<") != std::string::npos)
-			{
-				this->isAList = true;
-				variableType = variableType.substr(variableType.find_last_of("<") + 1);
-				variableType = variableType.substr(0, variableType.find_last_of(">"));
-			}
-		}
-
-		if (variableTypeMap.contains(variableType))
-			this->type = variableTypeMap[variableType];
-		else
-			this->type = VariableType::Unknown;
-
-		SetDisplayValue();
-	}
-
-	void Scripting::VariableInfo::SetDisplayValue()
-	{
-		switch (this->type)
-		{
-		case VariableType::Bool:
-			ManageValue<bool>();
-			break;
-		case VariableType::Int:
-			ManageValue<int>();
-			break;
-		case VariableType::Float:
-			ManageValue<float>();
-			break;
-		case VariableType::Double:
-			ManageValue<double>();
-			break;
-		case VariableType::String:
-			ManageValue<std::string>();
-			break;
-		case VariableType::Vector2f:
-			ManageValue<Vec2f>();
-			break;
-		case VariableType::Vector3f:
-			ManageValue<Vec3f>();
-			break;
-		case VariableType::Vector4f:
-			ManageValue<Vec4f>();
-			break;
-		case VariableType::Quaternion:
-			ManageValue<Quat>();
-			break;
-		default:
-			break;
-		}
-	}
-
-	template<typename T>
-	void Scripting::VariableInfo::DisplayValue(const std::string& name, void* value)
-	{
-		ImGui::Text(name.c_str());
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<int>(const std::string& name, void* value)
-	{
-		ImGui::DragInt(name.c_str(), (int*)value);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<float>(const std::string& name, void* value)
-	{
-		ImGui::DragFloat(name.c_str(), (float*)value, 0.01f);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<double>(const std::string& name, void* value)
-	{
-		ImGui::DragScalar(name.c_str(), ImGuiDataType_Double, value);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<std::string>(const std::string& name, void* value)
-	{
-		Wrapper::GUI::InputText(name.c_str(), (std::string*)value);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<Vec2f>(const std::string& name, void* value)
-	{
-		Vec3f v = *(Vec3f*)value;
-		ImGui::DragFloat3(name.c_str(), &v.x, 0.01f);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<Vec3f>(const std::string& name, void* value)
-	{
-		Vec3f v = *(Vec3f*)value;
-		ImGui::DragFloat3(name.c_str(), &v.x, 0.01f);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<Vec4f>(const std::string& name, void* value)
-	{
-		Vec4f v = *(Vec4f*)value;
-		ImGui::ColorEdit4(name.c_str(), &v.x, 0.01f);
-	}
-
-	template<>
-	void Scripting::VariableInfo::DisplayValue<Quat>(const std::string& name, void* value)
-	{
-		Vec4f v = *(Vec4f*)value;
-		ImGui::DragFloat4(name.c_str(), &v.x, 0.01f);
-	}
-
-
-
 	std::unique_ptr<Scripting::ScriptEngine> Scripting::ScriptEngine::s_instance;
 
 	Scripting::ScriptEngine::ScriptEngine()
@@ -159,6 +23,10 @@ namespace GALAXY
 		m_scriptEngine = GS::ScriptEngine::Get();
 		m_scriptEngine->SetCopyToFolder(std::filesystem::current_path() / "ProjectsDLL");
 		m_scriptEngine->SetHeaderGenFolder(projectPath / "Generate" / "Headers");
+	}
+
+	Scripting::ScriptEngine::~ScriptEngine()
+	{
 	}
 
 	void Scripting::ScriptEngine::RegisterScriptComponents()
@@ -175,7 +43,7 @@ namespace GALAXY
 	{
 		for (auto& instance : m_scriptEngine->GetAllScriptInstances())
 		{
-			Component::ComponentHolder::UnregisterComponent(instance.first.c_str());
+			Component::ComponentHolder::UnregisterComponentByName(instance.first.c_str());
 		}
 	}
 
@@ -186,6 +54,15 @@ namespace GALAXY
 			s_instance = std::make_unique<ScriptEngine>();
 		}
 		return s_instance.get();
+	}
+
+	void Scripting::ScriptEngine::FreeDLL()
+	{
+		if (!m_scriptEngine)
+			return;
+		UnregisterScriptComponents();
+		m_scriptEngine->FreeDLL();
+
 	}
 
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath)
@@ -201,24 +78,70 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
+		std::string content;
 		if (m_dllPath.empty())
 			return;
-		m_scriptEngine->FreeDLL();
 
 		auto rootGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject();
 
 		CppSer::Serializer serializer;
 		for (auto& child : rootGameObject.lock()->GetAllChildren())
 		{
+			for (auto& scriptComponent : child.lock()->GetComponents<Component::ScriptComponent>())
+			{
+				// Serialize
+				serializer << CppSer::Pair::BeginMap << "ScriptComponent";
+				serializer << CppSer::Pair::Key << "EDITOR ScriptName" << CppSer::Pair::Value << scriptComponent.lock()->GetComponentName();
+				serializer << CppSer::Pair::Key << "EDITOR ComponentID" << CppSer::Pair::Value << scriptComponent.lock()->GetIndex();
+				serializer << CppSer::Pair::Key << "EDITOR EntityID" << CppSer::Pair::Value << child.lock()->GetUUID();
+				scriptComponent.lock()->Serialize(serializer);
+				serializer << CppSer::Pair::EndMap;
 
+				child.lock()->RemoveComponent(scriptComponent.lock().get());
+			}
 		}
+		content = serializer.GetContent();
 
-		if (!m_scriptEngine->LoadDLL(m_dllPath))
+		FreeDLL();
+		
+		LoadDLL(m_dllPath);
+		RegisterScriptComponents();
+
+		CppSer::Parser parser(content);
+		do
 		{
-			PrintError("Failed to load DLL: %s", m_dllPath.string().c_str());
-			return;
-		}
+			std::string scriptName = parser["EDITOR ScriptName"].As<std::string>();
+			Shared<Component::BaseComponent> instanceScriptComponent = nullptr;
+			for (const auto& instanceComponent : Component::ComponentHolder::GetList())
+			{
+				if (instanceComponent->GetComponentName() == scriptName)
+				{
+					instanceScriptComponent = instanceComponent;
+					break;
+				}
+			}
 
+			if (!instanceScriptComponent)
+			{
+				parser.PushDepth();
+				continue;
+			}
+
+			const Shared<Component::BaseComponent> script = instanceScriptComponent->Clone();
+
+			script->Deserialize(parser);
+
+			uint32_t componentID = parser["EDITOR ComponentID"].As<uint32_t>();
+			uint64_t entityID = parser["EDITOR EntityID"].As<uint64_t>();
+			auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithUUID(entityID);
+
+			assert(gameObject.lock() != nullptr);
+
+			gameObject.lock()->AddComponent(script, componentID);
+
+			parser.PushDepth();
+		} while (parser.GetCurrentDepth() < parser.GetValueMap().size());
+		
 	}
 
 	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName)
@@ -231,12 +154,64 @@ namespace GALAXY
 		m_scriptEngine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
 	}
 
-	std::unordered_map<std::string, Scripting::VariableInfo> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)
+	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)
 	{
-		std::unordered_map<std::string, Scripting::VariableInfo> variables;
+		std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> variables;
 		for (auto& variable : m_scriptEngine->GetAllScriptVariablesInfo(scriptName))
 		{
-			variables[variable.first] = VariableInfo(variable.second.property);
+			VariableType variableType = VariableType::Unknown;
+			auto variableTypeName = variable.second.property.type;
+
+			if (variableTypeName.find("::") != std::string::npos)
+			{
+				variableTypeName = variableTypeName.substr(variableTypeName.find_last_of("::") + 1);
+				if (variableTypeName.find("vector<") != std::string::npos)
+				{
+					variableTypeName = variableTypeName.substr(variableTypeName.find_last_of("<") + 1);
+					variableTypeName = variableTypeName.substr(0, variableTypeName.find_last_of(">"));
+				}
+			}
+
+			variableType = VariableInfo::TypeNameToType(variableTypeName);
+
+			switch (variableType)
+			{
+			case Scripting::VariableType::None:
+				variables[variable.first] = std::make_shared<VariableInfo>(variable.second.property);
+				break;
+			case Scripting::VariableType::Unknown:
+				variables[variable.first] = std::make_shared<VariableInfo>(variable.second.property);
+				break;
+			case Scripting::VariableType::Bool:
+				variables[variable.first] = std::make_shared<VariableInfoT<bool>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Int:
+				variables[variable.first] = std::make_shared<VariableInfoT<int>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Float:
+				variables[variable.first] = std::make_shared<VariableInfoT<float>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Double:
+				variables[variable.first] = std::make_shared<VariableInfoT<double>>(variable.second.property);
+				break;
+			case Scripting::VariableType::String:
+				variables[variable.first] = std::make_shared<VariableInfoT<std::string>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Vector2f:
+				variables[variable.first] = std::make_shared<VariableInfoT<Vec2f>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Vector3f:
+				variables[variable.first] = std::make_shared<VariableInfoT<Vec3f>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Vector4f:
+				variables[variable.first] = std::make_shared<VariableInfoT<Vec4f>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Quaternion:
+				variables[variable.first] = std::make_shared<VariableInfoT<Quat>>(variable.second.property);
+				break;
+			default:
+				break;
+			}
 		}
 		return variables;
 	}
