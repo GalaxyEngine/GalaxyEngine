@@ -15,7 +15,13 @@ namespace GALAXY
 			DirectionalLight(DirectionalLight&&) noexcept = default;
 			~DirectionalLight() override = default;
 
-			inline const char* GetComponentName() const override { return "Directional Light"; }
+			inline const char* GetComponentName() const override { return "DirectionalLight"; }
+			inline virtual std::set<const char*> GetComponentNames() const override
+			{
+				std::set<const char*> list = Light::GetComponentNames();
+				list.insert(DirectionalLight::GetComponentName());
+				return list; 
+			}
 
 			inline virtual Shared<Component::BaseComponent> Clone() override {
 				return std::make_shared<DirectionalLight>(*dynamic_cast<DirectionalLight*>(this));

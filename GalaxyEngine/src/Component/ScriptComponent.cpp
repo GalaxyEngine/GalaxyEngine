@@ -812,3 +812,11 @@ void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 	}
 	//TODO:
 }
+
+void Component::ScriptComponent::AfterLoad()
+{
+	for (auto& variable : m_variablesInfo)
+	{
+		variable.second->AfterLoad(GetGameObject()->GetScene());
+	}
+}

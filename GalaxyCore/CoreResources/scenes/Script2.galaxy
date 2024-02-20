@@ -1,0 +1,58 @@
+ ------------- BEGIN GAMEOBJECT ------------- 
+[Name] : Scene
+[Active] : 1
+[UUID] : 15744521728001762132
+[Component Number] : 0
+[Child Number] : 2
+ ------------- BEGIN TRANSFORM ------------- 
+[Position] : 0.000000, 0.000000, 0.000000
+[Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+[Scale] : 1.000000, 1.000000, 1.000000
+ ============= END TRANSFORM ============= 
+   ------------- BEGIN GAMEOBJECT ------------- 
+  [Name] : GameObject
+  [Active] : 1
+  [UUID] : 7245272780786876750
+  [Component Number] : 1
+  [Child Number] : 0
+   ------------- BEGIN TRANSFORM ------------- 
+  [Position] : 0.000000, 0.000000, 0.000000
+  [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+  [Scale] : 1.000000, 1.000000, 1.000000
+   ============= END TRANSFORM ============= 
+     ------------- BEGIN COMPONENT ------------- 
+    [Name] : ExampleClass
+    [Enable] : 1
+    [valueI Type] : int
+    [valueI] : 0
+    [valueF Type] : float
+    [valueF] : 0.000000
+    [gameObject Type] : Core::GameObject*
+    [gameObject] : 7245272780786876750
+    [component Type] : std::vector<Component::BaseComponent*>
+    [component] : 3
+    [component 0] : 14420077589907070729, 0
+    [component 1] : 14420077589907070729, 0
+    [component 2] : 14420077589907070729, 0
+     ============= END COMPONENT ============= 
+   ============= END GAMEOBJECT ============= 
+   ------------- BEGIN GAMEOBJECT ------------- 
+  [Name] : GameObject
+  [Active] : 1
+  [UUID] : 14420077589907070729
+  [Component Number] : 1
+  [Child Number] : 0
+   ------------- BEGIN TRANSFORM ------------- 
+  [Position] : 0.000000, 0.000000, 0.000000
+  [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+  [Scale] : 1.000000, 1.000000, 1.000000
+   ============= END TRANSFORM ============= 
+     ------------- BEGIN COMPONENT ------------- 
+    [Name] : MeshComponent
+    [Enable] : 1
+    [Model] : -1
+    [Mesh Name] : None
+    [Material Count] : 0
+     ============= END COMPONENT ============= 
+   ============= END GAMEOBJECT ============= 
+ ============= END GAMEOBJECT ============= 

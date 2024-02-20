@@ -162,15 +162,7 @@ namespace GALAXY
 			VariableType variableType = VariableType::Unknown;
 			auto variableTypeName = variable.second.property.type;
 
-			if (variableTypeName.find("::") != std::string::npos)
-			{
-				variableTypeName = variableTypeName.substr(variableTypeName.find_last_of("::") + 1);
-				if (variableTypeName.find("vector<") != std::string::npos)
-				{
-					variableTypeName = variableTypeName.substr(variableTypeName.find_last_of("<") + 1);
-					variableTypeName = variableTypeName.substr(0, variableTypeName.find_last_of(">"));
-				}
-			}
+			VariableInfo::SanitizeType(variableTypeName);
 
 			variableType = VariableInfo::TypeNameToType(variableTypeName);
 
@@ -209,6 +201,11 @@ namespace GALAXY
 			case Scripting::VariableType::Quaternion:
 				variables[variable.first] = std::make_shared<VariableInfoT<Quat>>(variable.second.property);
 				break;
+			case Scripting::VariableType::GameObject:
+				variables[variable.first] = std::make_shared<VariableInfoT<Core::GameObject*>>(variable.second.property);
+				break;
+			case Scripting::VariableType::Component:
+				variables[variable.first] = std::make_shared<VariableInfoT<Component::BaseComponent*>>(variable.second.property);
 			default:
 				break;
 			}

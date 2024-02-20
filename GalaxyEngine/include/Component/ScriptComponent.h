@@ -15,7 +15,7 @@ namespace GALAXY
 	namespace Scripting { class ScriptEngine; }
 	namespace Component
 	{
-		
+
 		class GALAXY_API ScriptComponent : public IComponent<ScriptComponent>
 		{
 		public:
@@ -25,11 +25,16 @@ namespace GALAXY
 			ScriptComponent(ScriptComponent&&) noexcept = default;
 			~ScriptComponent() override {}
 
-			inline virtual const char* GetComponentName() const override { return "Script Component"; }
+			inline virtual const char* GetComponentName() const override { return "ScriptComponent"; }
+			inline virtual std::set<const char*> GetComponentNames() const {
+				std::set<const char*> list = BaseComponent::GetComponentNames();	
+				list.insert(ScriptComponent::GetComponentName());
+				return list;
+			}
 
 			virtual void ShowInInspector() override;
 			/*
-			
+
 			template<typename T>
 			inline T* GetVariable(const std::string& variableName)
 			{
@@ -51,9 +56,9 @@ namespace GALAXY
 
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;
+			*/
 
 			void AfterLoad() override;
-			*/
 
 			template<typename T>
 			inline T* GetVariable(const std::string& variableName)

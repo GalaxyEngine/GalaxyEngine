@@ -1,0 +1,32 @@
+ ------------- BEGIN GAMEOBJECT ------------- 
+[Name] : Scene
+[Active] : 1
+[UUID] : 14977279092507874959
+[Component Number] : 0
+[Child Number] : 1
+ ------------- BEGIN TRANSFORM ------------- 
+[Position] : 0.000000, 0.000000, 0.000000
+[Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+[Scale] : 1.000000, 1.000000, 1.000000
+ ============= END TRANSFORM ============= 
+   ------------- BEGIN GAMEOBJECT ------------- 
+  [Name] : GameObject
+  [Active] : 1
+  [UUID] : 7466489968232894136
+  [Component Number] : 1
+  [Child Number] : 0
+   ------------- BEGIN TRANSFORM ------------- 
+  [Position] : 0.000000, 0.000000, 0.000000
+  [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+  [Scale] : 1.000000, 1.000000, 1.000000
+   ============= END TRANSFORM ============= 
+     ------------- BEGIN COMPONENT ------------- 
+    [Name] : ExampleClass
+    [Enable] : 1
+    [valueI Type] : int
+    [valueI] : 0
+    [valueF Type] : int
+    [valueF] : 16
+     ============= END COMPONENT ============= 
+   ============= END GAMEOBJECT ============= 
+ ============= END GAMEOBJECT ============= 

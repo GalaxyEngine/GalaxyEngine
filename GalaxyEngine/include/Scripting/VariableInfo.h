@@ -1,10 +1,12 @@
 #pragma once
 #include "GalaxyAPI.h"
-
+#include <optional>
 #include <functional>
 namespace GS { struct Property; }
 namespace GALAXY
 {
+	namespace Core { class GameObject; }
+	namespace Resource { class Scene; }
 	namespace Scripting {
 		enum class VariableType
 		{
@@ -19,6 +21,21 @@ namespace GALAXY
 			Vector3f,
 			Vector4f,
 			Quaternion,
+			GameObject,
+			Component,
+		};
+
+		struct GameObjectReloader
+		{
+			void* gameObjectPtr;
+			uint64_t entityID = -1;
+		};
+
+		struct ComponentReloader
+		{
+			void* componentPtr;
+			uint64_t entityID = -1;
+			uint32_t componentID = -1;
 		};
 
 		struct VariableInfo
@@ -28,9 +45,11 @@ namespace GALAXY
 			VariableInfo(const GS::Property& variable);
 
 			void Initialize(const GS::Property& variable);
+			static void SanitizeType(std::string& typeName);
 
 			std::vector<std::string> args;
 			std::string name;
+			std::string basetypeName;
 			std::string typeName;
 
 			VariableType type = VariableType::None;
@@ -38,12 +57,19 @@ namespace GALAXY
 			std::function<void(const std::string& name, void* value)> displayValue = nullptr;
 
 			static void BeginSerializeList(CppSer::Serializer& serializer, const std::string& name, size_t size);
+			void BeginSerialize(CppSer::Serializer& serializer, const std::string& name) const;
 			static size_t BeginDeserializeList(CppSer::Parser& parser, const std::string& name);
+			bool BeginDeserialize(CppSer::Parser& parser, const std::string& name) const;
 
-			virtual void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) const {}
+			virtual void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) {}
 			virtual void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const {}
 
+			void AfterLoad(Resource::Scene* scene);
+
 			static VariableType TypeNameToType(const std::string& typeName);
+
+			std::optional< std::vector<GameObjectReloader>> gameObjectReloaders;
+			std::optional<std::vector<ComponentReloader>> componentReloaders;
 		};
 
 		template <typename T>
@@ -103,6 +129,7 @@ namespace GALAXY
 
 			void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const override
 			{
+				BeginSerialize(serializer, name);
 				if (isAList)
 				{
 					std::vector<T> vectorValue = *(std::vector<T>*)value;
@@ -110,7 +137,7 @@ namespace GALAXY
 					size_t i = 0;
 					for (auto& v : vectorValue)
 					{
-						SerializeT(serializer, name + " " + std::to_string(i++) , &v);
+						SerializeT(serializer, name + " " + std::to_string(i++), &v);
 					}
 				}
 				else
@@ -119,19 +146,18 @@ namespace GALAXY
 				}
 			}
 
-			void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) const override
+			void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) override
 			{
+				if (!BeginDeserialize(parser, name))
+					return;
 				if (isAList)
 				{
 					std::vector<T>* vectorValue = (std::vector<T>*)value;
 					vectorValue->clear();
 					size_t size = VariableInfo::BeginDeserializeList(parser, name);
+					vectorValue->resize(size);
 					for (size_t i = 0; i < size; i++)
 					{
-						if (vectorValue->size() <= i)
-						{
-							vectorValue->push_back({});
-						}
 						DeserializeT(parser, name + " " + std::to_string(i), &vectorValue->operator[](i));
 					}
 				}
@@ -142,7 +168,7 @@ namespace GALAXY
 			}
 
 			void SerializeT(CppSer::Serializer& serializer, const std::string& name, void* value) const;
-			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value) const;
+			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value);
 		};
 	}
 }

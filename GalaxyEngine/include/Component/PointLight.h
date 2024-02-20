@@ -15,7 +15,13 @@ namespace GALAXY
 			PointLight(PointLight&&) noexcept = default;
 			~PointLight() override {}
 
-			inline const char* GetComponentName() const override { return "Point Light"; }
+			inline const char* GetComponentName() const override { return "PointLight"; }
+			inline virtual std::set<const char*> GetComponentNames() const override
+			{
+				std::set<const char*> list = Light::GetComponentNames();
+				list.insert(PointLight::GetComponentName());
+				return list;
+			}
 
 			inline virtual Shared<Component::BaseComponent> Clone() override {
 				return std::make_shared<PointLight>(*dynamic_cast<PointLight*>(this));
