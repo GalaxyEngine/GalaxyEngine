@@ -28,7 +28,7 @@ void Main(int argc, char** argv)
 	std::filesystem::path projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
 #endif
 	#elif defined(__linux__)
-	std::filesystem::path projectPath = "/home/uwu/Documents/ProjectTest/ProjectTest.gProject";
+	std::filesystem::path projectPath = "//home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
 	#endif
 	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
 	if (argc > 1)

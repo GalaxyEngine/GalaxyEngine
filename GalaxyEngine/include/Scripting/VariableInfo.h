@@ -135,9 +135,17 @@ namespace GALAXY
 					std::vector<T> vectorValue = *(std::vector<T>*)value;
 					VariableInfo::BeginSerializeList(serializer, name, vectorValue.size());
 					size_t i = 0;
-					for (auto& v : vectorValue)
-					{
-						SerializeT(serializer, name + " " + std::to_string(i++), &v);
+					if constexpr (std::is_same_v<T, bool>) {
+						for (auto v : vectorValue)
+						{
+							SerializeT(serializer, name + " " + std::to_string(i++), &v);
+						}	
+					}
+					else {
+						for (auto& v : vectorValue)
+						{
+							SerializeT(serializer, name + " " + std::to_string(i++), &v);
+						}	
 					}
 				}
 				else
@@ -155,10 +163,25 @@ namespace GALAXY
 					std::vector<T>* vectorValue = (std::vector<T>*)value;
 					vectorValue->clear();
 					size_t size = VariableInfo::BeginDeserializeList(parser, name);
+					if (size == -1)
+						return;
 					vectorValue->resize(size);
-					for (size_t i = 0; i < size; i++)
-					{
-						DeserializeT(parser, name + " " + std::to_string(i), &vectorValue->operator[](i));
+					if constexpr (std::is_same_v<T, bool>) {
+						for (size_t i = 0; i < size; i++)
+						{
+							// Handle the bool case separately
+							bool element = (*vectorValue)[i];
+							DeserializeT(parser, name + " " + std::to_string(i), &element);
+							(*vectorValue)[i] = element; // Assign the deserialized value back to the vector
+						}
+					} 
+					else {
+						for (size_t i = 0; i < size; i++)
+						{
+							// For other types, your existing code can be used
+							T& element = (*vectorValue)[i];
+							DeserializeT(parser, name + " " + std::to_string(i), &element);
+						}
 					}
 				}
 				else

@@ -115,6 +115,12 @@ template<> CppSer::Serializer& CppSer::Serializer::operator<<(Component::BaseCom
 	return *this;
 }
 
+template<> CppSer::Serializer& CppSer::Serializer::operator<<(const unsigned long& value)
+{
+	auto stringValue = std::to_string(value);
+	*this << stringValue;
+	return *this;
+}
 // --------------------------------------- Parser ---------------------------------------
 template<>
 uint32_t CppSer::StringSerializer::As() const

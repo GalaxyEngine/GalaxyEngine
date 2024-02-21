@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "Scripting/ScriptEngine.h"
 
-#include <galaxyScript/ScriptEngine.h>
-
+#include <galaxyscript/ScriptEngine.h>
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
@@ -182,7 +181,7 @@ namespace GALAXY
 #ifdef MSVC
 		system("xmake f -p windows --vs=2022 -a x64 -m debug");
 #elif defined(__linux__)
-		system("xmake f -p linux --vs=2022 -a x64" -m debug);
+		system("xmake f -p linux -a x64 -m debug");
 #endif
 		system("xmake");
 		std::filesystem::current_path(prevPath);

@@ -296,7 +296,9 @@ namespace GALAXY
 	template<>
 	void Scripting::VariableInfoT<bool>::SerializeT(CppSer::Serializer& serializer, const std::string& name, void* value) const
 	{
-		serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << *(bool*)value;
+		//TODO : Fix this
+		bool valueB = *(bool*)value;
+		serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << valueB;
 	}
 
 	template<>

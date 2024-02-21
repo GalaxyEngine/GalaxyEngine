@@ -59,8 +59,9 @@ target("GalaxyEngine")
     add_packages("glad")
     add_packages("stb")
     add_packages("nativefiledialog-extended")
-    
-    set_prefixname("")
+    if (is_plat("mingw")) then 
+        set_prefixname("")
+    end 
 target_end()
 
 target("GalaxyCore")
