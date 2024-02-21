@@ -12,11 +12,13 @@ using namespace GALAXY;
 void Main(int argc, char** argv)
 {
 	/*TODO :
-	 * Implement GameObject and Component on Scripting
+	 * Implement Font scaling
 	*/
+
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
+
 
 	Core::Application& application = Core::Application::GetInstance();
 	

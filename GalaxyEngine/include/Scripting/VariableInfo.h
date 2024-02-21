@@ -136,9 +136,10 @@ namespace GALAXY
 					VariableInfo::BeginSerializeList(serializer, name, vectorValue.size());
 					size_t i = 0;
 					if constexpr (std::is_same_v<T, bool>) {
-						for (auto v : vectorValue)
+						for (bool&& v : vectorValue)
 						{
-							SerializeT(serializer, name + " " + std::to_string(i++), &v);
+							bool copy = v;
+							SerializeT(serializer, name + " " + std::to_string(i++), &copy);
 						}	
 					}
 					else {
@@ -170,7 +171,7 @@ namespace GALAXY
 						for (size_t i = 0; i < size; i++)
 						{
 							// Handle the bool case separately
-							bool element = (*vectorValue)[i];
+							bool element = vectorValue->operator[](i);
 							DeserializeT(parser, name + " " + std::to_string(i), &element);
 							(*vectorValue)[i] = element; // Assign the deserialized value back to the vector
 						}
@@ -179,8 +180,7 @@ namespace GALAXY
 						for (size_t i = 0; i < size; i++)
 						{
 							// For other types, your existing code can be used
-							T& element = (*vectorValue)[i];
-							DeserializeT(parser, name + " " + std::to_string(i), &element);
+							DeserializeT(parser, name + " " + std::to_string(i), &vectorValue->operator[](i));
 						}
 					}
 				}

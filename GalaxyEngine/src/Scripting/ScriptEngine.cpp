@@ -53,6 +53,8 @@ namespace GALAXY
 		if (m_currentTime > m_updateInterval)
 		{
 			std::filesystem::path dllPathExt = m_dllPath.string() + Utils::OS::GetDLLExtension();
+			if (!std::filesystem::exists(dllPathExt))
+				return;
 			std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(dllPathExt);
 			if (m_lastWriteTime < lastWriteTime || !m_lastWriteTime.has_value())
 			{
