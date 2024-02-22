@@ -188,9 +188,11 @@ namespace GALAXY {
 		}
 	}
 
-	void Wrapper::Window::MoveCallback(GLFWwindow* window, int /*xpos*/, int /*ypos*/)
+	void Wrapper::Window::MoveCallback(GLFWwindow* window, int xpos, int ypos)
 	{
-		Core::Application::GetInstance().GetWindow()->ComputeScale();
+		auto self = Core::Application::GetInstance().GetWindow();
+		self->ComputeScale();
+		self->EOnMove.Invoke(Vec2i(xpos, ypos));
 	}
 
 	void Wrapper::Window::DropCallback(GLFWwindow* window, const int count, const char** paths)
@@ -352,7 +354,7 @@ namespace GALAXY {
 	{
 		// Check window size for null
 		auto windowSize = GetSize();
-		if (windowSize.LengthSquared() == 0)
+		if (windowSize.x <= 0 || windowSize.y <= 0)
 			return;
 		float yScale = 0;
 		glfwGetMonitorContentScale(static_cast<GLFWmonitor*>(GetCurrentMonitor()), &m_scale, &yScale);

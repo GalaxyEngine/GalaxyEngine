@@ -150,8 +150,8 @@ namespace GALAXY {
 		while (!m_window->ShouldClose())
 		{
 			Utils::Time::UpdateDeltaTime();
-			//TODO : Fix this
-			Wrapper::GUI::SetDefaultFontSize(13 * Wrapper::GUI::GetScaleFactor());
+
+			m_editorUI->UpdateDPIScale();
 
 			Wrapper::Window::PollEvent();
 			Wrapper::GUI::NewFrame();

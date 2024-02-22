@@ -31,6 +31,13 @@ namespace GALAXY {
 		m_instance->m_mainBar->Initialize();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
+		m_instance->BindEvents();
+	}
+
+	void Editor::UI::EditorUIManager::BindEvents()
+	{
+		std::function<void(const Vec2i&)> bind = std::bind(&EditorUIManager::MoveWindowCallback, this, std::placeholders::_1);
+		Core::Application::GetInstance().GetWindow()->EOnMove.Bind(bind);
 	}
 
 	void Editor::UI::EditorUIManager::DrawUI()
@@ -165,6 +172,33 @@ namespace GALAXY {
 	void Editor::UI::EditorUIManager::Release()
 	{
 		m_instance.reset();
+	}
+
+	void Editor::UI::EditorUIManager::MoveWindowCallback(const Vec2i& pos)
+	{
+		m_shouldUpdateDPIScale = true;
+	}
+
+	void Editor::UI::EditorUIManager::UpdateDPIScale()
+	{
+		if (!m_shouldUpdateDPIScale)
+			return;
+		m_shouldUpdateDPIScale = false;
+
+		float curDPIScale = Core::Application::GetInstance().GetWindow()->GetScreenScale();
+		if (m_prevDPIScale == curDPIScale)
+			return;
+		m_prevDPIScale = curDPIScale;
+
+		if (m_prevDPIScale != 0)
+			ImGui::GetStyle().ScaleAllSizes(curDPIScale / m_prevDPIScale);
+		else
+			ImGui::GetStyle().ScaleAllSizes(curDPIScale);
+
+		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->Clear();
+		io.Fonts->AddFontFromFileTTF(ENGINE_RESOURCE_FOLDER_NAME"/fonts/Calibri.ttf", 13 * curDPIScale);
+		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
 }

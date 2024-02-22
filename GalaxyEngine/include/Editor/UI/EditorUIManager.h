@@ -24,10 +24,16 @@ namespace GALAXY::Editor::UI {
 		static EditorUIManager* GetInstance();
 
 		static void Initialize();
+		void BindEvents();
 
 		static void Release();
 
 		void DrawUI();
+
+		void MoveWindowCallback(const Vec2i& pos);
+
+		// Scale the UI based on the current DPI, called before each frame
+		void UpdateDPIScale();
 
 		static void DrawMainDock();
 
@@ -55,5 +61,8 @@ namespace GALAXY::Editor::UI {
 
 		bool m_shouldDisplayClosePopup = false;
 		std::optional<bool> m_shouldDisplaySafeClose;
+
+		bool m_shouldUpdateDPIScale = true;
+		float m_prevDPIScale = 0.0f;
 	};
 }

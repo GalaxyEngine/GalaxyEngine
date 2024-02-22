@@ -9,6 +9,7 @@ struct GLFWwindow;
 #include <filesystem>
 
 #include "Utils/Type.h"
+#include "Utils/Event.h"
 
 #include <galaxymath/Maths.h>
 #include <functional>
@@ -120,6 +121,9 @@ namespace GALAXY
 			[[nodiscard]] void* GetCurrentMonitor() const;
 			inline void SetShouldCloseCallback(std::function<void(bool)> val) { m_shouldCloseCallback = val; }
 			inline void SetShouldDisplaySafeClose(std::function<bool()> val) { m_shouldDisplaySafeClose = val; }
+		public:
+			Utils::Event<const Vec2i& /*pos*/> EOnMove;
+			Utils::Event<const Vec2i& /*size*/> EOnResize;
 		private:
 			static int CursorModeToAPI(CursorMode mode);
 

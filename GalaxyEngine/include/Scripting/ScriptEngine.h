@@ -21,13 +21,13 @@ namespace GALAXY
 			void RegisterScriptComponents();
 			void UnregisterScriptComponents();
 
-			void UpdateFileWatch(); // TODO
+			void UpdateFileWatch();
 
 			void FreeDLL();
 
 			void LoadDLL(const std::filesystem::path& dllPath);
 
-			void ReloadDLL(); //TODO : Do all the work of hot reload
+			void ReloadDLL();
 
 			void* GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName);
 			void SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value);
