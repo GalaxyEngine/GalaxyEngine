@@ -23,6 +23,8 @@ namespace GALAXY
 			Mesh(Mesh&&) noexcept = default;
 			~Mesh() override {}
 
+			const char* GetResourceName() const override { return "Mesh"; }
+
 			void Load() override;
 			void Send() override;
 

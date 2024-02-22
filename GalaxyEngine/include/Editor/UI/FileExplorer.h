@@ -32,6 +32,8 @@ namespace GALAXY
 			void AddChild(Shared<File> file);
 
 			Shared<File> GetWithPath(const Path& path) const;
+
+			static uint32_t ResourceTypeToColor(Resource::ResourceType type);
 		private:
 			friend class Inspector;
 			friend class FileExplorer;
@@ -44,7 +46,9 @@ namespace GALAXY
 			Weak<File> m_parent;
 			List<Shared<File>> m_children;
 
+			bool m_hovered = false;
 			bool m_selected = false;
+			bool m_rename = false;
 			bool m_isAnyChildFolder = false;
 		};
 
@@ -66,6 +70,7 @@ namespace GALAXY
 
 			void HandleDropFile(int count, const char** paths) const;
 
+			void DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick);
 		private:
 
 			void SetCurrentFile(const Shared<File>& file);
@@ -99,12 +104,13 @@ namespace GALAXY
 			bool m_openRename;
 			std::string m_renameFileName;
 
+			bool m_rightClickOpen = false;
+
 			List<Shared<File>> m_draggedFiles;
 
 			bool m_shouldReloadContent = false;
 
-			float m_iconSize = 86.0f;
-			float m_space = 15.f;
+			float m_iconSize = 0.75f;
 		};
 	}
 }

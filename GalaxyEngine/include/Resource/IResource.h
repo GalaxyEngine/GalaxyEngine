@@ -28,6 +28,43 @@ namespace GALAXY::Resource {
 		Scene,
 	};
 
+	inline const char* SerializeResourceTypeValue(ResourceType type)
+	{
+		switch (type)
+		{
+		case Resource::ResourceType::None:
+			return "None";
+		case Resource::ResourceType::Texture:
+			return "Texture";
+		case Resource::ResourceType::Shader:
+			return "Shader";
+		case Resource::ResourceType::PostProcessShader:
+			return "PostProcessShader";
+		case Resource::ResourceType::VertexShader:
+			return "VertexShader";
+		case Resource::ResourceType::GeometryShader:
+			return "GeometryShader";
+		case Resource::ResourceType::FragmentShader:
+			return "FragmentShader";
+		case Resource::ResourceType::Model:
+			return "Model";
+		case Resource::ResourceType::Mesh:
+			return "Mesh";
+		case Resource::ResourceType::Material:
+			return "Material";
+		case Resource::ResourceType::Materials:
+			return "Materials";
+		case Resource::ResourceType::Data:
+			return "Data";
+		case Resource::ResourceType::Script:
+			return "Script";
+		case Resource::ResourceType::Scene:
+			return "Scene";
+		default:
+			return "Unknown";
+		}
+	}
+
 	enum class ResourceStatus : int
 	{
 		None = 0,
@@ -64,7 +101,7 @@ namespace GALAXY::Resource {
 		virtual void ShowInInspector() {}
 		virtual void Unload() {}
 
-		virtual const char* GetResourceName() const { return "Default Resource"; }
+		virtual const char* GetResourceName() const = 0;
 
 		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
 		inline bool IsLoaded() const { return p_loaded.load(); }

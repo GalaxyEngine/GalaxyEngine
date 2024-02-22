@@ -25,6 +25,27 @@
 
 namespace GALAXY {
 #pragma region File
+
+	static std::unordered_map<Resource::ResourceType, uint32_t> s_resourceTypeToColor
+	{
+		{ Resource::ResourceType::Script, 0xFF5050FF},
+		{ Resource::ResourceType::Material, 0xFF50FF50 },
+		{ Resource::ResourceType::Model, 0xFFFF5050 },
+		{ Resource::ResourceType::Texture, 0xFF00CCFF },
+		{ Resource::ResourceType::Shader, 0xFFFFCC00 },
+		{ Resource::ResourceType::VertexShader, 0xFF00FFCC },
+		{ Resource::ResourceType::FragmentShader, 0xFFCC00FF },
+
+
+	};
+
+	uint32_t Editor::UI::File::ResourceTypeToColor(Resource::ResourceType type)
+	{
+		if (s_resourceTypeToColor.find(type) == s_resourceTypeToColor.end())
+			return 0xFFFFFFFF;
+		return s_resourceTypeToColor[type];
+	}
+
 	Editor::UI::File::File(const Path& path)
 	{
 		m_resource = Resource::ResourceManager::GetInstance()->GetResource<Resource::IResource>(path);
@@ -198,11 +219,9 @@ namespace GALAXY {
 		if (!p_open)
 			return;
 
-		constexpr float minIconSize = 32.f;
-		constexpr float maxIconSize = 200.f;
-
-		constexpr float iconDeltaZoom = 5.f;
-		constexpr int textLength = 9;
+		constexpr float minIconSize = 0.5f;
+		constexpr float maxIconSize = 5.f;
+		constexpr float iconDeltaZoom = 0.1f;
 		bool openRightClick = false;
 
 		// Begin the ImGui window for the File Explorer
@@ -241,9 +260,9 @@ namespace GALAXY {
 			ImGui::Separator();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0));
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Vec4f(0, 0, 100, 255));
-
+			ImGui::BeginChild("Thumbnails");
 			// Iterate through each child of the current file
-			for (size_t i = 0, j = 0; i < m_currentFile->m_children.size(); i++) {
+			for (int i = 0, x = 0, y = 0; i < m_currentFile->m_children.size(); i++) {
 				Shared<File>& child = m_currentFile->m_children[i];
 				Utils::FileInfo& info = child->m_info;
 				if (!child || !child->m_icon.lock() || info.GetResourceType() == Resource::ResourceType::Data) {
@@ -254,116 +273,18 @@ namespace GALAXY {
 
 				auto cursorPos = ImGui::GetCursorPos();
 
-				// Handle file selection logic
-				if (ImGui::Selectable("##select", &child->m_selected, ImGuiSelectableFlags_SelectOnNav, Vec2f(m_iconSize))) {
-					if (child->m_selected || (!child->m_selected && !ImGui::IsKeyDown(ImGuiKey_LeftCtrl)))
-					{
-						if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-						{
-							ClearSelected();
-						}
-						AddFileSelected(child);
-						child->m_selected = true;
-					}
-					else if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-					{
-						RemoveFileSelected(child);
-					}
-				}
-
-				DragAndDrop(child);
-
-				// Handle double-click to open the file
-				if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-					if (info.isDirectory())
-					{
-						SetCurrentFile(child);
-						break;
-					}
-				}
-				else if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-				{
-					if (std::ranges::count(m_selectedFiles, child) == 0)
-					{
-						ClearSelected();
-					}
-					AddFileSelected(child);
-					m_rightClickedFiles = m_selectedFiles;
-					openRightClick = true;
-				}
-				else if (ImGui::IsItemHovered())
-				{
-					ImGui::SetTooltip(info.GetFileName().c_str());
-				}
-
-				// Positioning for the file icon and text
-				ImGui::SetCursorPos(cursorPos + Vec2f(12, 0));
-				ImGui::BeginGroup();
-				Wrapper::GUI::TextureImage(child->m_icon.lock().get(), Vec2f(m_iconSize - 24.f));
-				if (m_renameFile != child) {
-					// Truncate and display file name
-					const size_t length = info.GetFileName().length();
-					std::string fileName = info.GetFileName();
-					if (length > textLength + 3) {
-						fileName = fileName.substr(0, textLength);
-						fileName.append("...");
-					}
-
-					Vec2f TextPos = Vec2f(-(ImGui::CalcTextSize(fileName.c_str()).x / 2.f) + m_iconSize / 2.f, m_iconSize - 24.f + 5.f);
-					ImGui::SetCursorPos(cursorPos + TextPos);
-					ImGui::TextUnformatted(fileName.c_str());
-				}
-				else
-				{
-#pragma region Rename
-					// Display input text for rename
-					if (m_openRename)
-					{
-						ImGui::SetKeyboardFocusHere();
-					}
-					Vec2f TextPos = { 0, m_iconSize - 24.f + 5.f };
-					ImGui::SetCursorPos(cursorPos + TextPos);
-					ImGui::SetNextItemWidth(m_iconSize);
-					bool enter = Wrapper::GUI::InputText("##InputText", &m_renameFileName, ImGuiInputTextFlags_EnterReturnsTrue);
-					if (m_renameFile && !m_openRename && enter)
-					{
-						const Path oldPath = m_renameFile->m_info.GetFullPath();
-						const Path newPath = m_renameFile->m_info.GetFullPath().parent_path()
-							/ (m_renameFileName + m_renameFile->m_info.GetExtension().string());
-
-						// Rename Resource in resourceManager and file explorer
-						Resource::ResourceManager::HandleRename(oldPath, newPath);
-
-						ReloadContent();
-					}
-					if (m_renameFile && !m_openRename && !ImGui::IsItemActive())
-					{
-						m_renameFile = nullptr;
-						m_renameFileName = "";
-					}
-					m_openRename = false;
-#pragma endregion
-				}
-				ImGui::EndGroup();
-
-				if (ImGui::GetWindowWidth() - (j + 1) * (m_iconSize + m_space) > m_iconSize) {
-					ImGui::SameLine(static_cast<float>((j + 1) * (m_iconSize + m_space)));
-					j++;
-				}
-				else
-				{
-					j = 0;
-					ImGui::Dummy(Vec2f{ 0, m_space / 2.f + 2.f });
-				}
-
+				bool shouldBreak = false;
+				DrawThumbnail(child, i, m_iconSize, x, y, shouldBreak, openRightClick);
+				if (shouldBreak)
+					break;
 				ImGui::PopID();
 			}
+			ImGui::EndChild();
 			ImGui::PopStyleColor(2);
 			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::GetIO().MouseWheel != 0)
 			{
 				m_iconSize += ImGui::GetIO().MouseWheel * iconDeltaZoom;
 				m_iconSize = std::clamp(m_iconSize, minIconSize, maxIconSize);
-				m_space = ((1 / m_iconSize) * 86.f) * 60.f;
 			}
 			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !openRightClick || openRightClick)
 			{
@@ -443,7 +364,7 @@ namespace GALAXY {
 	void Editor::UI::FileExplorer::RightClickWindow()
 	{
 		using namespace Resource;
-		if (ImGui::BeginPopup("RightClickPopup"))
+		if (m_rightClickOpen = ImGui::BeginPopup("RightClickPopup"))
 		{
 			static auto quitPopup = [this]()
 				{
@@ -459,7 +380,7 @@ namespace GALAXY {
 					bool allSame = true;
 					bool allShader = true;
 					const Resource::ResourceType commonType = m_rightClickedFiles[0]->m_resource.lock()->GetFileInfo().GetResourceType();
-					
+
 					for (const Shared<File>& file : m_rightClickedFiles)
 					{
 						auto resourceType = file->m_resource.lock()->GetFileInfo().GetResourceType();
@@ -519,7 +440,7 @@ namespace GALAXY {
 								{
 									if (!file->m_resource.lock() || !file->m_resource.lock()->ShouldBeLoaded())
 										ResourceManager::GetOrLoad<Shader>(file->m_info.GetFullPath());
-									else 
+									else
 										dynamic_pointer_cast<BaseShader>(file->m_resource.lock())->Recompile();
 								}
 								quitPopup();
@@ -665,7 +586,11 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::SetRenameFile(const Shared<File>& file)
 	{
+		if (m_renameFile)
+			m_renameFile->m_rename = false;
 		m_renameFile = file;
+		ClearSelected();
+		m_renameFile->m_rename = true;
 		m_openRename = true;
 		m_renameFileName = file->m_info.GetFileNameNoExtension();
 	}
@@ -774,6 +699,197 @@ namespace GALAXY {
 					ReloadContent();
 				}
 				ImGui::EndDragDropTarget();
+			}
+		}
+	}
+
+	void Editor::UI::FileExplorer::DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick)
+	{
+		Vec2f windowSize = ImGui::GetWindowSize();
+		Vec2f windowPos = ImGui::GetWindowPos();
+		Vec2f regMin = ImGui::GetWindowContentRegionMin();
+		Vec2f thumbnailOffset = Vec2f(150, 225) * thumbnailScale;
+
+		// Common offsets and sizes
+		const Vec2f shadowOffset = Vec2f(6.0f, 5.5f);
+		const Vec2f imageSize = Vec2f(128.f);
+		const Vec2f shadowSize = Vec2f(134.0f, 210.5f);
+		constexpr float bottomRectHeight = 204.5f;
+		constexpr float lineHeight = 1.5f;
+		constexpr int textLength = 20;
+
+		constexpr float cornerRounding = 7.5f;
+		constexpr ImU32 clickedColor = 0x80FF9933;
+		constexpr ImU32 hoveredColor = 0xFF363636;
+		constexpr ImU32 folderThumbColor = 0x00000000;
+
+		const bool isFolder = file->m_info.isDirectory();
+
+		// Common positions
+		Vec2f currentPos = Vec2i(x, y) * thumbnailOffset;
+		Vec2f contentMin = regMin + currentPos;
+		const Vec2f rectSize = imageSize * thumbnailScale;
+		if (contentMin.x >= windowSize.x - thumbnailOffset.x + 25.f) {
+			y++;
+			x = 0;
+
+			currentPos = Vec2i(x, y) * thumbnailOffset;
+			contentMin.x = regMin.x;
+			contentMin.y += thumbnailOffset.y;
+		}
+		Vec2f contentRegionStart = windowPos + contentMin;
+
+		// All the rect:
+		// Thumbnail image with rounded corners
+		Vec2f thumbnailMin = contentRegionStart;
+		Vec2f thumbnailMax = contentRegionStart + imageSize * thumbnailScale;
+
+		// Bottom rectangle under the thumbnail
+		Vec2f bottomRectMin = contentRegionStart + Vec2f(0, (imageSize.y + lineHeight) * thumbnailScale);
+		Vec2f bottomRectMax = contentRegionStart + Vec2f(imageSize.x, bottomRectHeight) * thumbnailScale;
+
+		Vec2f topThumbnail = thumbnailMin - ImGui::GetWindowPos() + Vec2f(0, ImGui::GetScrollY());
+		Vec2f buttonSize = bottomRectMax - thumbnailMin;
+
+		ImGui::SetCursorPos(topThumbnail);
+		ImGui::InvisibleButton("##", buttonSize);
+
+		DragAndDrop(file);
+
+		x++;
+		if (!ImGui::IsRectVisible(thumbnailMin, thumbnailMax)) {
+			return;
+		}
+
+		// Shadow behind the thumbnail
+		Vec2f shadowMin = contentRegionStart + shadowOffset;
+		Vec2f shadowMax = contentRegionStart + shadowSize * thumbnailScale;
+
+		// Line under the thumbnail
+		Vec2f lineMin = contentRegionStart + Vec2f(0, imageSize.y * thumbnailScale);
+		Vec2f lineMax = contentRegionStart + Vec2f(imageSize.x, imageSize.y + lineHeight) * thumbnailScale;
+
+		// Draw list pointer
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		if (!isFolder || file->m_selected || file->m_hovered) {
+			// Draw Shadow behind the thumbnail
+			drawList->AddRectFilled(shadowMin, shadowMax, 1677721600, cornerRounding, 240);
+
+			ImU32 color = file->m_selected ? clickedColor : file->m_hovered ? hoveredColor : 0xFF1A1A1A;
+			// Draw Thumbnail background
+			drawList->AddRectFilled(thumbnailMin, thumbnailMax, color, cornerRounding, 48);
+			// Draw Thumbnail image with rounded corners
+			drawList->AddImageRounded((ImTextureID)file->m_icon.lock()->GetID(), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+
+			color = isFolder ? hoveredColor : File::ResourceTypeToColor(file->m_info.GetResourceType());
+			// Line under the thumbnail
+			drawList->AddRectFilled(lineMin, lineMax, color); // No rounding
+
+			// Bottom rectangle under the thumbnail
+			drawList->AddRectFilled(bottomRectMin, bottomRectMax, file->m_selected ? clickedColor : file->m_hovered ? hoveredColor : 4279834905, cornerRounding, 192);
+		}
+		else
+		{
+			drawList->AddImageRounded((ImTextureID)file->m_icon.lock()->GetID(), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+		}
+
+		//Content
+		//Resource Name
+		if (!file->m_rename)
+		{
+			std::string name = file->m_info.GetFileName();
+			const Vec2f textSize = ImGui::CalcTextSize(name.c_str());
+			const size_t length = name.length();
+			if (length > textLength + 3) {
+				name = name.substr(0, textLength);
+				name.append("...");
+			}
+			ImGui::PushID(779144781);
+			Vec2f minTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale);
+			Vec2f maxTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale) + ImGui::CalcTextSize(name.c_str()) * thumbnailScale;
+			drawList->AddText(ImGui::GetIO().Fonts->Fonts[0], 13 * thumbnailScale, minTitle, 0xFFFFFFFF, name.c_str());
+			if (ImGui::IsMouseHoveringRect(minTitle, maxTitle) && ImGui::IsMouseClicked(0))
+				SetRenameFile(file);
+			ImGui::PopID();
+		}
+
+		//Resource Type
+		ImGui::PushID(705220297);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.622549f, 0.622549f, 0.622549f, 1.000000));
+		std::string type;
+		if (isFolder)
+			type = "Folder";
+		else
+			type = SerializeResourceTypeValue(file->m_info.GetResourceType());
+		Vec2f typePos = currentPos + Vec2f(15, 205.f) * thumbnailScale;
+		drawList->AddText(ImGui::GetIO().Fonts->Fonts[0], 13 * thumbnailScale, Vec2f(contentRegionStart.x + 5.f * thumbnailScale, bottomRectMax.y - 20.f * thumbnailScale), 0xFF808080, type.c_str());
+		ImGui::PopStyleColor(1);
+		ImGui::PopID();
+
+		if (file->m_rename) {
+			//##Input
+			ImGui::PushID(579442659);
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(1.f, 1.f, 1.f, 0.54f));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.f));
+			Vec2f minTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale);
+			Vec2f maxTitle = Vec2f(lineMax.x - 5.f * thumbnailScale, lineMax.y + 18.f * thumbnailScale);
+			auto minCursorPos = minTitle - ImGui::GetWindowPos() + Vec2f(0, ImGui::GetScrollY());
+			auto maxCursorPos = maxTitle - minTitle;
+			ImGui::SetCursorPos(minCursorPos);
+			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, Vec2f(0, maxCursorPos.y * 0.25f));
+			ImGui::SetNextItemWidth(maxCursorPos.x);
+			if (m_openRename)
+			{
+				ImGui::SetKeyboardFocusHere();
+			}
+			bool enter = Wrapper::GUI::InputText("##Input", &this->m_renameFileName, ImGuiInputTextFlags_EnterReturnsTrue);
+			if (m_renameFile && !m_openRename && enter)
+			{
+				const Path oldPath = m_renameFile->m_info.GetFullPath();
+				const Path newPath = m_renameFile->m_info.GetFullPath().parent_path()
+					/ (m_renameFileName + m_renameFile->m_info.GetExtension().string());
+
+				// Rename Resource in resourceManager and file explorer
+				Resource::ResourceManager::HandleRename(oldPath, newPath);
+
+				ReloadContent();
+			}
+			if (m_renameFile && !m_openRename && (!ImGui::IsItemActive()))
+			{
+				m_renameFile = nullptr;
+				m_renameFileName = "";
+				file->m_rename = false;
+			}
+			m_openRename = false;
+			ImGui::PopStyleVar();
+			ImGui::PopStyleColor(2);
+			ImGui::PopID();
+		}
+		file->m_hovered = ImGui::IsMouseHoveringRect(contentRegionStart, bottomRectMax);
+
+		if (file->m_hovered)
+			ImGui::SetTooltip(file->m_info.GetFileName().c_str());
+
+		if (!file->m_rename && file->m_hovered && !this->m_rightClickOpen)
+		{
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1))
+			{
+				if (ImGui::IsMouseDoubleClicked(0) && file->m_selected && isFolder)
+				{
+					SetCurrentFile(file);
+					shouldBreak = true;
+				}
+				if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				{
+					ClearSelected();
+				}
+				AddFileSelected(file);
+			}
+			if (ImGui::IsMouseClicked(1))
+			{
+				m_rightClickedFiles = m_selectedFiles;
+				openRightClick = true;
 			}
 		}
 	}

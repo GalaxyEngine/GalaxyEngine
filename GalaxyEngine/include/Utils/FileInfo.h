@@ -4,7 +4,7 @@
 
 using Path = std::filesystem::path;
 
-namespace GALAXY 
+namespace GALAXY
 {
 	namespace Resource
 	{
@@ -57,7 +57,7 @@ namespace GALAXY
 			inline Path GetRelativePath() const { return m_relativePath; }
 			inline String GetFileName() const { return m_fileName; }
 			inline String GetFileNameNoExtension() const { return m_fullPath.filename().stem().string(); }
-			inline Path GetExtension() const { return m_fullPath.extension(); }
+			inline Path GetExtension() const { return m_fullPath.empty() ? "" : m_fullPath.extension(); }
 			inline ResourceDir GetResourceDir() const { return m_resourceDir; }
 			inline Resource::ResourceType GetResourceType() const { return GetTypeFromExtension(GetExtension()); }
 
