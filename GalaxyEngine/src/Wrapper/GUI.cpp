@@ -349,6 +349,11 @@ namespace GALAXY {
 		return stillEditing;
 	}
 
+	ImTextureID Wrapper::GUI::GetTextureID(const Resource::Texture* texture)
+	{
+		return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID()));
+	}
+
 	std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
 	{
 		if (ImGui::BeginPopup("ComponentPopup"))

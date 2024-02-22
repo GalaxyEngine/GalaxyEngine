@@ -3,7 +3,7 @@
 #include <galaxymath/Maths.h>
 
 typedef int ImGuiInputTextFlags;
-
+typedef void* ImTextureID;
 namespace GALAXY {
 	namespace Component { class BaseComponent; }
 	namespace Resource { class Texture; }
@@ -24,6 +24,8 @@ namespace GALAXY {
 			bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags = 0);
 
 			bool DrawVec3Control(const std::string& label, float* values, float resetValue = 0.0f, bool lockButton = false, float columnWidth = 100.0f);
+
+			ImTextureID GetTextureID(const Resource::Texture* texture);
 
 			bool TextureButton(const Resource::Texture* texture, Vec2f size);
 

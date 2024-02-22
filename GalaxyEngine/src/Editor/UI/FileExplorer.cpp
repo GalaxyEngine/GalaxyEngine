@@ -711,9 +711,9 @@ namespace GALAXY {
 		Vec2f thumbnailOffset = Vec2f(150, 225) * thumbnailScale;
 
 		// Common offsets and sizes
-		const Vec2f shadowOffset = Vec2f(6.0f, 5.5f);
-		const Vec2f imageSize = Vec2f(128.f);
-		const Vec2f shadowSize = Vec2f(134.0f, 210.5f);
+		constexpr Vec2f shadowOffset = Vec2f(6.0f, 5.5f);
+		constexpr Vec2f imageSize = Vec2f(128.f);
+		constexpr Vec2f shadowSize = Vec2f(134.0f, 210.5f);
 		constexpr float bottomRectHeight = 204.5f;
 		constexpr float lineHeight = 1.5f;
 		constexpr int textLength = 20;
@@ -780,9 +780,9 @@ namespace GALAXY {
 			// Draw Thumbnail background
 			drawList->AddRectFilled(thumbnailMin, thumbnailMax, color, cornerRounding, 48);
 			// Draw Thumbnail image with rounded corners
-			drawList->AddImageRounded((ImTextureID)file->m_icon.lock()->GetID(), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			drawList->AddImageRounded(Wrapper::GUI::GetTextureID(file->m_icon.lock().get()), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 
-			color = isFolder ? hoveredColor : File::ResourceTypeToColor(file->m_info.GetResourceType());
+			color = isFolder ? (file->m_selected ? clickedColor : hoveredColor) : File::ResourceTypeToColor(file->m_info.GetResourceType());
 			// Line under the thumbnail
 			drawList->AddRectFilled(lineMin, lineMax, color); // No rounding
 
@@ -791,7 +791,7 @@ namespace GALAXY {
 		}
 		else
 		{
-			drawList->AddImageRounded((ImTextureID)file->m_icon.lock()->GetID(), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			drawList->AddImageRounded(Wrapper::GUI::GetTextureID(file->m_icon.lock().get()), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 		}
 
 		//Content
