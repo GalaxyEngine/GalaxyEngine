@@ -17,6 +17,7 @@
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
 
+#include "Component/CameraComponent.h"
 
 
 #include "Wrapper/Window.h"
@@ -84,6 +85,7 @@ namespace GALAXY
 
 		if (m_editorCamera->IsVisible()) {
 			SetCurrentCamera(m_editorCamera);
+			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
 
 			// Outline 
 			{
@@ -102,9 +104,9 @@ namespace GALAXY
 			}
 
 			// Bind Default Framebuffer
-			m_currentCamera.lock()->Begin();
-			renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
-			m_currentCamera.lock()->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
+			currentCamera->Begin();
+			renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
+			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
 			m_editorCamera->Update();
 
@@ -139,7 +141,7 @@ namespace GALAXY
 				else
 					inspector->ClearSelected();
 
-				renderer->ClearColorAndBuffer(m_currentCamera.lock()->GetClearColor());
+				renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
 
 				const Physic::Ray ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
 				cameraPosition = ray.origin;
@@ -156,7 +158,27 @@ namespace GALAXY
 			m_root->DrawSelfAndChild();
 			m_gizmo->Draw();
 
-			m_currentCamera.lock()->End();
+			currentCamera->End();
+		}
+
+		for (auto& camera : m_cameras)
+		{
+			SetCurrentCamera(camera);
+			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
+			if (!currentCamera || !currentCamera->IsVisible())
+				return;
+
+			// Bind Default Framebuffer
+			currentCamera->Begin();
+			renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
+			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
+
+			lightManager->SendLightData();
+
+
+			m_root->DrawSelfAndChild();
+
+			currentCamera->End();
 		}
 	}
 
@@ -183,6 +205,23 @@ namespace GALAXY
 		p_loaded = true;
 		m_root->AfterLoad();
 		SendRequest();
+	}
+
+	void Scene::SetMainCamera(const Weak<Component::CameraComponent>& camera)
+	{
+		if (m_mainCamera.lock())
+			m_mainCamera.lock()->m_isMainCamera = false;
+		camera.lock()->m_isMainCamera = true;
+		m_mainCamera = camera;
+	}
+
+	void Scene::AddCamera(const Weak<Component::CameraComponent>& camera)
+	{
+		if (m_cameras.empty())
+		{
+			SetMainCamera(camera);
+		}
+		m_cameras.push_back(camera);
 	}
 
 	void Scene::Unload()

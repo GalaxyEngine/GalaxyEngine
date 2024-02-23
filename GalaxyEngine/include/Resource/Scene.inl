@@ -97,9 +97,14 @@ namespace GALAXY
 		return m_editorCamera;
 	}
 
-	inline Weak<Render::Camera> Resource::Scene::GetCurrentCamera() const
+	inline Shared<Render::Camera> Resource::Scene::GetCurrentCamera() const
 	{
-		return m_currentCamera;
+		return m_currentCamera.lock();
+	}
+
+	inline Shared<Component::CameraComponent> Resource::Scene::GetMainCamera() const
+	{
+		return m_mainCamera.lock();
 	}
 
 	inline Shared<Editor::Gizmo> Resource::Scene::GetGizmo() const

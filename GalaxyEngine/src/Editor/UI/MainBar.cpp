@@ -78,6 +78,7 @@ namespace GALAXY
 				ImGui::MenuItem("Hierarchy", nullptr, &editorInstance->GetHierarchy()->p_open);
 				ImGui::MenuItem("Inspector", nullptr, &editorInstance->GetInspector()->p_open);
 				ImGui::MenuItem("SceneWindow", nullptr, &editorInstance->GetSceneWindow()->p_open);
+				ImGui::MenuItem("GameWindow", nullptr, &editorInstance->GetGameWindow()->p_open);
 				ImGui::MenuItem("File Explorer", nullptr, &editorInstance->GetFileExplorer()->p_open);
 				ImGui::MenuItem("Console", nullptr, &editorInstance->GetConsole()->p_open);
 				ImGui::MenuItem("Resources", nullptr, &editorInstance->GetResourceWindow()->p_open);

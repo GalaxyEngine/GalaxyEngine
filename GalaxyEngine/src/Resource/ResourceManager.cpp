@@ -60,7 +60,6 @@ namespace GALAXY {
 		switch (ResourceType type = Utils::FileInfo::GetTypeFromExtension(extension))
 		{
 		case ResourceType::None:
-			PrintError("Cannot Import resource with this extension : %s", extension.string().c_str());
 			break;
 		case ResourceType::Texture:
 			// Default load all textures.

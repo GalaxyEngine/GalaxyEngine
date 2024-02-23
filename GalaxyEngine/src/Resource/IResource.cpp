@@ -4,13 +4,12 @@
 #include "Core/Application.h"
 
 namespace GALAXY {
-	Resource::IResource::IResource(const Path& fullPath)
+	Resource::IResource::IResource(const Path& fullPath) : p_fileInfo(fullPath)
 	{
 		ASSERT(!fullPath.empty());
 		p_shouldBeLoaded = false;
 		p_loaded = false;
 		p_hasBeenSent = false;
-		p_fileInfo = Utils::FileInfo(fullPath);
 	}
 
 	Resource::IResource& Resource::IResource::operator=(const Resource::IResource& other)

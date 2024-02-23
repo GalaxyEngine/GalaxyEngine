@@ -17,6 +17,7 @@ namespace GALAXY {
 	{
 		m_mainBar = std::make_unique<MainBar>();
 		m_sceneWindow = std::make_unique<SceneWindow>();
+		m_gameWindow = std::make_unique<GameWindow>();
 		m_hierarchy = std::make_unique<Hierarchy>();
 		m_inspector = std::make_unique<Inspector>();
 		m_console = std::make_unique<Console>();
@@ -44,6 +45,7 @@ namespace GALAXY {
 	{
 		DrawMainDock();
 		m_mainBar->Draw();
+		m_gameWindow->Draw();
 		m_sceneWindow->Draw();
 		m_hierarchy->Draw();
 		m_inspector->Draw();

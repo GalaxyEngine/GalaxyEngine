@@ -36,10 +36,12 @@ namespace GALAXY {
 
 	Render::Framebuffer::~Framebuffer()
 	{
-		Wrapper::Renderer::GetInstance()->DeleteRenderBuffer(this);
-		s_indexArray.erase(m_index);
-		Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture->GetFileInfo().GetRelativePath());
-		m_renderTexture.reset();
+		if (auto renderer = Wrapper::Renderer::GetInstance()) {
+			renderer->DeleteRenderBuffer(this);
+			s_indexArray.erase(m_index);
+			Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture->GetFileInfo().GetRelativePath());
+			m_renderTexture.reset();
+		}
 	}
 
 	std::weak_ptr<Resource::Texture> Render::Framebuffer::GetRenderTexture() const
@@ -50,7 +52,7 @@ namespace GALAXY {
 	}
 
 	void Render::Framebuffer::Update(const Vec2i& windowSize)
-{
+	{
 		if (m_size != windowSize) {
 			m_size = windowSize;
 			Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);

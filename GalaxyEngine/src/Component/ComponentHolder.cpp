@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Component/ComponentHolder.h"
+
+#include "Component/CameraComponent.h"
 #include "Component/MeshComponent.h"
 #include "Component/DirectionalLight.h"
 #include "Component/PointLight.h"
@@ -14,6 +16,7 @@ void ComponentHolder::Initialize()
 	RegisterComponent<DirectionalLight>();
 	RegisterComponent<PointLight>();
 	RegisterComponent<SpotLight>();
+	RegisterComponent<CameraComponent>();
 }
 
 void ComponentHolder::UnregisterComponentByName(const std::string& componentName)
@@ -27,5 +30,10 @@ void ComponentHolder::UnregisterComponentByName(const std::string& componentName
 			return;
 		}
 	}
+}
+
+void ComponentHolder::Release()
+{
+	m_componentList.clear();
 }
 

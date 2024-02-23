@@ -12,6 +12,8 @@ namespace GALAXY::Component
 
 		static void Initialize();
 
+		static void Release();
+
 		template<typename T>
 		static inline void RegisterComponent();
 

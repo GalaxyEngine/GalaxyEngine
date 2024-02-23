@@ -291,6 +291,8 @@ namespace GALAXY {
 		if (m_resourceManager)
 			m_resourceManager->Release();
 
+		Component::ComponentHolder::Release();
+
 		// GUI
 		Wrapper::GUI::UnInitalize();
 

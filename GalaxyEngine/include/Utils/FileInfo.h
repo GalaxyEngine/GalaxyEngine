@@ -46,7 +46,7 @@ namespace GALAXY
 		{
 		public:
 			FileInfo() = default;
-			explicit FileInfo(const Path& path, bool createRelativePath = true);
+			FileInfo(const Path& path, bool createRelativePath = true);
 			~FileInfo() = default;
 
 			static Path ToPath(const Path& path);
@@ -61,13 +61,14 @@ namespace GALAXY
 			inline ResourceDir GetResourceDir() const { return m_resourceDir; }
 			inline Resource::ResourceType GetResourceType() const { return GetTypeFromExtension(GetExtension()); }
 
-			inline bool isDirectory() const { return std::filesystem::is_directory(m_fullPath); }
+			inline bool isDirectory() const { return m_isDirectory; }
 			inline bool Exist() const { return std::filesystem::exists(m_fullPath); }
 		private:
 			friend Resource::IResource;
 			friend Resource::Mesh;
 			friend Wrapper::OBJLoader;
 
+			bool m_isDirectory = false;
 			Path m_fullPath;
 			Path m_relativePath;
 			String m_fileName;

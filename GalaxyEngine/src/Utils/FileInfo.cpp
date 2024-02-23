@@ -57,6 +57,8 @@ namespace GALAXY
 				m_resourceDir = ResourceDir::Project;
 			}
 		}
+
+		m_isDirectory = std::filesystem::is_directory(m_fullPath);
 	}
 
 	Path Utils::FileInfo::ToPath(const Path& path)

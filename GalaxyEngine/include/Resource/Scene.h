@@ -5,7 +5,6 @@
 
 #include "Core/GameObject.h"
 
-
 #include <unordered_map>
 
 namespace GALAXY {
@@ -22,6 +21,10 @@ namespace GALAXY {
 	{
 		class Gizmo;
 		class ActionManager;
+	}
+	namespace Component
+	{
+		class CameraComponent;
 	}
 	namespace Resource {
 		class Scene : public IResource
@@ -65,6 +68,9 @@ namespace GALAXY {
 			// Call when the window should close to prevent unsaved scene
 			bool WasModified() const;
 
+			void AddCamera(const Weak<Component::CameraComponent>& camera);
+			void SetMainCamera(const Weak<Component::CameraComponent>& camera);
+
 			// Return the GameObject with the index given in scene Graph
 			inline Weak<Core::GameObject> GetWithSceneGraphID(uint64_t index);
 			// Return the GameObject with the uuid given
@@ -74,21 +80,27 @@ namespace GALAXY {
 			inline const Vec3f& GetCameraUp() const;
 			inline const Vec3f& GetCameraRight() const;
 			inline Shared<Render::EditorCamera> GetEditorCamera() const;
-			inline Weak<Render::Camera> GetCurrentCamera() const;
+			inline Shared<Render::Camera> GetCurrentCamera() const;
+			inline Shared<Component::CameraComponent> GetMainCamera() const;
 			inline Shared<Editor::Gizmo> GetGizmo() const;
 			inline Shared<Editor::ActionManager> GetActionManager() const;
 
 			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
 		private:
+			List<Weak<Component::CameraComponent>> m_cameras;
 			Shared<Render::EditorCamera> m_editorCamera;
 			Weak<Render::Camera> m_currentCamera;
+			Weak<Component::CameraComponent> m_mainCamera;
 
 			Mat4 m_VP;
 			Vec3f m_cameraUp;
 			Vec3f m_cameraRight;
 
 			Shared<Core::GameObject> m_root;
+
+			//Core::ECSystem* m_ecSystem;
+
 			UMap<Core::UUID, Shared<Core::GameObject>> m_objectList;
 
 			Shared<Editor::ActionManager> m_actionManager;
