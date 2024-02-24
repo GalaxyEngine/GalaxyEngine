@@ -29,6 +29,10 @@ namespace GALAXY
 			void OnEditorDraw() override;
 			void ShowInInspector() override;
 
+			void Serialize(CppSer::Serializer& serializer) override;
+			void Deserialize(CppSer::Parser& deserializer) override;
+			void AfterLoad() override;
+
 			bool IsVisible() const override;
 
 			inline Component::Transform* GetTransform() const override {
@@ -36,8 +40,8 @@ namespace GALAXY
 			}
 			Vec2i GetScreenResolution() const override;
 
-
 			void SetMainCamera();
+
 		private:
 			friend Resource::Scene;
 

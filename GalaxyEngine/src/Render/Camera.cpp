@@ -21,8 +21,8 @@ namespace GALAXY
 
 	Render::Camera::Camera()
 	{
-		m_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
-		m_framebuffer->SetClearColor(p_clearColor);
+		p_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
+		p_framebuffer->SetClearColor(p_clearColor);
 	}
 
 	void Render::Camera::DisplayCameraSettings()
@@ -35,7 +35,7 @@ namespace GALAXY
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
 		ImGui::ColorEdit4("Clear Color", &p_clearColor.x);
 		std::string buttonName;
-		if (const Shared<Resource::PostProcessShader> shader = m_framebuffer->GetPostProcessShader().lock())
+		if (const Shared<Resource::PostProcessShader> shader = p_framebuffer->GetPostProcessShader().lock())
 			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
 		else
 			buttonName = "Set Post Process Shader";
@@ -47,7 +47,7 @@ namespace GALAXY
 		Weak<Resource::PostProcessShader> ppShader;
 		if (Resource::ResourceManager::GetInstance()->ResourcePopup("PostProcessPopup", ppShader))
 		{
-			m_framebuffer->SetPostProcessShader(ppShader);
+			p_framebuffer->SetPostProcessShader(ppShader);
 		}
 	}
 
@@ -66,7 +66,7 @@ namespace GALAXY
 
 	Weak<Resource::Texture> Render::Camera::GetRenderTexture() const
 	{
-		return m_framebuffer->GetRenderTexture();
+		return p_framebuffer->GetRenderTexture();
 	}
 
 	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
@@ -86,12 +86,12 @@ namespace GALAXY
 
 	void Render::Camera::Begin() const
 	{
-		m_framebuffer->Begin();
+		p_framebuffer->Begin();
 	}
 
 	void Render::Camera::End() const
 	{
-		m_framebuffer->End();
+		p_framebuffer->End();
 	}
 
 }

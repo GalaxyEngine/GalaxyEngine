@@ -161,8 +161,15 @@ namespace GALAXY
 			currentCamera->End();
 		}
 
+		size_t index = 0;
 		for (auto& camera : m_cameras)
 		{
+			if (!camera.lock()) {
+				// Remove from vector
+				m_cameras.erase(m_cameras.begin() + index);
+				continue;
+			}
+			index++;
 			SetCurrentCamera(camera);
 			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
 			if (!currentCamera || !currentCamera->IsVisible())

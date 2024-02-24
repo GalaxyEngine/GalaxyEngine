@@ -68,7 +68,7 @@ namespace GALAXY
 
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 
-			Shared<class Framebuffer> m_framebuffer = nullptr;
+			Shared<class Framebuffer> p_framebuffer = nullptr;
 		};
 	}
 }
