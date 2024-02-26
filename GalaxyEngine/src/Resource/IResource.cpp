@@ -83,5 +83,9 @@ namespace GALAXY {
 		Core::ThreadManager::Unlock();
 	}
 
+	void Resource::IResource::Rename(const Path& newFullPath)
+	{
+		Resource::ResourceManager::RenameSingle(p_fileInfo.GetFullPath(), newFullPath);
+	}
 
 }

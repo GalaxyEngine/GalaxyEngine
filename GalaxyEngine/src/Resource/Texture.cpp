@@ -14,6 +14,12 @@ void Resource::Texture::Load()
 {
 	if (p_shouldBeLoaded)
 		return;
+
+	if (p_fileInfo.GetExtension() == ".tmb") {
+		this->SetDisplayOnInspector(false);
+		this->SetCreateDataFile(false);
+	}
+
 	p_shouldBeLoaded = true;
 	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
 	if (m_bytes = image.data) {

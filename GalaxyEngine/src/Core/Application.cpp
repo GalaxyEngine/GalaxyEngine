@@ -17,6 +17,7 @@
 #include "Render/LightManager.h"
 
 #include "Editor/UI/EditorUIManager.h"
+#include "Editor/ThumbnailCreator.h"
 
 #include "Component/ComponentHolder.h"
 
@@ -65,8 +66,8 @@ namespace GALAXY {
 		m_threadManager = Core::ThreadManager::GetInstance();
 		m_threadManager->Initialize();
 
-		// Initialize Light Manager
-		m_lightManager = Render::LightManager::GetInstance();
+		// Create Thumbnail Creator before ResourceManager
+		m_thumbnailCreator = new Editor::ThumbnailCreator();
 
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
@@ -108,11 +109,15 @@ namespace GALAXY {
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
 		m_scriptEngine->RegisterScriptComponents();
+
+		// Initialize Thumbnail Creator after Resource Manager
+		m_thumbnailCreator->Initialize();
 	}
 
 	void Core::Application::UpdateResources()
 	{
 		m_scriptEngine->UpdateFileWatch();
+		m_thumbnailCreator->Update();
 
 		if (!m_resourceToSend.empty())
 		{
@@ -274,6 +279,9 @@ namespace GALAXY {
 
 	void Core::Application::Destroy() const
 	{
+		if (m_thumbnailCreator)
+			delete m_thumbnailCreator;
+
 		m_resourceManager->CreateCache();
 		// Cleanup:
 		// Scene Holder

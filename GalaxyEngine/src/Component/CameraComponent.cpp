@@ -8,14 +8,19 @@
 #include "Editor/UI/EditorUIManager.h"
 #include "Render/Framebuffer.h"
 
-namespace GALAXY 
+namespace GALAXY
 {
 
 	void Component::CameraComponent::OnCreate()
 	{
 		Weak<BaseComponent> self = GetGameObject()->GetComponentWithIndex(p_id);
-		GetGameObject()->GetScene()->AddCamera(std::static_pointer_cast<CameraComponent>(self.lock()));
+		const auto scene = GetGameObject()->GetScene();
+		if (!scene)
+			return;
+		scene->AddCamera(std::static_pointer_cast<CameraComponent>(self.lock()));
 		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(CAMERA_ICON_PATH));
+
+
 	}
 
 	void Component::CameraComponent::OnDraw()
@@ -69,6 +74,14 @@ namespace GALAXY
 	void Component::CameraComponent::ShowInInspector()
 	{
 		DisplayCameraSettings();
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, Vec2f(0));
+		if (ImGui::Begin("##CameraPreview", 0, ImGuiWindowFlags_NoTitleBar))
+		{
+			auto startPos = ImGui::GetWindowContentRegionMin();
+			Wrapper::GUI::TextureImage(p_framebuffer->GetRenderTexture().lock().get(), ImGui::GetWindowSize() - startPos * 2, { 0, 1 }, { 1, 0 });
+		}
+		//ImGui::PopStyleVar();
+		ImGui::End();
 	}
 
 	void Component::CameraComponent::Serialize(CppSer::Serializer& serializer)
@@ -100,7 +113,7 @@ namespace GALAXY
 
 	bool Component::CameraComponent::IsVisible() const
 	{
-		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->IsVisible();
+		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->IsVisible() || GetGameObject()->IsSelected();
 	}
 
 	Vec2i Component::CameraComponent::GetScreenResolution() const

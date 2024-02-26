@@ -87,7 +87,7 @@ namespace GALAXY::Resource {
 		return static_cast<ResourceStatus>(~static_cast<int>(a));
 	}
 
-	class IResource
+	class IResource : public std::enable_shared_from_this<IResource>
 	{
 	public:
 		explicit IResource(const Path& fullPath);
@@ -100,6 +100,8 @@ namespace GALAXY::Resource {
 		virtual void Send() {}
 		virtual void ShowInInspector() {}
 		virtual void Unload() {}
+		//Called when the resource is added to the resourceManager
+		virtual void OnAdd() {}
 
 		virtual const char* GetResourceName() const = 0;
 
@@ -124,6 +126,8 @@ namespace GALAXY::Resource {
 
 		//Editor Only!
 		void SetUUID(const Core::UUID& uuid);
+		// ! this will only rename the internal resource full path, relative path and name, not the file on disk
+		void Rename(const Path& newFullPath);
 
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }

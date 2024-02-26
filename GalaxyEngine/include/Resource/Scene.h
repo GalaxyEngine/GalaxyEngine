@@ -13,6 +13,7 @@ namespace GALAXY {
 		class SceneResource;
 	}
 	namespace Render {
+		class LightManager;
 		class Camera;
 		class EditorCamera;
 		class Grid;
@@ -26,6 +27,14 @@ namespace GALAXY {
 	{
 		class CameraComponent;
 	}
+
+	enum class DrawMode
+	{
+		None,
+		Editor,
+		Game,
+	};
+
 	namespace Resource {
 		class Scene : public IResource
 		{
@@ -87,11 +96,13 @@ namespace GALAXY {
 
 			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
+			Shared<Render::LightManager> GetLightManager() const { return m_lightManager; }
 		private:
 			List<Weak<Component::CameraComponent>> m_cameras;
 			Shared<Render::EditorCamera> m_editorCamera;
 			Weak<Render::Camera> m_currentCamera;
 			Weak<Component::CameraComponent> m_mainCamera;
+			Shared<Render::LightManager> m_lightManager = nullptr;
 
 			Mat4 m_VP;
 			Vec3f m_cameraUp;

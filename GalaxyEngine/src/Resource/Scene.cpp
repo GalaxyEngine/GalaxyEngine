@@ -45,6 +45,7 @@ namespace GALAXY
 		p_hasBeenSent = true;
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
+		m_lightManager = std::make_shared<Render::LightManager>();
 	}
 
 	bool Scene::WasModified() const
@@ -72,8 +73,8 @@ namespace GALAXY
 		static Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 		static Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
 		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
-		static Render::LightManager* lightManager = Render::LightManager::GetInstance();
 		static Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
+		const Vec2i windowSize = Core::Application::GetInstance().GetWindow()->GetSize();
 
 		editorUIManager->DrawUI();
 		if (!HasBeenSent()) // if it reload the current scene from the Main Bar menu
@@ -90,17 +91,17 @@ namespace GALAXY
 			// Outline 
 			{
 				Render::Framebuffer* outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
-				outlineFrameBuffer->Begin();
+				outlineFrameBuffer->Begin(windowSize);
 
 				renderer->ClearColorAndBuffer(Vec4f(0));
 
 				renderer->SetRenderingType(Render::RenderType::Outline);
 				for (auto& selected : inspector->GetSelectedGameObjects())
 				{
-					selected.lock()->DrawSelfAndChild();
+					selected.lock()->DrawSelfAndChild(DrawMode::Editor);
 				}
 				renderer->SetRenderingType(Render::RenderType::Default);
-				outlineFrameBuffer->End();
+				outlineFrameBuffer->End(windowSize);
 			}
 
 			// Bind Default Framebuffer
@@ -119,7 +120,7 @@ namespace GALAXY
 				renderer->ClearColorAndBuffer(Vec4f(1));
 
 				renderer->SetRenderingType(Render::RenderType::Picking);
-				m_root->DrawSelfAndChild();
+				m_root->DrawSelfAndChild(DrawMode::Editor);
 				renderer->SetRenderingType(Render::RenderType::Default);
 
 				// Calculate Mouse Position
@@ -148,14 +149,14 @@ namespace GALAXY
 				clickPosition = ray.origin + ray.direction * ray.scale;
 			}
 
-			lightManager->SendLightData();
+			m_lightManager->SendLightData();
 
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
-			m_root->DrawSelfAndChild();
+			m_root->DrawSelfAndChild(DrawMode::Editor);
 			m_gizmo->Draw();
 
 			currentCamera->End();
@@ -180,10 +181,10 @@ namespace GALAXY
 			renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
 			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
-			lightManager->SendLightData();
+			m_lightManager->SendLightData();
 
 
-			m_root->DrawSelfAndChild();
+			m_root->DrawSelfAndChild(DrawMode::Game);
 
 			currentCamera->End();
 		}

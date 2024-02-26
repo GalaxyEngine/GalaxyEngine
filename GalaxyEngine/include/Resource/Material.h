@@ -20,6 +20,9 @@ namespace GALAXY
 			~Material() override {}
 
 			void Load() override;
+			void OnAdd() override;
+
+			void CreateThumbnail();
 
 			const char* GetResourceName() const override { return "Material"; }
 
@@ -27,7 +30,7 @@ namespace GALAXY
 
 			static bool LoadMTLFile();
 
-			void Save() const;
+			void Save();
 
 			void ShowInInspector() override;
 

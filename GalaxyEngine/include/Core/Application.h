@@ -13,12 +13,13 @@
 
 namespace GALAXY
 {
+	namespace Editor { class ThumbnailCreator; }
 	namespace Resource { class ResourceManager; class IResource; }
 	namespace Wrapper { class Window; class Renderer; }
 	namespace Editor::UI { class EditorUIManager; }
 	namespace Scripting { class ScriptEngine; }
 	namespace Render { class LightManager; }
-	namespace Core 
+	namespace Core
 	{
 		class ThreadManager;
 		class SceneHolder;
@@ -48,8 +49,9 @@ namespace GALAXY
 
 			inline Editor::EditorSettings& GetEditorSettings();
 			inline Editor::Benchmark& GetBenchmark();
-
+			Editor::ThumbnailCreator* GetThumbnailCreator() const { return m_thumbnailCreator; }
 			inline bool* GetDrawGridPtr();
+
 
 			void Exit() const;
 		private:
@@ -63,19 +65,19 @@ namespace GALAXY
 
 			Editor::UI::EditorUIManager* m_editorUI = nullptr;
 			Editor::EditorSettings m_editorSettings;
-			Scripting::ScriptEngine* m_scriptEngine = nullptr;
+			Editor::ThumbnailCreator* m_thumbnailCreator = nullptr;
+			Editor::Benchmark m_benchmark;
 
-			Render::LightManager* m_lightManager = nullptr;
+
+			Scripting::ScriptEngine* m_scriptEngine = nullptr;
 
 			Unique<Wrapper::Window> m_window;
 
 			std::deque<std::filesystem::path> m_resourceToSend;
 
 			bool m_drawGrid = true;
-			
-			std::string m_clipboard;
 
-			Editor::Benchmark m_benchmark;
+			std::string m_clipboard;
 		};
 	}
 }

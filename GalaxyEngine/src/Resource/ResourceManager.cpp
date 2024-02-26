@@ -14,6 +14,8 @@
 
 #include <set>
 
+#include "Editor/ThumbnailCreator.h"
+
 #define AUTO_IMPORT
 // Automatic import all model that not get a .gdata up to date
 
@@ -66,9 +68,9 @@ namespace GALAXY {
 			AddResource<Texture>(resourcePath);
 			break;
 		case ResourceType::Shader:
-//#ifdef AUTO_IMPORT
-			//if (!IsDataFileUpToDate(resourcePath))
-				AddResource<Shader>(resourcePath);
+			//#ifdef AUTO_IMPORT
+						//if (!IsDataFileUpToDate(resourcePath))
+			AddResource<Shader>(resourcePath);
 			//else
 				//AddResource<Shader>(resourcePath);
 //#else
@@ -92,7 +94,7 @@ namespace GALAXY {
 			break;
 		case ResourceType::Model:
 		{
-				//TODO Move to Needed Load method
+			//TODO Move to Needed Load method
 #ifdef AUTO_IMPORT
 			if (!IsDataFileUpToDate(resourcePath))
 				GetOrLoad<Model>(resourcePath);
@@ -128,9 +130,44 @@ namespace GALAXY {
 	{
 		for (auto& resource : m_resources)
 		{
-			if (auto shader = dynamic_pointer_cast<Shader>(resource.second))
+			auto type = resource.second->GetFileInfo().GetResourceType();
+			switch (type)
 			{
-				GetOrLoad<Shader>(resource.first);
+			case ResourceType::None:
+				break;
+			case ResourceType::Texture:
+				break;
+			case ResourceType::Shader:
+				if (auto shader = dynamic_pointer_cast<Shader>(resource.second))
+				{
+					GetOrLoad<Shader>(resource.first);
+				}
+				break;
+			case ResourceType::PostProcessShader:
+				break;
+			case ResourceType::VertexShader:
+				break;
+			case ResourceType::GeometryShader:
+				break;
+			case ResourceType::FragmentShader:
+				break;
+			case ResourceType::Model:
+				break;
+			case ResourceType::Mesh:
+				break;
+			case ResourceType::Material:
+				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
+					GetOrLoad<Material>(resource.second->p_uuid);
+				break;
+			case ResourceType::Materials:
+				break;
+			case ResourceType::Data:
+				break;
+			case ResourceType::Script:
+				break;
+			case ResourceType::Scene:
+				break;
+			default:;
 			}
 		}
 	}
@@ -232,7 +269,7 @@ namespace GALAXY {
 			std::filesystem::create_directory(cachePath);
 
 		CppSer::Serializer serializer(cachePath / "resource.cache");
-		serializer <<CppSer::Pair::BeginMap << "Resources";
+		serializer << CppSer::Pair::BeginMap << "Resources";
 		for (auto& val : m_resources | std::views::values)
 		{
 			if (val->GetFileInfo().GetResourceDir() == ResourceDir::Editor || !std::filesystem::exists(val->GetFileInfo().GetFullPath()))
@@ -247,7 +284,7 @@ namespace GALAXY {
 				serializer << CppSer::Pair::Key << path << CppSer::Pair::Value << uuidHash;
 			}
 		}
-		serializer <<CppSer::Pair::EndMap << "Resources";
+		serializer << CppSer::Pair::EndMap << "Resources";
 	}
 
 	void Resource::ResourceManager::HandleRename(const Path& oldPath, const Path& newPath)
@@ -299,6 +336,19 @@ namespace GALAXY {
 			m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;
 			m_instance->m_resources.erase(resourceKey);
 		}
+	}
+
+	void Resource::ResourceManager::RenameSingle(const Path& oldPath, const Path& newPath)
+	{
+		auto relativeOld = Utils::FileInfo::ToRelativePath(oldPath);
+		auto it = m_instance->m_resources.find(relativeOld);
+		ASSERT(it != m_instance->m_resources.end());
+
+		auto resource = it->second;
+		resource->p_fileInfo = Utils::FileInfo(newPath);
+
+		m_instance->m_resources.erase(it);
+		m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;
 	}
 
 	void Resource::ResourceManager::Release()

@@ -66,6 +66,28 @@ namespace GALAXY {
 		}
 	}
 
+	void Component::MeshComponent::AddMaterial(const Weak<Resource::Material>& material)
+	{
+		m_materials.push_back(material);
+	}
+
+	void Component::MeshComponent::RemoveMaterial(size_t index)
+	{
+		if (m_materials.size() > index)
+		{
+			m_materials.erase(m_materials.begin() + index);
+		}
+		else
+		{
+			PrintError("Material index out of range");
+		}
+	}
+
+	void Component::MeshComponent::ClearMaterials()
+	{
+		m_materials.clear();
+	}
+
 	void Component::MeshComponent::ShowInInspector()
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };

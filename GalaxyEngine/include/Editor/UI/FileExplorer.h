@@ -71,6 +71,8 @@ namespace GALAXY
 			void HandleDropFile(int count, const char** paths) const;
 
 			void DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick);
+
+			void ReloadContent();
 		private:
 
 			void SetCurrentFile(const Shared<File>& file);
@@ -80,8 +82,6 @@ namespace GALAXY
 			void SetRenameFile(const Shared<File>& file);
 
 			static void ShowInExplorer(const List<Shared<File>>& files, bool select);
-
-			void ReloadContent();
 
 			void UpdateReloadContent();
 		private:

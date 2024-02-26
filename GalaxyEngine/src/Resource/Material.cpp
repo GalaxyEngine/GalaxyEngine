@@ -1,5 +1,10 @@
 #include "pch.h"
 #include "Resource/Material.h"
+
+#include "Core/Application.h"
+
+#include "Editor/ThumbnailCreator.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 
@@ -28,6 +33,23 @@ namespace GALAXY {
 		p_loaded = true;
 
 		CreateDataFile();
+
+		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
+			return;
+		CreateThumbnail();
+	}
+
+	void Resource::Material::OnAdd()
+	{
+	}
+
+	void Resource::Material::CreateThumbnail()
+	{
+		static Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+
+		const Weak materialWeak = std::dynamic_pointer_cast<Material>(shared_from_this());
+
+		thumbnailCreator->AddToQueue(materialWeak);
 	}
 
 	bool Resource::Material::LoadMatFile()
@@ -52,10 +74,10 @@ namespace GALAXY {
 		return false;
 	}
 
-	void Resource::Material::Save() const
+	void Resource::Material::Save()
 	{
 		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
-		serializer <<CppSer::Pair::BeginMap << "Material";
+		serializer << CppSer::Pair::BeginMap << "Material";
 
 		SerializeResource(serializer, "Shader", m_shader);
 		SerializeResource(serializer, "Albedo", m_albedo);
@@ -66,6 +88,8 @@ namespace GALAXY {
 		serializer << CppSer::Pair::Key << "Ambient" << CppSer::Pair::Value << m_ambient;
 		serializer << CppSer::Pair::Key << "Diffuse" << CppSer::Pair::Value << m_diffuse;
 		serializer << CppSer::Pair::Key << "Specular" << CppSer::Pair::Value << m_specular;
+
+		CreateThumbnail();
 	}
 
 	void Resource::Material::ShowInInspector()
@@ -85,8 +109,8 @@ namespace GALAXY {
 			ImGui::ColorEdit4("Diffuse", &m_diffuse.x);
 			ImGui::ColorEdit4("Specular", &m_specular.x);
 
-			DisplayTexture("Set Albedo",m_albedo);
-			DisplayTexture("Set Normal Map",m_normalMap);
+			DisplayTexture("Set Albedo", m_albedo);
+			DisplayTexture("Set Normal Map", m_normalMap);
 			DisplayTexture("Set Parallax Map", m_parallaxMap);
 			if (m_parallaxMap.lock())
 			{
@@ -195,9 +219,10 @@ namespace GALAXY {
 
 	Weak<Resource::Material> Resource::Material::Create(const std::filesystem::path& path)
 	{
-		const Material material(path);
+		Material material(path);
+		auto weakMat = Resource::ResourceManager::GetOrLoad<Material>(path);
 		material.Save();
-		return Resource::ResourceManager::GetOrLoad<Material>(path);
+		return weakMat;
 	}
 
 }

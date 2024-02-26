@@ -30,6 +30,7 @@ namespace GALAXY
 		auto resource = std::make_shared<T>(fullPath);
 		resource->ParseDataFile();
 		m_instance->m_resources[relativePath] = resource;
+		resource->OnAdd();
 
 		return std::dynamic_pointer_cast<T>(m_instance->m_resources[relativePath]);
 	}
@@ -156,7 +157,7 @@ namespace GALAXY
 #ifdef ENABLE_MULTITHREAD
 				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.lock().get());
 #else
-				resource->second->Load();
+				resource->second.lock()->Load();
 #endif // ENABLE_MULTITHREAD
 
 				return std::dynamic_pointer_cast<T>(resource->second.lock());
@@ -174,7 +175,7 @@ namespace GALAXY
 	{
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.contains(relativePath)) {
-			PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
+			//PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
 			return GetOrLoad<T>(fullPath);
 		}
 

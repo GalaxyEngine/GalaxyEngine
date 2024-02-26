@@ -49,8 +49,11 @@ namespace GALAXY {
 			// Called on Editor Update
 			virtual void OnEditorUpdate() {}
 
-			// Called on Game Draw
+			// Called every time
 			virtual void OnDraw() {}
+
+			// Called on Game Draw
+			virtual void OnGameDraw() {}
 
 			// Called on Editor Draw
 			virtual void OnEditorDraw() {}

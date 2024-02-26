@@ -63,7 +63,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Render::Framebuffer::RenderPostProcess()
+	void Render::Framebuffer::RenderPostProcess(const Vec2i& size)
 	{
 		if (!m_postProcess)
 			return;
@@ -79,16 +79,16 @@ namespace GALAXY {
 		m_renderer->UnbindRenderBuffer(postProcessFramebuffer);
 	}
 
-	void Render::Framebuffer::Begin()
+	void Render::Framebuffer::Begin(const Vec2i& size)
 	{
-		Update(Core::Application::GetInstance().GetWindow()->GetSize());
+		Update(size);
 		Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);
 	}
 
-	void Render::Framebuffer::End()
+	void Render::Framebuffer::End(const Vec2i& size)
 	{
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
-		RenderPostProcess();
+		RenderPostProcess(size);
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader)

@@ -22,6 +22,7 @@ namespace GALAXY
 		if (!m_objectList.contains(gameObject->m_UUID))
 		{
 			m_objectList[gameObject->m_UUID] = gameObject;
+			gameObject->m_scene = this;
 		}
 		else
 		{

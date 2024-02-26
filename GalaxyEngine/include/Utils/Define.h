@@ -12,8 +12,11 @@
 #define LIGHT_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/light.png"
 #define CAMERA_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/camera.png"
 
+#define THUMBNAIL_PATH "Cache/thumbnail/"
+
 // -- Meshes -- //
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Plane.obj:Plane"
+#define SPHERE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Sphere.obj:Sphere"
 
 // -- Paths -- //
 #define ASSET_FOLDER_NAME "Assets"

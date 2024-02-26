@@ -75,10 +75,13 @@ namespace GALAXY
 			void DeleteRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) override;
 
+			void SetViewport(const Vec2i& size) override;
+
 			void ActiveDepth(bool active = true) override;
 			void SetDepthRange(float _near, float _far) override;
 
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
+			void ReadPixels(const Vec2i& size, unsigned char*& data) override;
 
 			// Debug
 			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;

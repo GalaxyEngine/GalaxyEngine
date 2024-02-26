@@ -16,21 +16,17 @@ namespace GALAXY
 
 	void Component::Light::OnCreate()
 	{
-		/*
 		if (!Render::LightManager::AddLight(GetGameObject()->GetWeakOfComponent(this)))
 		{
 			RemoveFromGameObject();
 		}
-		*/
 		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(LIGHT_ICON_PATH));
 	}
 
 	void Component::Light::OnDestroy()
 	{
-		/*
 		const Weak<Light> weak_this = GetGameObject()->GetWeakOfComponent(this);
 		Render::LightManager::RemoveLight(weak_this);
-		*/
 	}
 
 	void Component::Light::OnEditorDraw()

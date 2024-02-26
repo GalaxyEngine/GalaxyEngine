@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
+#include "Editor/ThumbnailCreator.h"
 
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
@@ -48,7 +49,7 @@ namespace GALAXY {
 
 	Editor::UI::File::File(const Path& path)
 	{
-		m_resource = Resource::ResourceManager::GetInstance()->GetResource<Resource::IResource>(path);
+		m_resource = Resource::ResourceManager::GetResource<Resource::IResource>(path);
 		if (m_resource.lock())
 			m_info = m_resource.lock()->GetFileInfo();
 		else
@@ -56,14 +57,14 @@ namespace GALAXY {
 
 		if (m_info.isDirectory())
 		{
-			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(FOLDER_ICON_PATH);
+			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(FOLDER_ICON_PATH);
 			return;
 		}
 		using namespace Resource;
 		switch (m_info.GetResourceType()) {
 		case ResourceType::Texture:
 		{
-			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(path);
+			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(path);
 			break;
 		}
 		/*
@@ -91,11 +92,16 @@ namespace GALAXY {
 		{
 			break;
 		}
+		*/
 		case ResourceType::Material:
 		{
+			Shared<Resource::IResource> material = m_resource.lock();
+			ASSERT(material != nullptr);
+			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(material->GetUUID());
+			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
-		*/
+		
 		default:
 		{
 			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
@@ -265,7 +271,7 @@ namespace GALAXY {
 			for (int i = 0, x = 0, y = 0; i < m_currentFile->m_children.size(); i++) {
 				Shared<File>& child = m_currentFile->m_children[i];
 				Utils::FileInfo& info = child->m_info;
-				if (!child || !child->m_icon.lock() || info.GetResourceType() == Resource::ResourceType::Data) {
+				if (!child || info.GetResourceType() == Resource::ResourceType::Data) {
 					continue;
 				}
 
@@ -772,6 +778,7 @@ namespace GALAXY {
 		// Draw list pointer
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
+		const ImTextureID textureID = file->m_icon.lock() ? Wrapper::GUI::GetTextureID(file->m_icon.lock().get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
 		if (!isFolder || file->m_selected || file->m_hovered) {
 			// Draw Shadow behind the thumbnail
 			drawList->AddRectFilled(shadowMin, shadowMax, 1677721600, cornerRounding, 240);
@@ -780,7 +787,7 @@ namespace GALAXY {
 			// Draw Thumbnail background
 			drawList->AddRectFilled(thumbnailMin, thumbnailMax, color, cornerRounding, 48);
 			// Draw Thumbnail image with rounded corners
-			drawList->AddImageRounded(Wrapper::GUI::GetTextureID(file->m_icon.lock().get()), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 
 			color = isFolder ? (file->m_selected ? clickedColor : hoveredColor) : File::ResourceTypeToColor(file->m_info.GetResourceType());
 			// Line under the thumbnail
@@ -791,7 +798,7 @@ namespace GALAXY {
 		}
 		else
 		{
-			drawList->AddImageRounded(Wrapper::GUI::GetTextureID(file->m_icon.lock().get()), thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 		}
 
 		//Content

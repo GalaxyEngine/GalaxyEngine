@@ -30,10 +30,10 @@ namespace GALAXY
 
 			// Update the size of the Framebuffer each frame
 			void Update(const Vec2i& windowSize);
-			void RenderPostProcess();
+			void RenderPostProcess(const Vec2i& size);
 
-			void Begin();
-			void End();
+			void Begin(const Vec2i& size);
+			void End(const Vec2i& size);
 
 			inline Weak<Resource::PostProcessShader> GetPostProcessShader() const;
 

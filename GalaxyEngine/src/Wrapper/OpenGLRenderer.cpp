@@ -599,6 +599,11 @@ namespace GALAXY
 		}
 	}
 
+	void Wrapper::OpenGLRenderer::SetViewport(const Vec2i& size)
+	{
+		glViewport(0, 0, size.x, size.y);
+	}
+
 	void Wrapper::OpenGLRenderer::ActiveDepth(const bool active /*= true*/)
 	{
 		if (active)
@@ -622,6 +627,11 @@ namespace GALAXY
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 		glReadPixels(static_cast<GLint>(mousePos.x), static_cast<GLint>(mousePos.y), 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 		return Vec4f(data[0], data[1], data[2], data[3]);
+	}
+
+	void Wrapper::OpenGLRenderer::ReadPixels(const Vec2i& size, unsigned char*& data)
+	{
+		glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 }

@@ -115,19 +115,29 @@ namespace GALAXY
 		}
 	}
 
-	void GameObject::DrawSelfAndChild() const
+	void GameObject::DrawSelfAndChild(DrawMode drawMode) const
 	{
 		for (const auto& m_component : m_components)
 		{
 			if (m_component->IsEnable()) {
+				switch (drawMode)
+				{
+				case DrawMode::Editor:
+					m_component->OnEditorDraw();
+					break;
+				case DrawMode::Game:
+					m_component->OnGameDraw();
+					break;
+				default: 
+					break;
+				}
 				m_component->OnDraw();
-				m_component->OnEditorDraw();
 			}
 		}
 
 		for (const auto& m_child : m_children)
 		{
-			m_child->DrawSelfAndChild();
+			m_child->DrawSelfAndChild(drawMode);
 		}
 	}
 

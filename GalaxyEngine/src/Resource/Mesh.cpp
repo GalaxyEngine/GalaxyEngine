@@ -47,7 +47,7 @@ namespace GALAXY {
 
 		renderer->CreateIndexBuffer(m_indexBufferIndex, m_indices.data()->Data(), sizeof(Vec3i) * m_indices.size());
 
-		const int vertexSize = 11 * sizeof(float);
+		constexpr int vertexSize = 11 * sizeof(float);
 		const auto textureOffset = reinterpret_cast<void*>(3 * sizeof(float));
 		const auto normalsOffset = reinterpret_cast<void*>(5 * sizeof(float));
 		const auto tangentsOffset = reinterpret_cast<void*>(8 * sizeof(float));
@@ -120,6 +120,6 @@ namespace GALAXY {
 			(box.max.x - box.min.x) / 2.0f,
 			(box.max.y - box.min.y) / 2.0f,
 			(box.max.z - box.min.z) / 2.0f
-		) * transform->GetWorldScale(), transform->GetWorldRotation(), Vec4f(1, 0, 0, 1), 5.f);
+		) * transform->GetWorldScale(), Vec4f(1, 0, 0, 1), 5.f);
 	}
 }

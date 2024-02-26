@@ -22,6 +22,7 @@ namespace GALAXY {
 	{
 		class Light;
 	}
+	enum class DrawMode;
 	namespace Core {
 		class GALAXY_API GameObject : public std::enable_shared_from_this<GameObject>
 		{
@@ -37,7 +38,7 @@ namespace GALAXY {
 			void Initialize();
 
 			void UpdateSelfAndChild() const;
-			void DrawSelfAndChild() const;
+			void DrawSelfAndChild(DrawMode drawMode) const;
 
 			void RemoveChild(const GameObject* child);
 			void RemoveChild(uint32_t index);

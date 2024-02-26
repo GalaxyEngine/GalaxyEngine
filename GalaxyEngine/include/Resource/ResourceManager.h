@@ -91,6 +91,8 @@ namespace GALAXY {
 			void CreateCache();
 
 			static void HandleRename(const Path& oldPath, const Path& newPath);
+
+			static void RenameSingle(const Path& oldPath, const Path& newPath);
 		private:
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;

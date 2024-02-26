@@ -24,12 +24,9 @@ namespace GALAXY
 
 			void SendLightData() const;
 			static void ResetLightData(Component::Light* light);
-
-			static LightManager* GetInstance();
 		private:
-			static Unique<LightManager> m_instance;
 
-			List<Weak<Resource::Shader>> m_shaders;
+			static List<Weak<Resource::Shader>> m_shaders;
 
 			std::array<Weak<Component::Light>, MAX_LIGHT_NUMBER * 3> m_lights;
 

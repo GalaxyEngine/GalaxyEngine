@@ -6,6 +6,8 @@
 #include "Resource/Shader.h"
 
 #include "Component/Light.h"
+#include "Core/GameObject.h"
+#include "Resource/Scene.h"
 
 /*
 * TODO:
@@ -14,29 +16,30 @@
 
 namespace GALAXY
 {
-	Unique<Render::LightManager> Render::LightManager::m_instance;
+	List<Weak<GALAXY::Resource::Shader>> Render::LightManager::m_shaders;
 	bool Render::LightManager::AddLight(const Weak<Component::Light>& light)
 	{
 		const Shared<Component::Light> lightShared = light.lock();
 		// Check if inside the list
 		size_t freeIndex = INDEX_NONE;
+		auto lightManager = lightShared->GetGameObject()->GetScene()->GetLightManager();
 
 		Component::Light::Type type = lightShared->GetLightType();
 		const size_t startIndex = static_cast<size_t>(type) * MAX_LIGHT_NUMBER;
 		for (size_t i = startIndex; i < startIndex + MAX_LIGHT_NUMBER; i++)
 		{
-			if (freeIndex == INDEX_NONE && m_instance->m_lights[i].lock() == nullptr)
+			if (freeIndex == INDEX_NONE && lightManager->m_lights[i].lock() == nullptr)
 			{
 				freeIndex = i - startIndex;
 			}
-			else if (m_instance->m_lights[i].lock() == lightShared)
+			else if (lightManager->m_lights[i].lock() == lightShared)
 			{
 				return false;
 			}
 		}
 		if (freeIndex == INDEX_NONE)
 			return false;
-		m_instance->m_lights[startIndex + freeIndex] = light;
+		lightManager->m_lights[startIndex + freeIndex] = light;
 		lightShared->SetLightIndex(freeIndex);
 
 		return true;
@@ -45,6 +48,7 @@ namespace GALAXY
 	void Render::LightManager::RemoveLight(const Weak<Component::Light>& light)
 	{
 		const Shared<Component::Light> lightShared = light.lock();
+		auto lightManager = lightShared->GetGameObject()->GetScene()->GetLightManager();
 		if (lightShared->GetLightIndex() == INDEX_NONE)
 			return;
 
@@ -53,9 +57,9 @@ namespace GALAXY
 		const size_t indexInArray = startIndex + lightShared->GetLightIndex();
 
 		ResetLightData(lightShared.get());
-		if (m_instance->m_lights[indexInArray].lock() == lightShared)
+		if (lightManager->m_lights[indexInArray].lock() == lightShared)
 		{
-			m_instance->m_lights[indexInArray].reset();
+			lightManager->m_lights[indexInArray].reset();
 		}
 		lightShared->SetLightIndex(INDEX_NONE);
 	}
@@ -69,21 +73,21 @@ namespace GALAXY
 			return;
 
 		// Check if inside the list
-		for (auto& shaderInList : m_instance->m_shaders)
+		for (auto& shaderInList : m_shaders)
 		{
 			if (shaderInList.lock() == shader.lock())
 				return;
 		}
-		m_instance->m_shaders.push_back(shader);
+		m_shaders.push_back(shader);
 	}
 
 	void Render::LightManager::RemoveShader(const Weak<Resource::Shader>& shader)
 	{
-		for (size_t i = 0; i < m_instance->m_shaders.size(); i++)
+		for (size_t i = 0; i < m_shaders.size(); i++)
 		{
-			if (m_instance->m_shaders[i].lock() == shader.lock())
+			if (m_shaders[i].lock() == shader.lock())
 			{
-				m_instance->m_shaders.erase(m_instance->m_shaders.begin() + i);
+				m_shaders.erase(m_shaders.begin() + i);
 				break;
 			}
 		}
@@ -122,20 +126,11 @@ namespace GALAXY
 
 	void Render::LightManager::ResetLightData(Component::Light* light)
 	{
-		for (auto& shader : m_instance->m_shaders)
+		for (auto& shader : m_shaders)
 		{
 			shader.lock()->Use();
 			light->ResetLightValues(shader.lock().get());
 		}
-	}
-
-	Render::LightManager* Render::LightManager::GetInstance()
-	{
-		if (!m_instance)
-		{
-			m_instance = std::make_unique<LightManager>();
-		}
-		return m_instance.get();
 	}
 
 }

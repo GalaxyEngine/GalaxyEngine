@@ -17,9 +17,14 @@ namespace GALAXY {
 			void OnDraw() override;
 
 			inline void SetMesh(const Weak<Resource::Mesh>& mesh) { if (mesh.lock()) { m_mesh = mesh; } }
+			inline Weak<Resource::Mesh> GetMesh() const { return m_mesh; }
 
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;
+
+			void AddMaterial(const Weak<Resource::Material>& material);
+			void RemoveMaterial(size_t index);
+			void ClearMaterials();
 
 			void ShowInInspector() override;
 		private:

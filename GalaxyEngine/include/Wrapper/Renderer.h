@@ -118,10 +118,13 @@ namespace GALAXY
 			virtual void DeleteRenderBuffer(Render::Framebuffer* framebuffer) {}
 			virtual void ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size) {}
 
+			virtual void SetViewport(const Vec2i& size) {}
+
 			virtual void ActiveDepth(bool active = true) {}
 			virtual void SetDepthRange(float _near, float _far) {}
 
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }
+			virtual void ReadPixels(const Vec2i& size, unsigned char*& data) { }
 
 			// Debug
 			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}

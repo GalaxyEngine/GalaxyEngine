@@ -13,6 +13,7 @@ namespace GALAXY
 	}
 	namespace Render
 	{
+		class Framebuffer;
 		class Camera
 		{
 		public:
@@ -59,6 +60,8 @@ namespace GALAXY
 			inline float GetFOV() const { return p_fov; }
 			inline void SetFOV(float val) { p_fov = val; }
 
+			Shared<Framebuffer> GetFramebuffer() const { return p_framebuffer; }
+			void SetClearColor(const Vec4f& clearColor) { p_clearColor = clearColor; }
 		protected:
 			float p_fov = 70.f;
 			float p_far = 1000.f;
@@ -68,7 +71,7 @@ namespace GALAXY
 
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 
-			Shared<class Framebuffer> p_framebuffer = nullptr;
+			Shared<Framebuffer> p_framebuffer = nullptr;
 		};
 	}
 }
