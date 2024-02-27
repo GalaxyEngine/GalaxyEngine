@@ -79,9 +79,9 @@ namespace GALAXY {
 			// return if the component is enable and only him
 			inline bool IsSelfEnable() const { return p_enable; }
 
-			inline virtual void SetGameObject(const Weak<Core::GameObject>& object) { p_gameObject = object; }
+			inline virtual void SetGameObject(Core::GameObject* object) { p_gameObject = object; }
 
-			inline Shared<Core::GameObject> GetGameObject() const { return p_gameObject.lock(); }
+			inline Core::GameObject* GetGameObject() const { return p_gameObject; }
 
 			class Transform* GetTransform() const;
 
@@ -96,7 +96,7 @@ namespace GALAXY {
 		protected:
 			friend Core::GameObject;
 
-			Weak<Core::GameObject> p_gameObject = Weak<Core::GameObject>();
+			Core::GameObject* p_gameObject = nullptr;
 
 			bool p_enable = true;
 

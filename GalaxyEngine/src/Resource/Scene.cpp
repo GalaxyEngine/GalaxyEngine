@@ -30,7 +30,6 @@ namespace GALAXY
 	Scene::Scene(const Path& path) : IResource(path)
 	{
 		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
-		m_root->Initialize();
 		m_root->m_scene = this;
 	}
 

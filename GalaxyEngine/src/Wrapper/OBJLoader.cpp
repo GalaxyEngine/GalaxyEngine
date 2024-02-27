@@ -39,6 +39,12 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 			subMesh.startIndex = model.m_meshes[i].subMeshes[j].startIndex;
 			subMesh.count = model.m_meshes[i].subMeshes[j].count;
 			mesh->m_subMeshes.push_back(subMesh);
+			if (model.m_mtlPath.has_value() && model.m_meshes[i].subMeshes[j].material.has_value()) {
+				const std::string materialName = model.m_meshes[i].subMeshes[j].material->name.generic_string();
+				std::filesystem::path materialPath = MTLLoader::GetMaterialPath(model.m_mtlPath.value(), materialName);
+				auto material = Resource::ResourceManager::GetInstance()->GetResource<Resource::Material>(materialPath);
+				outputModel->m_materials.push_back(material);
+			}
 		}
 
 		mesh->p_shouldBeLoaded = true;
@@ -47,6 +53,10 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		outputModel->m_meshes.push_back(meshWeak);
 
 		mesh->m_model = outputModel;
+
+		auto bind = [outputModel] { outputModel->OnMeshLoaded(); };
+		mesh->OnLoad.Bind(bind);
+
 		mesh->SendRequest();
 	}
 	outputModel->ComputeBoundingBox();
@@ -88,16 +98,19 @@ bool Wrapper::OBJLoader::Parse()
 		}
 		if (token == "mtllib")
 		{
-			std::filesystem::path mtlPath;
-			iss >> mtlPath;
-			mtlPath = m_path.parent_path() / mtlPath;
-			ReadMtl(mtlPath);
+			std::string mtlFileName;
+			iss >> mtlFileName;
+			m_mtlPath = m_path.parent_path() / mtlFileName;
+			ReadMtl(m_mtlPath.value());
 		}
 		if (token == "usemtl")
 		{
 			endSubMesh(currentMesh);
+			std::string materialName;
+			iss >> materialName;
 			OBJSubMesh subMesh = OBJSubMesh();
 			subMesh.startIndex = currentMesh.indices.size();
+			subMesh.material = { materialName };
 
 			currentMesh.subMeshes.push_back(subMesh);
 		}

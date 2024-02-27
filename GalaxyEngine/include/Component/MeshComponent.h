@@ -24,6 +24,7 @@ namespace GALAXY {
 
 			void AddMaterial(const Weak<Resource::Material>& material);
 			void RemoveMaterial(size_t index);
+			List<Weak<Resource::Material>> GetMaterials() const { return m_materials; }
 			void ClearMaterials();
 
 			void ShowInInspector() override;

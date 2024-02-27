@@ -25,9 +25,9 @@ namespace GALAXY
 
 	Vec3f Component::Transform::GetWorldPosition() const
 	{
-		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
+		if (p_gameObject && p_gameObject->GetParent())
 		{
-			return p_gameObject.lock()->GetParent()->GetTransform()->GetModelMatrix() * Vec4f(m_localPosition, 1.0f);
+			return p_gameObject->GetParent()->GetTransform()->GetModelMatrix() * Vec4f(m_localPosition, 1.0f);
 		}
 		else
 		{
@@ -37,7 +37,7 @@ namespace GALAXY
 
 	Quat Component::Transform::GetWorldRotation() const
 	{
-		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
+		if (p_gameObject && p_gameObject->GetParent())
 		{
 			return GetModelMatrix().GetRotation();
 		}
@@ -58,16 +58,16 @@ namespace GALAXY
 
 	void Component::Transform::ForceUpdate()
 	{
-		ASSERT(p_gameObject.lock());
-		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
-			ComputeModelMatrix(p_gameObject.lock()->GetParent()->GetTransform()->GetModelMatrix());
+		ASSERT(p_gameObject);
+		if (p_gameObject && p_gameObject->GetParent())
+			ComputeModelMatrix(p_gameObject->GetParent()->GetTransform()->GetModelMatrix());
 		else
 			ComputeModelMatrix();
 
 
-		if (p_gameObject.lock())
+		if (p_gameObject)
 		{
-			for (auto& child : p_gameObject.lock()->GetChildren())
+			for (auto& child : p_gameObject->GetChildren())
 			{
 				child.lock()->GetTransform()->ForceUpdate();
 			}
@@ -76,7 +76,7 @@ namespace GALAXY
 
 	Vec3f Component::Transform::GetWorldScale() const
 	{
-		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
+		if (p_gameObject && p_gameObject->GetParent())
 		{
 			return GetModelMatrix().GetScale();
 		}
@@ -88,7 +88,7 @@ namespace GALAXY
 
 	Vec3f Component::Transform::GetWorldEulerRotation() const
 	{
-		if (p_gameObject.lock() && p_gameObject.lock()->GetParent())
+		if (p_gameObject && p_gameObject->GetParent())
 		{
 			return GetModelMatrix().GetRotation().ToEuler();
 		}

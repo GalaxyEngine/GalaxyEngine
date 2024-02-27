@@ -28,9 +28,10 @@ namespace GALAXY
 		{
 		public:
 			void Initialize();
-			void AddToQueue(const Weak<Resource::Material>& material);
 
-			void CreateThumbnail(Resource::Model* model);
+			void AddToQueue(const Weak<Resource::IResource>& material);
+
+			void CreateModelThumbnail(const Weak<Resource::Model>& model);
 
 			auto CreateMaterialThumbnail(const Weak<Resource::Material>& material) -> void;
 
@@ -38,6 +39,8 @@ namespace GALAXY
 
 			static std::filesystem::path GetThumbnailPath(const Core::UUID& uuid);
 			static bool IsThumbnailUpToDate(Resource::IResource* resource);
+		private:
+			void SaveThumbnail(const std::filesystem::path& thumbnailPath, const Vec2i& frameBufferSize);
 		private:
 			bool m_initialized = false;
 

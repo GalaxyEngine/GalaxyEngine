@@ -40,6 +40,8 @@ namespace GALAXY
 			Model* GetModel() const { return m_model; }
 
 			bool HasModel() const { return !m_model; }
+
+			Utils::Event<> OnLoad;
 		private:
 			void ComputeBoundingBox();
 

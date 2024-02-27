@@ -34,9 +34,6 @@ namespace GALAXY {
 			GameObject(GameObject&&) noexcept = default;
 			virtual ~GameObject();
 
-			// Main Methods
-			void Initialize();
-
 			void UpdateSelfAndChild() const;
 			void DrawSelfAndChild(DrawMode drawMode) const;
 
@@ -147,6 +144,9 @@ namespace GALAXY {
 
 			template<typename T>
 			inline Weak<T> GetWeakOfComponent(T* component);
+
+			// Set the scene for this object and all its children
+			void SetScene(Resource::Scene* scene);
 		};
 
 	}

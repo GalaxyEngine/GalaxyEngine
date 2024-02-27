@@ -152,6 +152,8 @@ namespace GALAXY {
 			case ResourceType::FragmentShader:
 				break;
 			case ResourceType::Model:
+				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
+					GetOrLoad<Model>(resource.second->p_uuid);
 				break;
 			case ResourceType::Mesh:
 				break;

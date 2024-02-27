@@ -58,22 +58,90 @@ namespace GALAXY
 		m_initialized = true;
 	}
 
-	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::Material>& material)
+	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& resource)
 	{
-		m_thumbnailQueue.push_back(material.lock()->GetFileInfo().GetFullPath());
+		m_thumbnailQueue.push_back(resource.lock()->GetFileInfo().GetFullPath());
+	}
+
+	void Editor::ThumbnailCreator::CreateModelThumbnail(const Weak<Resource::Model>& model)
+	{
+		auto modelShared = model.lock();
+		ASSERT(modelShared != nullptr);
+
+		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		auto modelObject = modelShared->ToGameObject();
+		bool canBeCreated = modelShared->HasBeenSent();
+		for (auto& meshComp : modelObject->GetComponentsInChildren<Component::MeshComponent>())
+		{
+			for (auto& material : meshComp.lock()->GetMaterials())
+			{
+				if (!material.lock()->IsLoaded() || !material.lock()->GetShader()->HasBeenSent())
+				{
+					canBeCreated = false;
+					break;
+				}
+			}
+			if (!meshComp.lock()->GetMesh().lock()->HasBeenSent())
+			{
+				canBeCreated = false;
+				break;
+			}
+		}
+
+		if (!canBeCreated)
+		{
+			AddToQueue(model);
+			return;
+		}
+
+		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+		const auto currentCamera = currentScene->GetCurrentCamera();
+		//Core::SceneHolder::GetInstance()->SetCurrentScene(m_scene);
+		constexpr Vec2i frameBufferSize(1024);
+
+		float max = FLT_MIN;
+		for (int i = 0; i < 3; i++)
+		{
+			max = std::max(max, modelShared->GetBoundingBox().max[i]);
+		}
+
+		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
+		auto lookAt = Quat::LookRotation((cameraPosition - modelShared->GetBoundingBox().center).GetNormalize(), Vec3f(0, -1, 0));
+		const Quat cameraRotation = lookAt;
+		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
+		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+
+		m_camera->SetSize(frameBufferSize);
+		currentScene->SetCurrentCamera(m_camera);
+		renderer->SetViewport(frameBufferSize);
+		m_camera->Begin();
+
+		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
+
+		m_scene->GetLightManager()->SendLightData();
+
+		modelObject->DrawSelfAndChild(DrawMode::Game);
+
+		m_camera->End();
+
+		// Reset previous data
+		currentScene->SetCurrentCamera(currentCamera);
+		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
+
+		auto texture = m_camera->GetRenderTexture();
+
+		// Save thumbnail to file 
+		const Path thumbnailPath = GetThumbnailPath(modelShared->GetUUID());
+
+		SaveThumbnail(thumbnailPath, frameBufferSize);
 	}
 
 	void Editor::ThumbnailCreator::CreateMaterialThumbnail(const Weak<Resource::Material>& material)
 	{
 		auto materialShared = material.lock();
 		ASSERT(materialShared != nullptr);
-
-		if (!m_initialized)
-		{
-			AddToQueue(material);
-			return;
-		}
 		constexpr Vec3f cameraPosition(0, 0, 2);
+		const Quat cameraAngleAxis = Quat::AngleAxis(180, Vec3f(0, 0, 1));
 		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		const Shared<Component::MeshComponent> meshComponent = m_sphereMaterialObject->GetWeakComponent<Component::MeshComponent>().lock();
@@ -95,6 +163,7 @@ namespace GALAXY
 		meshComponent->AddMaterial(material);
 
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+		m_cameraObject->GetTransform()->SetLocalRotation(cameraAngleAxis);
 
 		m_camera->SetSize(frameBufferSize);
 		currentScene->SetCurrentCamera(m_camera);
@@ -118,20 +187,7 @@ namespace GALAXY
 		// Save thumbnail to file 
 		const Path thumbnailPath = GetThumbnailPath(materialShared->GetUUID());
 
-		Wrapper::Image imageData;
-		imageData.size = frameBufferSize;
-		imageData.data = new uint8_t[frameBufferSize.x * frameBufferSize.y * 4];
-		Wrapper::Renderer::GetInstance()->BindRenderBuffer(m_camera->GetFramebuffer().get());
-		renderer->ReadPixels(imageData.size, imageData.data);
-
-		PrintLog("Save thumbnail to %s", thumbnailPath.generic_string().c_str());
-		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
-		delete[] imageData.data;
-
-		// Load render texture
-		const auto renderTexture = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath).lock();
-
-		UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+		SaveThumbnail(thumbnailPath, frameBufferSize);
 	}
 
 	void Editor::ThumbnailCreator::Update()
@@ -150,6 +206,11 @@ namespace GALAXY
 			case Resource::ResourceType::Material:
 			{
 				CreateMaterialThumbnail(std::dynamic_pointer_cast<Resource::Material>(resource.lock()));
+				break;
+			}
+			case Resource::ResourceType::Model:
+			{
+				CreateModelThumbnail(std::dynamic_pointer_cast<Resource::Model>(resource.lock()));
 				break;
 			}
 			default:
@@ -174,4 +235,26 @@ namespace GALAXY
 
 		return thumbnailTime >= resourceTime;
 	}
+
+	void Editor::ThumbnailCreator::SaveThumbnail(const Path& thumbnailPath, const Vec2i& frameBufferSize)
+	{
+		static auto renderer = Wrapper::Renderer::GetInstance();
+
+		Wrapper::Image imageData;
+		imageData.size = frameBufferSize;
+		imageData.data = new uint8_t[frameBufferSize.x * frameBufferSize.y * 4];
+
+		renderer->BindRenderBuffer(m_camera->GetFramebuffer().get());
+		renderer->ReadPixels(imageData.size, imageData.data);
+
+		PrintLog("Save thumbnail to %s", thumbnailPath.generic_string().c_str());
+		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
+		delete[] imageData.data;
+
+		// Load render texture
+		const auto renderTexture = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath).lock();
+
+		UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+	}
+
 }

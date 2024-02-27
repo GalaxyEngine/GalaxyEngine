@@ -84,15 +84,20 @@ namespace GALAXY {
 		{
 			break;
 		}
+		*/
 		case ResourceType::Model:
 		{
+			Shared<Resource::IResource> model = m_resource.lock();
+			ASSERT(model != nullptr);
+			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(model->GetUUID());
+			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
 		case ResourceType::Mesh:
 		{
 			break;
 		}
-		*/
+		
 		case ResourceType::Material:
 		{
 			Shared<Resource::IResource> material = m_resource.lock();
@@ -101,7 +106,7 @@ namespace GALAXY {
 			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
-		
+
 		default:
 		{
 			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
@@ -453,13 +458,29 @@ namespace GALAXY {
 							}
 							break;
 						case ResourceType::Model:
-							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
+							if (m_rightClickedFiles.size() > 1)
 								break;
-							if (ImGui::Button("Load", buttonSize))
-							{
-								for (const Shared<File>& file : m_rightClickedFiles)
+							if (!m_rightClickedFiles[0]->m_resource.lock()->IsLoaded()) {
+								if (ImGui::Button("Load", buttonSize))
 								{
-									ResourceManager::GetOrLoad<Model>(file->m_info.GetFullPath());
+									for (const Shared<File>& file : m_rightClickedFiles)
+									{
+										ResourceManager::GetOrLoad<Model>(file->m_info.GetFullPath());
+									}
+								}
+							}
+							else
+							{
+								if (ImGui::Button("Create Thumbnail"))
+								{
+									for (const Shared<File>& file : m_rightClickedFiles)
+									{
+										auto model = ResourceManager::GetOrLoad<Model>(file->m_info.GetFullPath());
+										if (model.lock())
+										{
+											model.lock()->CreateThumbnail();
+										}
+									}
 								}
 							}
 							break;

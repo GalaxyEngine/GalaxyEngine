@@ -1,6 +1,10 @@
 #include "pch.h"
 
 #include "Resource/Model.h"
+
+#include "Component/MeshComponent.h"
+#include "Core/Application.h"
+#include "Editor/ThumbnailCreator.h"
 #include "Resource/Mesh.h"
 #include "Resource/ResourceManager.h"
 
@@ -28,12 +32,38 @@ namespace GALAXY {
 		}
 
 		CreateDataFile();
+		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
+			return;
+		CreateThumbnail();
+	}
+
+	Shared<Core::GameObject> Resource::Model::ToGameObject()
+	{
+		Shared<Core::GameObject> root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
+		size_t materialIndex = 0;
+		for (auto& mesh : m_meshes)
+		{
+			Shared<Core::GameObject> meshGO = std::make_shared<Core::GameObject>(mesh.lock()->GetFileInfo().GetFileNameNoExtension());
+			auto meshComponent = meshGO->AddComponent<Component::MeshComponent>();
+			meshComponent.lock()->SetMesh(mesh);
+			for (auto& subMesh : mesh.lock()->m_subMeshes) {
+				if (materialIndex < m_materials.size())
+					meshComponent.lock()->AddMaterial(m_materials[materialIndex++]);
+				else
+					meshComponent.lock()->AddMaterial(ResourceManager::GetInstance()->GetDefaultMaterial());
+			}
+			if (m_meshes.size() != 1)
+				root->AddChild(meshGO);
+			else
+				root = meshGO; // Only one mesh, return it
+		}
+		return root;
 	}
 
 	void Resource::Model::Serialize(CppSer::Serializer& serializer) const
 	{
 		IResource::Serialize(serializer);
-		serializer <<CppSer::Pair::BeginMap << "Model";
+		serializer << CppSer::Pair::BeginMap << "Model";
 		serializer << CppSer::Pair::Key << "Mesh Count" << CppSer::Pair::Value << m_meshes.size();
 		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_meshes.size(); i++)
@@ -41,7 +71,7 @@ namespace GALAXY {
 			serializer << CppSer::Pair::Key << "Mesh " + std::to_string(i) << CppSer::Pair::Value << m_meshes[i].lock()->GetFileInfo().GetFileName();
 		}
 		serializer << CppSer::Pair::EndTab;
-		serializer <<CppSer::Pair::EndMap << "Model";
+		serializer << CppSer::Pair::EndMap << "Model";
 	}
 
 	void Resource::Model::Deserialize(CppSer::Parser& parser)
@@ -55,6 +85,31 @@ namespace GALAXY {
 			auto meshPath = Mesh::CreateMeshPath(GetFileInfo().GetFullPath(), meshName);
 			Resource::ResourceManager::AddResource<Mesh>(meshPath);
 		}
+	}
+
+	void Resource::Model::OnMeshLoaded()
+	{
+		for (auto& mesh : m_meshes)
+		{
+			if (!mesh.lock()->HasBeenSent())
+				return;
+		}
+		p_loaded.store(true);
+		p_hasBeenSent.store(true);
+		OnLoad.Invoke();
+
+		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
+			return;
+		//CreateThumbnail();
+	}
+
+	void Resource::Model::CreateThumbnail()
+	{
+		static Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+
+		const Weak modelWeak = std::dynamic_pointer_cast<Model>(shared_from_this());
+
+		thumbnailCreator->AddToQueue(modelWeak);
 	}
 
 	void Resource::Model::ComputeBoundingBox()

@@ -7,6 +7,7 @@
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
+#include "Resource/Model.h"
 
 #include "Utils/OS.h"
 
@@ -84,6 +85,33 @@ namespace GALAXY
 				ImGui::MenuItem("Resources", nullptr, &editorInstance->GetResourceWindow()->p_open);
 				ImGui::EndMenu();
 			}
+			bool openCreateWithModel = false;
+			if (ImGui::BeginMenu("GameObject"))
+			{
+				if (ImGui::MenuItem("Create With Model"))
+				{
+					openCreateWithModel = true;
+				}
+				ImGui::EndMenu();
+			}
+			if (openCreateWithModel)
+			{
+				ImGui::OpenPopup("Create With Model");
+			}
+			Weak<Resource::Model> model;
+			if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
+			{
+				if (auto modelShared = model.lock())
+				{
+					m_waitingModel = modelShared;
+					if (!modelShared->IsLoaded()) {
+						auto bind = [this] { AddModelToScene(); };
+						modelShared->OnLoad.Bind(bind);
+						return;
+					}
+					AddModelToScene();
+				}
+			}
 			ImGui::EndMainMenuBar();
 		}
 	}
@@ -102,6 +130,16 @@ namespace GALAXY
 
 		const Resource::Scene* scene = Core::SceneHolder::GetCurrentScene();
 		scene->Save(path);
+	}
+
+	void Editor::UI::MainBar::AddModelToScene()
+	{
+		if (!m_waitingModel.lock())
+			return;
+		const auto object = m_waitingModel.lock()->ToGameObject();
+		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+		currentScene->AddObject(object);
+		currentScene->GetRootGameObject().lock()->AddChild(object);
 	}
 
 }

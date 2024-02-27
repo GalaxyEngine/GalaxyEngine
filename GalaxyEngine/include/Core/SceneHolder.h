@@ -2,6 +2,10 @@
 #include "GalaxyAPI.h"
 #include <memory>
 namespace GALAXY {
+	namespace Editor
+	{
+		class ThumbnailCreator;
+	}
 	namespace Resource
 	{
 		class Scene;
@@ -23,7 +27,11 @@ namespace GALAXY {
 			void Release();
 		private:
 			void SwitchSceneUpdate();
+
+			void SetCurrentScene(Shared<Resource::Scene> scene) { m_currentScene = scene; }
 		private:
+			friend Editor::ThumbnailCreator;
+
 			static Unique<SceneHolder> m_instance;
 
 			Shared<Resource::Scene> m_currentScene;

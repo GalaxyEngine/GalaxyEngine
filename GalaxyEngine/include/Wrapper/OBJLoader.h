@@ -14,10 +14,16 @@ namespace GALAXY
 		public:
 			static void Load(const std::filesystem::path& fullPath, Resource::Model* outputModel);
 		private:
+			struct OBJMaterial
+			{
+				std::filesystem::path name;
+			};
+
 			struct OBJSubMesh
 			{
 				size_t startIndex = -1;
 				size_t count = -1;
+				std::optional<OBJMaterial> material;
 			};
 
 			struct OBJMesh
@@ -35,6 +41,7 @@ namespace GALAXY
 			std::vector<OBJMesh> m_meshes;
 
 			std::filesystem::path m_path;
+			std::optional<std::filesystem::path> m_mtlPath;
 		private:
 			bool Parse();
 

@@ -8,7 +8,6 @@ namespace GALAXY
 	{
 		std::shared_ptr<Core::GameObject> shared = std::make_shared<Core::GameObject>(std::forward<Args>(args)...);
 		shared->m_scene = this;
-		shared->Initialize();
 
 		AddObject(shared);
 
@@ -22,7 +21,7 @@ namespace GALAXY
 		if (!m_objectList.contains(gameObject->m_UUID))
 		{
 			m_objectList[gameObject->m_UUID] = gameObject;
-			gameObject->m_scene = this;
+			gameObject->SetScene(this);
 		}
 		else
 		{

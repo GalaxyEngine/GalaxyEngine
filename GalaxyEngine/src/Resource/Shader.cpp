@@ -142,7 +142,7 @@ void main()
 			if (vertexUUID != INDEX_NONE)
 			{
 				Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertexUUID);
-				ASSERT(vertexShader.lock());
+				//ASSERT(vertexShader.lock());
 				if (vertexShader.lock()) {
 					SetVertex(vertexShader.lock(), thisShader);
 				}

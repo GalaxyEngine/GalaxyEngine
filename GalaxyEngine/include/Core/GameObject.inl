@@ -86,7 +86,7 @@ namespace GALAXY {
 			PrintError("Incorrect Type for component");
 			return;
 		}
-		component->SetGameObject(weak_from_this());
+		component->SetGameObject(this);
 		m_components.push_back(component);
 		component->p_id = static_cast<uint32_t>(m_components.size() - 1);
 		component->OnCreate();
@@ -166,7 +166,7 @@ namespace GALAXY {
 	template<typename T>
 	inline void Core::GameObject::AddComponent(Shared<T> component, uint32_t index)
 	{
-		component->SetGameObject(weak_from_this());
+		component->SetGameObject(this);
 		component->p_id = index;
 		m_components.insert(m_components.begin() + index, component);
 	}

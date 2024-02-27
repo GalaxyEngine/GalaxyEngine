@@ -2,6 +2,10 @@
 #include "GalaxyAPI.h"
 namespace GALAXY 
 {
+	namespace Resource
+	{
+		class Model;
+	}
 	namespace Editor::UI
 	{
 		class MainBar
@@ -17,7 +21,9 @@ namespace GALAXY
 
 			static void OpenScene(const std::string& path);
 
+			void AddModelToScene();
 		private:
+			Weak<Resource::Model> m_waitingModel;
 		};
 	}
 }

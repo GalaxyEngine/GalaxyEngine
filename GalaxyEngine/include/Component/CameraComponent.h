@@ -36,7 +36,9 @@ namespace GALAXY
 			bool IsVisible() const override;
 
 			inline Component::Transform* GetTransform() const override {
-				return p_gameObject.lock()->GetTransform();
+				if (p_gameObject == nullptr)
+					return nullptr;
+				return p_gameObject->GetTransform();
 			}
 			Vec2i GetScreenResolution() const override;
 

@@ -30,7 +30,7 @@ namespace GALAXY
 
 	void Component::CameraComponent::OnEditorDraw()
 	{
-		const Shared<Core::GameObject> game_object = GetGameObject();
+		const Core::GameObject* game_object = GetGameObject();
 
 		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
 		m_editorIcon.Render(game_object->GetSceneGraphID());

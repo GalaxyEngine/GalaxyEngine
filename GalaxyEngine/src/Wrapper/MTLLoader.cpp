@@ -35,7 +35,7 @@ namespace GALAXY
 				endMaterial(currentMaterial);
 				std::string name;
 				iss >> name;
-				const std::filesystem::path& matFullPath = path.parent_path() / name.append(".mat");
+				const std::filesystem::path& matFullPath = GetMaterialPath(path, name);
 				currentMaterial = Resource::ResourceManager::GetOrLoad<Resource::Material>(matFullPath).lock();
 				if (currentMaterial)
 				{
@@ -89,6 +89,11 @@ namespace GALAXY
 		}
 		endMaterial(currentMaterial);
 		return true;
+	}
+
+	std::filesystem::path Wrapper::MTLLoader::GetMaterialPath(const std::filesystem::path& mtlPath, const std::string& materialName)
+	{
+		return mtlPath.parent_path() / (materialName + ".mat");
 	}
 
 }

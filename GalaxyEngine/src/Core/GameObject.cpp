@@ -15,6 +15,7 @@ namespace GALAXY
 	GameObject::GameObject()
 	{
 		m_transform = std::make_unique<Component::Transform>();
+		m_transform->SetGameObject(this);
 	}
 
 	GameObject::GameObject(const String& name) : GameObject()
@@ -91,11 +92,6 @@ namespace GALAXY
 	{
 		if (index < m_children.size())
 			m_children.erase(m_children.begin() + index);
-	}
-
-	void GameObject::Initialize()
-	{
-		m_transform->SetGameObject(shared_from_this());
 	}
 
 	void GameObject::UpdateSelfAndChild() const
@@ -297,7 +293,7 @@ namespace GALAXY
 
 		parser.PushDepth();
 		m_transform->Deserialize(parser);
-		m_transform->SetGameObject(shared_from_this());
+		m_transform->SetGameObject(this);
 
 		for (size_t i = 0; i < componentNumber; i++)
 		{
@@ -332,4 +328,14 @@ namespace GALAXY
 			m_scene->AddObject(child);
 		}
 	}
+
+	void GameObject::SetScene(Resource::Scene* scene)
+	{
+		m_scene = scene;
+		for (Shared<GameObject>& child : m_children)
+		{
+			child->SetScene(scene);
+		}
+	}
+
 }

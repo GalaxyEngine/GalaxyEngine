@@ -255,7 +255,7 @@ void Editor::UI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Move Up", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
+			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject();
 			const uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index - 1);
@@ -265,7 +265,7 @@ void Editor::UI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Move Down", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject().get();
+			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject();
 			const uint32_t index = m_rightClicked.lock()->GetIndex();
 
 			owner->ChangeComponentIndex(index, index + 1);
