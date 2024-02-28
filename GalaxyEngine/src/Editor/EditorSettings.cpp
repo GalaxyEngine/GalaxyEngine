@@ -5,13 +5,26 @@
 #include "Editor/EditorSettings.h"
 
 #include "Core/Application.h"
+
+#include "Render/Camera.h"
+#include "Editor/EditorCamera.h"
+
+#include "Resource/ResourceManager.h"
+
 #include "Scripting/ScriptEngine.h"
 
+#include "Wrapper/ImageLoader.h"
 
 #include "Utils/FileInfo.h"
 
 namespace GALAXY
 {
+
+	Editor::EditorSettings::~EditorSettings()
+	{
+
+	}
+
 	Editor::EditorSettings& Editor::EditorSettings::GetInstance()
 	{
 		return Core::Application::GetInstance().GetEditorSettings();
@@ -76,6 +89,11 @@ namespace GALAXY
 		}
 	}
 
+	void Editor::EditorSettings::TakeScreenShot()
+	{
+		m_shouldTakeScreenshot = true;
+	}
+
 	void Editor::EditorSettings::AddListElement(const EditorSettingsTab tab)
 	{
 		if (ImGui::Selectable(SerializeEditorSettingsTabValue(tab)))
@@ -133,6 +151,13 @@ namespace GALAXY
 
 	void Editor::EditorSettings::DisplayAppearanceTab()
 	{
+		ImGui::TextUnformatted("Project Thumbnail");
+		ImGui::TreePush("Project Thumbnail");
+		Wrapper::GUI::TextureImage(m_projectThumbnail.lock().get(), Vec2f(128, 128), { 0, 1 }, { 1, 0 });
+		if (ImGui::Button("Take Screenshot to set Project Thumbnail"))
+			TakeScreenShot();
+		ImGui::TreePop();
+
 		ImGui::ShowStyleEditor();
 	}
 
@@ -164,6 +189,32 @@ namespace GALAXY
 		}
 	}
 
+	void Editor::EditorSettings::UpdateScreenShot()
+	{
+		if (!m_shouldTakeScreenshot)
+			return;
+		m_shouldTakeScreenshot = false;
+
+		auto renderer = Wrapper::Renderer::GetInstance();
+
+		Vec2i frameBufferSize = Core::Application::GetInstance().GetWindow()->GetSize();
+
+		Wrapper::Image imageData;
+		imageData.size = frameBufferSize;
+		imageData.data = new uint8_t[frameBufferSize.x * frameBufferSize.y * 4];
+
+		renderer->BindRenderBuffer(Render::Camera::GetEditorCamera()->GetFramebuffer().get());
+		renderer->ReadPixels(imageData.size, imageData.data);
+
+		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetInstance()->GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+
+		PrintLog("Save project thumbnail to %s", thumbnailPath.generic_string().c_str());
+		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
+		delete[] imageData.data;
+
+		m_projectThumbnail = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
+	}
+
 	void Editor::EditorSettings::SaveSettings() const
 	{
 		CppSer::Serializer serializer("Editor.settings");
@@ -182,6 +233,8 @@ namespace GALAXY
 		}
 		m_scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
 
+		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetInstance()->GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
 
 }

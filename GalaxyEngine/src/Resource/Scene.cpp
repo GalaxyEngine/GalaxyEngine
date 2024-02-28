@@ -9,7 +9,7 @@
 #include "Resource/ResourceManager.h"
 
 #include "Render/Camera.h"
-#include "Render/EditorCamera.h"
+#include "Editor/EditorCamera.h"
 #include "Render/Grid.h"
 #include "Render/Framebuffer.h"
 #include "Render/LightManager.h"

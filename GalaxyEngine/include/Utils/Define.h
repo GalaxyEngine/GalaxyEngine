@@ -13,6 +13,7 @@
 #define CAMERA_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/camera.png"
 
 #define THUMBNAIL_PATH "Cache/thumbnail/"
+#define PROJECT_THUMBNAIL_PATH "Cache/thumbnail/project.tmb"
 
 // -- Meshes -- //
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Plane.obj:Plane"

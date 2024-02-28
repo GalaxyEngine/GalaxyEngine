@@ -1,6 +1,6 @@
 #include "pch.h"
 
-#include "Render/EditorCamera.h"
+#include "Editor/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Utils/Define.h"

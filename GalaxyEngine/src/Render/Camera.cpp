@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Render/Camera.h"
-#include "Render/EditorCamera.h"
+#include "Editor/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Core/Application.h"

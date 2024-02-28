@@ -7,7 +7,7 @@
 #include "Core/Input.h"
 
 #include "Render/Camera.h"
-#include "Render/EditorCamera.h"
+#include "Editor/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Editor/Gizmo.h"

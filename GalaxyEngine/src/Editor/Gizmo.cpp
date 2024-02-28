@@ -13,7 +13,7 @@
 #include "Resource/Scene.h"
 
 #include "Render/Camera.h"
-#include "Render/EditorCamera.h"
+#include "Editor/EditorCamera.h"
 
 #include "Editor/UI/EditorUIManager.h"
 #include "Editor/UI/SceneWindow.h"

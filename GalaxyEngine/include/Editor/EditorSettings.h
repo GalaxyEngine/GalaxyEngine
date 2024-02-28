@@ -3,6 +3,14 @@
 #include <optional>
 namespace GALAXY 
 {
+	namespace Core
+	{
+		class Application;
+	}
+	namespace Resource
+	{
+		class Texture;
+	}
 	namespace Editor
 	{
 		enum class EditorSettingsTab
@@ -46,11 +54,13 @@ namespace GALAXY
 		class EditorSettings
 		{
 		public:
-			~EditorSettings() {}
+			~EditorSettings();
 
 			static EditorSettings& GetInstance();
 
 			void Draw();
+
+			void TakeScreenShot();
 
 			void AddListElement(EditorSettingsTab tab);
 
@@ -67,8 +77,11 @@ namespace GALAXY
 			void DisplayAppearanceTab();
 			void DisplayBenchmarkTab();
 
+			void UpdateScreenShot();
 		private:
+			friend Core::Application;
 			bool m_firstUpdate = false;
+			bool m_shouldTakeScreenshot = false;
 
 			EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
 #if defined(_WIN32)
@@ -76,6 +89,7 @@ namespace GALAXY
 #else
 			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
 #endif
+			Weak<Resource::Texture> m_projectThumbnail = {};
 		};
 	}
 }

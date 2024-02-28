@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Camera.h"
+#include "Render/Camera.h"
 
 namespace GALAXY 
 {

@@ -52,8 +52,6 @@ namespace GALAXY {
 		m_window->SetVSync(true);
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
-		m_editorSettings.LoadSettings();
-
 		// Initialize GUI Lib
 		Wrapper::GUI::Initialize(m_window, "#version 450");
 
@@ -87,6 +85,8 @@ namespace GALAXY {
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
 		m_resourceManager->LoadNeededResources();
 		m_resourceManager->ReadCache();
+
+		m_editorSettings.LoadSettings();
 
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
@@ -187,6 +187,8 @@ namespace GALAXY {
 			//BEGINDRAW
 			m_sceneHolder->Update();
 			//ENDDRAW
+
+			m_editorSettings.UpdateScreenShot();
 
 			// Rendering
 			Wrapper::GUI::EndFrame(m_window);
