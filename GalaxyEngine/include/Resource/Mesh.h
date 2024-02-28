@@ -43,7 +43,7 @@ namespace GALAXY
 
 			Utils::Event<> OnLoad;
 		private:
-			void ComputeBoundingBox();
+			void ComputeBoundingBox(const std::vector<Vec3f>& positionVertices);
 
 		private:
 			friend Wrapper::OBJLoader;
@@ -57,9 +57,6 @@ namespace GALAXY
 
 			Model* m_model = nullptr;
 
-			std::vector<Vec3f> m_positions;
-			std::vector<Vec2f> m_textureUVs;
-			std::vector<Vec3f> m_normals;
 			std::vector<Vec3i> m_indices;
 			std::vector<float> m_finalVertices;
 			std::vector<SubMesh> m_subMeshes;

@@ -154,7 +154,7 @@ namespace GALAXY
 		if (!m_object.lock())
 			return;
 
-		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
+		Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 
 		if (!Render::Camera::GetEditorCamera()->IsLooking() && sceneWindow->IsHovered())
 		{

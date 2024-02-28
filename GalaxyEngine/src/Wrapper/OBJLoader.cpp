@@ -16,6 +16,8 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 	model.m_path = fullPath;
 	if (!model.Parse())
 		return;
+	std::vector<std::vector<Vec3f>> positionVertices;
+	positionVertices.resize(model.m_meshes.size());
 	for (size_t i = 0; i < model.m_meshes.size(); i++) {
 
 		const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, model.m_meshes[i].name);
@@ -29,9 +31,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 			meshWeak = sharedMesh;
 		}
 
-		mesh->m_positions = model.m_meshes[i].positions;
-		mesh->m_textureUVs = model.m_meshes[i].textureUVs;
-		mesh->m_normals = model.m_meshes[i].normals;
+		positionVertices[i] = model.m_meshes[i].positions;
 		mesh->m_indices = model.m_meshes[i].indices;
 		mesh->m_finalVertices = model.m_meshes[i].finalVertices;
 		for (size_t j = 0; j < model.m_meshes[i].subMeshes.size(); j++) {
@@ -59,7 +59,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		mesh->SendRequest();
 	}
-	outputModel->ComputeBoundingBox();
+	outputModel->ComputeBoundingBox(positionVertices);
 
 	PrintLog("Successfully Loaded Model %s", fullPath.string().c_str());
 }
@@ -78,7 +78,7 @@ bool Wrapper::OBJLoader::Parse()
 		if (subMeshes.size() > 0) {
 			subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
 		}
-	};
+		};
 
 	OBJMesh currentMesh;
 	std::string line;
@@ -321,4 +321,10 @@ void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIn
 bool Wrapper::OBJLoader::ReadMtl(const std::filesystem::path& mtlPath)
 {
 	return Wrapper::MTLLoader::Load(mtlPath);
+}
+
+Wrapper::OBJLoader::~OBJLoader()
+{
+	int x = 0;
+	x++;
 }

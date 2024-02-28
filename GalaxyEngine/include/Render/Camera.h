@@ -34,7 +34,6 @@ namespace GALAXY
 
 			inline virtual Component::Transform* GetTransform() const = 0;
 
-
 			inline void SetSize(const Vec2i& framebufferSize);
 
 			virtual bool IsVisible() const;

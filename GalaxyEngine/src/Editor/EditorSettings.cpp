@@ -107,6 +107,11 @@ namespace GALAXY
 
 	void Editor::EditorSettings::DisplayGeneralTab()
 	{
+		bool enableVSync = Core::Application::GetInstance().GetWindow()->IsVSyncEnable();
+		if (ImGui::Checkbox("Enable VSync", &enableVSync))
+		{
+			Core::Application::GetInstance().GetWindow()->SetVSync(enableVSync);
+		}
 		if (ImGui::Button("Reload Project DLL"))
 		{
 			Scripting::ScriptEngine::GetInstance()->ReloadDLL();

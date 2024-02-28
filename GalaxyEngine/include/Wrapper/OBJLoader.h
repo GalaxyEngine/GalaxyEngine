@@ -12,6 +12,8 @@ namespace GALAXY
 		class OBJLoader
 		{
 		public:
+			~OBJLoader();
+
 			static void Load(const std::filesystem::path& fullPath, Resource::Model* outputModel);
 		private:
 			struct OBJMaterial

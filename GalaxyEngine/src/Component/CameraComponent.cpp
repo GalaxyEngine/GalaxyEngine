@@ -19,8 +19,6 @@ namespace GALAXY
 			return;
 		scene->AddCamera(std::static_pointer_cast<CameraComponent>(self.lock()));
 		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(CAMERA_ICON_PATH));
-
-
 	}
 
 	void Component::CameraComponent::OnDraw()
@@ -37,7 +35,7 @@ namespace GALAXY
 
 		if (game_object->IsSelected())
 		{
-			static auto instance = Wrapper::Renderer::GetInstance();
+			auto instance = Wrapper::Renderer::GetInstance();
 			Vec2f screenResolution = GetScreenResolution(); // Assuming this doesn't change often
 			std::vector<Vec3f> points(8);
 

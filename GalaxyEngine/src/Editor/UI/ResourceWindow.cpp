@@ -50,7 +50,7 @@ namespace GALAXY
 				}
 				if (ImGui::IsItemClicked())
 				{
-					static auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+					auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
 					Shared<File> file = std::make_shared<File>(resource.second->GetFileInfo().GetFullPath());
 					fileExplorer->ClearSelected();
 					fileExplorer->AddFileSelected({ file });

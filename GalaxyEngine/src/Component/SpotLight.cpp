@@ -37,7 +37,7 @@ namespace GALAXY
 
 		if (!GetGameObject()->IsSelected())
 			return;
-		static auto renderer = Wrapper::Renderer::GetInstance();
+		auto renderer = Wrapper::Renderer::GetInstance();
 		Vec3f worldPosition = GetTransform()->GetWorldPosition();
 		Quat worldRotation = GetTransform()->GetWorldRotation();
 		renderer->DrawWireCone(worldPosition, worldRotation, 0.01f, m_outerCutOff, 25.f, Vec4f(0.980f, 0.804f, 0.0196f, 1.0f), 5.f);

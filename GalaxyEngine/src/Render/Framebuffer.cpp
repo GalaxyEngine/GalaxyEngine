@@ -18,7 +18,6 @@ namespace GALAXY {
 	static std::set<size_t> s_indexArray = {};
 	Render::Framebuffer::Framebuffer(const Vec2i& size) : m_size(size)
 	{
-		m_renderer = Wrapper::Renderer::GetInstance();
 		// Check for free index in list of indices
 		int freeIndex = 0;
 		while (s_indexArray.contains(freeIndex)) {
@@ -63,20 +62,21 @@ namespace GALAXY {
 		}
 	}
 
-	void Render::Framebuffer::RenderPostProcess(const Vec2i& size)
+	void Render::Framebuffer::RenderPostProcess(const Vec2i& size, const Vec4f& clearColor)
 	{
 		if (!m_postProcess)
 			return;
+		auto renderer = Wrapper::Renderer::GetInstance();
 		const auto postProcessFramebuffer = m_postProcess.get();
 
 		m_postProcess->Update(Core::Application::GetInstance().GetWindow()->GetSize());
-		m_renderer->BindRenderBuffer(postProcessFramebuffer);
+		renderer->BindRenderBuffer(postProcessFramebuffer);
 
-		m_renderer->ClearColorAndBuffer(m_clearColor);
+		renderer->ClearColorAndBuffer(clearColor);
 
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
 
-		m_renderer->UnbindRenderBuffer(postProcessFramebuffer);
+		renderer->UnbindRenderBuffer(postProcessFramebuffer);
 	}
 
 	void Render::Framebuffer::Begin(const Vec2i& size)
@@ -85,10 +85,10 @@ namespace GALAXY {
 		Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);
 	}
 
-	void Render::Framebuffer::End(const Vec2i& size)
+	void Render::Framebuffer::End(const Vec2i& size, const Vec4f& clearColor)
 	{
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
-		RenderPostProcess(size);
+		RenderPostProcess(size, clearColor);
 	}
 
 	void Render::Framebuffer::SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader)

@@ -20,7 +20,6 @@ namespace GALAXY {
 	{
 		p_status = ResourceStatus::DisplayOnInspector;
 		const std::string fullPathString = p_fileInfo.m_fullPath.string();
-		p_fileInfo.m_fileName = fullPathString.substr(fullPathString.find_last_of(':') + 1);
 	}
 
 	void Resource::Mesh::Load()
@@ -64,6 +63,12 @@ namespace GALAXY {
 		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 
 		OnLoad.Invoke();
+
+		m_finalVertices.clear();
+		m_finalVertices.shrink_to_fit();
+
+		m_indices.clear();
+		m_indices.shrink_to_fit();
 	}
 
 	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/) const
@@ -98,10 +103,10 @@ namespace GALAXY {
 		return modelPath.wstring() + L":" + fileName.wstring();
 	}
 
-	void Resource::Mesh::ComputeBoundingBox()
+	void Resource::Mesh::ComputeBoundingBox(const std::vector<Vec3f>& positionVertices)
 	{
-		ASSERT(!m_positions.empty());
-		for (const auto& vertex : m_positions) {
+		ASSERT(!positionVertices.empty());
+		for (const auto& vertex : positionVertices) {
 			m_boundingBox.min.x = std::min(m_boundingBox.min.x, vertex.x);
 			m_boundingBox.min.y = std::min(m_boundingBox.min.y, vertex.y);
 			m_boundingBox.min.z = std::min(m_boundingBox.min.z, vertex.z);

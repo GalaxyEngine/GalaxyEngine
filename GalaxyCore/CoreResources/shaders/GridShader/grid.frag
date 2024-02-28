@@ -58,6 +58,7 @@ void main() {
 
     FragColor = (grid(fragPos3D, 1, true) + grid(fragPos3D, 0.1, true))* float(t > 0); // adding multiple resolution for the grid
     FragColor.a *= fading;
-    if (FragColor.a <= 0.f)
+
+    if (FragColor.a <= 0.1f)
         discard;
 }

@@ -95,7 +95,7 @@ namespace GALAXY
 
 	void Render::LightManager::SendLightData() const
 	{
-		const Vec3f viewPos = Render::Camera::GetEditorCamera()->GetTransform()->GetLocalPosition();
+		const Vec3f viewPos = Render::Camera::GetCurrentCamera().lock()->GetTransform()->GetLocalPosition();
 		if (m_lights.empty())
 		{
 			return;

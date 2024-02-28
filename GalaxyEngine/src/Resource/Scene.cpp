@@ -68,11 +68,11 @@ namespace GALAXY
 
 	void Scene::Update()
 	{
-		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
-		static Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
-		static Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
-		static Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
-		static Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
+		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+		Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
+		Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
+		Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
 		const Vec2i windowSize = Core::Application::GetInstance().GetWindow()->GetSize();
 
 		editorUIManager->DrawUI();
@@ -92,7 +92,8 @@ namespace GALAXY
 				Render::Framebuffer* outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
 				outlineFrameBuffer->Begin(windowSize);
 
-				renderer->ClearColorAndBuffer(Vec4f(0));
+				constexpr Vec4f clearColor = Vec4f(0);
+				renderer->ClearColorAndBuffer(clearColor);
 
 				renderer->SetRenderingType(Render::RenderType::Outline);
 				for (auto& selected : inspector->GetSelectedGameObjects())
@@ -100,7 +101,7 @@ namespace GALAXY
 					selected.lock()->DrawSelfAndChild(DrawMode::Editor);
 				}
 				renderer->SetRenderingType(Render::RenderType::Default);
-				outlineFrameBuffer->End(windowSize);
+				outlineFrameBuffer->End(windowSize, clearColor);
 			}
 
 			// Bind Default Framebuffer
@@ -199,6 +200,11 @@ namespace GALAXY
 
 #pragma region Resource Methods
 
+	Scene::~Scene()
+	{
+		Unload();
+	}
+
 	void Resource::Scene::Load()
 	{
 		if (p_shouldBeLoaded)
@@ -234,6 +240,7 @@ namespace GALAXY
 	void Scene::Unload()
 	{
 		m_root->Destroy();
+		m_root.reset();
 	}
 
 	void Scene::Send()

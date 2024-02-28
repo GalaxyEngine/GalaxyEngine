@@ -31,15 +31,15 @@ namespace GALAXY
 		m_scene = std::make_shared<Resource::Scene>("Temp");
 		m_scene->Initialize();
 
-		m_cameraObject = std::make_shared<Core::GameObject>();
+		m_cameraObject = std::make_shared<Core::GameObject>("Camera");
 		m_scene->AddObject(m_cameraObject);
 		m_camera = m_cameraObject->AddComponent<Component::CameraComponent>().lock();
 		m_camera->SetClearColor(clearColor);
 
-		m_sphereMaterialObject = std::make_shared<Core::GameObject>();
+		m_sphereMaterialObject = std::make_shared<Core::GameObject>("Sphere");
 		m_scene->AddObject(m_sphereMaterialObject);
 
-		auto lightObject = std::make_shared<Core::GameObject>();
+		auto lightObject = std::make_shared<Core::GameObject>("Directional");
 		m_scene->AddObject(lightObject);
 		lightObject->AddComponent<Component::DirectionalLight>();
 
@@ -58,6 +58,16 @@ namespace GALAXY
 		m_initialized = true;
 	}
 
+	void Editor::ThumbnailCreator::Release()
+	{
+		m_sphereMaterialObject.reset();
+		m_cameraObject.reset();
+		m_camera.reset();
+		m_scene.reset();
+
+		m_initialized = false;
+	}
+
 	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& resource)
 	{
 		m_thumbnailQueue.push_back(resource.lock()->GetFileInfo().GetFullPath());
@@ -68,7 +78,7 @@ namespace GALAXY
 		auto modelShared = model.lock();
 		ASSERT(modelShared != nullptr);
 
-		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		auto modelObject = modelShared->ToGameObject();
 		bool canBeCreated = modelShared->HasBeenSent();
 		for (auto& meshComp : modelObject->GetComponentsInChildren<Component::MeshComponent>())
@@ -97,7 +107,6 @@ namespace GALAXY
 		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 		const auto currentCamera = currentScene->GetCurrentCamera();
 		//Core::SceneHolder::GetInstance()->SetCurrentScene(m_scene);
-		constexpr Vec2i frameBufferSize(1024);
 
 		float max = FLT_MIN;
 		for (int i = 0; i < 3; i++)
@@ -111,9 +120,9 @@ namespace GALAXY
 		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
 
-		m_camera->SetSize(frameBufferSize);
+		m_camera->SetSize(m_thumbnailSize);
 		currentScene->SetCurrentCamera(m_camera);
-		renderer->SetViewport(frameBufferSize);
+		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
 		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
@@ -133,7 +142,7 @@ namespace GALAXY
 		// Save thumbnail to file 
 		const Path thumbnailPath = GetThumbnailPath(modelShared->GetUUID());
 
-		SaveThumbnail(thumbnailPath, frameBufferSize);
+		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
 
 	void Editor::ThumbnailCreator::CreateMaterialThumbnail(const Weak<Resource::Material>& material)
@@ -142,7 +151,7 @@ namespace GALAXY
 		ASSERT(materialShared != nullptr);
 		constexpr Vec3f cameraPosition(0, 0, 2);
 		const Quat cameraAngleAxis = Quat::AngleAxis(180, Vec3f(0, 0, 1));
-		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		const Shared<Component::MeshComponent> meshComponent = m_sphereMaterialObject->GetWeakComponent<Component::MeshComponent>().lock();
 
@@ -157,7 +166,6 @@ namespace GALAXY
 
 		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 		const auto currentCamera = currentScene->GetCurrentCamera();
-		constexpr Vec2i frameBufferSize(1024);
 
 		meshComponent->ClearMaterials();
 		meshComponent->AddMaterial(material);
@@ -165,9 +173,9 @@ namespace GALAXY
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
 		m_cameraObject->GetTransform()->SetLocalRotation(cameraAngleAxis);
 
-		m_camera->SetSize(frameBufferSize);
+		m_camera->SetSize(m_thumbnailSize);
 		currentScene->SetCurrentCamera(m_camera);
-		renderer->SetViewport(frameBufferSize);
+		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
 		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
@@ -187,13 +195,17 @@ namespace GALAXY
 		// Save thumbnail to file 
 		const Path thumbnailPath = GetThumbnailPath(materialShared->GetUUID());
 
-		SaveThumbnail(thumbnailPath, frameBufferSize);
+		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
 
 	void Editor::ThumbnailCreator::Update()
 	{
 		if (!m_thumbnailQueue.empty())
 		{
+			if (!m_initialized)
+			{
+				Initialize();
+			}
 			const auto last = m_thumbnailQueue.front();
 			m_thumbnailQueue.pop_front();
 
@@ -215,6 +227,11 @@ namespace GALAXY
 			}
 			default:
 				break;
+			}
+
+			if (m_thumbnailQueue.empty())
+			{
+				Release();
 			}
 		}
 	}
@@ -238,7 +255,7 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::SaveThumbnail(const Path& thumbnailPath, const Vec2i& frameBufferSize)
 	{
-		static auto renderer = Wrapper::Renderer::GetInstance();
+		auto renderer = Wrapper::Renderer::GetInstance();
 
 		Wrapper::Image imageData;
 		imageData.size = frameBufferSize;

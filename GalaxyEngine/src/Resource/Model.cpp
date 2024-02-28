@@ -55,7 +55,7 @@ namespace GALAXY {
 			if (m_meshes.size() != 1)
 				root->AddChild(meshGO);
 			else
-				root = meshGO; // Only one mesh, return it
+				root = std::move(meshGO); // Only one mesh, return it
 		}
 		return root;
 	}
@@ -105,19 +105,20 @@ namespace GALAXY {
 
 	void Resource::Model::CreateThumbnail()
 	{
-		static Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
 
 		const Weak modelWeak = std::dynamic_pointer_cast<Model>(shared_from_this());
 
 		thumbnailCreator->AddToQueue(modelWeak);
 	}
 
-	void Resource::Model::ComputeBoundingBox()
+	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{
-		for (auto& weakMesh : m_meshes)
+		
+		for (size_t i = 0; auto& weakMesh : m_meshes)
 		{
 			const Shared<Mesh> mesh = weakMesh.lock();
-			mesh->ComputeBoundingBox();
+			mesh->ComputeBoundingBox(positionVertices[i]);
 
 			m_boundingBox.min.x = std::min(m_boundingBox.min.x, mesh->m_boundingBox.min.x);
 			m_boundingBox.min.y = std::min(m_boundingBox.min.y, mesh->m_boundingBox.min.y);
@@ -126,6 +127,7 @@ namespace GALAXY {
 			m_boundingBox.max.x = std::max(m_boundingBox.max.x, mesh->m_boundingBox.max.x);
 			m_boundingBox.max.y = std::max(m_boundingBox.max.y, mesh->m_boundingBox.max.y);
 			m_boundingBox.max.z = std::max(m_boundingBox.max.z, mesh->m_boundingBox.max.z);
+			i++;
 		}
 
 		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;

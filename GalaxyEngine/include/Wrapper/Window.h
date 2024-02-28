@@ -82,7 +82,7 @@ namespace GALAXY
 			void SwapBuffers() const;
 
 			// --- Getters --- //
-			bool GetVSyncEnable() const;
+			bool IsVSyncEnable() const;
 			void GetSize(int* width, int* height) const;
 			Vec2i GetSize() const;
 			Vec2i GetPosition() const;

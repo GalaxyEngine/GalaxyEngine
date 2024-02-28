@@ -28,6 +28,7 @@ namespace GALAXY
 		{
 		public:
 			void Initialize();
+			void Release();
 
 			void AddToQueue(const Weak<Resource::IResource>& material);
 
@@ -42,6 +43,7 @@ namespace GALAXY
 		private:
 			void SaveThumbnail(const std::filesystem::path& thumbnailPath, const Vec2i& frameBufferSize);
 		private:
+			Vec2i m_thumbnailSize = { 256, 256 };
 			bool m_initialized = false;
 
 			std::deque<std::filesystem::path> m_thumbnailQueue;

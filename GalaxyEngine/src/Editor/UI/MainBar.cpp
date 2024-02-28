@@ -20,9 +20,9 @@ namespace GALAXY
 
 	void Editor::UI::MainBar::Draw()
 	{
-		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
-		static EditorUIManager* editorInstance = EditorUIManager::GetInstance();
-		static EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
+		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
+		EditorUIManager* editorInstance = EditorUIManager::GetInstance();
+		EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))

@@ -43,7 +43,7 @@ namespace GALAXY {
 			Scene& operator=(const Scene& other) = default;
 			Scene(const Scene&) = default;
 			Scene(Scene&&) noexcept = default;
-			~Scene() override = default;
+			~Scene() override;
 
 #pragma region Resource Methods
 			void Load() override;

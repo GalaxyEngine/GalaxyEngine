@@ -149,7 +149,7 @@ namespace GALAXY {
 
 	void Editor::UI::File::DisplayOnExplorer() const
 	{
-		static FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
+		FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
 		if (m_info.isDirectory())
 		{
 			ImGui::BeginGroup();
@@ -336,7 +336,7 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::HandleDropFile(const int count, const char** paths) const
 	{
-		static auto window = Core::Application::GetInstance().GetWindow();
+		auto window = Core::Application::GetInstance().GetWindow();
 		if (!p_open || !m_visible)
 			return;
 

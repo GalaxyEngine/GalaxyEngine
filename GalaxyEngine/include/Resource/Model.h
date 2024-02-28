@@ -44,7 +44,7 @@ namespace GALAXY {
 
 			Utils::Event<> OnLoad;
 		private:
-			void ComputeBoundingBox();
+			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;

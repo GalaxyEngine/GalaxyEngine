@@ -55,11 +55,11 @@ namespace GALAXY
 
 			inline Path GetFullPath() const { return m_fullPath; }
 			inline Path GetRelativePath() const { return m_relativePath; }
-			inline String GetFileName() const { return m_fileName; }
+			inline String GetFileName() const { return m_fullPath.filename().string(); }
 			inline String GetFileNameNoExtension() const { return m_fullPath.filename().stem().string(); }
 			inline Path GetExtension() const { return m_fullPath.empty() ? "" : m_fullPath.extension(); }
 			inline ResourceDir GetResourceDir() const { return m_resourceDir; }
-			inline Resource::ResourceType GetResourceType() const { return GetTypeFromExtension(GetExtension()); }
+			inline Resource::ResourceType GetResourceType() const { return m_resourceType; }
 
 			inline bool isDirectory() const { return m_isDirectory; }
 			inline bool Exist() const { return std::filesystem::exists(m_fullPath); }
@@ -71,8 +71,8 @@ namespace GALAXY
 			bool m_isDirectory = false;
 			Path m_fullPath;
 			Path m_relativePath;
-			String m_fileName;
 			ResourceDir m_resourceDir = ResourceDir::None;
+			Resource::ResourceType m_resourceType;
 		};
 	}
 }

@@ -22,7 +22,6 @@ namespace GALAXY
 	Render::Camera::Camera()
 	{
 		p_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
-		p_framebuffer->SetClearColor(p_clearColor);
 	}
 
 	void Render::Camera::DisplayCameraSettings()
@@ -91,7 +90,7 @@ namespace GALAXY
 
 	void Render::Camera::End() const
 	{
-		p_framebuffer->End(p_framebufferSize);
+		p_framebuffer->End(p_framebufferSize, p_clearColor);
 	}
 
 }

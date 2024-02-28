@@ -45,7 +45,7 @@ namespace GALAXY {
 
 	void Resource::Material::CreateThumbnail()
 	{
-		static Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
 
 		const Weak materialWeak = std::dynamic_pointer_cast<Material>(shared_from_this());
 
@@ -152,7 +152,7 @@ namespace GALAXY {
 
 	Weak<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const
 	{
-		static auto renderer = Wrapper::Renderer::GetInstance();
+		auto renderer = Wrapper::Renderer::GetInstance();
 		const auto renderType = renderer->GetRenderType();
 		Shared<Resource::Shader> shader = {};
 		switch (renderType)
@@ -201,7 +201,7 @@ namespace GALAXY {
 		break;
 		case Render::RenderType::Outline:
 		{
-			static auto unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
+			auto unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
 			if (!unlitShader || !unlitShader->HasBeenSent())
 				return {};
 			unlitShader->Use();

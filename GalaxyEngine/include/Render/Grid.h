@@ -15,7 +15,7 @@ namespace GALAXY
 			Grid& operator=(const Grid& other) = default;
 			Grid(const Grid&) = default;
 			Grid(Grid&&) noexcept = default;
-			virtual ~Grid() {}
+			virtual ~Grid();
 
 			void Initialize();
 			

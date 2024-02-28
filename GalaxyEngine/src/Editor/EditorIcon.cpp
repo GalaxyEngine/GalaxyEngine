@@ -37,7 +37,7 @@ namespace GALAXY
 
 	void Editor::EditorIcon::Render(uint64_t id/*= -1*/)
 	{
-		static Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		// Don't render outline of the plane because it's ugly
 		if (renderer->GetRenderType() == Render::RenderType::Outline)

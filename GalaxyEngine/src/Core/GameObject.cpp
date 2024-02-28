@@ -25,11 +25,6 @@ namespace GALAXY
 
 	GameObject::~GameObject()
 	{
-		//PrintError("GameObject \"%s\" deleted !", m_name.c_str());
-	}
-
-	void GameObject::Destroy()
-	{
 		for (size_t i = 0; m_components.size(); i++)
 		{
 			m_components[i]->RemoveFromGameObject();
@@ -37,12 +32,19 @@ namespace GALAXY
 		}
 		for (size_t i = 0; i < m_children.size(); i++)
 		{
+			size_t previousSize = m_children.size();
 			m_children[i]->Destroy();
-			i--;
+			if (previousSize != m_children.size())
+				i--;
 		}
+	}
 
+	void GameObject::Destroy()
+	{
 		RemoveFromParent();
-		GetScene()->RemoveObject(this);
+
+		if (m_scene)
+			m_scene->RemoveObject(this);
 	}
 
 	void GameObject::AddChild(const Shared<GameObject>& child, const uint32_t index /*= -1*/)

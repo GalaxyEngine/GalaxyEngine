@@ -44,7 +44,6 @@ namespace GALAXY
 		m_fullPath = ToPath(path);
 		if (createRelativePath)
 			m_relativePath = ToRelativePath(m_fullPath);
-		m_fileName = m_fullPath.filename().string();
 
 		if (!m_relativePath.empty())
 		{
@@ -59,6 +58,8 @@ namespace GALAXY
 		}
 
 		m_isDirectory = std::filesystem::is_directory(m_fullPath);
+
+		m_resourceType = GetTypeFromExtension(m_fullPath.extension());
 	}
 
 	Path Utils::FileInfo::ToPath(const Path& path)

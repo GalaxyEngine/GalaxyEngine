@@ -30,12 +30,9 @@ namespace GALAXY {
 			void ShowInInspector() override;
 		private:
 			Weak<Resource::Mesh> m_mesh;
-
 			List<Weak<Resource::Material>> m_materials;
 
 			bool m_drawBoundingBox = false;
-
-			REFLECTION_FRIEND
 		};
 	}
 }

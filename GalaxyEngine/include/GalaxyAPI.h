@@ -11,12 +11,3 @@ using namespace GALAXY;
 #elif defined(__linux__)
 	#define GALAXY_API __attribute__((visibility("default")))
 #endif
-
-#ifdef GALAXY_EXPORTS
-	#ifdef ENABLE_REFLECTION
-		#include <rttr/registration_friend.h>
-		#define REFLECTION_FRIEND RTTR_REGISTRATION_FRIEND
-	#else
-		#define REFLECTION_FRIEND
-	#endif
-#endif

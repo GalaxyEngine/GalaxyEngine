@@ -11,10 +11,6 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	/*TODO :
-	 * Implement Font scaling
-	*/
-
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
@@ -30,7 +26,7 @@ void Main(int argc, char** argv)
 	std::filesystem::path projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
 #endif
 	#elif defined(__linux__)
-	std::filesystem::path projectPath = "//home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
+	std::filesystem::path projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
 	#endif
 	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
 	if (argc > 1)

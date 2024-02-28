@@ -93,8 +93,8 @@ namespace GALAXY {
 		glfwSwapBuffers(glfwWindow);
 	}
 
-	bool Wrapper::Window::GetVSyncEnable() const
-	{
+	bool Wrapper::Window::IsVSyncEnable() const
+{
 		return m_vsync;
 	}
 

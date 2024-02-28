@@ -6,24 +6,24 @@
 Resource::Texture::~Texture()
 {
 	Wrapper::Renderer::GetInstance()->DestroyTexture(this);
-	if (p_shouldBeLoaded && !p_hasBeenSent)
+	if (m_bytes != nullptr)
 		Wrapper::ImageLoader::ImageFree(m_bytes);
 }
 
 void Resource::Texture::Load()
 {
-	if (p_shouldBeLoaded)
+	if (p_shouldBeLoaded.load())
 		return;
+	p_shouldBeLoaded.store(true);
 
 	if (p_fileInfo.GetExtension() == ".tmb") {
 		this->SetDisplayOnInspector(false);
 		this->SetCreateDataFile(false);
 	}
 
-	p_shouldBeLoaded = true;
 	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
-	if (m_bytes = image.data) {
-		p_loaded = true;
+	if (m_bytes = std::move(image.data)) {
+		p_loaded.store(true);
 		m_size = image.size;
 	}
 	else
@@ -40,9 +40,10 @@ void Resource::Texture::Send()
 {
 	if (p_hasBeenSent)
 		return;
+	p_hasBeenSent.store(true);
 	Wrapper::Renderer::GetInstance()->CreateTexture(this);
 	Wrapper::ImageLoader::ImageFree(m_bytes);
-	p_hasBeenSent = true;
+	m_bytes = nullptr;
 }
 
 void Resource::Texture::Bind(const uint32_t index /* = 0 */)

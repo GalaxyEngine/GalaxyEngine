@@ -74,7 +74,6 @@ namespace GALAXY
 			Weak<Texture> m_parallaxMap;
 			float m_heightScale = 1.f;
 
-
 		};
 	}
 }

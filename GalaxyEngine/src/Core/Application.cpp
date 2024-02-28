@@ -49,7 +49,7 @@ namespace GALAXY {
 		windowConfig.height = 900;
 		windowConfig.name = "Galaxy Engine";
 		m_window->Create(windowConfig);
-		m_window->SetVSync(false);
+		m_window->SetVSync(true);
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
 		m_editorSettings.LoadSettings();
@@ -109,9 +109,6 @@ namespace GALAXY {
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
 		m_scriptEngine->RegisterScriptComponents();
-
-		// Initialize Thumbnail Creator after Resource Manager
-		m_thumbnailCreator->Initialize();
 	}
 
 	void Core::Application::UpdateResources()
