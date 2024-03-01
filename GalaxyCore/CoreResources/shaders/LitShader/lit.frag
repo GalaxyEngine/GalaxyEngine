@@ -18,17 +18,17 @@ struct Material
 
 struct DirectionalLight {
     bool enable;
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
     vec3 direction;
 };
 
 struct PointLight {
     bool enable;
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 
     vec3 position;
     float constant;
@@ -38,9 +38,9 @@ struct PointLight {
 
 struct SpotLight {
     bool enable;
-    vec4 ambient;
-    vec4 diffuse;
-    vec4 specular;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
 
     vec3 position;
     float constant;
@@ -106,19 +106,19 @@ vec4 CalculateDirectionalLight(DirectionalLight directional)
 
     if (material.hasAlbedo) {
         vec4 textureColor = texture(material.albedo, uv);
-        diffuseColor = textureColor * directional.diffuse * diff;
+        diffuseColor = textureColor * vec4(directional.diffuse, 1) * diff;
     } 
     else {
-        diffuseColor = material.diffuse * directional.diffuse * diff;
+        diffuseColor = material.diffuse * vec4(directional.diffuse, 1) * diff;
     }
 
     // Specular reflection
     vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec4 specularColor = material.specular * directional.specular * spec;
+    vec4 specularColor = material.specular * vec4(directional.specular, 1) * spec;
 
     // Ambient light
-    vec4 ambientColor = material.ambient * directional.ambient;
+    vec4 ambientColor = material.ambient * vec4(directional.ambient, 1);
 
     // Final color
     return ambientColor + diffuseColor + specularColor;
@@ -137,17 +137,17 @@ vec4 CalculatePointLight(PointLight point)
 
     if (material.hasAlbedo) {
         vec4 textureColor = texture(material.albedo, uv);
-        diffuseColor = textureColor * point.diffuse * diff * attenuation;
+        diffuseColor = textureColor * vec4(point.diffuse, 1) * diff * attenuation;
     } 
     else {
-        diffuseColor = material.diffuse * point.diffuse * diff * attenuation;
+        diffuseColor = material.diffuse * vec4(point.diffuse, 1) * diff * attenuation;
     }
 
     vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec4 specularColor = material.specular * point.specular * spec * attenuation;
+    vec4 specularColor = material.specular * vec4(point.specular, 1) * spec * attenuation;
 
-    vec4 ambientColor = material.ambient * point.ambient * attenuation;
+    vec4 ambientColor = material.ambient * vec4(point.ambient, 1) * attenuation;
 
     return ambientColor + diffuseColor + specularColor;
 }
@@ -163,19 +163,19 @@ vec4 CalculateSpotLight(SpotLight spot)
     }
 
     // ambient
-    vec3 ambient = spot.ambient.rgb * diffuseColor.rgb;
+    vec4 ambient = vec4(spot.ambient, 1) * diffuseColor;
     
     // diffuse 
     vec3 norm = normalize(finalNormal);
     vec3 lightDir = normalize(spot.position - pos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = spot.diffuse.rgb * diff * diffuseColor.rgb;  
+    vec4 diffuse = vec4(spot.diffuse, 1) * diff * diffuseColor;  
     
     // specular
     vec3 viewDir = normalize(camera.viewPos - pos);
     vec3 reflectDir = reflect(-lightDir, norm);  
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = spot.specular.rgb * spec * material.specular.rgb;  
+    vec4 specular = vec4(spot.specular, 1) * spec * material.specular;  
     
     // spotlight (soft edges)
     float theta = dot(lightDir, normalize(-spot.direction)); 
@@ -191,8 +191,8 @@ vec4 CalculateSpotLight(SpotLight spot)
     diffuse   *= attenuation;
     specular *= attenuation;   
         
-    vec3 result = ambient + diffuse + specular;
-    return vec4(result, 1.f);
+    vec4 result = ambient + diffuse + specular;
+    return result;
 }
 
 // ----------------------- Main --------------------------------------
@@ -204,6 +204,9 @@ void main()
         discard;
 
     finalNormal = CalculateNormal();
+
+    if (material.hasAlbedo && texture(material.albedo, uv).a == 0.f)
+        discard;
     
     vec4 globalLight = vec4(0.f, 0.f, 0.f, 1.f);
     for (int i = 0; i < LightNumber; i++)
@@ -229,4 +232,7 @@ void main()
     }
 
     FragColor = globalLight;
+
+    if (FragColor.a <= 0.0f)
+        discard;
 }

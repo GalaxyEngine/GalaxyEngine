@@ -6,6 +6,7 @@ namespace GALAXY
 	namespace Wrapper
 	{
 		class MTLLoader;
+		class FBXLoader;
 	}
 	namespace Render { class Framebuffer; }
 	namespace Resource {
@@ -20,6 +21,7 @@ namespace GALAXY
 			~Material() override {}
 
 			void Load() override;
+
 			void OnAdd() override;
 
 			void CreateThumbnail();
@@ -61,13 +63,14 @@ namespace GALAXY
 			inline void SetHeightScale(const float val) { m_heightScale = val; }
 		private:
 			friend Wrapper::MTLLoader;
+			friend Wrapper::FBXLoader;
 			friend Render::Framebuffer;
 
 			Weak<Shader> m_shader;
 
-			Vec4f m_ambient;
-			Vec4f m_diffuse;
-			Vec4f m_specular;
+			Vec4f m_ambient = Vec4f(1.f);
+			Vec4f m_diffuse = Vec4f(1.f);
+			Vec4f m_specular = Vec4f(1.f);
 
 			Weak<Texture> m_albedo;
 			Weak<Texture> m_normalMap;

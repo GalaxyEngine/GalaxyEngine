@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <vector>
+#include <optional>
+
 namespace GALAXY
 {
 	namespace Resource
@@ -50,8 +52,6 @@ namespace GALAXY
 			static Vec3i ParseFaceIndex(const std::string& indexStr);
 
 			static void ComputeVertices(OBJMesh& mesh);
-
-			static void ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices);
 
 			static bool ReadMtl(const std::filesystem::path& mtlPath);
 		};

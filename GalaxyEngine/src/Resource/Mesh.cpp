@@ -20,6 +20,7 @@ namespace GALAXY {
 	{
 		p_status = ResourceStatus::DisplayOnInspector;
 		const std::string fullPathString = p_fileInfo.m_fullPath.string();
+		p_fileInfo.m_resourceType = ResourceType::Mesh;
 	}
 
 	void Resource::Mesh::Load()
@@ -37,6 +38,9 @@ namespace GALAXY {
 
 	void Resource::Mesh::Send()
 	{
+		if (p_hasBeenSent)
+			return;
+		p_hasBeenSent = true;
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		renderer->CreateVertexArray(m_vertexArrayIndex);
@@ -44,7 +48,7 @@ namespace GALAXY {
 
 		renderer->CreateVertexBuffer(m_vertexBufferIndex, m_finalVertices.data(), m_finalVertices.size() * sizeof(float));
 
-		renderer->CreateIndexBuffer(m_indexBufferIndex, m_indices.data()->Data(), sizeof(Vec3i) * m_indices.size());
+		//renderer->CreateIndexBuffer(m_indexBufferIndex, m_indices.data()->Data(), sizeof(Vec3i) * m_indices.size());
 
 		constexpr int vertexSize = 11 * sizeof(float);
 		const auto textureOffset = reinterpret_cast<void*>(3 * sizeof(float));
@@ -59,7 +63,6 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
 
-		p_hasBeenSent = true;
 		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
 
 		OnLoad.Invoke();

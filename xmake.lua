@@ -16,6 +16,7 @@ add_requires("imgui v1.89.9-docking", { configs = { glfw_opengl3 = true } })
 add_requires("glad")
 add_requires("stb")
 add_requires("nativefiledialog-extended")
+add_requires("openfbx")
 --add_requires("rttr")
 
 -- enable features
@@ -59,6 +60,7 @@ target("GalaxyEngine")
     add_packages("glad")
     add_packages("stb")
     add_packages("nativefiledialog-extended")
+    add_packages("openfbx")
     if (is_plat("mingw")) then 
         set_prefixname("")
     end 

@@ -142,7 +142,7 @@ void main()
 			if (vertexUUID != INDEX_NONE)
 			{
 				Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertexUUID);
-				//ASSERT(vertexShader.lock());
+				ASSERT(vertexShader.lock());
 				if (vertexShader.lock()) {
 					SetVertex(vertexShader.lock(), thisShader);
 				}
@@ -157,6 +157,7 @@ void main()
 			if (fragmentUUID != INDEX_NONE)
 			{
 				Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragmentUUID);
+				ASSERT(fragmentShader.lock());
 				SetFragment(fragmentShader.lock(), thisShader);
 			}
 		}
@@ -183,9 +184,9 @@ void main()
 	{
 		if (p_hasBeenSent)
 			return;
-		p_locations.clear();
-
+		p_hasBeenSent = true;
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
+		p_locations.clear();
 
 		if (p_hasBeenSent && !p_isAVariant) {
 			const auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());

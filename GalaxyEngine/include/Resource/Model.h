@@ -4,7 +4,7 @@
 #include "Utils/Event.h"
 
 namespace GALAXY {
-	namespace Wrapper { class OBJLoader; }
+	namespace Wrapper { class OBJLoader; class FBXLoader; }
 	namespace Core { class GameObject; }
 	namespace Resource
 	{
@@ -53,6 +53,7 @@ namespace GALAXY {
 		private:
 
 			friend Wrapper::OBJLoader;
+			friend Wrapper::FBXLoader;
 
 			std::vector<Weak<class Mesh>> m_meshes;
 			std::vector<Weak<class Material>> m_materials;

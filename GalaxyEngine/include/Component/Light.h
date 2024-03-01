@@ -73,9 +73,9 @@ namespace GALAXY
 		protected:
 			size_t p_lightIndex = -1;
 
-			LightData<Vec4f> p_ambient = Vec4f(0);
-			LightData<Vec4f> p_diffuse = Vec4f(1);
-			LightData<Vec4f> p_specular = Vec4f(1);
+			LightData<Vec3f> p_ambient = Vec3f(0);
+			LightData<Vec3f> p_diffuse = Vec3f(1);
+			LightData<Vec3f> p_specular = Vec3f(1);
 
 			std::string p_enableString;
 

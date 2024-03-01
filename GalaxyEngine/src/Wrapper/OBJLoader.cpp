@@ -110,7 +110,7 @@ bool Wrapper::OBJLoader::Parse()
 			iss >> materialName;
 			OBJSubMesh subMesh = OBJSubMesh();
 			subMesh.startIndex = currentMesh.indices.size();
-			subMesh.material = { materialName };
+			subMesh.material.emplace(OBJMaterial{ materialName });
 
 			currentMesh.subMeshes.push_back(subMesh);
 		}
@@ -293,28 +293,6 @@ void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 		mesh.finalVertices.push_back(mesh.tangents[i].x);
 		mesh.finalVertices.push_back(mesh.tangents[i].y);
 		mesh.finalVertices.push_back(mesh.tangents[i].z);
-	}
-}
-
-void Wrapper::OBJLoader::ConvertQuadToTriangles(const std::vector<Vec3i>& quadIndices, std::vector<Vec3i>& triangleIndices)
-{
-	if (quadIndices.size() % 4 != 0) {
-		PrintError("The number of index is not valid");
-		return;
-	}
-
-	const size_t numQuads = quadIndices.size() / 4;
-
-	// Ensure that the input quadIndices vector contains elements representing quads
-	for (const Vec3i& quad : quadIndices) {
-		// A quad can be converted into two triangles. Here's how the indices are used:
-		// Assuming quad contains indices [i1, i2, i3, i4]
-
-		// First triangle uses indices [i1, i2, i3]
-		triangleIndices.push_back(Vec3i(quad[0], quad[1], quad[2]));
-
-		// Second triangle uses indices [i1, i3, i4]
-		triangleIndices.push_back(Vec3i(quad[0], quad[2], quad[3]));
 	}
 }
 

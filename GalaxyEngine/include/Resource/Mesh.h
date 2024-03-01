@@ -5,7 +5,7 @@
 
 namespace GALAXY 
 {
-	namespace Wrapper { class OBJLoader; }
+	namespace Wrapper { class OBJLoader; class FBXLoader; }
 	namespace Component { class Transform; }
 	namespace Resource
 	{
@@ -47,6 +47,7 @@ namespace GALAXY
 
 		private:
 			friend Wrapper::OBJLoader;
+			friend Wrapper::FBXLoader;
 			friend class Model;
 
 			BoundingBox m_boundingBox;

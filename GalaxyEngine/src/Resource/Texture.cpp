@@ -1,6 +1,10 @@
 #include "pch.h"
+
 #include "Resource/Texture.h"
+#include "Resource/ResourceManager.h"
+
 #include "Wrapper/ImageLoader.h"
+
 #include "Core/Application.h"
 
 Resource::Texture::~Texture()
@@ -101,4 +105,20 @@ void Resource::Texture::Save()
 		return;
 
 	CreateDataFile();
+}
+
+void Resource::Texture::CreateWithData(const Path& path, const Wrapper::Image& image, TextureFiltering filtering /*= TextureFiltering::LINEAR*/, TextureFormat format /*= TextureFormat::RGBA*/)
+{
+	if (!image.data)
+		return;
+	Shared<Texture> texture = std::make_shared<Texture>(path);
+	texture->p_shouldBeLoaded.store(true);
+	texture->p_loaded.store(true);
+
+	texture->m_bytes = image.data;
+	texture->m_size = image.size;
+
+	Resource::ResourceManager::AddResource(texture);
+	
+	texture->SendRequest();
 }

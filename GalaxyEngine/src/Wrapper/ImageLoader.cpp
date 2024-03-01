@@ -38,4 +38,13 @@ namespace GALAXY {
 		stbi_write_png(filename, image.size.x, image.size.y, 4, image.data, 4 * image.size.x);
 	}
 
+	Wrapper::Image Wrapper::ImageLoader::LoadFromMemory(unsigned char* data, int len)
+	{
+		Image image;
+		int comp;
+		image.data = stbi_load_from_memory(data, len, &image.size.x, &image.size.y, &comp, 4);
+
+		return image;
+	}
+
 }

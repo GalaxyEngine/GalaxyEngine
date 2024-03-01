@@ -133,7 +133,7 @@ namespace GALAXY {
 				ImGui::OpenPopup("TexturePopup");
 			}
 			ImGui::SameLine();
-			ImGui::TextUnformatted(GetName().c_str());
+			ImGui::TextUnformatted(texture->GetName().c_str());
 		}
 		else
 		{

@@ -70,6 +70,9 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& resource)
 	{
+		if (std::find(m_thumbnailQueue.begin(), m_thumbnailQueue.end(), resource.lock()->GetFileInfo().GetFullPath()) != m_thumbnailQueue.end())
+			return;
+
 		m_thumbnailQueue.push_back(resource.lock()->GetFileInfo().GetFullPath());
 	}
 
@@ -156,7 +159,7 @@ namespace GALAXY
 		const Shared<Component::MeshComponent> meshComponent = m_sphereMaterialObject->GetWeakComponent<Component::MeshComponent>().lock();
 
 		assert(meshComponent != nullptr);
-		const bool canBeCreated = meshComponent->GetMesh().lock()->HasBeenSent() && materialShared->IsLoaded() && materialShared->GetShader()->HasBeenSent();
+		const bool canBeCreated = meshComponent->GetMesh().lock()->HasBeenSent() && materialShared->IsLoaded() && materialShared->GetShader() && materialShared->GetShader()->HasBeenSent();
 
 		if (!canBeCreated)
 		{
@@ -243,10 +246,10 @@ namespace GALAXY
 
 	bool Editor::ThumbnailCreator::IsThumbnailUpToDate(Resource::IResource* resource)
 	{
-		if (!std::filesystem::exists(GetThumbnailPath(resource->GetUUID())))
+		const std::filesystem::path thumbnailPath = GetThumbnailPath(resource->GetUUID());
+		if (!std::filesystem::exists(thumbnailPath))
 			return false;
 
-		const auto thumbnailPath = GetThumbnailPath(resource->GetUUID());
 		const auto thumbnailTime = std::filesystem::last_write_time(thumbnailPath);
 		const auto resourceTime = std::filesystem::last_write_time(resource->GetFileInfo().GetFullPath());
 

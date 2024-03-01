@@ -15,6 +15,8 @@ namespace GALAXY::Wrapper
 		Image Load(char const* filename, int req_comp);
 		Image* LoadIco(char const* filename, int* count);
 
+		Image LoadFromMemory(unsigned char* data, int len);
+
 		void SaveImage(const char* filename, const Image& image);
 
 		void ImageFree(void* data);

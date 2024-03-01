@@ -37,9 +37,9 @@ namespace GALAXY
 
 	void Component::Light::ShowInInspector()
 	{
-		p_dirty |= ImGui::ColorEdit4("Ambient", p_ambient.value.Data());
-		p_dirty |= ImGui::ColorEdit4("Diffuse", p_diffuse.value.Data());
-		p_dirty |= ImGui::ColorEdit4("Specular", p_specular.value.Data());
+		p_dirty |= ImGui::ColorEdit3("Ambient", p_ambient.value.Data());
+		p_dirty |= ImGui::ColorEdit3("Diffuse", p_diffuse.value.Data());
+		p_dirty |= ImGui::ColorEdit3("Specular", p_specular.value.Data());
 	}
 
 	void Component::Light::Serialize(CppSer::Serializer& serializer)
@@ -66,9 +66,9 @@ namespace GALAXY
 		if (!p_dirty)
 			return;
 
-		shader->SendVec4f(p_ambient.string.c_str(), p_ambient.value);
-		shader->SendVec4f(p_diffuse.string.c_str(), p_diffuse.value);
-		shader->SendVec4f(p_specular.string.c_str(), p_specular.value);
+		shader->SendVec3f(p_ambient.string.c_str(), p_ambient.value);
+		shader->SendVec3f(p_diffuse.string.c_str(), p_diffuse.value);
+		shader->SendVec3f(p_specular.string.c_str(), p_specular.value);
 	}
 
 	void Component::Light::ResetLightValues(Resource::Shader* shader)

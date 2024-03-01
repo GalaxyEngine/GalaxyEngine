@@ -6,6 +6,7 @@ namespace GALAXY {
 		class Renderer;
 		class OpenGLRenderer;
 		class Window;
+		struct Image;
 	}
 	namespace Resource {
 
@@ -67,6 +68,8 @@ namespace GALAXY {
 
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::Texture; }
+
+			static void CreateWithData(const Path& path, const Wrapper::Image& image, TextureFiltering filtering = TextureFiltering::LINEAR, TextureFormat format = TextureFormat::RGBA);
 		private:
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;

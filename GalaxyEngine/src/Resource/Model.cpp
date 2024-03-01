@@ -1,14 +1,17 @@
 #include "pch.h"
 
 #include "Resource/Model.h"
-
-#include "Component/MeshComponent.h"
-#include "Core/Application.h"
-#include "Editor/ThumbnailCreator.h"
 #include "Resource/Mesh.h"
 #include "Resource/ResourceManager.h"
 
+#include "Component/MeshComponent.h"
+
+#include "Core/Application.h"
+
+#include "Editor/ThumbnailCreator.h"
+
 #include "Wrapper/OBJLoader.h"
+#include "Wrapper/FBXLoader.h"
 
 namespace GALAXY {
 	Resource::Model::~Model()
@@ -24,6 +27,7 @@ namespace GALAXY {
 		if (p_fileInfo.GetExtension() == ".fbx")
 		{
 			m_modelType = Resource::ModelExtension::FBX;
+			Wrapper::FBXLoader::Load(p_fileInfo.GetFullPath(), this);
 		}
 		else if (p_fileInfo.GetExtension() == ".obj")
 		{
@@ -68,7 +72,9 @@ namespace GALAXY {
 		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
-			serializer << CppSer::Pair::Key << "Mesh " + std::to_string(i) << CppSer::Pair::Value << m_meshes[i].lock()->GetFileInfo().GetFileName();
+			auto meshName = m_meshes[i].lock()->GetFileInfo().GetFileName();
+			meshName = meshName.substr(meshName.find(':') + 1);
+			serializer << CppSer::Pair::Key << "Mesh " + std::to_string(i) << CppSer::Pair::Value << meshName;
 		}
 		serializer << CppSer::Pair::EndTab;
 		serializer << CppSer::Pair::EndMap << "Model";
@@ -79,6 +85,8 @@ namespace GALAXY {
 		IResource::Deserialize(parser);
 		parser.PushDepth();
 		const size_t meshCount = parser["Mesh Count"].As<size_t>();
+		if (meshCount == -1)
+			return;
 		for (int i = 0; i < meshCount; i++)
 		{
 			std::string meshName = parser["Mesh " + std::to_string(i)];
@@ -114,7 +122,6 @@ namespace GALAXY {
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{
-		
 		for (size_t i = 0; auto& weakMesh : m_meshes)
 		{
 			const Shared<Mesh> mesh = weakMesh.lock();
