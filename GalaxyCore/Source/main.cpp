@@ -11,6 +11,9 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
+	//TODO : Fix shader loading and sending
+	//TODO : Handle update of materials for thumbnails
+
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
