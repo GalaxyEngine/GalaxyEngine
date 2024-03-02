@@ -99,6 +99,7 @@ namespace GALAXY::Resource {
 		virtual void Load() {}
 		virtual void Send() {}
 		virtual void ShowInInspector() {}
+		// Called when the resource is removed from the resourceManager
 		virtual void Unload() {}
 		//Called when the resource is added to the resourceManager
 		virtual void OnAdd() {}

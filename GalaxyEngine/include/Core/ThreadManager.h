@@ -35,6 +35,7 @@ namespace GALAXY::Core {
 
 		static ThreadManager* GetInstance();
 
+		static bool ShouldTerminate() { return m_instance->m_terminate; }
 	private:
 		static std::unique_ptr<ThreadManager> m_instance;
 

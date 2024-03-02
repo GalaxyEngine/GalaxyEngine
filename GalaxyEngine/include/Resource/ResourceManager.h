@@ -8,6 +8,7 @@
 
 
 namespace GALAXY {
+	namespace Editor::UI { class File; }
 	namespace Core
 	{
 		class Application;
@@ -44,6 +45,8 @@ namespace GALAXY {
 
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
+
+			static inline Weak<IResource> GetOrLoad(const Path& fullPath);
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath);
 
@@ -90,6 +93,8 @@ namespace GALAXY {
 			void ReadCache();
 			void CreateCache();
 
+			void UpdateFileWatch();
+
 			static void HandleRename(const Path& oldPath, const Path& newPath);
 
 			static void RenameSingle(const Path& oldPath, const Path& newPath);
@@ -110,8 +115,10 @@ namespace GALAXY {
 			String m_projectName;
 
 			bool m_projectExists = false;
-		};
 
+			Shared<Editor::UI::File> m_fileWatchPrevious = nullptr;
+			Shared<Editor::UI::File> m_fileWatchCurrent = nullptr;
+		};
 	}
 }
 #include "Resource/ResourceManager.inl" 

@@ -15,6 +15,8 @@
 #include <set>
 
 #include "Editor/ThumbnailCreator.h"
+#include "Editor/UI/FileExplorer.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #define AUTO_IMPORT
 // Automatic import all model that not get a .gdata up to date
@@ -172,6 +174,66 @@ namespace GALAXY {
 			default:;
 			}
 		}
+
+		if (!m_projectExists)
+			return;
+		const Path assetPath = this->GetAssetPath();
+
+		m_fileWatchPrevious = std::make_shared<Editor::UI::File>(assetPath, true);
+		m_fileWatchPrevious->FindAllChildren();
+
+		Core::ThreadManager::GetInstance()->AddTask([this] { this->UpdateFileWatch(); });
+	}
+
+	void Resource::ResourceManager::UpdateFileWatch()
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(500));
+		const Path assetPath = this->GetAssetPath();
+
+		m_fileWatchCurrent = std::make_shared<Editor::UI::File>(assetPath, true);
+		m_fileWatchCurrent->FindAllChildren();
+
+		auto currentFiles = m_fileWatchCurrent->GetAllChildrenPath();
+		auto previousFiles = m_fileWatchPrevious->GetAllChildrenPath();
+
+		// Sort both lists to facilitate comparison
+		std::sort(currentFiles.begin(), currentFiles.end());
+		std::sort(previousFiles.begin(), previousFiles.end());
+
+		// Find added files
+		std::vector<std::filesystem::path> addedFiles;
+		std::set_difference(currentFiles.begin(), currentFiles.end(),
+			previousFiles.begin(), previousFiles.end(),
+			std::back_inserter(addedFiles));
+
+		// Find deleted files
+		std::vector<std::filesystem::path> deletedFiles;
+		std::set_difference(previousFiles.begin(), previousFiles.end(),
+			currentFiles.begin(), currentFiles.end(),
+			std::back_inserter(deletedFiles));
+
+		bool shouldReload = false;
+		// Print added files
+		for (const auto& file : addedFiles) {
+			shouldReload = true;
+			PrintLog("Added file: %s", file.string().c_str());
+			GetOrLoad(file);
+		}
+
+		// Print deleted files
+		for (const auto& file : deletedFiles) {
+			shouldReload = true;
+			PrintLog("Remove file: %s", file.string().c_str());
+			RemoveResource(file);
+		}
+
+		m_fileWatchPrevious = m_fileWatchCurrent;
+
+		if (shouldReload)
+			Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+
+		if (!Core::ThreadManager::ShouldTerminate())
+			UpdateFileWatch();
 	}
 
 	bool Resource::ResourceManager::IsDataFileUpToDate(const Path& resourcePath)
@@ -356,6 +418,41 @@ namespace GALAXY {
 	void Resource::ResourceManager::Release()
 	{
 		m_instance.reset();
+	}
+
+	Weak<GALAXY::Resource::IResource> Resource::ResourceManager::GetOrLoad(const Path& fullPath)
+	{
+		auto type = Utils::FileInfo::GetTypeFromExtension(fullPath.extension());
+		switch (type)
+		{
+		case Resource::ResourceType::Shader:
+			return GetOrLoad<Shader>(fullPath);
+		case Resource::ResourceType::VertexShader:
+			return GetOrLoad<VertexShader>(fullPath);
+		case Resource::ResourceType::FragmentShader:
+			return GetOrLoad<FragmentShader>(fullPath);
+		case Resource::ResourceType::GeometryShader:
+			return GetOrLoad<GeometryShader>(fullPath);
+		case Resource::ResourceType::Materials:
+			return GetOrLoad<Material>(fullPath);
+		case Resource::ResourceType::PostProcessShader:
+			return GetOrLoad<PostProcessShader>(fullPath);
+		case Resource::ResourceType::Material:
+			return GetOrLoad<Material>(fullPath);
+		case Resource::ResourceType::Mesh:
+			return GetOrLoad<Mesh>(fullPath);
+		case Resource::ResourceType::Texture:
+			return GetOrLoad<Texture>(fullPath);
+		case Resource::ResourceType::Model:
+			return GetOrLoad<Model>(fullPath);
+		case Resource::ResourceType::Scene:
+			return AddResource<Scene>(fullPath);
+		case Resource::ResourceType::Script:
+			return GetOrLoad<Script>(fullPath);
+		default:
+			PrintWarning("Resource %s not handled", fullPath.string().c_str());
+			return {};
+		}
 	}
 
 }

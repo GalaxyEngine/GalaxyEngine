@@ -219,7 +219,7 @@ namespace GALAXY
 					material->m_ambient = ToVec4f(fbxMaterial->getAmbientColor());
 					material->m_diffuse = ToVec4f(fbxMaterial->getDiffuseColor());
 					material->m_specular = ToVec4f(fbxMaterial->getSpecularColor());
-					material->m_heightScale = fbxMaterial->getBumpFactor();
+					material->m_heightScale = (float)fbxMaterial->getBumpFactor();
 
 					SetMaterialTexture(&material->m_albedo, fbxMaterial, fullPath, ofbx::Texture::TextureType::DIFFUSE);
 					SetMaterialTexture(&material->m_normalMap, fbxMaterial, fullPath, ofbx::Texture::TextureType::NORMAL);
@@ -271,7 +271,7 @@ namespace GALAXY
 			//TODO : Handle tangents
 			int totalVertexCount = 0;
 			auto partitionCount = fbxMesh->getGeometryData().getPartitionCount();
-			for (size_t j = 0; j < partitionCount; j++) {
+			for (int j = 0; j < partitionCount; j++) {
 				Resource::SubMesh subMesh;
 				subMesh.startIndex = totalVertexCount;
 				subMesh.count = 1 - subMesh.startIndex;

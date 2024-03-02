@@ -18,7 +18,7 @@ namespace GALAXY
 		class File : public std::enable_shared_from_this<File>
 		{
 		public:
-			explicit File(const Path& path);
+			explicit File(const Path& path, bool fileWatch = false);
 			File& operator=(const File& other) = default;
 			File(const File&) = default;
 			File(File&&) noexcept = default;
@@ -30,6 +30,10 @@ namespace GALAXY
 			void DisplayOnExplorer() const;
 
 			void AddChild(Shared<File> file);
+
+			List<Shared<File>> GetAllChildren();
+
+			List<Path> GetAllChildrenPath();
 
 			Shared<File> GetWithPath(const Path& path) const;
 
@@ -45,6 +49,8 @@ namespace GALAXY
 
 			Weak<File> m_parent;
 			List<Shared<File>> m_children;
+
+			bool m_fileWatch = false;
 
 			bool m_hovered = false;
 			bool m_selected = false;

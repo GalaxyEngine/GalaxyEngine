@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
+
 #include "Editor/ThumbnailCreator.h"
 
 #include "Resource/IResource.h"
@@ -47,14 +48,19 @@ namespace GALAXY {
 		return s_resourceTypeToColor[type];
 	}
 
-	Editor::UI::File::File(const Path& path)
+	Editor::UI::File::File(const Path& path, bool filewatch /*= false*/)
 	{
-		m_resource = Resource::ResourceManager::GetResource<Resource::IResource>(path);
+		m_fileWatch = filewatch;
+		if (!m_fileWatch)
+			m_resource = Resource::ResourceManager::GetResource<Resource::IResource>(path);
+
 		if (m_resource.lock())
 			m_info = m_resource.lock()->GetFileInfo();
 		else
 			m_info = Utils::FileInfo(path);
 
+		if (m_fileWatch)
+			return;
 		if (m_info.isDirectory())
 		{
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(FOLDER_ICON_PATH);
@@ -138,7 +144,7 @@ namespace GALAXY {
 		const auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());
 		for (const std::filesystem::directory_entry& entry : dirIt)
 		{
-			m_children.push_back(std::make_shared<File>(entry.path()));
+			m_children.push_back(std::make_shared<File>(entry.path(), m_fileWatch));
 			m_children.back()->m_parent = weak_from_this();
 			if (entry.is_directory()) {
 				m_isAnyChildFolder = true;
@@ -210,6 +216,30 @@ namespace GALAXY {
 		return nullptr;
 	}
 
+	List<Shared<Editor::UI::File>> Editor::UI::File::GetAllChildren()
+	{
+		List<Shared<Editor::UI::File>> childList;
+		for (auto& children : m_children)
+		{
+			auto list = children->GetAllChildren();
+			childList.push_back(children);
+			childList.insert(childList.end(), list.begin(), list.end());
+		}
+		return childList;
+	}
+
+	List<Path> Editor::UI::File::GetAllChildrenPath()
+	{
+		List<Path> childList;
+		for (auto& children : m_children)
+		{
+			auto list = children->GetAllChildrenPath();
+			childList.push_back(children->m_info.GetFullPath());
+			childList.insert(childList.end(), list.begin(), list.end());
+		}
+		return childList;
+	}
+
 #pragma endregion
 
 	void Editor::UI::FileExplorer::Initialize()
@@ -241,8 +271,8 @@ namespace GALAXY {
 			const Vec2f vMax = ImGui::GetWindowContentRegionMax();
 			const Vec2f windowPos = Vec2f(ImGui::GetWindowPos());
 
-			m_rect.min = vMin + windowPos;
-			m_rect.max = vMax + windowPos;
+			m_rect.min = vMin + windowPos - Core::Application::GetInstance().GetWindow()->GetPosition();
+			m_rect.max = vMax + windowPos - Core::Application::GetInstance().GetWindow()->GetPosition();
 
 			static float size1 = 200, size2 = ImGui::GetContentRegionAvail().x;
 			Wrapper::GUI::Splitter(true, 2, &size1, &size2, 10, 10);
@@ -340,7 +370,7 @@ namespace GALAXY {
 		if (!p_open || !m_visible)
 			return;
 
-		const Vec2f mousePos = window->GetMousePosition(Wrapper::CoordinateSpace::Screen);
+		const Vec2f mousePos = Input::GetMousePosition();
 
 		if (!m_rect.IsPointInside(mousePos))
 			return;
@@ -348,11 +378,10 @@ namespace GALAXY {
 		for (size_t i = 0; i < count; i++)
 		{
 			PrintLog("Dropped file: %s", paths[i]);
-			/* TODO:
-			 *	Copy files in file explorer (current directory if not folder selected, else inside the folder)
-			 *	Load the files dropped
-			 *	(maybe add a file watcher to check at any time if a file was added inside the asset directory)
-			*/
+
+			std::filesystem::path fromPath = Path(paths[i]);
+			auto toPath = this->m_currentFile->m_info.GetFullPath() / fromPath.filename();
+			std::filesystem::copy(fromPath, toPath);
 		}
 	}
 

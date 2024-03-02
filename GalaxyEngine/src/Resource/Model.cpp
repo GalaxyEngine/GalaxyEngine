@@ -41,6 +41,14 @@ namespace GALAXY {
 		CreateThumbnail();
 	}
 
+	void Resource::Model::Unload()
+	{
+		for (auto& mesh : m_meshes)
+		{
+			Resource::ResourceManager::GetInstance()->RemoveResource(mesh.lock()->GetFileInfo().GetRelativePath());
+		}
+	}
+
 	Shared<Core::GameObject> Resource::Model::ToGameObject()
 	{
 		Shared<Core::GameObject> root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());

@@ -31,6 +31,7 @@ namespace GALAXY {
 			~Model() override;
 
 			void Load() override;
+			void Unload() override;
 
 			void CreateThumbnail();
 

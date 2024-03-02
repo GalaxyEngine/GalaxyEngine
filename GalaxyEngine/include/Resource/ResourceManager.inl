@@ -59,7 +59,11 @@ namespace GALAXY
 
 	inline void Resource::ResourceManager::RemoveResource(const Path& relativePath)
 	{
+		if (!m_resources.contains(relativePath))
+			return;
+
 		auto it = m_resources[relativePath];
+		it->Unload();
 		m_resources.erase(relativePath);
 		it.reset();
 	}
@@ -129,7 +133,6 @@ namespace GALAXY
 
 		return GetOrLoad<T>(resource->first);
 	}
-
 	template <typename T>
 	inline Shared<T> Resource::ResourceManager::TemporaryLoad(const Path& fullPath)
 	{
