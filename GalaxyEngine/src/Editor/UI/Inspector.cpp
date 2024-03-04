@@ -246,7 +246,7 @@ void Editor::UI::Inspector::RightClickPopup()
 {
 	if (m_rightClicked.lock() && ImGui::BeginPopup("RightClickPopup"))
 	{
-		const Vec2f buttonSize(ImGui::GetWindowContentRegionWidth(), 0);
+		const Vec2f buttonSize(ImGui::GetContentRegionAvail().x, 0);
 		if (ImGui::Button("Destroy", buttonSize))
 		{
 			m_rightClicked.lock()->RemoveFromGameObject();

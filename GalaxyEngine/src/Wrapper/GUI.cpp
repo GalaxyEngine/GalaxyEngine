@@ -364,7 +364,7 @@ namespace GALAXY {
 			{
 				if (filter.PassFilter(component->GetComponentName()))
 				{
-					const Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+					const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 					if (ImGui::Button(component->GetComponentName(), buttonSize)) {
 						ImGui::CloseCurrentPopup();
 						auto cloned = component->Clone();

@@ -412,10 +412,10 @@ namespace GALAXY {
 					ImGui::CloseCurrentPopup();
 				};
 
-			Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+			Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			if (!m_rightClickedFiles.empty()) {
 				ImGui::TextUnformatted(m_rightClickedFiles[0]->m_info.GetFileName().c_str());
-				buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+				buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 				if (m_rightClickedFiles[0]->m_resource.lock()) {
 					bool allSame = true;
 					bool allShader = true;

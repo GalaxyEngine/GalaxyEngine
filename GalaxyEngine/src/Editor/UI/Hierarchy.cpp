@@ -281,7 +281,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
 	if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
 	{
 		const List<Weak<GameObject>> selected = m_inspector->GetSelectedGameObjects();
-		const Vec2f buttonSize = Vec2f(ImGui::GetWindowContentRegionWidth(), 0);
+		const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 		if (ImGui::Button("Create GameObject", buttonSize))
 		{
 			CreateGameObject(selected);
