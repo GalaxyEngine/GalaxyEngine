@@ -22,7 +22,8 @@ namespace GALAXY
 	{
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		EditorUIManager* editorInstance = EditorUIManager::GetInstance();
-		EditorSettings& settings = Core::Application::GetInstance().GetEditorSettings();
+		EditorSettings& editorSettings = Core::Application::GetInstance().GetEditorSettings();
+		Core::ProjectSettings& projectSettings = Core::Application::GetInstance().GetProjectSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -64,16 +65,24 @@ namespace GALAXY
 				ImGui::EndMenu();
 			}
 			bool openEditorSettings = false;
+			bool openProjectSettings = false;
 			if (ImGui::BeginMenu("Edit"))
 			{
 				openEditorSettings = ImGui::MenuItem("Editor Settings");
+				openProjectSettings = ImGui::MenuItem("Project Settings");
 				ImGui::EndMenu();
 			}
 			if (openEditorSettings)
 			{
-				ImGui::OpenPopup("EditorSettings");
+				ImGui::OpenPopup("Editor Settings");
 			}
-			settings.Draw();
+			editorSettings.Display();
+			if (openProjectSettings)
+			{
+				ImGui::OpenPopup("Project Settings");
+			}
+			projectSettings.Display();
+
 			if (ImGui::BeginMenu("Window"))
 			{
 				ImGui::MenuItem("Hierarchy", nullptr, &editorInstance->GetHierarchy()->p_open);

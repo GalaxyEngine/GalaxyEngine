@@ -6,9 +6,9 @@
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
 
-
-
+#ifdef WITH_EDITOR
 #include "Editor/ActionManager.h"
+#endif
 /*TODO :
  * Implement missing methods
  */
@@ -115,6 +115,7 @@ namespace GALAXY
 					previousPosition = m_localPosition;
 				previousTrue = true;
 			}
+#ifdef WITH_EDITOR
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
@@ -130,6 +131,7 @@ namespace GALAXY
 
 				Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 			}
+#endif
 		}
 
 		/* Rotation Vec3 control */
@@ -142,6 +144,7 @@ namespace GALAXY
 					previousRotation = m_localEulerRotation;
 				previousTrue = true;
 			}
+#ifdef WITH_EDITOR
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
@@ -157,6 +160,7 @@ namespace GALAXY
 
 				Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 			}
+#endif
 		}
 
 		/* Scale Vec3 control */
@@ -169,6 +173,7 @@ namespace GALAXY
 					previousScale = m_localScale;
 				previousTrue = true;
 			}
+#ifdef WITH_EDITOR
 			else if (previousTrue && !ImGui::IsMouseDown(ImGuiMouseButton_Left))
 			{
 				previousTrue = false;
@@ -184,6 +189,7 @@ namespace GALAXY
 
 				Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 			}
+#endif
 		}
 
 		if (position != m_localPosition || rotation != m_localEulerRotation || scale != m_localScale) {

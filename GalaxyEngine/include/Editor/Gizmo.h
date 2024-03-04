@@ -2,6 +2,8 @@
 #include "GalaxyAPI.h"
 #include "Core/Input.h"
 
+#include "Physic/Ray.h"
+
 namespace GALAXY
 {
 	namespace Wrapper
@@ -16,17 +18,6 @@ namespace GALAXY
 	{
 		class Transform;
 	}
-	namespace Physic
-	{
-		// TODO : Move this in another file
-		struct Ray
-		{
-			Vec3f origin;
-			Vec3f direction;
-			float scale;
-		};
-	}
-
 
 	struct Plane
 	{

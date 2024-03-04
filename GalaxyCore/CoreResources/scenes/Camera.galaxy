@@ -3,14 +3,14 @@
 [Active] : 1
 [UUID] : 2875802474084413891
 [Component Number] : 0
-[Child Number] : 1
+[Child Number] : 2
  ------------- BEGIN TRANSFORM ------------- 
 [Position] : 0.000000, 0.000000, 0.000000
 [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
 [Scale] : 1.000000, 1.000000, 1.000000
  ============= END TRANSFORM ============= 
    ------------- BEGIN GAMEOBJECT ------------- 
-  [Name] : GameObject
+  [Name] : Camera
   [Active] : 1
   [UUID] : 11547048153412181219
   [Component Number] : 1
@@ -29,6 +29,26 @@
     [Clear Color] : 0.000000, 0.666667, 1.000000, 1.000000
     [Is Main Camera] : 1
     [PP Shader] : 5002345589114090069
+     ============= END COMPONENT ============= 
+   ============= END GAMEOBJECT ============= 
+   ------------- BEGIN GAMEOBJECT ------------- 
+  [Name] : Monkey
+  [Active] : 1
+  [UUID] : 1761618246485228400
+  [Component Number] : 1
+  [Child Number] : 0
+   ------------- BEGIN TRANSFORM ------------- 
+  [Position] : 0.000000, 0.000000, -2.149237
+  [Rotation] : 0.000000, 0.000000, 0.000000, 1.000000
+  [Scale] : 1.000000, 1.000000, 1.000000
+   ============= END TRANSFORM ============= 
+     ------------- BEGIN COMPONENT ------------- 
+    [Name] : MeshComponent
+    [Enable] : 1
+    [Model] : 13490972336242385566
+    [Mesh Name] : Suzanne
+    [Material Count] : 1
+      [Material 0] : 482361550447954360
      ============= END COMPONENT ============= 
    ============= END GAMEOBJECT ============= 
  ============= END GAMEOBJECT ============= 

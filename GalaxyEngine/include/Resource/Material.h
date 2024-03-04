@@ -24,8 +24,6 @@ namespace GALAXY
 
 			void OnAdd() override;
 
-			void CreateThumbnail();
-
 			const char* GetResourceName() const override { return "Material"; }
 
 			bool LoadMatFile();
@@ -61,6 +59,10 @@ namespace GALAXY
 			inline void SetNormalMap(const Weak<Texture>& val) { m_normalMap = val; }
 			inline void SetParallaxMap(const Weak<Texture>& val) { m_parallaxMap = val; }
 			inline void SetHeightScale(const float val) { m_heightScale = val; }
+
+#ifdef WITH_EDITOR
+			void CreateThumbnail();
+#endif
 		private:
 			friend Wrapper::MTLLoader;
 			friend Wrapper::FBXLoader;

@@ -20,7 +20,9 @@ namespace GALAXY
 		{
 			RemoveFromGameObject();
 		}
+#ifdef WITH_EDITOR
 		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(LIGHT_ICON_PATH));
+#endif
 	}
 
 	void Component::Light::OnDestroy()
@@ -31,8 +33,10 @@ namespace GALAXY
 
 	void Component::Light::OnEditorDraw()
 	{
+#ifdef WITH_EDITOR
 		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
 		m_editorIcon.Render(GetGameObject()->GetSceneGraphID());
+#endif
 	}
 
 	void Component::Light::ShowInInspector()

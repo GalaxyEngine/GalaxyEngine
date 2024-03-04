@@ -41,16 +41,6 @@ namespace GALAXY
 		}
 	}
 
-	inline void Resource::Scene::RevertObject(size_t number)
-	{
-		for (size_t i = 0; i < number; ++i)
-		{
-			auto last = m_lastAdded.back();
-			last.lock()->Destroy();
-			m_lastAdded.pop_back();
-		}
-	}
-
 	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithSceneGraphID(const uint64_t index)
 	{
 		for (auto& object : m_objectList | std::views::values)
@@ -92,11 +82,6 @@ namespace GALAXY
 		return m_cameraRight;
 	}
 
-	inline Shared<Render::EditorCamera> Resource::Scene::GetEditorCamera() const
-	{
-		return m_editorCamera;
-	}
-
 	inline Shared<Render::Camera> Resource::Scene::GetCurrentCamera() const
 	{
 		return m_currentCamera.lock();
@@ -105,6 +90,27 @@ namespace GALAXY
 	inline Shared<Component::CameraComponent> Resource::Scene::GetMainCamera() const
 	{
 		return m_mainCamera.lock();
+	}
+
+	inline const UMap<Core::UUID, Shared<Core::GameObject>>& Resource::Scene::GetObjectList() const
+	{
+		return m_objectList;
+	}
+
+#ifdef WITH_EDITOR
+	inline void Resource::Scene::RevertObject(size_t number)
+	{
+		for (size_t i = 0; i < number; ++i)
+		{
+			auto last = m_lastAdded.back();
+			last.lock()->Destroy();
+			m_lastAdded.pop_back();
+		}
+	}
+
+	inline Shared<Render::EditorCamera> Resource::Scene::GetEditorCamera() const
+	{
+		return m_editorCamera;
 	}
 
 	inline Shared<Editor::Gizmo> Resource::Scene::GetGizmo() const
@@ -116,9 +122,5 @@ namespace GALAXY
 	{
 		return m_actionManager;
 	}
-
-	inline const UMap<Core::UUID, Shared<Core::GameObject>>& Resource::Scene::GetObjectList() const
-	{
-		return m_objectList;
-	}
+#endif
 }

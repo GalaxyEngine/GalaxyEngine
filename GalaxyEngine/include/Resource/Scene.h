@@ -18,11 +18,13 @@ namespace GALAXY {
 		class EditorCamera;
 		class Grid;
 	}
+#ifdef WITH_EDITOR
 	namespace Editor
 	{
 		class Gizmo;
 		class ActionManager;
 	}
+#endif
 	namespace Component
 	{
 		class CameraComponent;
@@ -34,6 +36,9 @@ namespace GALAXY {
 		Editor,
 		Game,
 	};
+	namespace Core {
+		class SceneHolder;
+	}
 
 	namespace Resource {
 		class Scene : public IResource
@@ -72,8 +77,6 @@ namespace GALAXY {
 
 			void SetCurrentCamera(const Weak<Render::Camera>& camera);
 
-			inline void RevertObject(size_t number = 1);
-
 			// Call when the window should close to prevent unsaved scene
 			bool WasModified() const;
 
@@ -88,18 +91,24 @@ namespace GALAXY {
 			inline const Mat4& GetVP() const;
 			inline const Vec3f& GetCameraUp() const;
 			inline const Vec3f& GetCameraRight() const;
-			inline Shared<Render::EditorCamera> GetEditorCamera() const;
 			inline Shared<Render::Camera> GetCurrentCamera() const;
 			inline Shared<Component::CameraComponent> GetMainCamera() const;
+
+#ifdef WITH_EDITOR
+			inline void RevertObject(size_t number = 1);
+
+			inline Shared<Render::EditorCamera> GetEditorCamera() const; 
 			inline Shared<Editor::Gizmo> GetGizmo() const;
 			inline Shared<Editor::ActionManager> GetActionManager() const;
+#endif
 
 			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
 			Shared<Render::LightManager> GetLightManager() const { return m_lightManager; }
 		private:
+			friend Core::SceneHolder;
+
 			List<Weak<Component::CameraComponent>> m_cameras;
-			Shared<Render::EditorCamera> m_editorCamera;
 			Weak<Render::Camera> m_currentCamera;
 			Weak<Component::CameraComponent> m_mainCamera;
 			Shared<Render::LightManager> m_lightManager = nullptr;
@@ -114,12 +123,15 @@ namespace GALAXY {
 
 			UMap<Core::UUID, Shared<Core::GameObject>> m_objectList;
 
+#ifdef WITH_EDITOR
+			Shared<Render::EditorCamera> m_editorCamera;
 			Shared<Editor::ActionManager> m_actionManager;
 
 			Shared<Render::Grid> m_grid;
 			Shared<Editor::Gizmo> m_gizmo;
 
 			List<Weak<Core::GameObject>> m_lastAdded;
+#endif
 
 		};
 	}

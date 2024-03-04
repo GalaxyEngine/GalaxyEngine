@@ -12,11 +12,16 @@
 
 #include "Core/Application.h"
 
+#ifdef WITH_EDITOR
 #include "Editor/UI/EditorUIManager.h"
+#endif
 
 #include "Wrapper/ImageLoader.h"
+
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
+
+#include "Core/Input.h"
 
 namespace GALAXY {
 	// boolean to check if glfw has been initialized
@@ -197,7 +202,9 @@ namespace GALAXY {
 
 	void Wrapper::Window::DropCallback(GLFWwindow* window, const int count, const char** paths)
 	{
+#ifdef WITH_EDITOR
 		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->HandleDropFile(count, paths);
+#endif
 	}
 
 	void Wrapper::Window::KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -30,9 +30,9 @@ namespace GALAXY
 		return Core::Application::GetInstance().GetEditorSettings();
 	}
 
-	void Editor::EditorSettings::Draw()
+	void Editor::EditorSettings::Display()
 	{
-		if (ImGui::BeginPopupModal("EditorSettings", nullptr/*, ImGuiWindowFlags_NoResize*/))
+		if (ImGui::BeginPopupModal("Editor Settings", nullptr/*, ImGuiWindowFlags_NoResize*/))
 		{
 			constexpr float buttonSizeY = 30;
 			static Editor::EditorSettings copySettings = *this;

@@ -1,7 +1,9 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
+#ifdef WITH_EDITOR
 #include "Editor/EditorIcon.h"
+#endif
 namespace GALAXY
 {
 	namespace Component
@@ -81,7 +83,9 @@ namespace GALAXY
 
 			bool p_dirty = true;
 
+#ifdef WITH_EDITOR
 			Editor::EditorIcon m_editorIcon;
+#endif
 		};
 	}
 }

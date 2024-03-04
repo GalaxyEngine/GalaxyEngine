@@ -31,6 +31,8 @@ namespace GALAXY {
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
+
+		PrintError("Test");
 	}
 
 	Render::Framebuffer::~Framebuffer()
@@ -64,6 +66,7 @@ namespace GALAXY {
 
 	void Render::Framebuffer::RenderPostProcess(const Vec2i& size, const Vec4f& clearColor)
 	{
+#ifdef WITH_EDITOR
 		if (!m_postProcess)
 			return;
 		auto renderer = Wrapper::Renderer::GetInstance();
@@ -77,17 +80,39 @@ namespace GALAXY {
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
 
 		renderer->UnbindRenderBuffer(postProcessFramebuffer);
+#else
+		if (!m_postProcess)
+			return;
+		auto renderer = Wrapper::Renderer::GetInstance();
+		const auto postProcessFramebuffer = m_postProcess.get();
+
+		renderer->UnbindRenderBuffer(postProcessFramebuffer);
+
+		renderer->ClearColorAndBuffer(clearColor);
+		renderer->ActiveDepth(false);
+
+		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
+		renderer->ActiveDepth(true);
+#endif
 	}
 
 	void Render::Framebuffer::Begin(const Vec2i& size)
 	{
 		Update(size);
+#ifdef WITH_EDITOR
 		Wrapper::Renderer::GetInstance()->BindRenderBuffer(this);
+#else
+		if (m_postProcess) {
+			Wrapper::Renderer::GetInstance()->BindRenderBuffer(m_postProcess.get());
+		}
+#endif
 	}
 
 	void Render::Framebuffer::End(const Vec2i& size, const Vec4f& clearColor)
 	{
+#ifdef WITH_EDITOR
 		Wrapper::Renderer::GetInstance()->UnbindRenderBuffer(this);
+#endif
 		RenderPostProcess(size, clearColor);
 	}
 
@@ -102,7 +127,11 @@ namespace GALAXY {
 			m_postProcess = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
 		if (!m_renderMaterial) {
 			m_renderMaterial = std::make_shared<Resource::Material>("RenderMaterial");
+#ifdef WITH_EDITOR
 			m_renderMaterial->SetAlbedo(m_renderTexture);
+#else
+			m_renderMaterial->SetAlbedo(m_postProcess->m_renderTexture);
+#endif
 			m_renderMaterial->p_shouldBeLoaded = true;
 			m_renderMaterial->p_loaded = true;
 			m_renderMaterial->p_hasBeenSent = true;

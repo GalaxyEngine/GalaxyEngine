@@ -20,6 +20,12 @@ namespace GALAXY
 		return m_instance;
 	}
 
+	Core::ProjectSettings& Core::Application::GetProjectSettings()
+	{
+		return m_projectSettings;
+	}
+
+#ifdef WITH_EDITOR
 	Editor::EditorSettings& Core::Application::GetEditorSettings()
 	{
 		return m_editorSettings;
@@ -34,4 +40,5 @@ namespace GALAXY
 	{
 		return &m_drawGrid;
 	}
+#endif
 }

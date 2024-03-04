@@ -3,7 +3,9 @@
 
 #include "Core/Application.h"
 
+#ifdef WITH_EDITOR
 #include "Editor/ThumbnailCreator.h"
+#endif
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
@@ -34,22 +36,15 @@ namespace GALAXY {
 
 		CreateDataFile();
 
+#ifdef WITH_EDITOR
 		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
 			return;
 		CreateThumbnail();
+#endif
 	}
 
 	void Resource::Material::OnAdd()
 	{
-	}
-
-	void Resource::Material::CreateThumbnail()
-	{
-		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
-
-		const Weak materialWeak = std::dynamic_pointer_cast<Material>(shared_from_this());
-
-		thumbnailCreator->AddToQueue(materialWeak);
 	}
 
 	bool Resource::Material::LoadMatFile()
@@ -89,7 +84,9 @@ namespace GALAXY {
 		serializer << CppSer::Pair::Key << "Diffuse" << CppSer::Pair::Value << m_diffuse;
 		serializer << CppSer::Pair::Key << "Specular" << CppSer::Pair::Value << m_specular;
 
+#ifdef WITH_EDITOR
 		CreateThumbnail();
+#endif
 	}
 
 	void Resource::Material::ShowInInspector()
@@ -224,5 +221,16 @@ namespace GALAXY {
 		material.Save();
 		return weakMat;
 	}
+
+#ifdef WITH_EDITOR
+	void Resource::Material::CreateThumbnail()
+	{
+		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+
+		const Weak materialWeak = std::dynamic_pointer_cast<Material>(shared_from_this());
+
+		thumbnailCreator->AddToQueue(materialWeak);
+	}
+#endif
 
 }

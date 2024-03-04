@@ -1,12 +1,17 @@
 #include "pch.h"
 #include "Component/CameraComponent.h"
 
+#include "Core/Application.h"
+
 #include "Resource/Scene.h"
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 
-#include "Editor/UI/EditorUIManager.h"
 #include "Render/Framebuffer.h"
+
+#ifdef WITH_EDITOR
+#include "Editor/UI/EditorUIManager.h"
+#endif
 
 namespace GALAXY
 {
@@ -18,7 +23,9 @@ namespace GALAXY
 		if (!scene)
 			return;
 		scene->AddCamera(std::static_pointer_cast<CameraComponent>(self.lock()));
+#ifdef WITH_EDITOR
 		m_editorIcon.SetIconTexture(Resource::ResourceManager::GetOrLoad<Resource::Texture>(CAMERA_ICON_PATH));
+#endif
 	}
 
 	void Component::CameraComponent::OnDraw()
@@ -30,8 +37,10 @@ namespace GALAXY
 	{
 		const Core::GameObject* game_object = GetGameObject();
 
+#ifdef WITH_EDITOR
 		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
 		m_editorIcon.Render(game_object->GetSceneGraphID());
+#endif
 
 		if (game_object->IsSelected())
 		{
@@ -100,23 +109,32 @@ namespace GALAXY
 		p_clearColor = parser["Clear Color"].As<Vec4f>();
 		m_isMainCamera = parser["Is Main Camera"].As<bool>();
 
-		uint64_t uuid = parser["PP Shader"].As<uint64_t>();
-		p_framebuffer->SetPostProcessShader(Resource::ResourceManager::GetOrLoad<Resource::PostProcessShader>(uuid));
+		m_postprocessID = parser["PP Shader"].As<uint64_t>();
 	}
 
 	void Component::CameraComponent::AfterLoad()
 	{
-		SetMainCamera();
+		if (m_isMainCamera)
+			SetMainCamera();
+		p_framebuffer->SetPostProcessShader(Resource::ResourceManager::GetOrLoad<Resource::PostProcessShader>(m_postprocessID));
 	}
 
 	bool Component::CameraComponent::IsVisible() const
 	{
+#ifdef WITH_EDITOR
 		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->IsVisible() || GetGameObject()->IsSelected();
+#else
+		return m_isMainCamera;
+#endif
 	}
 
 	Vec2i Component::CameraComponent::GetScreenResolution() const
 	{
+#ifdef WITH_EDITOR
 		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->GetImageSize();
+#else
+		return Core::Application::GetInstance().GetWindow()->GetSize();
+#endif
 	}
 
 	void Component::CameraComponent::SetMainCamera()

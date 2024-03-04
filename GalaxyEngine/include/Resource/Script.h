@@ -22,13 +22,14 @@ namespace GALAXY
 
 			static Weak<Script> Create(const Path& path);
 
-			static void OpenScript(const Path& path);
 
 			static inline ResourceType GetResourceType() { return ResourceType::Script; }
-
+#ifdef WITH_EDITOR
+			static void OpenScript(const Path& path);
 		private:
 			static void OpenWithVSCode(const Path& path);
 			static void OpenWithVS(const Path& path);
+#endif
 		};
 	}
 }

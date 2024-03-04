@@ -16,8 +16,10 @@
 
 #include "Render/LightManager.h"
 
+#ifdef WITH_EDITOR
 #include "Editor/UI/EditorUIManager.h"
 #include "Editor/ThumbnailCreator.h"
+#endif
 
 #include "Component/ComponentHolder.h"
 
@@ -64,8 +66,10 @@ namespace GALAXY {
 		m_threadManager = Core::ThreadManager::GetInstance();
 		m_threadManager->Initialize();
 
+#ifdef WITH_EDITOR
 		// Create Thumbnail Creator before ResourceManager
 		m_thumbnailCreator = new Editor::ThumbnailCreator();
+#endif
 
 		// Initialize Resource Manager
 		m_resourceManager = Resource::ResourceManager::GetInstance();
@@ -86,10 +90,11 @@ namespace GALAXY {
 		m_resourceManager->LoadNeededResources();
 		m_resourceManager->ReadCache();
 
-		m_editorSettings.LoadSettings();
-
+		m_projectSettings.LoadSettings();
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
+#ifdef WITH_EDITOR
+		m_editorSettings.LoadSettings();
 
 		// Initialize Editor::UI
 		Editor::UI::EditorUIManager::Initialize();
@@ -98,6 +103,9 @@ namespace GALAXY {
 		m_window->SetShouldCloseCallback(shouldCloseCallback);
 		const std::function<bool()> shouldDisplaySafeCloseCallback = std::bind(&Editor::UI::EditorUIManager::ShouldDisplaySafeClose, m_editorUI);
 		m_window->SetShouldDisplaySafeClose(shouldDisplaySafeCloseCallback);
+#else
+		m_window->SetShouldDisplaySafeClose([]() {return false; });
+#endif
 
 		// Load dll scripting
 		if (m_resourceManager->m_projectExists)
@@ -113,8 +121,10 @@ namespace GALAXY {
 
 	void Core::Application::UpdateResources()
 	{
+#ifdef WITH_EDITOR
 		m_scriptEngine->UpdateFileWatch();
 		m_thumbnailCreator->Update();
+#endif
 
 		if (!m_resourceToSend.empty())
 		{
@@ -153,7 +163,9 @@ namespace GALAXY {
 		{
 			Utils::Time::UpdateDeltaTime();
 
+#ifdef WITH_EDITOR
 			m_editorUI->UpdateDPIScale();
+#endif
 
 			Wrapper::Window::PollEvent();
 			Wrapper::GUI::NewFrame();
@@ -162,6 +174,7 @@ namespace GALAXY {
 			{
 				m_window->ToggleFullscreen();
 			}
+#ifdef WITH_EDITOR
 			if (Input::IsKeyPressed(Key::F5))
 			{
 				m_resourceManager->GetUnlitShader().lock()->Recompile();
@@ -181,6 +194,7 @@ namespace GALAXY {
 
 				}
 			}
+#endif
 
 			UpdateResources();
 
@@ -188,7 +202,9 @@ namespace GALAXY {
 			m_sceneHolder->Update();
 			//ENDDRAW
 
+#ifdef WITH_EDITOR
 			m_editorSettings.UpdateScreenShot();
+#endif
 
 			// Rendering
 			Wrapper::GUI::EndFrame(m_window);
@@ -198,10 +214,13 @@ namespace GALAXY {
 
 			m_window->SwapBuffers();
 
+#ifdef WITH_EDITOR
 			m_benchmark.UpdateBenchmark(Utils::Time::DeltaTime());
+#endif
 		}
 	}
 
+#ifdef WITH_EDITOR
 	void Core::Application::PasteObject() const
 	{
 		if (m_clipboard.empty())
@@ -275,17 +294,19 @@ namespace GALAXY {
 		}
 		m_clipboard = serializer.GetContent();
 	}
+#endif
 
 	void Core::Application::Destroy() const
 	{
+		m_resourceManager->CreateCache();
+		// Cleanup:
+#ifdef WITH_EDITOR
 		if (m_thumbnailCreator)
 			delete m_thumbnailCreator;
 
-		m_resourceManager->CreateCache();
-		// Cleanup:
-		// Scene Holder
 		if (m_editorUI)
 			m_editorUI->Release();
+#endif
 
 		if (m_sceneHolder)
 			m_sceneHolder->Release();

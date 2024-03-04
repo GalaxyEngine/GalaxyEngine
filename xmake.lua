@@ -1,8 +1,37 @@
-add_rules("mode.release", "mode.debug")
+add_rules("mode.release", "mode.debug", "mode.gamedbg", "mode.game")
 add_rules("plugin.vsxmake.autoupdate")
 
+-- Runtime mode
 if is_plat("windows") then
-    set_runtimes(is_mode("debug") and "MDd" or "MD")
+    set_runtimes((is_mode("debug") or is_mode("gamedbg")) and "MDd" or "MD")
+end
+
+set_allowedmodes("debug", "release", "gamedbg", "game")
+set_defaultmode("debug")
+
+local isEditor = is_mode("debug") or is_mode("release")
+
+if (is_mode("gamedbg")) then
+    add_defines("GAME_DEBUG")
+    set_symbols("debug")
+elseif (is_mode("game")) then
+    add_defines("GAME_RELEASE")
+    set_optimize("fastest")
+    set_symbols("none")
+    set_strip("all")
+end
+
+-- Modes
+rule("mode.gamedbg")
+rule_end()
+
+rule("mode.game")
+rule_end()
+
+if (isEditor) then
+    add_defines("WITH_EDITOR")
+else
+    add_defines("WITH_GAME")
 end
 
 -- Custom repo
@@ -18,11 +47,9 @@ add_requires("glad")
 add_requires("stb")
 add_requires("nativefiledialog-extended")
 add_requires("openfbx")
---add_requires("rttr")
 
 -- enable features
 add_defines("ENABLE_MULTITHREAD")
---add_defines("ENABLE_REFLECTION")
 
 set_languages("c++20")
 
@@ -46,10 +73,15 @@ target("GalaxyEngine")
         add_cxflags("/permissive")
     end
 
-    -- Includes --
     add_headerfiles("GalaxyEngine/include/**.h");
     add_headerfiles("GalaxyEngine/include/**.inl");
     add_files("GalaxyEngine/src/**.cpp")
+    -- Includes --
+    if (not isEditor) then
+        remove_files("GalaxyEngine/include/Editor/**.h");
+        remove_files("GalaxyEngine/include/Editor/**.inl");
+        remove_files("GalaxyEngine/src/Editor/**.cpp")
+    end
     set_pcxxheader("GalaxyEngine/include/pch.h")
     
     -- Packages --

@@ -2,8 +2,11 @@
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
 #include "Core/GameObject.h"
-#include "Editor/EditorIcon.h"
 #include "Render/Camera.h"
+
+#ifdef WITH_EDITOR
+#include "Editor/EditorIcon.h"
+#endif
 
 namespace GALAXY
 {
@@ -48,7 +51,11 @@ namespace GALAXY
 			friend Resource::Scene;
 
 			bool m_isMainCamera = false;
+#ifdef WITH_EDITOR
 			Editor::EditorIcon m_editorIcon;
+
+#endif
+			uint64_t m_postprocessID = -1;
 		};
 	}
 }

@@ -4,6 +4,7 @@
 
 #include "Core/GameObject.h"
 #include "Core/SceneHolder.h"
+
 #include "Resource/Scene.h"
 
 #include "Component/ComponentHolder.h"
@@ -306,7 +307,8 @@ namespace GALAXY
 			const char* componentName = componentNameString.c_str();
 			for (const Shared<BaseComponent>& componentInstance : Component::ComponentHolder::GetList())
 			{
-				if (!strcmp(componentInstance->GetComponentName(), componentName))
+				const char* thisComponentName = componentInstance->GetComponentName();
+				if (!strcmp(thisComponentName, componentName))
 				{
 					component = componentInstance->Clone();
 					break;

@@ -1,20 +1,24 @@
 #include "pch.h"
 
 #include "Render/Camera.h"
-#include "Editor/EditorCamera.h"
 #include "Render/Framebuffer.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Scene.h"
 #include "Core/Input.h"
-
-#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
+#include "Resource/Scene.h"
 
+#include "Physic/2D/Rect.h"
+#include "Physic/Ray.h"
+
+#ifdef WITH_EDITOR
+#include "Editor/EditorCamera.h"
+#include "Editor/UI/EditorUIManager.h"
 #include "Editor/Gizmo.h"
+#endif
 
 namespace GALAXY
 {
@@ -60,7 +64,11 @@ namespace GALAXY
 
 	Vec2i Render::Camera::GetScreenResolution() const
 	{
+#ifdef WITH_EDITOR
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
+#else
+		return Core::Application::GetInstance().GetWindow()->GetSize();
+#endif
 	}
 
 	Weak<Resource::Texture> Render::Camera::GetRenderTexture() const
@@ -68,10 +76,12 @@ namespace GALAXY
 		return p_framebuffer->GetRenderTexture();
 	}
 
+#ifdef WITH_EDITOR
 	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}
+#endif
 
 	Weak<Render::Camera> Render::Camera::GetCurrentCamera()
 	{
@@ -80,7 +90,11 @@ namespace GALAXY
 
 	bool Render::Camera::IsVisible() const
 	{
+#ifdef WITH_EDITOR
 		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
+#else
+		return true;
+#endif
 	}
 
 	void Render::Camera::Begin() const

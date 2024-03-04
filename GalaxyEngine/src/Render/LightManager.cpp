@@ -1,14 +1,12 @@
 #include "pch.h"
 #include "Render/LightManager.h"
 #include "Render/Camera.h"
-#include "Editor/EditorCamera.h"
 
 #include "Resource/Shader.h"
+#include "Resource/Scene.h"
 
 #include "Component/Light.h"
 #include "Core/GameObject.h"
-#include "Resource/Scene.h"
-
 /*
 * TODO:
 *	Parallax mapping with normal mapping

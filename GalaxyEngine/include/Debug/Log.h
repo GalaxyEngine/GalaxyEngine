@@ -74,10 +74,14 @@ namespace GALAXY::Debug {
 			std::cout << buf << std::endl;
 			std::cout << "\033[0m"; // Reset console text color
 #endif
+#ifdef WITH_EDITOR
 			AddTextToConsole(type, buf);
+#endif
 		}
 
+#ifdef WITH_EDITOR
 		static void AddTextToConsole(LogType type, const std::string& text);
+#endif
 	};
 }
 

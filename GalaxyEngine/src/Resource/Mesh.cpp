@@ -23,6 +23,13 @@ namespace GALAXY {
 		p_fileInfo.m_resourceType = ResourceType::Mesh;
 	}
 
+	const char* Resource::Mesh::GetMeshName()
+	{
+		auto meshName = GetFileInfo().GetFileName();
+		meshName = meshName.substr(meshName.find(':') + 1);
+		return meshName.c_str();
+	}
+
 	void Resource::Mesh::Load()
 	{
 		if (p_shouldBeLoaded)

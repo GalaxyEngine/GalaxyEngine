@@ -93,7 +93,9 @@ namespace GALAXY {
 			void ReadCache();
 			void CreateCache();
 
+#ifdef WITH_EDITOR
 			void UpdateFileWatch();
+#endif
 
 			static void HandleRename(const Path& oldPath, const Path& newPath);
 

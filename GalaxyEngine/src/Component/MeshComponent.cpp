@@ -30,7 +30,7 @@ namespace GALAXY {
 		else
 			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << INDEX_NONE;
 
-		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetName() : NONE_RESOURCE);
+		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetMeshName() : NONE_RESOURCE);
 		serializer << CppSer::Pair::Key << "Material Count" << CppSer::Pair::Value << m_materials.size();
 
 		serializer << CppSer::Pair::BeginTab;

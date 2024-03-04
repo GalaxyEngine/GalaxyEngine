@@ -2,7 +2,9 @@
 #include "Resource/Script.h"
 #include "Resource/ResourceManager.h"
 
+#ifdef WITH_EDITOR
 #include "Editor/EditorSettings.h"
+#endif
 
 #include "ScriptEngine.h"
 #include "Scripting/ScriptEngine.h"
@@ -87,6 +89,7 @@ END_FILE()
 		return scriptHeader;
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Script::OpenScript(const Path& path)
 	{
 		Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();
@@ -165,5 +168,5 @@ END_FILE()
 		}
 #endif
 	}
-
+#endif
 }

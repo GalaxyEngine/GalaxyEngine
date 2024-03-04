@@ -1,6 +1,8 @@
 #include "pch.h"
+
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
+
 #include "Core/Application.h"
 
 namespace GALAXY {

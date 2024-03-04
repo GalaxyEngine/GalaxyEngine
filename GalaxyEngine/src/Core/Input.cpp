@@ -4,6 +4,7 @@
 #include <ranges>
 
 #include <Wrapper/Window.h>
+
 #include <Core/Application.h>
 
 namespace GALAXY 

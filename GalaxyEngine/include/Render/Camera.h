@@ -23,7 +23,9 @@ namespace GALAXY
 			Camera(Camera&&) noexcept = default;
 			virtual ~Camera() = default;
 
+#ifdef WITH_EDITOR
 			static Shared<class EditorCamera> GetEditorCamera();
+#endif
 			static Weak<Camera> GetCurrentCamera();
 
 			void Begin() const;

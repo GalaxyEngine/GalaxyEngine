@@ -5,8 +5,6 @@
 
 #include "Resource/Shader.h"
 
-
-
 #include "Core/GameObject.h"
 
 namespace GALAXY 

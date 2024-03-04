@@ -58,7 +58,7 @@ namespace GALAXY
 
 			static EditorSettings& GetInstance();
 
-			void Draw();
+			void Display();
 
 			void TakeScreenShot();
 

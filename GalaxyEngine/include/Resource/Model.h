@@ -33,8 +33,6 @@ namespace GALAXY {
 			void Load() override;
 			void Unload() override;
 
-			void CreateThumbnail();
-
 			const char* GetResourceName() const override { return "Default Resource"; }
 
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
@@ -44,6 +42,10 @@ namespace GALAXY {
 			Shared<Core::GameObject> ToGameObject();
 
 			Utils::Event<> OnLoad;
+
+#ifdef WITH_EDITOR
+			void CreateThumbnail();
+#endif
 		private:
 			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 

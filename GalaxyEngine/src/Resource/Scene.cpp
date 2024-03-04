@@ -1,24 +1,24 @@
 #include "pch.h"
 
-#include "Resource/Scene.h"
 #include "Core/GameObject.h"
 #include "Core/Application.h"
 
-#include "Editor/UI/EditorUIManager.h"
-
 #include "Resource/ResourceManager.h"
+#include "Resource/Scene.h"
 
 #include "Render/Camera.h"
-#include "Editor/EditorCamera.h"
 #include "Render/Grid.h"
 #include "Render/Framebuffer.h"
 #include "Render/LightManager.h"
 
+#ifdef WITH_EDITOR
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/EditorCamera.h"
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
+#endif
 
 #include "Component/CameraComponent.h"
-
 
 #include "Wrapper/Window.h"
 
@@ -35,15 +35,15 @@ namespace GALAXY
 
 	void Scene::Initialize()
 	{
-		m_editorCamera = std::make_unique<Render::EditorCamera>();
-
+		p_hasBeenSent = true;
+#ifdef WITH_EDITOR
 		m_gizmo = std::make_shared<Editor::Gizmo>();
 
 		m_grid = std::make_shared<Render::Grid>();
 		m_grid->Initialize();
-		p_hasBeenSent = true;
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
+#endif
 		m_lightManager = std::make_shared<Render::LightManager>();
 	}
 
@@ -70,17 +70,22 @@ namespace GALAXY
 	{
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
+#ifdef WITH_EDITOR
 		Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
 		Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
 		Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
-		const Vec2i windowSize = Core::Application::GetInstance().GetWindow()->GetSize();
 
 		editorUIManager->DrawUI();
+#endif
+
+		const Vec2i windowSize = Core::Application::GetInstance().GetWindow()->GetSize();
+
 		if (!HasBeenSent()) // if it reload the current scene from the Main Bar menu
 			return;
 
 		m_root->UpdateSelfAndChild();
 
+#ifdef WITH_EDITOR
 		m_actionManager->Update();
 
 		if (m_editorCamera->IsVisible()) {
@@ -161,6 +166,7 @@ namespace GALAXY
 
 			currentCamera->End();
 		}
+#endif
 
 		size_t index = 0;
 		for (auto& camera : m_cameras)
@@ -216,7 +222,6 @@ namespace GALAXY
 		m_root->Deserialize(parser);
 
 		p_loaded = true;
-		m_root->AfterLoad();
 		SendRequest();
 	}
 
@@ -245,6 +250,7 @@ namespace GALAXY
 
 	void Scene::Send()
 	{
+		m_root->AfterLoad();
 		Initialize();
 	}
 

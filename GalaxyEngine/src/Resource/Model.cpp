@@ -8,7 +8,9 @@
 
 #include "Core/Application.h"
 
+#ifdef WITH_EDITOR
 #include "Editor/ThumbnailCreator.h"
+#endif
 
 #include "Wrapper/OBJLoader.h"
 #include "Wrapper/FBXLoader.h"
@@ -36,9 +38,11 @@ namespace GALAXY {
 		}
 
 		CreateDataFile();
+#ifdef WITH_EDITOR
 		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
 			return;
 		CreateThumbnail();
+#endif
 	}
 
 	void Resource::Model::Unload()
@@ -113,12 +117,9 @@ namespace GALAXY {
 		p_loaded.store(true);
 		p_hasBeenSent.store(true);
 		OnLoad.Invoke();
-
-		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
-			return;
-		//CreateThumbnail();
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Model::CreateThumbnail()
 	{
 		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
@@ -127,6 +128,7 @@ namespace GALAXY {
 
 		thumbnailCreator->AddToQueue(modelWeak);
 	}
+#endif
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{

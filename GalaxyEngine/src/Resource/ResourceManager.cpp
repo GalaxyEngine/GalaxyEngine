@@ -14,9 +14,11 @@
 
 #include <set>
 
+#ifdef WITH_EDITOR
 #include "Editor/ThumbnailCreator.h"
 #include "Editor/UI/FileExplorer.h"
 #include "Editor/UI/EditorUIManager.h"
+#endif
 
 #define AUTO_IMPORT
 // Automatic import all model that not get a .gdata up to date
@@ -154,14 +156,18 @@ namespace GALAXY {
 			case ResourceType::FragmentShader:
 				break;
 			case ResourceType::Model:
+#ifdef WITH_EDITOR
 				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
 					GetOrLoad<Model>(resource.second->p_uuid);
+#endif
 				break;
 			case ResourceType::Mesh:
 				break;
 			case ResourceType::Material:
+#ifdef WITH_EDITOR
 				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
 					GetOrLoad<Material>(resource.second->p_uuid);
+#endif
 				break;
 			case ResourceType::Materials:
 				break;
@@ -171,10 +177,12 @@ namespace GALAXY {
 				break;
 			case ResourceType::Scene:
 				break;
-			default:;
+			default:
+				break;
 			}
 		}
 
+#ifdef WITH_EDITOR
 		if (!m_projectExists)
 			return;
 		const Path assetPath = this->GetAssetPath();
@@ -183,8 +191,10 @@ namespace GALAXY {
 		m_fileWatchPrevious->FindAllChildren();
 
 		Core::ThreadManager::GetInstance()->AddTask([this] { this->UpdateFileWatch(); });
+#endif
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::ResourceManager::UpdateFileWatch()
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -235,6 +245,7 @@ namespace GALAXY {
 		if (!Core::ThreadManager::ShouldTerminate())
 			UpdateFileWatch();
 	}
+#endif
 
 	bool Resource::ResourceManager::IsDataFileUpToDate(const Path& resourcePath)
 	{
@@ -255,7 +266,6 @@ namespace GALAXY {
 	std::size_t HashContent(const std::string& content)
 	{
 		// For simplicity, we're just using the string's hash function here
-		// In practice, you would want to use a proper hash function
 		return std::hash<std::string>{}(content);
 	}
 
