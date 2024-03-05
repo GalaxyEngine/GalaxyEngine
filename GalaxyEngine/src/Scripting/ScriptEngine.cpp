@@ -185,8 +185,7 @@ namespace GALAXY
 
 		// Execute your build commands
 #ifdef _MSC_VER
-		system("xmake f -p windows --vs=2022 -a x64 -m debug");
-		std::cout << "Visual Studio version: " << _MSC_VER << std::endl;
+		system("xmake f -p windows -a x64 -m debug");
 #elif defined(__linux__)
 		system("xmake f -p linux -a x64 -m debug");
 #endif
@@ -203,7 +202,7 @@ namespace GALAXY
 		{
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-			system("xmake f -p windows --vs=2022 -a x64 -m debug");
+			system("xmake f -p windows -a x64 -m debug");
 			system("xmake project -k vsxmake");
 			break;
 		}
@@ -234,17 +233,18 @@ namespace GALAXY
 	{
 		switch (tool)
 		{
+#ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
 			Utils::OS::OpenWithVS(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
 			break;
 		}
+#endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
 			Utils::OS::OpenWithVSCode(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
 			break;
 		}
-		
 		}
 	}
 

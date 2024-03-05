@@ -459,6 +459,8 @@ namespace GALAXY {
 			return AddResource<Scene>(fullPath);
 		case Resource::ResourceType::Script:
 			return GetOrLoad<Script>(fullPath);
+		case Resource::ResourceType::Data:
+			return {};
 		default:
 			PrintWarning("Resource %s not handled", fullPath.string().c_str());
 			return {};
