@@ -31,8 +31,6 @@ namespace GALAXY {
 
 		Wrapper::Renderer::GetInstance()->CreateRenderBuffer(this);
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
-
-		PrintError("Test");
 	}
 
 	Render::Framebuffer::~Framebuffer()

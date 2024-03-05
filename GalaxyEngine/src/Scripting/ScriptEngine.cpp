@@ -2,6 +2,7 @@
 #include "Scripting/ScriptEngine.h"
 
 #include <galaxyscript/ScriptEngine.h>
+#include <fstream>
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
@@ -13,6 +14,9 @@
 #include "Component/ScriptComponent.h"
 #include "Utils/OS.h"
 
+#ifdef WITH_EDITOR
+#include "Editor/EditorSettings.h"
+#endif
 namespace GALAXY
 {
 	std::unique_ptr<Scripting::ScriptEngine> Scripting::ScriptEngine::s_instance;
@@ -180,13 +184,68 @@ namespace GALAXY
 		std::filesystem::current_path(projectPath);
 
 		// Execute your build commands
-#ifdef MSVC
+#ifdef _MSC_VER
 		system("xmake f -p windows --vs=2022 -a x64 -m debug");
+		std::cout << "Visual Studio version: " << _MSC_VER << std::endl;
 #elif defined(__linux__)
 		system("xmake f -p linux -a x64 -m debug");
 #endif
 		system("xmake");
 		std::filesystem::current_path(prevPath);
+	}
+
+	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorTool tool)
+	{
+		const Path prevPath = std::filesystem::current_path();
+		const Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
+		std::filesystem::current_path(projectPath);
+		switch (tool)
+		{
+		case Editor::ScriptEditorTool::VisualStudio:
+		{
+			system("xmake f -p windows --vs=2022 -a x64 -m debug");
+			system("xmake project -k vsxmake");
+			break;
+		}
+		case Editor::ScriptEditorTool::VisualStudioCode:
+		{
+			system("xmake project -k compile_commands .vscode");
+			std::ofstream file(".vscode/c_cpp_properties.json");
+			if (file.is_open()) {
+				file << std::string(R"(
+{
+   "configurations": [
+       {
+           "compileCommands": ".vscode/compile_commands.json"
+       }
+   ],
+   "version": 4
+})");
+			}
+			break;
+		}
+		default:
+			break;
+		}
+		std::filesystem::current_path(prevPath);
+	}
+
+	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorTool tool)
+	{
+		switch (tool)
+		{
+		case Editor::ScriptEditorTool::VisualStudio:
+		{
+			Utils::OS::OpenWithVS(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
+			break;
+		}
+		case Editor::ScriptEditorTool::VisualStudioCode:
+		{
+			Utils::OS::OpenWithVSCode(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
+			break;
+		}
+		
+		}
 	}
 
 	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)

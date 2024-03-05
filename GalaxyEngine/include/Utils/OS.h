@@ -36,6 +36,10 @@ namespace GALAXY
 		const char* GetDLLExtension();
 
 		void OpenWithVSCode(const std::filesystem::path& filePath);
+
+#ifdef _WIN32
+		void OpenWithVS(const std::filesystem::path& filePath);
+#endif
 	}
 }
 #include "Utils/OS.inl" 

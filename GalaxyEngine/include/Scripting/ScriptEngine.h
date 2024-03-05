@@ -11,6 +11,7 @@
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
 {
+	namespace Editor { enum class ScriptEditorTool; }
 	namespace Scripting
 	{
 		class ScriptEngine
@@ -45,6 +46,10 @@ namespace GALAXY
 			}
 
 			static void CompileCode();
+
+			static void GenerateSolution(Editor::ScriptEditorTool tool);
+
+			static void OpenSolution(Editor::ScriptEditorTool tool);
 
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
 

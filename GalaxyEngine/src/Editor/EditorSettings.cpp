@@ -130,14 +130,6 @@ namespace GALAXY
 		{
 			Core::Application::GetInstance().GetWindow()->SetVSync(enableVSync);
 		}
-		if (ImGui::Button("Reload Project DLL"))
-		{
-			Scripting::ScriptEngine::GetInstance()->ReloadDLL();
-		}
-		if (ImGui::Button("Compile code"))
-		{
-			Scripting::ScriptEngine::CompileCode();
-		}
 	}
 
 	void Editor::EditorSettings::DisplayExternalToolTab()
@@ -146,6 +138,22 @@ namespace GALAXY
 		if (ImGui::Combo("Script Editor Tool", &externalToolID, SerializeScriptEditorToolEnum()))
 		{
 			Core::Application::GetInstance().GetEditorSettings().SetScriptEditorTool(static_cast<ScriptEditorTool>(externalToolID));
+		}
+		if (ImGui::Button("Compile code"))
+		{
+			Scripting::ScriptEngine::CompileCode();
+		}
+		if (ImGui::Button("Reload Project DLL"))
+		{
+			Scripting::ScriptEngine::GetInstance()->ReloadDLL();
+		}
+		if (ImGui::Button("Generate solution"))
+		{
+			Scripting::ScriptEngine::GenerateSolution(GetScriptEditorTool());
+		}
+		if (ImGui::Button("Open solution"))
+		{
+			Scripting::ScriptEngine::OpenSolution(GetScriptEditorTool());
 		}
 	}
 
