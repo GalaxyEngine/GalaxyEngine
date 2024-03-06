@@ -2,25 +2,36 @@
 #include "Component/MeshComponent.h"
 
 #include "Resource/ResourceManager.h"
+#include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/Material.h"
+
+#include "Render/Camera.h"
+
+#include "Component/CameraComponent.h"
 
 #include "Wrapper/Renderer.h"
 
 #include "Core/GameObject.h"
 
-
+#if WITH_EDITOR
+#include "Editor/EditorCamera.h"
+#endif
 
 namespace GALAXY {
 
 	void Component::MeshComponent::OnDraw()
 	{
-		if (!m_mesh.lock())
+		auto mesh = m_mesh.lock();
+		if (!mesh)
 			return;
-		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
 
 		if (m_drawBoundingBox)
 			m_mesh.lock()->DrawBoundingBox(GetGameObject()->GetTransform());
+
+		if (Render::Camera::GetMainCamera() && !mesh->GetBoundingBox().IsOnFrustum(Render::Camera::GetMainCamera().get(), GetTransform()))
+			return;
+		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
 	}
 
 	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)

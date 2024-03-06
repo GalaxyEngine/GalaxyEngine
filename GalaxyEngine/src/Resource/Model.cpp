@@ -1,5 +1,7 @@
 #include "pch.h"
 
+#include "Render/Camera.h"
+
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
 #include "Resource/ResourceManager.h"
@@ -12,10 +14,87 @@
 #include "Editor/ThumbnailCreator.h"
 #endif
 
+#include "Physic/Plane.h"
+
 #include "Wrapper/OBJLoader.h"
 #include "Wrapper/FBXLoader.h"
 
 namespace GALAXY {
+
+	Vec3f Resource::BoundingBox::GetCenter() const
+	{
+		return (min + max) * 0.5f;
+	}
+
+	Vec3f Resource::BoundingBox::GetExtents() const
+	{
+		return max - GetCenter();
+	}
+
+	bool Resource::BoundingBox::IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform) const
+	{
+		auto center = GetCenter();
+		auto extents = GetExtents();
+		auto frustum = camera->GetFrustum();
+		//Get global scale thanks to our transform
+		const Vec3f globalCenter{ objectTransform->GetModelMatrix() * Vec4f(center, 1.f) };
+
+		const Vec3f globalScale{ objectTransform->GetWorldScale() };
+
+		// Scaled orientation
+		const Vec3f right = objectTransform->GetRight() * extents.x;
+		const Vec3f up = objectTransform->GetUp() * extents.y;
+		const Vec3f forward = objectTransform->GetForward() * extents.z;
+
+		const float newIi = 
+			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(right)) +
+			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(up)) +
+			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(forward));
+
+		const float newIj = 
+			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(right)) +
+			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(up)) +
+			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(forward));
+
+		const float newIk = 
+			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(right)) +
+			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(up)) +
+			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(forward));
+
+		//We not need to divide scale because it's based on the half extension of the AABB
+		Vec3f newExtent = { globalScale.x * newIi, globalScale.y * newIj, globalScale.z * newIk };
+		Vec3f newCenter = globalCenter;
+		const BoundingBox globalAABB = BoundingBox(globalCenter - newExtent, globalCenter + newExtent);
+
+		bool result = true;
+
+		for (const auto& plane : frustum.planes)
+		{
+			if (!globalAABB.isOnOrForwardPlane(plane))
+			{
+				result = false;
+				break;
+			}
+		}
+
+		return result;
+	}
+
+	bool Resource::BoundingBox::isOnOrForwardPlane(const Physic::Plane& plane) const
+	{
+		const auto center = GetCenter();
+		const auto extents = GetExtents();
+
+		const float r = 
+			  extents.x * std::abs(plane.normal.x) 
+			+ extents.y * std::abs(plane.normal.y) 
+			+ extents.z * std::abs(plane.normal.z);
+
+		const float distance = plane.GetDistanceToPlane(center);
+
+		return -r <= distance;
+	}
+
 	Resource::Model::~Model()
 	{
 		m_meshes.clear();
@@ -132,7 +211,7 @@ namespace GALAXY {
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{
-		for (size_t i = 0; auto& weakMesh : m_meshes)
+		for (size_t i = 0; auto & weakMesh : m_meshes)
 		{
 			const Shared<Mesh> mesh = weakMesh.lock();
 			mesh->ComputeBoundingBox(positionVertices[i]);
@@ -146,8 +225,5 @@ namespace GALAXY {
 			m_boundingBox.max.z = std::max(m_boundingBox.max.z, mesh->m_boundingBox.max.z);
 			i++;
 		}
-
-		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
 	}
-
 }

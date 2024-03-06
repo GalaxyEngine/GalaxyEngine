@@ -4,8 +4,11 @@
 #include "Utils/Event.h"
 
 namespace GALAXY {
+	namespace Render { class Camera; }
+	namespace Component { class Transform; }
 	namespace Wrapper { class OBJLoader; class FBXLoader; }
 	namespace Core { class GameObject; }
+	namespace Physic { struct Plane; }
 	namespace Resource
 	{
 		enum class ModelExtension
@@ -16,9 +19,17 @@ namespace GALAXY {
 
 		struct BoundingBox
 		{
+			BoundingBox() : min(0), max(0) {}
+			BoundingBox(Vec3f min, Vec3f max) : min(min), max(max) {}
+
 			Vec3f min;
 			Vec3f max;
-			Vec3f center;
+
+			Vec3f GetCenter() const;
+			Vec3f GetExtents() const;
+
+			bool IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform) const;
+			bool isOnOrForwardPlane(const Physic::Plane& plane) const;
 		};
 
 		class Model : public IResource

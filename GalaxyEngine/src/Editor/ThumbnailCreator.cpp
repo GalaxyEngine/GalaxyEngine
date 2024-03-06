@@ -123,7 +123,7 @@ namespace GALAXY
 		}
 
 		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
-		auto lookAt = Quat::LookRotation((cameraPosition - modelShared->GetBoundingBox().center).GetNormalize(), Vec3f(0, -1, 0));
+		auto lookAt = Quat::LookRotation((cameraPosition - modelShared->GetBoundingBox().GetCenter()).GetNormalize(), Vec3f(0, -1, 0));
 		const Quat cameraRotation = lookAt;
 		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);

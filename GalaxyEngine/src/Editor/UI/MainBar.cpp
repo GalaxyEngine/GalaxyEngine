@@ -4,10 +4,12 @@
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
+#include "Resource/Model.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
-#include "Resource/Model.h"
+
+#include "Component/CameraComponent.h"
 
 #include "Utils/OS.h"
 
@@ -100,6 +102,13 @@ namespace GALAXY
 				if (ImGui::MenuItem("Create With Model"))
 				{
 					openCreateWithModel = true;
+				}
+				if (ImGui::MenuItem("Camera"))
+				{
+					auto currentScene = Core::SceneHolder::GetCurrentScene();
+					auto cameraObject = currentScene->CreateObject();
+					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
+					cameraObject.lock()->AddComponent<Component::CameraComponent>();
 				}
 				ImGui::EndMenu();
 			}

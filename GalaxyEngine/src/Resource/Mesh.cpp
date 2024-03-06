@@ -125,7 +125,6 @@ namespace GALAXY {
 			m_boundingBox.max.y = std::max(m_boundingBox.max.y, vertex.y);
 			m_boundingBox.max.z = std::max(m_boundingBox.max.z, vertex.z);
 		}
-		m_boundingBox.center = (m_boundingBox.min + m_boundingBox.max) / 2.0f;
 	}
 
 	void Resource::Mesh::DrawBoundingBox(const Component::Transform* transform) const
@@ -133,7 +132,7 @@ namespace GALAXY {
 		const BoundingBox box = GetBoundingBox();
 		const auto instance = Wrapper::Renderer::GetInstance();
 
-		instance->DrawWireCube(transform->GetWorldPosition() + box.center, Vec3f(
+		instance->DrawWireCube(transform->GetWorldPosition() + box.GetCenter(), Vec3f(
 			(box.max.x - box.min.x) / 2.0f,
 			(box.max.y - box.min.y) / 2.0f,
 			(box.max.z - box.min.z) / 2.0f

@@ -18,6 +18,8 @@
 #include "Editor/UI/EditorUIManager.h"
 #include "Editor/UI/SceneWindow.h"
 
+#include "Physic/Plane.h"
+
 #pragma region MathMethods
 float ClosestDistanceBetweenLines(Physic::Ray& l1, Physic::Ray& l2)
 {
@@ -50,7 +52,7 @@ bool RayCircleIntersection(const Physic::Ray& ray, Circle circle, Vec3f& interse
 	return distance <= circle.radius;
 }
 
-Vec3f RayPlaneIntersection(const Physic::Ray& ray, Plane plane)
+Vec3f RayPlaneIntersection(const Physic::Ray& ray, Physic::Plane plane)
 {
 	Vec3f planePoint = -plane.normal * plane.distance; // calculate a point on the plane
 	float dotProduct = ray.direction.Dot(plane.normal);
@@ -72,7 +74,7 @@ Vec3f RayPlaneIntersection(const Physic::Ray& ray, Plane plane)
 
 float ClosestDistanceLineCircle(const Physic::Ray& line, const Circle& c, Vec3f& point, bool enablePlane = false)
 {
-	Plane f = Plane(c.orientation, c.center);
+	Physic::Plane f = Physic::Plane(c.center, c.orientation);
 	point = Vec3f::Zero();
 
 	Vec3f intersection;

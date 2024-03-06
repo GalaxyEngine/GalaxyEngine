@@ -157,6 +157,8 @@ namespace GALAXY
 			m_lightManager->SendLightData();
 
 			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
+			if (!m_cameras.empty() && m_cameras[0].lock())
+				m_cameras[0].lock()->GetFrustum().DebugDraw();
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
@@ -199,6 +201,7 @@ namespace GALAXY
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
 	{
 		m_currentCamera = camera;
+		m_currentCamera.lock()->CreateFrustum();
 		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
 		m_cameraUp = m_currentCamera.lock()->GetTransform()->GetUp();
 		m_cameraRight = m_currentCamera.lock()->GetTransform()->GetRight();

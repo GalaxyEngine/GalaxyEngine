@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "Component/Transform.h"
+#include "Physic/Frustum.h"
 namespace GALAXY
 {
 	namespace Resource
@@ -10,6 +11,10 @@ namespace GALAXY
 	namespace Physic
 	{
 		struct Ray;
+	}
+	namespace Component
+	{
+		class CameraComponent;
 	}
 	namespace Render
 	{
@@ -26,6 +31,8 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 			static Shared<class EditorCamera> GetEditorCamera();
 #endif
+			static Shared<Component::CameraComponent> GetMainCamera();
+
 			static Weak<Camera> GetCurrentCamera();
 
 			void Begin() const;
@@ -52,6 +59,8 @@ namespace GALAXY
 
 			Weak<Resource::Texture> GetRenderTexture() const;
 
+			float GetAspectRatio() const { return p_aspectRatio; }
+
 			inline float GetFar() const { return p_far; }
 			inline void SetFar(float val) { p_far = val; }
 
@@ -63,6 +72,10 @@ namespace GALAXY
 
 			Shared<Framebuffer> GetFramebuffer() const { return p_framebuffer; }
 			void SetClearColor(const Vec4f& clearColor) { p_clearColor = clearColor; }
+
+			void CreateFrustum(); 
+
+			Physic::Frustum& GetFrustum() { return p_frustum; }
 		protected:
 			float p_fov = 70.f;
 			float p_far = 1000.f;
@@ -73,6 +86,8 @@ namespace GALAXY
 			Vec4f p_clearColor = Vec4f(0.45f, 0.55f, 0.60f, 1.00f);
 
 			Shared<Framebuffer> p_framebuffer = nullptr;
+
+			Physic::Frustum p_frustum;
 		};
 	}
 }

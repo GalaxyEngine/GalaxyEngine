@@ -76,12 +76,22 @@ namespace GALAXY
 		return p_framebuffer->GetRenderTexture();
 	}
 
+	void Render::Camera::CreateFrustum()
+	{
+		p_frustum.Create(this);
+	}
+
 #ifdef WITH_EDITOR
 	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}
 #endif
+
+	Shared<Component::CameraComponent> Render::Camera::GetMainCamera()
+	{
+		return Core::SceneHolder::GetCurrentScene()->GetMainCamera();
+	}
 
 	Weak<Render::Camera> Render::Camera::GetCurrentCamera()
 	{

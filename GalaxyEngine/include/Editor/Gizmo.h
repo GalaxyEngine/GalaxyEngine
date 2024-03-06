@@ -19,18 +19,6 @@ namespace GALAXY
 		class Transform;
 	}
 
-	struct Plane
-	{
-		Vec3f normal;
-		float distance;
-
-		Plane(Vec3f _normal, float _distance) : normal(_normal), distance(_distance) {}
-		Plane(Vec3f _normal, Vec3f _point) : normal(_normal)
-		{
-			distance = -_normal.Dot(_point);
-		}
-	};
-
 	struct Circle
 	{
 		Vec3f orientation;
