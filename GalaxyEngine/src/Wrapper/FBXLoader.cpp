@@ -274,7 +274,6 @@ namespace GALAXY
 			for (int j = 0; j < partitionCount; j++) {
 				Resource::SubMesh subMesh;
 				subMesh.startIndex = totalVertexCount;
-				subMesh.count = 1 - subMesh.startIndex;
 
 				auto currentPartition = fbxMesh->getGeometryData().getPartition(j);
 
@@ -283,7 +282,6 @@ namespace GALAXY
 					if (currentPolygon.vertex_count == 3) {
 						for (int l = totalVertexCount; l < totalVertexCount + currentPolygon.vertex_count; l++) {
 							pushToVector(l);
-							subMesh.count += currentPolygon.vertex_count;
 						}
 					}
 					else if (currentPolygon.vertex_count == 4)
@@ -295,11 +293,10 @@ namespace GALAXY
 						pushToVector(totalVertexCount + 2);
 						pushToVector(totalVertexCount + 3);
 						pushToVector(totalVertexCount);
-
-						subMesh.count += 6;
 					}
 					totalVertexCount += currentPolygon.vertex_count;
 				}
+				subMesh.count = totalVertexCount - subMesh.startIndex;
 				mesh->m_subMeshes.push_back(subMesh);
 			}
 

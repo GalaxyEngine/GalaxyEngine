@@ -45,11 +45,13 @@ namespace GALAXY
 				SetScriptVariable(scriptComponent, scriptName, variableName, reinterpret_cast<void*>(value));
 			}
 
+#ifdef WITH_EDITOR
 			static void CompileCode();
 
 			static void GenerateSolution(Editor::ScriptEditorTool tool);
 
 			static void OpenSolution(Editor::ScriptEditorTool tool);
+#endif
 
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
 

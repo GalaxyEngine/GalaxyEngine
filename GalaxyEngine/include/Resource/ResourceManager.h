@@ -100,6 +100,7 @@ namespace GALAXY {
 			static void HandleRename(const Path& oldPath, const Path& newPath);
 
 			static void RenameSingle(const Path& oldPath, const Path& newPath);
+			static bool DoesProjectExists() { return m_instance->m_projectExists; }
 		private:
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;

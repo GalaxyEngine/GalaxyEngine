@@ -63,6 +63,7 @@ END_FILE()
 		p_loaded = false;
 	}
 
+#ifdef WITH_EDITOR
 	Weak<Resource::Script> Resource::Script::Create(const Path& path)
 	{
 		std::ofstream hFile(path.string() + ".h");
@@ -89,7 +90,6 @@ END_FILE()
 		return scriptHeader;
 	}
 
-#ifdef WITH_EDITOR
 	void Resource::Script::OpenScript(const Path& path)
 	{
 		Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();

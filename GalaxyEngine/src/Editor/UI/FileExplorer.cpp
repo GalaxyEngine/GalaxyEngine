@@ -121,6 +121,18 @@ namespace GALAXY {
 		}
 	}
 
+	Editor::UI::File::~File()
+	{
+		for (auto& child : m_children)
+		{
+			child->m_parent.reset();
+		}
+		m_children.clear();
+		m_children.shrink_to_fit();
+
+		m_parent.reset();
+	}
+
 	void Editor::UI::File::FindChildren()
 	{
 		const auto dirIt = std::filesystem::directory_iterator(m_info.GetFullPath());

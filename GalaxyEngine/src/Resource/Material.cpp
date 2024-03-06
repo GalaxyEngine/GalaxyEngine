@@ -216,10 +216,10 @@ namespace GALAXY {
 
 	Weak<Resource::Material> Resource::Material::Create(const std::filesystem::path& path)
 	{
-		Material material(path);
-		auto weakMat = Resource::ResourceManager::GetOrLoad<Material>(path);
-		material.Save();
-		return weakMat;
+		auto material = Resource::ResourceManager::AddResource<Material>(path);
+		material.lock()->SetShader(Resource::ResourceManager::GetInstance()->GetDefaultShader());
+		material.lock()->Save();
+		return material;
 	}
 
 #ifdef WITH_EDITOR

@@ -177,6 +177,7 @@ namespace GALAXY
 		m_scriptEngine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
 	}
 
+#ifdef WITH_EDITOR
 	void Scripting::ScriptEngine::CompileCode()
 	{
 		const Path prevPath = std::filesystem::current_path();
@@ -247,6 +248,7 @@ namespace GALAXY
 		}
 		}
 	}
+#endif
 
 	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)
 	{

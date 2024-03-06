@@ -22,6 +22,9 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::Initialize()
 	{
+		if (!Resource::ResourceManager::DoesProjectExists())
+			return;
+
 		constexpr Vec4f clearColor(0);
 
 		Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
@@ -78,6 +81,8 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::CreateModelThumbnail(const Weak<Resource::Model>& model)
 	{
+		if (!m_initialized)
+			return;
 		auto modelShared = model.lock();
 		ASSERT(modelShared != nullptr);
 
@@ -150,6 +155,8 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::CreateMaterialThumbnail(const Weak<Resource::Material>& material)
 	{
+		if (!m_initialized)
+			return;
 		auto materialShared = material.lock();
 		ASSERT(materialShared != nullptr);
 		constexpr Vec3f cameraPosition(0, 0, 2);
@@ -205,7 +212,7 @@ namespace GALAXY
 	{
 		if (!m_thumbnailQueue.empty())
 		{
-			if (!m_initialized)
+			if (!m_initialized && Resource::ResourceManager::DoesProjectExists())
 			{
 				Initialize();
 			}

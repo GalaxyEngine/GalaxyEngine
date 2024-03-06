@@ -200,6 +200,7 @@ namespace GALAXY {
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 		const Path assetPath = this->GetAssetPath();
 
+		m_fileWatchCurrent.reset();
 		m_fileWatchCurrent = std::make_shared<Editor::UI::File>(assetPath, true);
 		m_fileWatchCurrent->FindAllChildren();
 

@@ -22,7 +22,7 @@ namespace GALAXY
 			File& operator=(const File& other) = default;
 			File(const File&) = default;
 			File(File&&) noexcept = default;
-			virtual ~File() {}
+			virtual ~File();
 
 			void FindChildren();
 			void FindAllChildren();
