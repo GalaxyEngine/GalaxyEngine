@@ -201,12 +201,14 @@ namespace GALAXY
 		std::filesystem::current_path(projectPath);
 		switch (tool)
 		{
+#ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
 			system("xmake f -p windows -a x64 -m debug");
 			system("xmake project -k vsxmake");
 			break;
 		}
+#endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
 			system("xmake project -k compile_commands .vscode");

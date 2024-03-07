@@ -19,3 +19,4 @@ compile.*
 *.lib
 /.vscode
 *.a
+GalaxyCore/GalaxyHeaderTool
