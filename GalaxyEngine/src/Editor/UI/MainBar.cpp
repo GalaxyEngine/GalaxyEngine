@@ -94,6 +94,7 @@ namespace GALAXY
 				ImGui::MenuItem("File Explorer", nullptr, &editorInstance->GetFileExplorer()->p_open);
 				ImGui::MenuItem("Console", nullptr, &editorInstance->GetConsole()->p_open);
 				ImGui::MenuItem("Resources", nullptr, &editorInstance->GetResourceWindow()->p_open);
+				ImGui::MenuItem("Debug", nullptr, &editorInstance->GetDebugWindow()->p_open);
 				ImGui::EndMenu();
 			}
 			bool openCreateWithModel = false;

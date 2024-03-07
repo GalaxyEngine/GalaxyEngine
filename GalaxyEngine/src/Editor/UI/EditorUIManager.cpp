@@ -23,6 +23,7 @@ namespace GALAXY {
 		m_console = std::make_unique<Console>();
 		m_fileExplorer = std::make_unique<FileExplorer>();
 		m_resourceWindow = std::make_unique<ResourceWindow>();
+		m_debugWindow = std::make_unique<DebugWindow>();
 	}
 
 	void Editor::UI::EditorUIManager::Initialize()
@@ -52,6 +53,7 @@ namespace GALAXY {
 		m_fileExplorer->Draw();
 		m_console->Draw();
 		m_resourceWindow->Draw();
+		m_debugWindow->Draw();
 
 		if (m_shouldDisplayClosePopup) 
 		{

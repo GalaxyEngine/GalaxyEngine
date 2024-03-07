@@ -2,7 +2,6 @@
 #include "Wrapper/OpenGLRenderer.h"
 
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Window.h"
@@ -17,6 +16,11 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Texture.h"
 #include "Resource/Shader.h"
+
+#if WITH_EDITOR
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/DebugWindow.h"
+#endif
 
 namespace GALAXY
 {
@@ -461,6 +465,10 @@ namespace GALAXY
 	void Wrapper::OpenGLRenderer::DrawArrays(const size_t start, const size_t count)
 	{
 		glDrawArrays(GL_TRIANGLES, static_cast<GLsizei>(start), static_cast<GLsizei>(count));
+
+#if WITH_EDITOR
+		Editor::UI::EditorUIManager::GetInstance()->GetDebugWindow()->AddTriangleDraw(count / 3.f);
+#endif
 	}
 
 	void Wrapper::OpenGLRenderer::DrawLine(const Vec3f pos1, const Vec3f pos2, const Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)

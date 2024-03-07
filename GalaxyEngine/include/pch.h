@@ -19,8 +19,6 @@
 
 // Galaxy Headers
 #define IMGUI_IMPLEMENTATION
-#define MATH_GLM_EXTENSION
-#define GLM_ENABLE_EXPERIMENTAL
 #include <galaxymath/Maths.h>
 
 #include "Wrapper/Serializer.h"
