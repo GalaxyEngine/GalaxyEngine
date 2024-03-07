@@ -93,7 +93,7 @@ namespace GALAXY
 		return Core::SceneHolder::GetCurrentScene()->GetMainCamera();
 	}
 
-	Weak<Render::Camera> Render::Camera::GetCurrentCamera()
+	Shared<Render::Camera> Render::Camera::GetCurrentCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
 	}

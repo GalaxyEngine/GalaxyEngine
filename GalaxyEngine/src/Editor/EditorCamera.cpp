@@ -34,6 +34,7 @@ namespace GALAXY
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{
+		GetTransform()->OnUpdate();
 		if (IsLooking() && Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
 		{
 			StopLooking();

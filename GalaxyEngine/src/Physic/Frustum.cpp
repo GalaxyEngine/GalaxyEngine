@@ -25,12 +25,15 @@ namespace GALAXY
 		const auto camRight = camera->GetTransform()->GetRight();
 		const Vec3f frontMultFar = camFront * _far;
 
-		planes[0] = Physic::Plane(camPos + camFront * _near, camFront);
-		planes[1] = Physic::Plane(camPos + frontMultFar, -camFront);
-		planes[2] = Physic::Plane(camPos, (frontMultFar - camRight * halfHSide).Cross(camUp));
-		planes[3] = Physic::Plane(camPos, camUp.Cross(frontMultFar + camRight * halfHSide));
-		planes[4] = Physic::Plane(camPos, camRight.Cross(frontMultFar - camUp * halfVSide));
-		planes[5] = Physic::Plane(camPos, (frontMultFar + camUp * halfVSide).Cross(camRight));
+		planes[0] = Physic::Plane(camPos + camFront * _near, camFront); // Near plane
+		planes[1] = Physic::Plane(camPos + frontMultFar, -camFront); // Far plane, normal inverted
+
+		// Make sure the cross products are consistent with the handedness of the coordinate system
+		planes[2] = Physic::Plane(camPos, camUp.Cross(camPos + frontMultFar - camRight * halfHSide)); // Left plane
+		planes[3] = Physic::Plane(camPos, (camPos + frontMultFar + camRight * halfHSide).Cross(camUp)); // Right plane
+
+		planes[4] = Physic::Plane(camPos, (camPos + frontMultFar - camUp * halfVSide).Cross(camRight)); // Bottom plane
+		planes[5] = Physic::Plane(camPos, camRight.Cross(camPos + frontMultFar + camUp * halfVSide)); // Top plane
 	}
 
 	void Physic::Frustum::DebugDraw() const

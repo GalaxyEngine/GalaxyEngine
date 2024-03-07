@@ -28,6 +28,12 @@ namespace GALAXY
 #endif
 	}
 
+	void Component::CameraComponent::OnDestroy()
+	{
+		auto scene = GetGameObject()->GetScene();
+		scene->RemoveCamera(this);
+	}
+
 	void Component::CameraComponent::OnDraw()
 	{
 

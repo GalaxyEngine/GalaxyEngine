@@ -45,7 +45,7 @@ namespace GALAXY
 		if (const Shared<Resource::Shader> gridShader = m_shader.lock(); gridShader && gridShader->HasBeenSent()) {
 
 			const auto renderer = Wrapper::Renderer::GetInstance();
-			const auto currentCamera = Render::Camera::GetCurrentCamera().lock();
+			const auto currentCamera = Render::Camera::GetCurrentCamera();
 
 			renderer->BindVertexArray(m_vao);
 

@@ -33,7 +33,7 @@ namespace GALAXY
 #endif
 			static Shared<Component::CameraComponent> GetMainCamera();
 
-			static Weak<Camera> GetCurrentCamera();
+			static Shared<Camera> GetCurrentCamera();
 
 			void Begin() const;
 

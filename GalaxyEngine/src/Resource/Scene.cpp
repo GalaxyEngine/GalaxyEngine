@@ -156,9 +156,7 @@ namespace GALAXY
 
 			m_lightManager->SendLightData();
 
-			renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
-			if (!m_cameras.empty() && m_cameras[0].lock())
-				m_cameras[0].lock()->GetFrustum().DebugDraw();
+			//renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
@@ -243,6 +241,22 @@ namespace GALAXY
 			SetMainCamera(camera);
 		}
 		m_cameras.push_back(camera);
+	}
+
+	void Scene::RemoveCamera(const Component::CameraComponent* camera)
+	{
+		for (auto it = m_cameras.begin(); it != m_cameras.end(); it++)
+		{
+			if (it->lock().get() == camera)
+			{
+				m_cameras.erase(it);
+				break;
+			}
+		}
+		if (camera->IsMainCamera() && !m_cameras.empty())
+		{
+			SetMainCamera(m_cameras[0]);
+		}
 	}
 
 	void Scene::Unload()

@@ -81,6 +81,7 @@ namespace GALAXY {
 			bool WasModified() const;
 
 			void AddCamera(const Weak<Component::CameraComponent>& camera);
+			void RemoveCamera(const Component::CameraComponent* camera);
 			void SetMainCamera(const Weak<Component::CameraComponent>& camera);
 
 			// Return the GameObject with the index given in scene Graph

@@ -28,6 +28,7 @@ namespace GALAXY
 			const char* GetComponentName() const override { return "CameraComponent"; }
 
 			void OnCreate() override;
+			void OnDestroy() override;
 			void OnDraw() override;
 			void OnEditorDraw() override;
 			void ShowInInspector() override;
@@ -46,7 +47,7 @@ namespace GALAXY
 			Vec2i GetScreenResolution() const override;
 
 			void SetMainCamera();
-
+			bool IsMainCamera() const { return m_isMainCamera; }
 		private:
 			friend Resource::Scene;
 

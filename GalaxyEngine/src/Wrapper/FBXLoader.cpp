@@ -270,6 +270,7 @@ namespace GALAXY
 
 			//TODO : Handle tangents
 			int totalVertexCount = 0;
+			size_t totalVertexCountSub = 0;
 			auto partitionCount = fbxMesh->getGeometryData().getPartitionCount();
 			for (int j = 0; j < partitionCount; j++) {
 				Resource::SubMesh subMesh;
@@ -282,6 +283,7 @@ namespace GALAXY
 					if (currentPolygon.vertex_count == 3) {
 						for (int l = totalVertexCount; l < totalVertexCount + currentPolygon.vertex_count; l++) {
 							pushToVector(l);
+							totalVertexCountSub += 1;
 						}
 					}
 					else if (currentPolygon.vertex_count == 4)
@@ -293,10 +295,11 @@ namespace GALAXY
 						pushToVector(totalVertexCount + 2);
 						pushToVector(totalVertexCount + 3);
 						pushToVector(totalVertexCount);
+						totalVertexCountSub += 6;
 					}
 					totalVertexCount += currentPolygon.vertex_count;
 				}
-				subMesh.count = totalVertexCount - subMesh.startIndex;
+				subMesh.count = totalVertexCountSub - subMesh.startIndex;
 				mesh->m_subMeshes.push_back(subMesh);
 			}
 

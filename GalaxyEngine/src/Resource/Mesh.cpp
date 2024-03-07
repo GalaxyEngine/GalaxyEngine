@@ -87,7 +87,7 @@ namespace GALAXY {
 			return;
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		renderer->BindVertexArray(m_vertexArrayIndex);
-		const Vec3f viewPos = Render::Camera::GetCurrentCamera().lock()->GetTransform()->GetLocalPosition();
+		const Vec3f viewPos = Render::Camera::GetCurrentCamera()->GetTransform()->GetLocalPosition();
 
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || i >= m_subMeshes.size())

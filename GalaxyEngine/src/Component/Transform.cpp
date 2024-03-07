@@ -58,7 +58,6 @@ namespace GALAXY
 
 	void Component::Transform::ForceUpdate()
 	{
-		ASSERT(p_gameObject);
 		if (p_gameObject && p_gameObject->GetParent())
 			ComputeModelMatrix(p_gameObject->GetParent()->GetTransform()->GetModelMatrix());
 		else

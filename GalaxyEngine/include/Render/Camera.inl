@@ -11,9 +11,9 @@ namespace GALAXY
 
 	inline Mat4 Render::Camera::GetViewMatrix() const
 	{
-		Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, 1));
-		out = out.CreateInverseMatrix();
-		return out;
+		//Mat4 out = Mat4::CreateTransformMatrix(GetTransform()->GetWorldPosition(), GetTransform()->GetWorldRotation(), Vec3f(1, 1, 1));
+		//out = out.CreateInverseMatrix();
+		return GetTransform()->GetModelMatrix().CreateInverseMatrix();
 	}
 
 	inline Mat4 Render::Camera::GetProjectionMatrix() const

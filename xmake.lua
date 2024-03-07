@@ -47,6 +47,7 @@ add_requires("glad")
 add_requires("stb")
 add_requires("nativefiledialog-extended")
 add_requires("openfbx")
+add_requires("glm")
 
 -- enable features
 add_defines("ENABLE_MULTITHREAD")
@@ -94,6 +95,7 @@ target("GalaxyEngine")
     add_packages("stb")
     add_packages("nativefiledialog-extended")
     add_packages("openfbx")
+    add_packages("glm")
     if (is_plat("mingw")) then 
         set_prefixname("")
     end 

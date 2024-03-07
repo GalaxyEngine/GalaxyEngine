@@ -29,7 +29,7 @@ namespace GALAXY {
 		if (m_drawBoundingBox)
 			m_mesh.lock()->DrawBoundingBox(GetGameObject()->GetTransform());
 
-		if (Render::Camera::GetMainCamera() && !mesh->GetBoundingBox().IsOnFrustum(Render::Camera::GetMainCamera().get(), GetTransform()))
+		if (Render::Camera::GetCurrentCamera() && !mesh->GetBoundingBox().IsOnFrustum(Render::Camera::GetCurrentCamera().get(), GetTransform()))
 			return;
 		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
 	}
