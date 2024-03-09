@@ -75,6 +75,7 @@ namespace GALAXY
 			static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 			static void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 			static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+			static void ScaleCallback(GLFWwindow* window, float xScale, float yScale);
 
 			void Create(const WindowConfig& config);
 			void Destroy() const;
@@ -123,6 +124,7 @@ namespace GALAXY
 			inline void SetShouldDisplaySafeClose(std::function<bool()> val) { m_shouldDisplaySafeClose = val; }
 		public:
 			Utils::Event<const Vec2i& /*pos*/> EOnMove;
+			Utils::Event<const Vec2f& /*dpi*/> EOnDPIChange;
 			Utils::Event<const Vec2i& /*size*/> EOnResize;
 		private:
 			static int CursorModeToAPI(CursorMode mode);

@@ -467,7 +467,7 @@ namespace GALAXY
 		glDrawArrays(GL_TRIANGLES, static_cast<GLsizei>(start), static_cast<GLsizei>(count));
 
 #if WITH_EDITOR
-		Editor::UI::EditorUIManager::GetInstance()->GetDebugWindow()->AddTriangleDraw(count / 3.f);
+		Editor::UI::EditorUIManager::GetInstance()->GetDebugWindow()->AddTriangleDraw(count / 3);
 #endif
 	}
 

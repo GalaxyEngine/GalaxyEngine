@@ -82,6 +82,7 @@ namespace GALAXY {
 		glfwSetKeyCallback(glfwWindow, &KeyCallback);
 		glfwSetMouseButtonCallback(glfwWindow, &MouseButtonCallback);
 		glfwSetScrollCallback(glfwWindow, &ScrollCallback);
+		glfwSetWindowContentScaleCallback(glfwWindow, &ScaleCallback);
 
 		ComputeScale();
 	}
@@ -196,7 +197,6 @@ namespace GALAXY {
 	void Wrapper::Window::MoveCallback(GLFWwindow* window, int xpos, int ypos)
 	{
 		auto self = Core::Application::GetInstance().GetWindow();
-		self->ComputeScale();
 		self->EOnMove.Invoke(Vec2i(xpos, ypos));
 	}
 
@@ -222,6 +222,13 @@ namespace GALAXY {
 	void Wrapper::Window::ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 	{
 		Input::scroll_callback(yoffset);
+	}
+
+	void Wrapper::Window::ScaleCallback(GLFWwindow* window, float xScale, float yScale)
+	{
+		auto self = Core::Application::GetInstance().GetWindow();
+		self->ComputeScale();
+		self->EOnDPIChange.Invoke(Vec2f(xScale, yScale));
 	}
 
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, const bool physicalPos /*= false*/) const

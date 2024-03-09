@@ -38,8 +38,8 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::BindEvents()
 	{
-		std::function<void(const Vec2i&)> bind = std::bind(&EditorUIManager::MoveWindowCallback, this, std::placeholders::_1);
-		Core::Application::GetInstance().GetWindow()->EOnMove.Bind(bind);
+		std::function<void(const Vec2i&)> bind = std::bind(&EditorUIManager::DPIChangeCallback, this, std::placeholders::_1);
+		Core::Application::GetInstance().GetWindow()->EOnDPIChange.Bind(bind);
 	}
 
 	void Editor::UI::EditorUIManager::DrawUI()
@@ -178,7 +178,7 @@ namespace GALAXY {
 		m_instance.reset();
 	}
 
-	void Editor::UI::EditorUIManager::MoveWindowCallback(const Vec2i& pos)
+	void Editor::UI::EditorUIManager::DPIChangeCallback(const Vec2f& pos)
 	{
 		m_shouldUpdateDPIScale = true;
 	}

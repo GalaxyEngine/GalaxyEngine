@@ -32,7 +32,7 @@ namespace GALAXY::Editor::UI {
 
 		void DrawUI();
 
-		void MoveWindowCallback(const Vec2i& pos);
+		void DPIChangeCallback(const Vec2f& pos);
 
 		// Scale the UI based on the current DPI, called before each frame
 		void UpdateDPIScale();
