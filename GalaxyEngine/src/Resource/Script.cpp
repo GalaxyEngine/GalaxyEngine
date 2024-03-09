@@ -116,10 +116,11 @@ END_FILE()
 	{
 		Utils::OS::OpenWithVSCode(ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
 	}
-
+#ifdef _WIN32
 	void Resource::Script::OpenWithVS(const Path& path)
 	{
 		Utils::OS::OpenWithVS(path);
 	}
+#endif
 #endif
 }

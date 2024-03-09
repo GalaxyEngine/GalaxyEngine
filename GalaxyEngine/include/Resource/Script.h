@@ -27,7 +27,9 @@ namespace GALAXY
 			static void OpenScript(const Path& path);
 		private:
 			static void OpenWithVSCode(const Path& path);
+#ifdef _WIN32
 			static void OpenWithVS(const Path& path);
+#endif
 #endif
 		};
 	}
