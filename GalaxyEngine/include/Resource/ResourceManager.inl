@@ -317,23 +317,23 @@ namespace GALAXY
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{
-		if (!m_unlitShader.lock())
-			m_unlitShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/UnlitShader/unlit.shader");
-		return m_unlitShader;
+		if (!m_instance->m_unlitShader.lock())
+			m_instance->m_unlitShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/UnlitShader/unlit.shader");
+		return m_instance->m_unlitShader;
 	}
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetLitShader()
 	{
-		if (!m_litShader.lock())
-			m_litShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/LitShader/lit.shader");
-		return m_litShader;
+		if (!m_instance->m_litShader.lock())
+			m_instance->m_litShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/LitShader/lit.shader");
+		return m_instance->m_litShader;
 	}
 
 	inline Weak<Resource::Material> Resource::ResourceManager::GetDefaultMaterial()
 	{
-		if (!m_defaultMaterial.lock())
-			m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"/materials/DefaultMaterial.mat");
-		return m_defaultMaterial;
+		if (!m_instance->m_defaultMaterial.lock())
+			m_instance->m_defaultMaterial = GetOrLoad<Resource::Material>(ENGINE_RESOURCE_FOLDER_NAME"/materials/DefaultMaterial.mat");
+		return m_instance->m_defaultMaterial;
 	}
 
 	inline Resource::ResourceManager* Resource::ResourceManager::GetInstance()
@@ -346,8 +346,8 @@ namespace GALAXY
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetDefaultShader()
 	{
-		if (!m_defaultShader.lock())
-			m_defaultShader = GetLitShader();
-		return m_defaultShader;
+		if (!m_instance->m_defaultShader.lock())
+			m_instance->m_defaultShader = GetLitShader();
+		return m_instance->m_defaultShader;
 	}
 }

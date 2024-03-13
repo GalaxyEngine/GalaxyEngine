@@ -83,11 +83,20 @@ namespace GALAXY {
 
 	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/) const
 	{
+		Render(modelMatrix, materials, nullptr, id);
+	}
+	
+	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, Resource::Scene* scene, uint64_t id /*= -1*/) const
+	{
 		if (!HasBeenSent() || !IsLoaded())
 			return;
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		renderer->BindVertexArray(m_vertexArrayIndex);
-		const Vec3f viewPos = Render::Camera::GetCurrentCamera()->GetTransform()->GetLocalPosition();
+
+		if (!scene)
+			scene = Core::SceneHolder::GetCurrentScene();
+
+		const Vec3f viewPos = scene->GetCurrentCamera()->GetTransform()->GetLocalPosition();
 
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || i >= m_subMeshes.size())
@@ -98,16 +107,16 @@ namespace GALAXY {
 
 			const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 			shader->SendMat4("Model", modelMatrix);
-			shader->SendMat4("MVP", currentScene->GetVP() * modelMatrix);
+			shader->SendMat4("MVP", scene->GetVP() * modelMatrix);
 			shader->SendVec3f("ViewPos", viewPos);
-			shader->SendVec3f("CamUp", currentScene->GetCameraUp());
-			shader->SendVec3f("CamRight", currentScene->GetCameraRight());
+			shader->SendVec3f("CamUp", scene->GetCameraUp());
+			shader->SendVec3f("CamRight", scene->GetCameraRight());
 
 			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
 		}
 		renderer->UnbindVertexArray();
 	}
-	
+
 	Path Resource::Mesh::CreateMeshPath(const Path& modelPath, const Path& fileName)
 	{
 		return modelPath.wstring() + L":" + fileName.wstring();

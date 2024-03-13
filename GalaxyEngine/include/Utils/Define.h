@@ -11,6 +11,8 @@
 #define FILE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/file.png"
 #define LIGHT_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/light.png"
 #define CAMERA_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/camera.png"
+#define SCRIPT_CPP_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/script_cpp.png"
+#define SCRIPT_H_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/script_h.png"
 
 #define THUMBNAIL_PATH "Cache/thumbnail/"
 #define PROJECT_THUMBNAIL_PATH "Cache/thumbnail/project.tmb"

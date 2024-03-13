@@ -23,6 +23,7 @@ namespace GALAXY
 			static void RemoveShader(const Weak<Resource::Shader>& shader);
 
 			void SendLightData() const;
+			void SendLightData(Resource::Shader* shader, const Vec3f& cameraPos) const;
 			static void ResetLightData(Component::Light* light);
 		private:
 

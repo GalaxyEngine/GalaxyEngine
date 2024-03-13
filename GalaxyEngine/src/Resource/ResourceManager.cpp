@@ -197,56 +197,94 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 	void Resource::ResourceManager::UpdateFileWatch()
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(500));
-		const Path assetPath = this->GetAssetPath();
+		while (!Core::ThreadManager::ShouldTerminate())
+		{
+			std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
-		m_fileWatchCurrent.reset();
-		m_fileWatchCurrent = std::make_shared<Editor::UI::File>(assetPath, true);
-		m_fileWatchCurrent->FindAllChildren();
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
+			const Path assetPath = this->GetAssetPath();
 
-		auto currentFiles = m_fileWatchCurrent->GetAllChildrenPath();
-		auto previousFiles = m_fileWatchPrevious->GetAllChildrenPath();
+			m_fileWatchCurrent.reset();
+			m_fileWatchCurrent = std::make_shared<Editor::UI::File>(assetPath, true);
+			m_fileWatchCurrent->FindAllChildren();
 
-		// Sort both lists to facilitate comparison
-		std::sort(currentFiles.begin(), currentFiles.end());
-		std::sort(previousFiles.begin(), previousFiles.end());
+			auto currentFiles = m_fileWatchCurrent->GetAllChildrenPath();
+			auto previousFiles = m_fileWatchPrevious->GetAllChildrenPath();
 
-		// Find added files
-		std::vector<std::filesystem::path> addedFiles;
-		std::set_difference(currentFiles.begin(), currentFiles.end(),
-			previousFiles.begin(), previousFiles.end(),
-			std::back_inserter(addedFiles));
+			// Sort both lists to facilitate comparison
+			std::sort(currentFiles.begin(), currentFiles.end());
+			std::sort(previousFiles.begin(), previousFiles.end());
 
-		// Find deleted files
-		std::vector<std::filesystem::path> deletedFiles;
-		std::set_difference(previousFiles.begin(), previousFiles.end(),
-			currentFiles.begin(), currentFiles.end(),
-			std::back_inserter(deletedFiles));
+			// Find added files
+			std::vector<Path> addedFiles;
+			std::set_difference(currentFiles.begin(), currentFiles.end(),
+				previousFiles.begin(), previousFiles.end(),
+				std::back_inserter(addedFiles));
 
-		bool shouldReload = false;
-		// Print added files
-		for (const auto& file : addedFiles) {
-			shouldReload = true;
-			PrintLog("Added file: %s", file.string().c_str());
-			GetOrLoad(file);
+			// Find deleted files
+			std::vector<Path> deletedFiles;
+			std::set_difference(previousFiles.begin(), previousFiles.end(),
+				currentFiles.begin(), currentFiles.end(),
+				std::back_inserter(deletedFiles));
+
+			// Find modified files
+			std::vector<Path> modifiedFiles;
+			for (const auto& file : currentFiles) {
+				auto modifiedTime = std::filesystem::last_write_time(file);
+				auto file_time_tp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+					modifiedTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()
+				);
+
+				if (file_time_tp > now || file_time_tp == now) {
+					modifiedFiles.push_back(file);
+				}
+			}
+
+			bool shouldReload = false;
+			// Print added files
+			for (const auto& file : addedFiles) {
+				shouldReload = true;
+				PrintLog("Added file: %s", file.string().c_str());
+				GetOrLoad(file);
+			}
+
+			// Print deleted files
+			for (const auto& file : deletedFiles) {
+				shouldReload = true;
+				PrintLog("Remove file: %s", file.string().c_str());
+				RemoveResource(file);
+			}
+
+			for (const auto& file : modifiedFiles) {
+				shouldReload = true;
+				PrintLog("Modified file: %s", file.string().c_str());
+				ReloadResource(file);
+			}
+
+			m_fileWatchPrevious = m_fileWatchCurrent;
+
+			if (shouldReload)
+				Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
 		}
-
-		// Print deleted files
-		for (const auto& file : deletedFiles) {
-			shouldReload = true;
-			PrintLog("Remove file: %s", file.string().c_str());
-			RemoveResource(file);
-		}
-
-		m_fileWatchPrevious = m_fileWatchCurrent;
-
-		if (shouldReload)
-			Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
-
-		if (!Core::ThreadManager::ShouldTerminate())
-			UpdateFileWatch();
 	}
 #endif
+
+	inline Weak<Resource::IResource> Resource::ResourceManager::ReloadResource(const Path& fullPath)
+	{
+		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (!m_instance->m_resources.contains(relativePath)) {
+			//PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
+			return GetOrLoad(fullPath);
+		}
+
+		const Shared<IResource> resource = m_instance->m_resources.at(relativePath);
+		resource->p_fileInfo = Utils::FileInfo(fullPath);
+		resource->p_loaded = false;
+		resource->p_shouldBeLoaded = false;
+		resource->p_hasBeenSent = false;
+
+		return GetOrLoad(fullPath);
+	}
 
 	bool Resource::ResourceManager::IsDataFileUpToDate(const Path& resourcePath)
 	{
@@ -433,6 +471,8 @@ namespace GALAXY {
 
 	Weak<GALAXY::Resource::IResource> Resource::ResourceManager::GetOrLoad(const Path& fullPath)
 	{
+		if (std::filesystem::is_directory(fullPath))
+			return {};
 		auto type = Utils::FileInfo::GetTypeFromExtension(fullPath.extension());
 		switch (type)
 		{

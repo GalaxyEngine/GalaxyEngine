@@ -5,6 +5,7 @@
 
 namespace GALAXY 
 {
+	namespace Resource { class Scene; }
 	namespace Wrapper { class OBJLoader; class FBXLoader; }
 	namespace Component { class Transform; }
 	namespace Resource
@@ -31,6 +32,7 @@ namespace GALAXY
 			void Send() override;
 
 			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, uint64_t id = -1) const;
+			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, Resource::Scene* scene, uint64_t id = -1) const;
 
 			void DrawBoundingBox(const Component::Transform* transform) const;
 

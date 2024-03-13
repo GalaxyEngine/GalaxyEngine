@@ -38,6 +38,8 @@ namespace GALAXY
 			Shared<File> GetWithPath(const Path& path) const;
 
 			static uint32_t ResourceTypeToColor(Resource::ResourceType type);
+
+			const Path& GetPath() const { return m_info.GetFullPath(); }
 		private:
 			friend class Inspector;
 			friend class FileExplorer;

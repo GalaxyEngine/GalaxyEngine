@@ -22,16 +22,18 @@ namespace GALAXY {
 
 	void Component::MeshComponent::OnDraw()
 	{
+		auto gameObject = GetGameObject();
 		auto mesh = m_mesh.lock();
 		if (!mesh)
 			return;
 
 		if (m_drawBoundingBox)
-			m_mesh.lock()->DrawBoundingBox(GetGameObject()->GetTransform());
+			m_mesh.lock()->DrawBoundingBox(gameObject->GetTransform());
 
-		if (Render::Camera::GetCurrentCamera() && !mesh->GetBoundingBox().IsOnFrustum(Render::Camera::GetCurrentCamera().get(), GetTransform()))
+		const auto& currentCamera = gameObject->GetScene()->GetCurrentCamera();
+		if (currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
 			return;
-		m_mesh.lock()->Render(GetGameObject()->GetTransform()->GetModelMatrix(), m_materials, GetGameObject()->GetSceneGraphID());
+		m_mesh.lock()->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
 	}
 
 	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)

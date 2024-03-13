@@ -5,10 +5,13 @@
 #include <string>
 
 namespace GALAXY {
-	namespace Editor::UI
+	namespace Editor
 	{
-		class Hierarchy;
-		class Inspector;
+		class ThumbnailCreator;
+		namespace UI {
+			class Hierarchy;
+			class Inspector;
+		}
 	}
 	namespace Scripting
 	{
@@ -112,6 +115,7 @@ namespace GALAXY {
 			friend Scripting::ScriptEngine;
 			friend Component::Light;
 			friend Editor::UI::Inspector;
+			friend Editor::ThumbnailCreator;
 
 			UUID m_UUID;
 			uint64_t m_sceneGraphID = 0;

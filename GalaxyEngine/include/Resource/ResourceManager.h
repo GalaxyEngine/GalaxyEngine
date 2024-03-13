@@ -47,8 +47,11 @@ namespace GALAXY {
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
 
 			static inline Weak<IResource> GetOrLoad(const Path& fullPath);
+
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath);
+
+			static inline Weak<IResource> ReloadResource(const Path& fullPath);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
@@ -73,10 +76,10 @@ namespace GALAXY {
 
 			inline UMap<Path, Shared<IResource>>* GetAllResourcesPtr() { return &m_resources; }
 
-			inline Weak<class Material> GetDefaultMaterial();
-			inline Weak<Shader> GetDefaultShader();
-			inline Weak<Shader> GetUnlitShader();
-			inline Weak<Shader> GetLitShader();
+			static inline Weak<class Material> GetDefaultMaterial();
+			static inline Weak<Shader> GetDefaultShader();
+			static inline Weak<Shader> GetUnlitShader();
+			static inline Weak<Shader> GetLitShader();
 
 			void ImportAllFilesInFolder(const Path& folder);
 			void ImportResource(const Path& resourcePath);

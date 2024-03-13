@@ -155,8 +155,11 @@ void Editor::UI::Inspector::ShowFile(const File* file)
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::TextUnformatted(file->m_info.GetFileName().c_str());
-	if (resource)
+	if (resource) {
+		if (ImGui::IsItemHovered())
+			ImGui::SetTooltip("ID : %llu", resource->GetUUID().operator uint64_t());
 		ImGui::TextUnformatted(resource->GetResourceName());
+	}
 	else
 		ImGui::TextUnformatted("None");
 	ImGui::EndGroup();

@@ -89,6 +89,7 @@ namespace GALAXY
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		auto modelObject = modelShared->ToGameObject();
 		bool canBeCreated = modelShared->HasBeenSent();
+		modelObject->SetScene(m_scene.get());
 		for (auto& meshComp : modelObject->GetComponentsInChildren<Component::MeshComponent>())
 		{
 			for (auto& material : meshComp.lock()->GetMaterials())
@@ -112,10 +113,6 @@ namespace GALAXY
 			return;
 		}
 
-		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-		const auto currentCamera = currentScene->GetCurrentCamera();
-		//Core::SceneHolder::GetInstance()->SetCurrentScene(m_scene);
-
 		float max = FLT_MIN;
 		for (int i = 0; i < 3; i++)
 		{
@@ -125,24 +122,25 @@ namespace GALAXY
 		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
 		auto lookAt = Quat::LookRotation((cameraPosition - modelShared->GetBoundingBox().GetCenter()).GetNormalize(), Vec3f(0, -1, 0));
 		const Quat cameraRotation = lookAt;
+
 		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+		m_cameraObject->UpdateSelfAndChild();
 
 		m_camera->SetSize(m_thumbnailSize);
-		currentScene->SetCurrentCamera(m_camera);
+		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
 		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
 
-		m_scene->GetLightManager()->SendLightData();
+		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
 
 		modelObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
 
 		// Reset previous data
-		currentScene->SetCurrentCamera(currentCamera);
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
 
 		auto texture = m_camera->GetRenderTexture();
@@ -174,30 +172,27 @@ namespace GALAXY
 			return;
 		}
 
-		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-		const auto currentCamera = currentScene->GetCurrentCamera();
-
 		meshComponent->ClearMaterials();
 		meshComponent->AddMaterial(material);
 
 		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
 		m_cameraObject->GetTransform()->SetLocalRotation(cameraAngleAxis);
+		m_cameraObject->UpdateSelfAndChild();
 
 		m_camera->SetSize(m_thumbnailSize);
-		currentScene->SetCurrentCamera(m_camera);
+		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
 		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
 
-		m_scene->GetLightManager()->SendLightData();
+		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), cameraPosition);
 
 		m_sphereMaterialObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
 
 		// Reset previous data
-		currentScene->SetCurrentCamera(currentCamera);
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
 
 		auto texture = m_camera->GetRenderTexture();

@@ -96,26 +96,29 @@ namespace GALAXY {
 			Shared<Resource::IResource> model = m_resource.lock();
 			ASSERT(model != nullptr);
 			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(model->GetUUID());
-			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(thumbnailPath);
+			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
-		case ResourceType::Mesh:
+		case ResourceType::Script:
 		{
+			if (m_info.GetExtension() == ".cpp")
+				m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(SCRIPT_CPP_ICON_PATH);
+			else
+				m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(SCRIPT_H_ICON_PATH);
 			break;
 		}
-		
 		case ResourceType::Material:
 		{
 			Shared<Resource::IResource> material = m_resource.lock();
 			ASSERT(material != nullptr);
 			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(material->GetUUID());
-			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(thumbnailPath);
+			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
 
 		default:
 		{
-			m_icon = Resource::ResourceManager::GetInstance()->GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
+			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
 			break;
 		}
 		}

@@ -110,19 +110,24 @@ namespace GALAXY
 				RemoveShader(shader);
 				continue;
 			}
-			if (!lockShader->HasBeenSent())
+			SendLightData(lockShader.get(), viewPos);
+		}
+	}
+
+	void Render::LightManager::SendLightData(Resource::Shader* shader, const Vec3f& cameraPos) const
+	{
+		if (!shader->HasBeenSent())
+			return;
+
+		shader->Use();
+
+		shader->SendVec3f("camera.viewPos", cameraPos);
+
+		for (const Weak<Component::Light>& light : m_lights)
+		{
+			if (!light.lock())
 				continue;
-
-			lockShader->Use();
-
-			lockShader->SendVec3f("camera.viewPos", viewPos);
-
-			for (const Weak<Component::Light>& light : m_lights)
-			{
-				if (!light.lock())
-					continue;
-				light.lock()->SendLightValues(lockShader.get());
-			}
+			light.lock()->SendLightValues(shader);
 		}
 	}
 
