@@ -19,7 +19,7 @@ namespace GALAXY
 {
 	namespace Editor { class ThumbnailCreator; }
 	namespace Resource { class ResourceManager; class IResource; }
-	namespace Wrapper { class Window; class Renderer; }
+	namespace Wrapper { class Window; class Renderer; class Audio; }
 #ifdef WITH_EDITOR
 	namespace Editor::UI { class EditorUIManager; }
 #endif
@@ -66,6 +66,7 @@ namespace GALAXY
 
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
+			Wrapper::Audio* m_audioSystem = nullptr;
 
 			Core::ThreadManager* m_threadManager = nullptr;
 			Core::SceneHolder* m_sceneHolder = nullptr;
