@@ -26,7 +26,7 @@ namespace GALAXY
 
 			const char* GetResourceName() const override { return "Mesh"; }
 
-			const char* GetMeshName();
+			std::string GetMeshName();
 
 			void Load() override;
 			void Send() override;

@@ -41,7 +41,7 @@ namespace GALAXY {
 		if (m_mesh.lock())
 			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << m_mesh.lock()->GetModel()->GetUUID();
 		else
-			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << INDEX_NONE;
+			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << UUID_NULL;
 
 		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetMeshName() : NONE_RESOURCE);
 		serializer << CppSer::Pair::Key << "Material Count" << CppSer::Pair::Value << m_materials.size();

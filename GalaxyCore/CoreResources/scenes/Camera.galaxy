@@ -45,8 +45,8 @@
      ------------- BEGIN COMPONENT ------------- 
     [Name] : MeshComponent
     [Enable] : 1
-    [Model] : 13490972336242385566
-    [Mesh Name] : Suzanne
+    [Model] : 5204560285229190597
+    [Mesh Name] : Plane
     [Material Count] : 1
       [Material 0] : 482361550447954360
      ============= END COMPONENT ============= 

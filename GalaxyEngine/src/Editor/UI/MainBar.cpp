@@ -137,6 +137,8 @@ namespace GALAXY
 
 	void Editor::UI::MainBar::OpenScene(const std::string& path)
 	{
+		if (auto currentScene = Core::SceneHolder::GetCurrentScene() == Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
+			return;
 		const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
 
 		Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);

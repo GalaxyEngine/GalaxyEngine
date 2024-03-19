@@ -94,8 +94,12 @@ namespace GALAXY {
 		const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 		if (!currentScene->HasBeenSent())
 			return;
-		const auto renderTexture = currentScene->GetEditorCamera()->GetRenderTexture().lock().get();
-		const auto outlineRenderTexture = currentScene->GetEditorCamera()->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
+
+		auto editorCamera = currentScene->GetEditorCamera();
+		if (!editorCamera)
+			return;
+		const auto renderTexture = editorCamera->GetRenderTexture().lock().get();
+		const auto outlineRenderTexture = editorCamera->GetOutlineFramebuffer()->GetRenderTexture().lock().get();
 
 		if (!renderTexture || !outlineRenderTexture)
 			return;

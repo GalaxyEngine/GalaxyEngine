@@ -29,7 +29,8 @@
 #define NONE_RESOURCE "None"
 #define MAX_LIGHT_NUMBER 8
 
-#define INDEX_NONE -1
+#define INDEX_NONE 0xffffffff
+#define UUID_NULL 0xffffffffffffffffllu
 
 // -- Colors -- //
 #define BUTTON_RED Vec4f(0.8f, 0.15f, 0.1f, 1.f)

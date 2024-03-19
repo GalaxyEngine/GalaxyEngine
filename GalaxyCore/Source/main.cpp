@@ -13,6 +13,7 @@ void Main(int argc, char** argv)
 {
 	//TODO : Fix shader loading and sending
 	//TODO : Handle update of materials for thumbnails
+	//TODO : Fix sub Meshes for fbx models
 
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
@@ -23,7 +24,7 @@ void Main(int argc, char** argv)
 	
 	//TODO : Remove this
 	#ifdef _WIN32
-#if 1
+#if 0
 	std::filesystem::path projectPath = "D:/Code/Moteurs/Galaxy Projects/GalaxyGame/GalaxyGame.gProject";
 #else
 	std::filesystem::path projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";

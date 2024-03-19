@@ -81,7 +81,7 @@ namespace GALAXY {
 
 			uint32_t m_id = -1;
 
-			TextureFiltering m_filtering = TextureFiltering::NEAREST;
+			TextureFiltering m_filtering = TextureFiltering::LINEAR;
 			TextureFormat m_format = TextureFormat::RGBA;
 			TextureWrapping m_wrapping = TextureWrapping::REPEAT;
 

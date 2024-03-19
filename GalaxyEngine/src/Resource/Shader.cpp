@@ -139,7 +139,7 @@ void main()
 		if (parser.IsFileOpen())
 		{
 			Core::UUID vertexUUID = parser["Vertex"].As<uint64_t>();
-			if (vertexUUID != INDEX_NONE)
+			if (vertexUUID != UUID_NULL)
 			{
 				Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertexUUID);
 				ASSERT(vertexShader.lock());
@@ -148,13 +148,13 @@ void main()
 				}
 			}
 			Core::UUID geometryUUID = parser["Geometry"].As<uint64_t>();
-			if (geometryUUID != INDEX_NONE)
+			if (geometryUUID != UUID_NULL)
 			{
 				Weak<GeometryShader> geometryShader = ResourceManager::GetOrLoad<Resource::GeometryShader>(geometryUUID);
 				SetGeometry(geometryShader.lock(), thisShader);
 			}
 			Core::UUID fragmentUUID = parser["Fragment"].As<uint64_t>();
-			if (fragmentUUID != INDEX_NONE)
+			if (fragmentUUID != UUID_NULL)
 			{
 				Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragmentUUID);
 				ASSERT(fragmentShader.lock());
@@ -185,11 +185,13 @@ void main()
 		if (p_hasBeenSent)
 			return;
 		p_hasBeenSent = true;
+
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
+
 		p_locations.clear();
 
 		if (p_hasBeenSent && !p_isAVariant) {
-			const auto weak_this = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GetFileInfo().GetFullPath());
+			const auto weak_this = Resource::ResourceManager::GetResource<Resource::Shader>(GetFileInfo().GetFullPath());
 			Render::LightManager::AddShader(weak_this);
 			CreateDataFile();
 		}

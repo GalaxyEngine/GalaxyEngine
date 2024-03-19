@@ -89,11 +89,15 @@ namespace GALAXY
 		m_actionManager->Update();
 
 		if (m_editorCamera->IsVisible()) {
+			static bool shouldClearOutline = false;
 			SetCurrentCamera(m_editorCamera);
 			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
 
+			const auto& selectedGameObjects = inspector->GetSelectedGameObjects();
 			// Outline 
+			if (selectedGameObjects.size() > 0 || shouldClearOutline)
 			{
+				shouldClearOutline = true;
 				Render::Framebuffer* outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
 				outlineFrameBuffer->Begin(windowSize);
 
@@ -101,12 +105,16 @@ namespace GALAXY
 				renderer->ClearColorAndBuffer(clearColor);
 
 				renderer->SetRenderingType(Render::RenderType::Outline);
-				for (auto& selected : inspector->GetSelectedGameObjects())
+				for (auto& selected : selectedGameObjects)
 				{
 					selected.lock()->DrawSelfAndChild(DrawMode::Editor);
 				}
 				renderer->SetRenderingType(Render::RenderType::Default);
 				outlineFrameBuffer->End(windowSize, clearColor);
+				if (selectedGameObjects.empty())
+				{
+					shouldClearOutline = false;
+				}
 			}
 
 			// Bind Default Framebuffer

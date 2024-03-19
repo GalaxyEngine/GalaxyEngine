@@ -50,6 +50,8 @@ namespace GALAXY {
 
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath);
+			template <typename T>
+			static inline Weak<T> ReloadResource(const Core::UUID& uuid);
 
 			static inline Weak<IResource> ReloadResource(const Path& fullPath);
 

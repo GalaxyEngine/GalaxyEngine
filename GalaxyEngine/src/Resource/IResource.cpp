@@ -51,7 +51,7 @@ namespace GALAXY {
 		if (resource.lock())
 			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << resource.lock()->GetUUID();
 		else
-			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << INDEX_NONE;
+			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << UUID_NULL;
 	}
 
 	void Resource::IResource::Serialize(CppSer::Serializer& serializer) const
