@@ -10,6 +10,7 @@
 #include "Wrapper/GUI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
+#include "Wrapper/Audio.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
@@ -53,6 +54,9 @@ namespace GALAXY {
 		m_window->Create(windowConfig);
 		m_window->SetVSync(true);
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
+
+		m_audioSystem = Wrapper::Audio::GetInstance();
+		m_audioSystem->Initialize();
 
 		// Initialize GUI Lib
 		Wrapper::GUI::Initialize(m_window, "#version 450");
@@ -323,6 +327,10 @@ namespace GALAXY {
 
 		// GUI
 		Wrapper::GUI::UnInitalize();
+
+		// Audio Wrapper
+		if (m_audioSystem)
+			m_audioSystem->Release();
 
 		// Window
 		if (m_window)

@@ -33,6 +33,10 @@ std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap
 	{".cc",		Resource::ResourceType::Script},
 	{".galaxy",	Resource::ResourceType::Scene},
 	{".ppshader",	Resource::ResourceType::PostProcessShader},
+	{".mp3",		Resource::ResourceType::Sound},
+	{".wav",		Resource::ResourceType::Sound},
+	{".flac",		Resource::ResourceType::Sound},
+
 };
 
 namespace GALAXY

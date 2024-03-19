@@ -98,15 +98,7 @@ namespace GALAXY {
 			break;
 		case ResourceType::Model:
 		{
-			//TODO Move to Needed Load method
-#ifdef AUTO_IMPORT
-			if (!IsDataFileUpToDate(resourcePath))
-				GetOrLoad<Model>(resourcePath);
-			else
-				AddResource<Model>(resourcePath);
-#else
 			AddResource<Model>(resourcePath);
-#endif
 			break;
 		}
 		case ResourceType::Data:
@@ -128,7 +120,7 @@ namespace GALAXY {
 		default:
 			break;
 		}
-	}
+		}
 
 	void Resource::ResourceManager::LoadNeededResources()
 	{
@@ -157,7 +149,7 @@ namespace GALAXY {
 				break;
 			case ResourceType::Model:
 #ifdef WITH_EDITOR
-				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
+				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()) || IsDataFileUpToDate(resource.second->GetFileInfo().GetFullPath()))
 					GetOrLoad<Model>(resource.second->p_uuid);
 #endif
 				break;
@@ -508,4 +500,4 @@ namespace GALAXY {
 		}
 	}
 
-}
+	}

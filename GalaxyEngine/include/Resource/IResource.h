@@ -26,6 +26,7 @@ namespace GALAXY::Resource {
 		Data,
 		Script,
 		Scene,
+		Sound,
 	};
 
 	inline const char* SerializeResourceTypeValue(ResourceType type)
@@ -60,6 +61,8 @@ namespace GALAXY::Resource {
 			return "Script";
 		case Resource::ResourceType::Scene:
 			return "Scene";
+		case Resource::ResourceType::Sound:
+			return "Sound";
 		default:
 			return "Unknown";
 		}
