@@ -9,6 +9,7 @@ std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap
 	{".jpg",		Resource::ResourceType::Texture},
 	{".png",		Resource::ResourceType::Texture},
 	{".jpeg",		Resource::ResourceType::Texture},
+	{".tga",		Resource::ResourceType::Texture},
 	{".obj",		Resource::ResourceType::Model},
 	{".fbx",		Resource::ResourceType::Model},
 	{".shader",	Resource::ResourceType::Shader},

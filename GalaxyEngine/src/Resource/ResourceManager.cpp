@@ -149,7 +149,7 @@ namespace GALAXY {
 				break;
 			case ResourceType::Model:
 #ifdef WITH_EDITOR
-				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()) || IsDataFileUpToDate(resource.second->GetFileInfo().GetFullPath()))
+				if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()) || !IsDataFileUpToDate(resource.second->GetFileInfo().GetFullPath()))
 					GetOrLoad<Model>(resource.second->p_uuid);
 #endif
 				break;
@@ -255,8 +255,16 @@ namespace GALAXY {
 
 			m_fileWatchPrevious = m_fileWatchCurrent;
 
-			if (shouldReload)
-				Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+			if (shouldReload) {
+
+				Editor::UI::EditorUIManager* instance = Editor::UI::EditorUIManager::GetInstance();
+				if (!instance)
+					return;
+				Editor::UI::FileExplorer* fileExplorer = instance->GetFileExplorer();
+				if (!fileExplorer)
+					return;
+				fileExplorer->ReloadContent();
+			}
 		}
 	}
 #endif

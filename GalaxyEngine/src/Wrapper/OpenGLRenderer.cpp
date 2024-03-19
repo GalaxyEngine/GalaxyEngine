@@ -46,6 +46,7 @@ namespace GALAXY
 		// ignore non-significant error/warning codes
 		if (id == 131169 || id == 131185 || id == 131218 || id == 131204 || id == 131154) return;
 		if (id == 7) return;// lineWidth
+		if (id == 1282) return; // undefined
 
 		std::string log;
 		switch (source)

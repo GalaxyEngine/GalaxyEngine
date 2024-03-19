@@ -240,7 +240,7 @@ namespace GALAXY
 				// If mesh not in resource manager
 				mesh = Resource::ResourceManager::AddResource<Resource::Mesh>(meshFullPath).lock();
 			}
-
+			
 
 			std::vector<float> finalVertices;
 			std::vector<Vec3f> positions;
@@ -269,6 +269,7 @@ namespace GALAXY
 				};
 
 			//TODO : Handle tangents
+			//TODO : Fix loading with mix of triangles and quads
 			int totalVertexCount = 0;
 			size_t totalVertexCountSub = 0;
 			auto partitionCount = fbxMesh->getGeometryData().getPartitionCount();
@@ -277,6 +278,7 @@ namespace GALAXY
 				subMesh.startIndex = totalVertexCount;
 
 				auto currentPartition = fbxMesh->getGeometryData().getPartition(j);
+				int tris = currentPartition.triangles_count;
 
 				for (size_t k = 0; k < currentPartition.polygon_count; k++) {
 					auto currentPolygon = currentPartition.polygons[k];
