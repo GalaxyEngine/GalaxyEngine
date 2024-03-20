@@ -73,13 +73,12 @@ namespace GALAXY
 
 	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& material)
 	{
-		Core::ThreadManager::ForceLock();
+		std::lock_guard lock(Core::ThreadManager::GetMutex());
 		std::filesystem::path fullPath = material.lock()->GetFileInfo().GetFullPath();
 		if (std::find(m_thumbnailQueue.begin(), m_thumbnailQueue.end(), fullPath) != m_thumbnailQueue.end())
 			return;
 
 		m_thumbnailQueue.push_back(fullPath);
-		Core::ThreadManager::Unlock();
 	}
 
 	void Editor::ThumbnailCreator::CreateModelThumbnail(const Weak<Resource::Model>& model)

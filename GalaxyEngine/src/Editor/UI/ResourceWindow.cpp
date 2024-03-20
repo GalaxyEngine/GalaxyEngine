@@ -17,7 +17,7 @@ namespace GALAXY
 	{
 		if (!p_open)
 			return;
-		if (ImGui::Begin("Resources"), &p_open)
+		if (ImGui::Begin("Resources", &p_open))
 		{
 			int value = static_cast<int>(m_resourceDirDisplay) - 1;
 			if (ImGui::Combo("Display Type", &value, SerializeResourceDirEnum()))

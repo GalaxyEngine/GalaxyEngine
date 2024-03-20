@@ -4,7 +4,7 @@
 #include "Resource/ResourceManager.h"
 #include "Resource/Material.h"
 
-namespace GALAXY 
+namespace GALAXY
 {
 
 	bool Wrapper::MTLLoader::Load(const std::filesystem::path& path)

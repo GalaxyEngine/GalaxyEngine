@@ -7,7 +7,7 @@ namespace GALAXY
 	{
 		if (!p_open)
 			return;
-		if (ImGui::Begin("Debug"), &p_open)
+		if (ImGui::Begin("Debug", &p_open))
 		{
 			ImGui::Text("Triangle draw count: %zu", m_triangleDrawCount);
 			ResetTriangleDrawCount();

@@ -53,6 +53,8 @@ namespace GALAXY {
 		if (!parser.IsFileOpen())
 			return false;
 		m_shader = ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>());
+		if (!m_shader.lock())
+			SetShader(Resource::ResourceManager::GetDefaultShader());
 		m_albedo = ResourceManager::GetOrLoad<Texture>(parser["Albedo"].As<uint64_t>());
 		m_normalMap = ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>());
 		m_parallaxMap = ResourceManager::GetOrLoad<Texture>(parser["Parallax"].As<uint64_t>());

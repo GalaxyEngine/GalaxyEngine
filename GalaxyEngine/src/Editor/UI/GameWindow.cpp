@@ -72,8 +72,8 @@ void Editor::UI::GameWindow::DrawImage()
 	// Get Position to draw a border
 	const Vec2f topLeft = ImGui::GetCursorScreenPos();
 
-	Vec2f m_imagePosition = static_cast<Vec2i>(static_cast<Vec2f>(ImGui::GetWindowPos()) - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f()
-		+ static_cast<Vec2f>(ImGui::GetCursorPos()));
+	//Vec2f m_imagePosition = static_cast<Vec2i>(static_cast<Vec2f>(ImGui::GetWindowPos()) - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f()
+		//+ static_cast<Vec2f>(ImGui::GetCursorPos()));
 
 	Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
