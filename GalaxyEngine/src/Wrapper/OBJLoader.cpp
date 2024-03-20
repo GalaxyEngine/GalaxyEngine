@@ -82,6 +82,7 @@ bool Wrapper::OBJLoader::Parse()
 
 	OBJMesh currentMesh;
 	std::string line;
+	Vec3i lastSize = {};
 	while (std::getline(file, line)) {
 		std::istringstream iss(line);
 		std::string token;
@@ -89,6 +90,7 @@ bool Wrapper::OBJLoader::Parse()
 
 		if (token == "o" || token == "g")
 		{
+			lastSize = lastSize + Vec3i{(int)currentMesh.positions.size(), (int)currentMesh.textureUVs.size(), (int)currentMesh.normals.size()};
 			endSubMesh(currentMesh);
 			if (!currentMesh.name.empty()) {
 				m_meshes.push_back(currentMesh);
@@ -147,7 +149,7 @@ bool Wrapper::OBJLoader::Parse()
 			std::string indexStr;
 			while (iss >> indexStr) {
 				Vec3i indices = ParseFaceIndex(indexStr);
-				currentMesh.indices.push_back(indices);
+				currentMesh.indices.push_back(indices - lastSize);
 				count++;
 			}
 
@@ -255,12 +257,12 @@ void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 		const float DeltaV2 = mesh.textureUVs[idx2.y].y - mesh.textureUVs[idx0.y].y;
 
 		float f = DeltaU1 * DeltaV2 - DeltaU2 * DeltaV1;
-		if (fabs(f) < 1e-6) {
-			f = 1.0f; // Prevent division by zero and provide a default value for 'f'
-		}
-		else {
-			f = 1.0f / f;
-		}
+		//if (fabs(f) < 1e-6) {
+			//f = 1.0f; // Prevent division by zero and provide a default value for 'f'
+		//}
+		//else {
+		f = 1.0f / f;
+		//}
 
 		Vec3f Tangent;
 

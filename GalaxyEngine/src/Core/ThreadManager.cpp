@@ -5,6 +5,7 @@ std::unique_ptr<Core::ThreadManager> Core::ThreadManager::m_instance;
 
 void Core::ThreadManager::Initialize()
 {
+	m_mainThreadID = std::this_thread::get_id();
 	m_threadList.resize(std::thread::hardware_concurrency());
 	for (std::thread& i : m_threadList)
 	{
@@ -31,11 +32,8 @@ void Core::ThreadManager::ThreadLoop()
 			Unlock();
 		}
 	}
-	if (m_terminate)
-	{
-		return;
-	}
-	ThreadLoop();
+	if (!m_terminate)
+		ThreadLoop();
 }
 
 void Core::ThreadManager::Lock()
@@ -77,4 +75,14 @@ void Core::ThreadManager::Destroy()
 			}
 		}
 	}
+}
+
+bool Core::ThreadManager::IsMainThread()
+{
+	return std::this_thread::get_id() == m_instance->m_mainThreadID;
+}
+
+void Core::ThreadManager::ForceLock()
+{
+	m_instance->m_mutex.lock();
 }

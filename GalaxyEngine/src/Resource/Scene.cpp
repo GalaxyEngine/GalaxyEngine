@@ -197,7 +197,6 @@ namespace GALAXY
 
 			m_lightManager->SendLightData();
 
-
 			m_root->DrawSelfAndChild(DrawMode::Game);
 
 			currentCamera->End();

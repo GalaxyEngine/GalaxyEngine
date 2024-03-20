@@ -828,7 +828,7 @@ namespace GALAXY {
 		DragAndDrop(file);
 
 		x++;
-		if (!ImGui::IsRectVisible(thumbnailMin, thumbnailMax)) {
+		if (!ImGui::IsRectVisible(thumbnailMin, thumbnailMax + Vec2f(0, 75) * thumbnailScale)) {
 			return;
 		}
 

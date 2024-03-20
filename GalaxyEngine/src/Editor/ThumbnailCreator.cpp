@@ -71,12 +71,12 @@ namespace GALAXY
 		m_initialized = false;
 	}
 
-	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& resource)
+	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& material)
 	{
-		Core::ThreadManager::Lock();
-		auto fullPath = resource.lock()->GetFileInfo().GetFullPath();
-		if (std::find(m_thumbnailQueue.begin(), m_thumbnailQueue.end(), resource.lock()->GetFileInfo().GetFullPath()) != m_thumbnailQueue.end())
-					return;
+		Core::ThreadManager::ForceLock();
+		std::filesystem::path fullPath = material.lock()->GetFileInfo().GetFullPath();
+		if (std::find(m_thumbnailQueue.begin(), m_thumbnailQueue.end(), fullPath) != m_thumbnailQueue.end())
+			return;
 
 		m_thumbnailQueue.push_back(fullPath);
 		Core::ThreadManager::Unlock();
@@ -97,7 +97,7 @@ namespace GALAXY
 		{
 			for (auto& material : meshComp.lock()->GetMaterials())
 			{
-				if (!material.lock()->IsLoaded() || !material.lock()->GetShader()->HasBeenSent())
+				if (!material.lock()->IsLoaded() || !material.lock()->GetShader() || !material.lock()->GetShader()->HasBeenSent())
 				{
 					canBeCreated = false;
 					break;

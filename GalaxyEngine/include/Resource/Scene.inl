@@ -27,6 +27,11 @@ namespace GALAXY
 		{
 			ASSERT(false);
 		}
+
+		for (auto& child : gameObject->GetChildren())
+		{
+			AddObject(child.lock());
+		}
 	}
 
 	inline void Resource::Scene::RemoveObject(Core::GameObject* object)

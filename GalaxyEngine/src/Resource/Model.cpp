@@ -138,7 +138,7 @@ namespace GALAXY {
 		size_t materialIndex = 0;
 		for (auto& mesh : m_meshes)
 		{
-			Shared<Core::GameObject> meshGO = std::make_shared<Core::GameObject>(mesh.lock()->GetFileInfo().GetFileNameNoExtension());
+			Shared<Core::GameObject> meshGO = std::make_shared<Core::GameObject>(mesh.lock()->GetMeshName());
 			auto meshComponent = meshGO->AddComponent<Component::MeshComponent>();
 			meshComponent.lock()->SetMesh(mesh);
 			for (auto& subMesh : mesh.lock()->m_subMeshes) {

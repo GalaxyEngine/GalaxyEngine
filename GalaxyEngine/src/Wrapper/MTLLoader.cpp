@@ -48,6 +48,7 @@ namespace GALAXY
 				else
 				{
 					currentMaterial = Resource::ResourceManager::AddResource<Resource::Material>(matFullPath).lock();
+					currentMaterial->SetShader(Resource::ResourceManager::GetDefaultShader());
 				}
 			}
 			if (token == "Ka")

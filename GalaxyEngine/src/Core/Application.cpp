@@ -305,8 +305,10 @@ namespace GALAXY {
 		m_resourceManager->CreateCache();
 		// Cleanup:
 #ifdef WITH_EDITOR
-		if (m_thumbnailCreator)
+		if (m_thumbnailCreator) {
+			m_thumbnailCreator->Release();
 			delete m_thumbnailCreator;
+		}
 
 		if (m_editorUI)
 			m_editorUI->Release();
