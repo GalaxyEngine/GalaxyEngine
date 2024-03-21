@@ -34,7 +34,7 @@ namespace GALAXY {
 		if (!ShouldCreateDataFile())
 			return;
 
-		auto dataPath = Path(p_fileInfo.GetFullPath().generic_string() + ".gdata");
+		auto dataPath = GetDataFilePath();
 		CppSer::Serializer serializer(dataPath);
 
 		serializer << CppSer::Pair::BeginMap << "Data";
@@ -93,6 +93,11 @@ namespace GALAXY {
 	void Resource::IResource::Rename(const Path& newFullPath)
 	{
 		Resource::ResourceManager::RenameSingle(p_fileInfo.GetFullPath(), newFullPath);
+	}
+
+	Path Resource::IResource::GetDataFilePath() const
+	{
+		return Path(p_fileInfo.GetFullPath().string() + ".gdata");
 	}
 
 }

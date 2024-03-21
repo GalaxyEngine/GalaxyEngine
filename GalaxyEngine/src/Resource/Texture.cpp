@@ -36,7 +36,8 @@ void Resource::Texture::Load()
 		return;
 	}
 
-	CreateDataFile();
+	if (!std::filesystem::exists(GetDataFilePath()))
+		CreateDataFile();
 	SendRequest();
 }
 

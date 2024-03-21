@@ -42,6 +42,7 @@ namespace GALAXY
 			static bool IsThumbnailUpToDate(Resource::IResource* resource);
 		private:
 			void SaveThumbnail(const std::filesystem::path& thumbnailPath, const Vec2i& frameBufferSize);
+
 		private:
 			Vec2i m_thumbnailSize = Vec2i(512);
 			bool m_initialized = false;

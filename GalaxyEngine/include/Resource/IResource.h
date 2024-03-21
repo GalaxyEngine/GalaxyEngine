@@ -136,6 +136,7 @@ namespace GALAXY::Resource {
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
 		inline Core::UUID GetUUID() const { return p_uuid; }
+		Path GetDataFilePath() const;
 
 		static void SerializeResource(CppSer::Serializer& serializer, const char* name, Weak<IResource> resource);
 	protected:

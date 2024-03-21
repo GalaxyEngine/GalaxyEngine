@@ -75,8 +75,11 @@ namespace GALAXY
 	{
 		std::lock_guard lock(Core::ThreadManager::GetMutex());
 		std::filesystem::path fullPath = material.lock()->GetFileInfo().GetFullPath();
-		if (std::find(m_thumbnailQueue.begin(), m_thumbnailQueue.end(), fullPath) != m_thumbnailQueue.end())
-			return;
+		for (auto& path : m_thumbnailQueue)
+		{
+			if (path == fullPath)
+				return;
+		}
 
 		m_thumbnailQueue.push_back(fullPath);
 	}
@@ -260,6 +263,17 @@ namespace GALAXY
 		return thumbnailTime >= resourceTime;
 	}
 
+	void SaveThumb(Wrapper::Image& imageData, const Path& thumbnailPath)
+	{
+		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
+		delete[] imageData.data;
+
+		// Load render texture
+		Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
+
+		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+	}
+
 	void Editor::ThumbnailCreator::SaveThumbnail(const Path& thumbnailPath, const Vec2i& frameBufferSize)
 	{
 		auto renderer = Wrapper::Renderer::GetInstance();
@@ -272,13 +286,7 @@ namespace GALAXY
 		renderer->ReadPixels(imageData.size, imageData.data);
 
 		PrintLog("Save thumbnail to %s", thumbnailPath.generic_string().c_str());
-		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
-		delete[] imageData.data;
-
-		// Load render texture
-		const auto renderTexture = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath).lock();
-
-		UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+		Core::ThreadManager::GetInstance()->AddTask(&SaveThumb, imageData, thumbnailPath);
 	}
 
 }

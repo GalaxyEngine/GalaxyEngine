@@ -34,7 +34,8 @@ namespace GALAXY {
 
 		p_loaded = true;
 
-		CreateDataFile();
+		if (!std::filesystem::exists(GetDataFilePath()))
+			CreateDataFile();
 
 #ifdef WITH_EDITOR
 		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))

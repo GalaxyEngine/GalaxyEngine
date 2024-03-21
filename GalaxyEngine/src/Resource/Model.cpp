@@ -116,6 +116,7 @@ namespace GALAXY {
 			Wrapper::OBJLoader::Load(p_fileInfo.GetFullPath(), this);
 		}
 
+		// Call every time because meshes can change
 		CreateDataFile();
 #ifdef WITH_EDITOR
 		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))

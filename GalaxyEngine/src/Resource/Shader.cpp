@@ -193,7 +193,8 @@ void main()
 		if (p_hasBeenSent && !p_isAVariant) {
 			const auto weak_this = Resource::ResourceManager::GetResource<Resource::Shader>(GetFileInfo().GetFullPath());
 			Render::LightManager::AddShader(weak_this);
-			CreateDataFile();
+			if (!std::filesystem::exists(GetDataFilePath()))
+				CreateDataFile();
 		}
 	}
 
@@ -488,7 +489,8 @@ void main()
 		p_shouldBeLoaded = true;
 		p_content = Utils::FileSystem::ReadFile(p_fileInfo.GetFullPath());
 		p_loaded = true;
-		CreateDataFile();
+		if (!std::filesystem::exists(GetDataFilePath()))
+			CreateDataFile();
 		SendRequest();
 	}
 
