@@ -24,6 +24,9 @@ namespace GALAXY
 
 		std::string OpenDialog(const std::vector<Filter>& filters);
 
+		// Show or Hide file with the path of the file
+		void ShowFile(const std::filesystem::path& filePath, bool showFile = true);
+
 		std::string GetLastErrorMessage();
 
 		void* LoadDLL(const std::filesystem::path& DllPath);

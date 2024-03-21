@@ -5,6 +5,8 @@
 
 #include "Core/Application.h"
 
+#include "Utils/OS.h"
+
 namespace GALAXY {
 	Resource::IResource::IResource(const Path& fullPath) : p_fileInfo(fullPath)
 	{
@@ -38,6 +40,9 @@ namespace GALAXY {
 		serializer << CppSer::Pair::BeginMap << "Data";
 		Serialize(serializer);
 		serializer << CppSer::Pair::EndMap << "Data";
+
+		Utils::OS::ShowFile(dataPath, false);
+		Utils::OS::ShowFile(p_fileInfo.GetFullPath(), true);
 	}
 
 	void Resource::IResource::SetUUID(const Core::UUID& uuid)

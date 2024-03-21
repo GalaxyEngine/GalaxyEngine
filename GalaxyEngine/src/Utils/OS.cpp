@@ -198,4 +198,39 @@ namespace GALAXY
 		}
 	}
 #endif
+
+	void Utils::OS::ShowFile(const std::filesystem::path& filePath, bool showFile)
+	{
+#if defined(_WIN32)
+		int attr = GetFileAttributes((LPCTSTR)filePath.string().c_str());
+		if (!showFile) {
+			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
+				SetFileAttributes((LPCTSTR)filePath.string().c_str(), attr | FILE_ATTRIBUTE_HIDDEN);
+			}
+		}
+		else {
+			if ((attr & FILE_ATTRIBUTE_HIDDEN) != 0) {
+				SetFileAttributes((LPCTSTR)filePath.string().c_str(), attr & ~FILE_ATTRIBUTE_HIDDEN);
+			}
+		}
+#elif defined(__linux__)
+		// Change file permissions to hide or unhide the file
+		if (!showFile)
+		{
+			if (chmod(filePath.string().c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) != 0)
+			{
+				std::cerr << "Error: Unable to set file permissions.\n";
+				return;
+			}
+		}
+		else
+		{
+			if (chmod(filePath.string().c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH | S_IXUSR | S_IXGRP | S_IXOTH) != 0)
+			{
+				std::cerr << "Error: Unable to set file permissions.\n";
+				return;
+			}
+		}
+#endif
+	}
 }
