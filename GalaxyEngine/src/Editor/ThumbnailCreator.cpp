@@ -92,23 +92,16 @@ namespace GALAXY
 		ASSERT(modelShared != nullptr);
 
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
-		auto modelObject = modelShared->ToGameObject();
 		bool canBeCreated = modelShared->HasBeenSent();
-		modelObject->SetScene(m_scene.get());
-		for (auto& meshComp : modelObject->GetComponentsInChildren<Component::MeshComponent>())
-		{
-			for (auto& material : meshComp.lock()->GetMaterials())
+		if (canBeCreated) {
+			for (auto& material : modelShared->GetMaterials())
 			{
-				if (!material.lock()->IsLoaded() || !material.lock()->GetShader() || !material.lock()->GetShader()->HasBeenSent())
+				Shared<Resource::Material> materialLock = material.lock();
+				if (!materialLock->IsLoaded() || !materialLock->GetShader() || !materialLock->GetShader()->HasBeenSent())
 				{
 					canBeCreated = false;
 					break;
 				}
-			}
-			if (!meshComp.lock()->GetMesh().lock()->HasBeenSent())
-			{
-				canBeCreated = false;
-				break;
 			}
 		}
 
@@ -117,6 +110,9 @@ namespace GALAXY
 			AddToQueue(model);
 			return;
 		}
+
+		auto modelObject = modelShared->ToGameObject();
+		modelObject->SetScene(m_scene.get());
 
 		float max = FLT_MIN;
 		for (int i = 0; i < 3; i++)
@@ -271,7 +267,6 @@ namespace GALAXY
 		// Load render texture
 		Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
 
-		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
 	}
 
 	void Editor::ThumbnailCreator::SaveThumbnail(const Path& thumbnailPath, const Vec2i& frameBufferSize)
@@ -287,6 +282,9 @@ namespace GALAXY
 
 		PrintLog("Save thumbnail to %s", thumbnailPath.generic_string().c_str());
 		Core::ThreadManager::GetInstance()->AddTask(&SaveThumb, imageData, thumbnailPath);
+
+		if (m_thumbnailQueue.empty())
+			Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
 	}
 
 }

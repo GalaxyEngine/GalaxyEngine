@@ -78,21 +78,19 @@ namespace GALAXY
 	Path Utils::FileInfo::ToRelativePath(Path path)
 	{
 		path = ToPath(path);
-		if (const Path relative = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath()); !relative.empty() && relative.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
+		const Path relativeAsset = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath());
+		if (!relativeAsset.empty() && relativeAsset.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
 		{
-			if (relative == ".")
+			if (relativeAsset == ".")
 				return ASSET_FOLDER_NAME;
-			return ASSET_FOLDER_NAME / relative;
+			return ASSET_FOLDER_NAME / relativeAsset;
 		}
-		else if (const Path relative = std::filesystem::relative(path, ENGINE_RESOURCE_FOLDER_NAME); !relative.empty())
+		const Path relativeEngine = std::filesystem::relative(path, ENGINE_RESOURCE_FOLDER_NAME);
+		if (!relativeEngine.empty())
 		{
-			return ENGINE_RESOURCE_FOLDER_NAME / relative;
+			return ENGINE_RESOURCE_FOLDER_NAME / relativeEngine;
 		}
-		else
-		{
-			//PrintWarning("%s file is not inside the asset folder, no relative path created", path.string().c_str());
-			return path;
-		}
+		return path;
 	}
 
 	Resource::ResourceType Utils::FileInfo::GetTypeFromExtension(const Path& ext)

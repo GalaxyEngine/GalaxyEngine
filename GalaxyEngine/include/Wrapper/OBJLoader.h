@@ -49,7 +49,7 @@ namespace GALAXY
 		private:
 			bool Parse();
 
-			static Vec3i ParseFaceIndex(const std::string& indexStr);
+			static void ParseFaceIndex(Vec3i& indices, const std::string& indexStr);
 
 			static void ComputeVertices(OBJMesh& mesh);
 

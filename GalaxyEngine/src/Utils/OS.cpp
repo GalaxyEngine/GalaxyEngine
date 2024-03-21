@@ -201,6 +201,10 @@ namespace GALAXY
 
 	void Utils::OS::ShowFile(const std::filesystem::path& filePath, bool showFile)
 	{
+		if (!std::filesystem::exists(filePath)) {
+			return;
+		}
+
 #if defined(_WIN32)
 		int attr = GetFileAttributes((LPCTSTR)filePath.string().c_str());
 		if (!showFile) {

@@ -35,14 +35,15 @@ namespace GALAXY {
 			return;
 
 		auto dataPath = GetDataFilePath();
-		CppSer::Serializer serializer(dataPath);
+		{
+			CppSer::Serializer serializer(dataPath);
 
-		serializer << CppSer::Pair::BeginMap << "Data";
-		Serialize(serializer);
-		serializer << CppSer::Pair::EndMap << "Data";
+			serializer << CppSer::Pair::BeginMap << "Data";
+			Serialize(serializer);
+			serializer << CppSer::Pair::EndMap << "Data";
+		}
 
 		Utils::OS::ShowFile(dataPath, false);
-		Utils::OS::ShowFile(p_fileInfo.GetFullPath(), true);
 	}
 
 	void Resource::IResource::SetUUID(const Core::UUID& uuid)

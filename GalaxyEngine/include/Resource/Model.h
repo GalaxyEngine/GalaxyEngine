@@ -57,6 +57,8 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			void CreateThumbnail();
 #endif
+			const std::vector<Weak<class Material>>& GetMaterials() const { return m_materials; }
+			const std::vector<Weak<class Mesh>>& GetMeshes() const { return m_meshes; }
 		private:
 			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 
@@ -65,6 +67,7 @@ namespace GALAXY {
 
 			void OnMeshLoaded();
 		private:
+			// Note : the model is set to loaded only if all the mesh are loaded
 
 			friend Wrapper::OBJLoader;
 			friend Wrapper::FBXLoader;

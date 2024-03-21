@@ -148,7 +148,8 @@ bool Wrapper::OBJLoader::Parse()
 			size_t count = 0;
 			std::string indexStr;
 			while (iss >> indexStr) {
-				Vec3i indices = ParseFaceIndex(indexStr);
+				Vec3i indices;
+				ParseFaceIndex(std::ref(indices), indexStr);
 				currentMesh.indices.push_back(indices - lastSize);
 				count++;
 			}
@@ -192,36 +193,31 @@ bool Wrapper::OBJLoader::Parse()
 	return true;
 }
 
-Vec3i Wrapper::OBJLoader::ParseFaceIndex(const std::string& indexStr)
+void Wrapper::OBJLoader::ParseFaceIndex(Vec3i& indices, const std::string& indexStr)
 {
-	Vec3i indices;
-	std::istringstream indexStream(indexStr);
-	std::string vertexIndexStr, uvIndexStr, normalIndexStr;
+	size_t firstSlash = indexStr.find('/');
+	size_t secondSlash = indexStr.find('/', firstSlash + 1);
 
-	std::getline(indexStream, vertexIndexStr, '/');
-	std::getline(indexStream, uvIndexStr, '/');
-	std::getline(indexStream, normalIndexStr, '/');
+	// Vertex index
+	if (firstSlash != std::string::npos) {
+		indices.x = std::stoi(indexStr.substr(0, firstSlash)) - 1; // OBJ indices start from 1
+	}
 
-	indices.x = std::stoi(vertexIndexStr) - 1;   // OBJ indices start from 1
-	// Case when no uvs
-	try
-	{
-		indices.y = std::stoi(uvIndexStr) - 1;
+	// Texture index
+	if (firstSlash != std::string::npos && secondSlash != std::string::npos) {
+		std::string uvIndexStr = indexStr.substr(firstSlash + 1, secondSlash - firstSlash - 1);
+		if (!uvIndexStr.empty()) {
+			indices.y = std::stoi(uvIndexStr) - 1;
+		}
 	}
-	catch (const std::exception&)
-	{
-		indices.y = -1;
+
+	// Normal index
+	if (secondSlash != std::string::npos && secondSlash + 1 < indexStr.size()) {
+		std::string normalIndexStr = indexStr.substr(secondSlash + 1);
+		if (!normalIndexStr.empty()) {
+			indices.z = std::stoi(normalIndexStr) - 1;
+		}
 	}
-	// Case when no normals
-	try
-	{
-		indices.z = std::stoi(normalIndexStr) - 1;
-	}
-	catch (const std::exception&)
-	{
-		indices.z = -1;
-	}
-	return indices;
 }
 
 bool AreVerticesSimilar(const Vec3f& v1, const Vec2f& uv1, const Vec3f& n1,
