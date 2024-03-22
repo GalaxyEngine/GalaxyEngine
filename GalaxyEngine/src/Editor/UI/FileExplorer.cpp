@@ -350,6 +350,8 @@ namespace GALAXY {
 				}
 				ImGui::OpenPopup("RightClickPopup");
 			}
+			if (ImGui::IsMouseClicked(0) && ImGui::GetHoveredID() == 0)
+				ClearSelected();
 			RightClickWindow();
 			ImGui::EndChild();
 			UpdateReloadContent();
@@ -373,10 +375,23 @@ namespace GALAXY {
 		for (size_t i = 0; i < m_selectedFiles.size(); i++) {
 			if (m_selectedFiles[i] == child) {
 				m_selectedFiles.erase(m_selectedFiles.begin() + i);
+				child->m_selected = false;
 				break;
 			}
 		}
 		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
+	}
+
+	void Editor::UI::FileExplorer::SelectRange(size_t startIndex, size_t endIndex)
+	{
+		if (startIndex > endIndex)
+			std::swap(startIndex, endIndex);
+		const auto children = m_currentFile->GetChildren();
+		for (size_t i = startIndex; i < endIndex + 1; i++)
+		{
+			AddFileSelected(children[i]);
+		}
+		
 	}
 
 	void Editor::UI::FileExplorer::HandleDropFile(const int count, const char** paths) const
@@ -579,9 +594,13 @@ namespace GALAXY {
 			}
 			if (ImGui::Button("Show In Explorer", buttonSize))
 			{
-				ShowInExplorer(!m_rightClickedFiles.empty() ?
-					m_rightClickedFiles :
-					std::vector<Shared<File>>{ m_currentFile }, !m_rightClickedFiles.empty());
+				const Path folderPath = m_currentFile->m_info.GetFullPath();
+
+				std::vector<std::string> filesName(m_rightClickedFiles.size());
+				for (const Shared<File>& file : m_rightClickedFiles)
+					filesName.push_back(file->m_info.GetFileName());
+				
+				Utils::OS::ShowInExplorer(folderPath, filesName);
 				quitPopup();
 			}
 			if (ImGui::Button("New Folder", buttonSize))
@@ -664,61 +683,6 @@ namespace GALAXY {
 		m_renameFile->m_rename = true;
 		m_openRename = true;
 		m_renameFileName = file->m_info.GetFileNameNoExtension();
-	}
-
-	void Editor::UI::FileExplorer::ShowInExplorer(const std::vector<Shared<File>>& files, const bool select)
-	{
-#ifdef _WIN32
-		// TODO : Move to OS Specific 
-
-		const char* explorerPath = "explorer.exe";
-
-		// Construct the command
-		const char* command = select ? "/select,\"" : "\"";
-		char fullCommand[MAX_PATH + sizeof(command) + 2];
-		snprintf(fullCommand, sizeof(fullCommand), "%s%s\"", command, files[0]->m_info.GetFullPath().string().c_str());
-
-		// Launch File Explorer
-
-		if (HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL); reinterpret_cast<intptr_t>(result) <= 32) {
-			const DWORD error = GetLastError();
-			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
-		}
-
-		/*
-	const char* explorerPath = "explorer.exe";
-
-	// Construct the command
-	std::string command = select ? "/select,\"" : "\"";
-	for (auto& file : files) {
-		command += file->m_info.GetFullPath().string() + ",";
-	}
-	command.pop_back();  // Remove the trailing comma
-	command += "\"";
-
-	// Launch File Explorer
-	HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, command.c_str(), nullptr, SW_SHOWNORMAL);
-
-	if ((intptr_t)result <= 32) {
-		DWORD error = GetLastError();
-		PrintError("Failed to Open Explorer (Error Code: %lu)", error);
-		// You might also use FormatMessage to get a more detailed error description
-	}
-	*/
-#elif defined(__linux__)
-		std::string command = "xdg-open ";
-		std::string fullCommand;
-		if (files[0]->m_info.isDirectory())
-			fullCommand = command + files[0]->m_info.GetFullPath().generic_string() + "/";
-		else
-			// if it's a file, we open the parent folder (because i cannot find how to open file explorer and select a file with xdg (TODO))
-			fullCommand = command + files[0]->m_info.GetFullPath().parent_path().generic_string() + "/";
-		if (std::system(fullCommand.c_str()) != 0) {
-			std::perror("Failed to open file explorer");
-			// Handle error as needed
-		}
-
-#endif
 	}
 
 	void Editor::UI::FileExplorer::ReloadContent()
@@ -945,18 +909,40 @@ namespace GALAXY {
 
 		if (!file->m_rename && file->m_hovered && !this->m_rightClickOpen)
 		{
-			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1))
+			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1) && !file->m_selected)
 			{
 				if (ImGui::IsMouseDoubleClicked(0) && file->m_selected && isFolder)
 				{
 					SetCurrentFile(file);
 					shouldBreak = true;
 				}
-				if (!ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+				{
+					if (!file->m_selected)
+						AddFileSelected(file);
+					else
+						RemoveFileSelected(file);
+				}
+				else if (ImGui::IsKeyDown(ImGuiKey_LeftShift) && !m_selectedFiles.empty())
+				{
+					size_t prevSelectedChildIndex = -1;
+					auto children = m_currentFile->GetChildren();
+					for (size_t i = 0; i < children.size(); i++)
+					{
+						if (children[i] == m_selectedFiles.back())
+						{
+							prevSelectedChildIndex = i;
+							break;
+						}
+					}
+					ClearSelected();
+					SelectRange(prevSelectedChildIndex, index);
+				}
+				else
 				{
 					ClearSelected();
+					AddFileSelected(file);
 				}
-				AddFileSelected(file);
 			}
 			if (ImGui::IsMouseClicked(1))
 			{

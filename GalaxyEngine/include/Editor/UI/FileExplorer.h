@@ -40,6 +40,8 @@ namespace GALAXY
 			static uint32_t ResourceTypeToColor(Resource::ResourceType type);
 
 			const Path& GetPath() const { return m_info.GetFullPath(); }
+
+			const List<Shared<File>>& GetChildren() const  { return m_children; }
 		private:
 			friend class Inspector;
 			friend class FileExplorer;
@@ -52,6 +54,7 @@ namespace GALAXY
 			Weak<File> m_parent;
 			List<Shared<File>> m_children;
 
+		private:
 			bool m_fileWatch = false;
 
 			bool m_hovered = false;
@@ -74,6 +77,9 @@ namespace GALAXY
 
 			void AddFileSelected(const Shared<File>& child);
 			void RemoveFileSelected(const Shared<File>& child);
+
+			void SelectRange(size_t startIndex, size_t endIndex);
+			
 			void ClearSelected();
 
 			void HandleDropFile(int count, const char** paths) const;
@@ -88,8 +94,6 @@ namespace GALAXY
 			void RightClickWindow();
 
 			void SetRenameFile(const Shared<File>& file);
-
-			static void ShowInExplorer(const List<Shared<File>>& files, bool select);
 
 			void UpdateReloadContent();
 		private:

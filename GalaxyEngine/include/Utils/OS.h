@@ -36,6 +36,8 @@ namespace GALAXY
 		template<typename T>
 		inline T GetDLLMethod(void* dll, const char* name);
 
+		void ShowInExplorer(const std::filesystem::path& folder, const std::vector<std::string>& filesName);
+
 		const char* GetDLLExtension();
 
 		void OpenWithVSCode(const std::filesystem::path& filePath);

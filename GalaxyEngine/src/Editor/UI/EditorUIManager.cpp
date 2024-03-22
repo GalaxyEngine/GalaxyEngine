@@ -44,6 +44,7 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::DrawUI()
 	{
+		// ImGui::ShowDemoWindow();
 		DrawMainDock();
 		m_mainBar->Draw();
 		m_gameWindow->Draw();

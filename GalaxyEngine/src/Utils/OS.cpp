@@ -130,6 +130,66 @@ namespace GALAXY
 		dlclose(dll);
 #endif
 	}
+	
+	void Utils::OS::ShowInExplorer(const std::filesystem::path& folder, const std::vector<std::string>& filesName)
+	{
+#ifdef _WIN32
+		bool select = !filesName.empty();
+
+		const char* explorerPath = "explorer.exe";
+
+		// Construct the command
+		const char* command = select ? "/select,\"" : "\"";
+		char fullCommand[MAX_PATH + sizeof(command) + 2];
+
+		std::string file;
+		if (select)
+			file = (folder / filesName.back()).string();
+		else
+			file = folder.string();
+		snprintf(fullCommand, sizeof(fullCommand), "%s%s\"", command, file.c_str());
+
+		// Launch File Explorer
+
+		if (HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL); reinterpret_cast<intptr_t>(result) <= 32) {
+			const DWORD error = GetLastError();
+			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
+		}
+
+		/*
+	const char* explorerPath = "explorer.exe";
+
+	// Construct the command
+	std::string command = select ? "/select,\"" : "\"";
+	for (auto& file : files) {
+		command += file->m_info.GetFullPath().string() + ",";
+	}
+	command.pop_back();  // Remove the trailing comma
+	command += "\"";
+
+	// Launch File Explorer
+	HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, command.c_str(), nullptr, SW_SHOWNORMAL);
+
+	if ((intptr_t)result <= 32) {
+		DWORD error = GetLastError();
+		PrintError("Failed to Open Explorer (Error Code: %lu)", error);
+		// You might also use FormatMessage to get a more detailed error description
+	}
+	*/
+#elif defined(__linux__)
+		std::string command = "xdg-open ";
+		std::string fullCommand;
+		if (files[0]->m_info.isDirectory())
+			fullCommand = command + files[0]->m_info.GetFullPath().generic_string() + "/";
+		else
+			// if it's a file, we open the parent folder (because i cannot find how to open file explorer and select a file with xdg (TODO))
+				fullCommand = command + files[0]->m_info.GetFullPath().parent_path().generic_string() + "/";
+		if (std::system(fullCommand.c_str()) != 0) {
+			std::perror("Failed to open file explorer");
+			// Handle error as needed
+		}
+#endif
+	}
 
 	const char* Utils::OS::GetDLLExtension()
 	{
