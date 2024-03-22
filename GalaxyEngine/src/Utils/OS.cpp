@@ -12,7 +12,7 @@ namespace GALAXY
 
 	std::string Utils::OS::SaveDialog(const std::vector<Filter>& filters)
 	{
-		std::string resultString = "";
+		std::string resultString;
 
 		NFD::Guard nfdGuard;
 
@@ -43,7 +43,7 @@ namespace GALAXY
 
 	std::string Utils::OS::OpenDialog(const std::vector<Filter>& filters)
 	{
-		std::string resultString = "";
+		std::string resultString;
 
 		// initialize NFD
 		NFD::Guard nfdGuard;
@@ -90,7 +90,7 @@ namespace GALAXY
 		//Ask Win32 to give us the string version of that message ID.
 		//The parameters we pass in, tell Win32 to create the buffer that holds the message for us (because we don't yet know how long the message string will be).
 		const size_t size = FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+			nullptr, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, nullptr);
 
 		//Copy the error message into a std::string.
 		message = std::string(messageBuffer, size);
@@ -125,7 +125,7 @@ namespace GALAXY
 		if (!dll)
 			return;
 #if defined(_WIN32)
-		FreeLibrary((HMODULE)dll);
+		FreeLibrary(static_cast<HMODULE>(dll));
 #elif defined(__linux__)
 		dlclose(dll);
 #endif
@@ -134,7 +134,7 @@ namespace GALAXY
 	void Utils::OS::ShowInExplorer(const std::filesystem::path& folder, const std::vector<std::string>& filesName)
 	{
 #ifdef _WIN32
-		bool select = !filesName.empty();
+		const bool select = !filesName.empty();
 
 		const char* explorerPath = "explorer.exe";
 
@@ -150,40 +150,14 @@ namespace GALAXY
 		snprintf(fullCommand, sizeof(fullCommand), "%s%s\"", command, file.c_str());
 
 		// Launch File Explorer
-
-		if (HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL); reinterpret_cast<intptr_t>(result) <= 32) {
-			const DWORD error = GetLastError();
-			PrintError("Failed to Open Explorer (Error Code: %lu)", error);
+		HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, fullCommand, nullptr, SW_SHOWNORMAL);
+		if (reinterpret_cast<intptr_t>(result) <= 32) {
+			const std::string errorMessage = GetLastErrorMessage();
+			PrintError("Failed to Open Explorer : %s", errorMessage.c_str());
 		}
-
-		/*
-	const char* explorerPath = "explorer.exe";
-
-	// Construct the command
-	std::string command = select ? "/select,\"" : "\"";
-	for (auto& file : files) {
-		command += file->m_info.GetFullPath().string() + ",";
-	}
-	command.pop_back();  // Remove the trailing comma
-	command += "\"";
-
-	// Launch File Explorer
-	HINSTANCE result = ShellExecute(nullptr, "open", explorerPath, command.c_str(), nullptr, SW_SHOWNORMAL);
-
-	if ((intptr_t)result <= 32) {
-		DWORD error = GetLastError();
-		PrintError("Failed to Open Explorer (Error Code: %lu)", error);
-		// You might also use FormatMessage to get a more detailed error description
-	}
-	*/
 #elif defined(__linux__)
 		std::string command = "xdg-open ";
-		std::string fullCommand;
-		if (files[0]->m_info.isDirectory())
-			fullCommand = command + files[0]->m_info.GetFullPath().generic_string() + "/";
-		else
-			// if it's a file, we open the parent folder (because i cannot find how to open file explorer and select a file with xdg (TODO))
-				fullCommand = command + files[0]->m_info.GetFullPath().parent_path().generic_string() + "/";
+		std::string fullCommand = command + folder.generic_string() + "/";
 		if (std::system(fullCommand.c_str()) != 0) {
 			std::perror("Failed to open file explorer");
 			// Handle error as needed
@@ -238,8 +212,8 @@ namespace GALAXY
 		EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnd));
 		if (!hwnd) {
 			const auto resourceManager = Resource::ResourceManager::GetInstance();
-			std::string slnPath = (resourceManager->GetAssetPath().parent_path() / "vsxmake2022" / (resourceManager->GetProjectPath().filename().stem().string() + ".sln")).string();
-			std::string command = "start \"\" \"" + slnPath + "\"";
+			const std::string slnPath = (resourceManager->GetAssetPath().parent_path() / "vsxmake2022" / (resourceManager->GetProjectPath().filename().stem().string() + ".sln")).string();
+			const std::string command = "start \"\" \"" + slnPath + "\"";
 			system(command.c_str());
 		}
 		else
@@ -266,7 +240,7 @@ namespace GALAXY
 		}
 
 #if defined(_WIN32)
-		int attr = GetFileAttributes((LPCTSTR)filePath.string().c_str());
+		const int attr = GetFileAttributes((LPCTSTR)filePath.string().c_str());
 		if (!showFile) {
 			if ((attr & FILE_ATTRIBUTE_HIDDEN) == 0) {
 				SetFileAttributes((LPCTSTR)filePath.string().c_str(), attr | FILE_ATTRIBUTE_HIDDEN);
@@ -278,7 +252,8 @@ namespace GALAXY
 			}
 		}
 #elif defined(__linux__)
-		// Change file permissions to hide or unhide the file
+		// Change file permissions to hide or unhide the 
+		//TODO: Test on linux
 		if (!showFile)
 		{
 			if (chmod(filePath.string().c_str(), S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH) != 0)

@@ -16,14 +16,10 @@
 namespace GALAXY
 {
 
-	void Editor::UI::MainBar::Initialize()
-	{
-	}
-
 	void Editor::UI::MainBar::Draw()
 	{
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
-		EditorUIManager* editorInstance = EditorUIManager::GetInstance();
+		const EditorUIManager* editorInstance = EditorUIManager::GetInstance();
 		EditorSettings& editorSettings = Core::Application::GetInstance().GetEditorSettings();
 		Core::ProjectSettings& projectSettings = Core::Application::GetInstance().GetProjectSettings();
 		if (ImGui::BeginMainMenuBar())
@@ -106,8 +102,8 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Camera"))
 				{
-					auto currentScene = Core::SceneHolder::GetCurrentScene();
-					auto cameraObject = currentScene->CreateObject();
+					const auto currentScene = Core::SceneHolder::GetCurrentScene();
+					const auto cameraObject = currentScene->CreateObject();
 					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
 					cameraObject.lock()->AddComponent<Component::CameraComponent>();
 				}
@@ -120,7 +116,7 @@ namespace GALAXY
 			Weak<Resource::Model> model;
 			if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
 			{
-				if (auto modelShared = model.lock())
+				if (const auto modelShared = model.lock())
 				{
 					m_waitingModel = modelShared;
 					if (!modelShared->IsLoaded()) {
@@ -137,7 +133,7 @@ namespace GALAXY
 
 	void Editor::UI::MainBar::OpenScene(const std::string& path)
 	{
-		if (auto currentScene = Core::SceneHolder::GetCurrentScene() == Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
+		if (Core::SceneHolder::GetCurrentScene() == Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
 			return;
 		const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
 
@@ -153,7 +149,7 @@ namespace GALAXY
 		scene->Save(path);
 	}
 
-	void Editor::UI::MainBar::AddModelToScene()
+	void Editor::UI::MainBar::AddModelToScene() const
 	{
 		if (!m_waitingModel.lock())
 			return;

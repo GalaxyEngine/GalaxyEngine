@@ -45,7 +45,7 @@ namespace GALAXY
 
 			void UpdateResources();
 
-			void TrySendResource(Shared<Resource::IResource> resource, const std::filesystem::path& resourcePath);
+			void TrySendResource(const Shared<Resource::IResource>& resource, const std::filesystem::path& resourcePath);
 
 			[[nodiscard]] inline Wrapper::Window* GetWindow() const;
 

@@ -40,7 +40,7 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(const std::filesystem::path& projectPath)
 	{
-		std::cout << projectPath << std::endl;
+		std::cout << projectPath << '\n';
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");
@@ -114,7 +114,7 @@ namespace GALAXY {
 		// Load dll scripting
 		if (m_resourceManager->m_projectExists)
 		{
-			std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
+			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
 			m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
 		}
 
@@ -133,16 +133,16 @@ namespace GALAXY {
 		if (!m_resourceToSend.empty())
 		{
 			const Path resourcePath = m_resourceToSend.front();
-			const std::weak_ptr<Resource::IResource> resource = m_resourceManager->GetResource<Resource::IResource>(resourcePath);
+			const std::weak_ptr<Resource::IResource> resource = Resource::ResourceManager::GetResource<Resource::IResource>(resourcePath);
 
 			if (const Shared<Resource::IResource> resourceFound = resource.lock())
 			{
 				TrySendResource(resourceFound, resourcePath);
 			}
-			else if (const Shared<Resource::IResource> resourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
+			else if (const Shared<Resource::IResource> temporaryResourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
 			{
 				PrintLog("Send temp resource %s", resourcePath.string().c_str());
-				TrySendResource(resourceFound, resourcePath);
+				TrySendResource(temporaryResourceFound, resourcePath);
 			}
 			else
 			{
@@ -152,7 +152,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Core::Application::TrySendResource(Shared<Resource::IResource> resource, const std::filesystem::path& resourcePath)
+	void Core::Application::TrySendResource(const Shared<Resource::IResource>& resource, const std::filesystem::path& resourcePath)
 	{
 		if (!resource->HasBeenSent())
 			resource->Send();

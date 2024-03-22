@@ -30,7 +30,6 @@ namespace GALAXY {
 	{
 		if (!m_instance)
 			m_instance = std::make_unique<EditorUIManager>();
-		m_instance->m_mainBar->Initialize();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
 		m_instance->BindEvents();
@@ -190,12 +189,12 @@ namespace GALAXY {
 			return;
 		m_shouldUpdateDPIScale = false;
 
-		float curDPIScale = Core::Application::GetInstance().GetWindow()->GetScreenScale();
+		const float curDPIScale = Core::Application::GetInstance().GetWindow()->GetScreenScale();
 		if (m_prevDPIScale == curDPIScale)
 			return;
 		m_prevDPIScale = curDPIScale;
 
-		if (m_prevDPIScale != 0)
+		if (m_prevDPIScale != 0.f)
 			ImGui::GetStyle().ScaleAllSizes(curDPIScale / m_prevDPIScale);
 		else
 			ImGui::GetStyle().ScaleAllSizes(curDPIScale);

@@ -13,15 +13,13 @@ namespace GALAXY
 		public:
 			~MainBar() = default;
 
-			void Initialize();
-
 			void Draw();
 
 			static void SaveScene(std::string path);
 
 			static void OpenScene(const std::string& path);
 
-			void AddModelToScene();
+			void AddModelToScene() const;
 		private:
 			Weak<Resource::Model> m_waitingModel;
 		};

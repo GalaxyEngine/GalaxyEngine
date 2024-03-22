@@ -14,6 +14,8 @@ namespace GALAXY
 	{
 		struct Filter
 		{
+			Filter(std::string _name, std::string _spec) : name(std::move(_name)), spec(std::move(_spec)) {}
+			
 			std::string name;
 			// ex : "Text file"
 			std::string spec;
