@@ -7,6 +7,7 @@
 #include "Resource/Shader.h"
 #include "Resource/Material.h"
 #include "Resource/Scene.h"
+#include "Resource/Prefab.h"
 
 namespace GALAXY
 {

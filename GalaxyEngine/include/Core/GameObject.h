@@ -19,6 +19,7 @@ namespace GALAXY {
 	}
 	namespace Resource
 	{
+		class Prefab;
 		class Scene;
 	}
 	namespace Component
@@ -44,6 +45,8 @@ namespace GALAXY {
 			void RemoveChild(uint32_t index);
 
 			void RemoveFromParent() const;
+
+			Shared<GameObject> Clone() const;
 
 			// This method is to use when you need to destroy over all a gameObject and all its children
 			void Destroy();
@@ -110,6 +113,10 @@ namespace GALAXY {
 			inline bool IsActive() const;
 			inline bool IsSelected() const;
 
+			// Prefab methods
+			bool IsPrefab() const {return !m_prefab.expired();}
+			Weak<Resource::Prefab> GetPrefab() const {return m_prefab;}
+
 		private:
 			friend Resource::Scene;
 			friend Scripting::ScriptEngine;
@@ -123,6 +130,8 @@ namespace GALAXY {
 
 			Resource::Scene* m_scene = nullptr;
 
+			Weak<Resource::Prefab> m_prefab = {};
+			
 			Weak<GameObject> m_parent;
 			List<Shared<GameObject>> m_children;
 			List<Shared<Component::BaseComponent>> m_components;

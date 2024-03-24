@@ -90,10 +90,11 @@ namespace GALAXY {
 			AddResource<Scene>(resourcePath);
 			break;
 		case ResourceType::Model:
-		{
 			AddResource<Model>(resourcePath);
 			break;
-		}
+		case ResourceType::Prefab:
+			AddResource<Prefab>(resourcePath);
+			break;
 		case ResourceType::Data:
 		{
 			const Path path = resourcePath.parent_path() / resourcePath.stem();

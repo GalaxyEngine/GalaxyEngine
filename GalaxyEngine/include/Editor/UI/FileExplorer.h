@@ -46,6 +46,7 @@ namespace GALAXY
 			friend class Inspector;
 			friend class FileExplorer;
 			friend class FileDialog;
+			friend class Hierarchy;
 
 			Utils::FileInfo m_info;
 			Weak<Resource::Texture> m_icon;
@@ -99,6 +100,7 @@ namespace GALAXY
 		private:
 			friend class MainBar;
 			friend File;
+			friend class Hierarchy;
 
 			bool m_visible;
 

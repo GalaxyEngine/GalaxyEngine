@@ -37,6 +37,7 @@ std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap
 	{".mp3",		Resource::ResourceType::Sound},
 	{".wav",		Resource::ResourceType::Sound},
 	{".flac",		Resource::ResourceType::Sound},
+	{".prefab", 	Resource::ResourceType::Prefab}
 
 };
 

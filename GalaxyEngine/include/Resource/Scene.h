@@ -54,7 +54,7 @@ namespace GALAXY {
 			void Load() override;
 			void Unload() override;
 			void Send() override;
-			void Save(const Path& fullPath = "") const;
+			virtual void Save(const Path& fullPath = "") const;
 
 			const char* GetResourceName() const override { return "Scene"; }
 
@@ -106,7 +106,7 @@ namespace GALAXY {
 			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
 			Shared<Render::LightManager> GetLightManager() const { return m_lightManager; }
-		private:
+		protected:
 			friend Core::SceneHolder;
 
 			List<Weak<Component::CameraComponent>> m_cameras;

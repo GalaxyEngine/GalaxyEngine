@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Core/Application.h"
+#include "Core/SceneHolder.h"
 
 #include "Editor/ThumbnailCreator.h"
 
@@ -11,6 +12,7 @@
 #include "Resource/Script.h"
 #include "Resource/Material.h"
 #include "Resource/Model.h"
+#include "Resource/Prefab.h"
 
 #include "Wrapper/Window.h"
 
@@ -336,6 +338,27 @@ namespace GALAXY {
 			}
 			ImGui::EndChild();
 			ImGui::PopStyleColor(2);
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("GAMEOBJECTS")) {
+					// Check if the payload data type matches
+					List<uint64_t> indices;
+					if (payload->DataSize % sizeof(uint64_t) == 0)
+					{
+						uint64_t* payloadData = static_cast<uint64_t*>(payload->Data);
+						const uint64_t payloadSize = payload->DataSize / sizeof(uint64_t);
+						indices.assign(payloadData, payloadData + payloadSize);
+					}
+					for (size_t i = 0; i < indices.size(); i++) {
+						Weak<Core::GameObject> payloadGameObject;
+						payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[i]);
+
+						Resource::Prefab::CreateWith(m_currentFile->m_info.GetFullPath() / (payloadGameObject.lock()->GetName() + ".prefab"), payloadGameObject.lock());
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+			
 			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::GetIO().MouseWheel != 0)
 			{
 				m_iconSize += ImGui::GetIO().MouseWheel * iconDeltaZoom;

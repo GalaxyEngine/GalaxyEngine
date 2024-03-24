@@ -268,8 +268,11 @@ namespace GALAXY
 
 	void Scene::Unload()
 	{
-		m_root->Destroy();
-		m_root.reset();
+		if (m_root)
+		{
+			m_root->Destroy();
+			m_root.reset();
+		}
 	}
 
 	void Scene::Send()

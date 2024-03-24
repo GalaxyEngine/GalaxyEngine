@@ -27,6 +27,7 @@ namespace GALAXY::Resource {
 		Script,
 		Scene,
 		Sound,
+		Prefab,
 	};
 
 	inline const char* SerializeResourceTypeValue(ResourceType type)

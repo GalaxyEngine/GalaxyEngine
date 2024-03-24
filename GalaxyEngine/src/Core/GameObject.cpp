@@ -70,6 +70,9 @@ namespace GALAXY
 			child->SetParent(weak_from_this());
 		}
 
+		if (m_scene && child->m_scene != m_scene)
+			m_scene->AddObject(child);
+
 	}
 
 	void GameObject::SetParent(const Weak<GameObject>& parent)
@@ -213,6 +216,27 @@ namespace GALAXY
 		if (!m_parent.lock())
 			return;
 		m_parent.lock()->RemoveChild(this);
+	}
+
+	Shared<GameObject> GameObject::Clone() const
+	{
+		Shared<GameObject> clone = std::make_shared<GameObject>();
+		clone->m_name = m_name;
+		clone->m_scene = m_scene;
+		clone->m_parent = {};
+		clone->m_children.resize(m_children.size());
+		for (size_t i = 0; i < m_children.size(); i++)
+		{
+			clone->m_children[i] = m_children[i]->Clone();
+			clone->m_children[i]->m_parent = clone;
+		}
+		clone->m_components.resize(m_components.size());
+		for (size_t i = 0; i < m_components.size(); i++)
+		{
+			clone->m_components[i] = m_components[i]->Clone();
+			clone->m_components[i]->p_gameObject = clone.get();
+		}
+		return clone;
 	}
 
 	void GameObject::AfterLoad() const
