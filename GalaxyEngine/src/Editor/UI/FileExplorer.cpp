@@ -18,7 +18,6 @@
 
 /* TODO:
 * Drag and Drop (folders, models, ...)
-* Thumbnails
 * Specification Right Click : (Ex. Recompile Shader)
 * Bottom bar too see clicked file
 * All this need to work with multiple selected files
@@ -695,7 +694,7 @@ namespace GALAXY {
 		if (!m_shouldReloadContent)
 			return;
 		m_shouldReloadContent = false;
-		auto currentPath = m_currentFile->m_info.GetFullPath();
+		const auto currentPath = m_currentFile->m_info.GetFullPath();
 		m_mainFile->m_children.clear();
 		m_mainFile->FindAllChildren();
 		m_currentFile = m_mainFile->GetWithPath(currentPath);

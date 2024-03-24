@@ -19,11 +19,11 @@ namespace GALAXY {
 
 		struct BoundingBox
 		{
-			BoundingBox() : min(0), max(0) {}
+			BoundingBox() : min(FLT_MAX), max(FLT_MIN) {}
 			BoundingBox(Vec3f min, Vec3f max) : min(min), max(max) {}
 
-			Vec3f min;
-			Vec3f max;
+			Vec3f min = Vec3f(FLT_MAX);
+			Vec3f max = Vec3f(FLT_MIN);
 
 			Vec3f GetCenter() const;
 			Vec3f GetExtents() const;
