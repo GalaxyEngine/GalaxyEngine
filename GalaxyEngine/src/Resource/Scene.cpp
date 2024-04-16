@@ -224,10 +224,13 @@ namespace GALAXY
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
-
-		CppSer::Parser parser(GetFileInfo().GetFullPath());
-		m_root->m_scene = this;
-		m_root->Deserialize(parser);
+		{
+			const Path& path = GetFileInfo().GetFullPath();
+			PROFILE_SCOPE_LOG("Scene::Load(%s)", path.generic_string().c_str());
+			CppSer::Parser parser(path);
+			m_root->m_scene = this;
+			m_root->Deserialize(parser);
+		}
 
 		p_loaded = true;
 		SendRequest();

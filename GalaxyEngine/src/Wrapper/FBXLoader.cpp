@@ -61,6 +61,7 @@ namespace GALAXY
 
 	void Wrapper::FBXLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 	{
+		PROFILE_SCOPE_LOG("FBXLoader::Load(%s)", fullPath.generic_string().c_str());
 		uint32_t size;
 		bool sucess;
 		auto data = (ofbx::u8*)ReadFile(fullPath.generic_string().c_str(), size, sucess);

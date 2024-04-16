@@ -19,7 +19,6 @@ void Main(int argc, char** argv)
 	// Change the working directory
 	std::filesystem::current_path(workDir);
 
-
 	Core::Application& application = Core::Application::GetInstance();
 	
 	//TODO : Remove this

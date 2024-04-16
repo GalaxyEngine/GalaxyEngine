@@ -24,6 +24,7 @@
 #include "Wrapper/Serializer.h"
 
 #include "Debug/Log.h"
+#include "Debug/TimeProfiler.h"
 #include "Wrapper/Renderer.h"
 #include "Wrapper/GUI.h"
 #include "Wrapper/Reflection.h"
