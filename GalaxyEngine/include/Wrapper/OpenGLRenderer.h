@@ -68,6 +68,9 @@ namespace GALAXY
 			void DrawElement(size_t count) override;
 			void DrawArrays(size_t start, size_t count) override;
 
+			
+			void CreateDynamicVertexBuffer(uint32_t& vao, uint32_t& vbo, size_t dataSize, size_t numVertices) override;
+
 			// === Render Buffers === //
 			void CreateRenderBuffer(Render::Framebuffer* framebuffer) override;
 			void BindRenderBuffer(Render::Framebuffer* framebuffer) override;

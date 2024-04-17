@@ -67,7 +67,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	// Other Components
 	bool openPopup = false;
 	for (uint32_t i = 0; i < object->m_components.size(); i++) {
-		if (!object->m_components[i].get())
+		if (!object->m_components[i])
 			continue;
 		ImGui::PushID(i);
 
@@ -143,12 +143,12 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	}
 }
 
-void Editor::UI::Inspector::ShowFile(const File* file)
+void Editor::UI::Inspector::ShowFile(const File* file) const
 {
 	if (file->m_info.isDirectory())
 		return;
 	constexpr int iconSize = 64;
-	const Vec2f iconSizeXY = Vec2f{ iconSize };
+	constexpr Vec2f iconSizeXY = Vec2f{ iconSize };
 	const auto resource = file->m_resource.lock();
 
 	Wrapper::GUI::TextureImage(file->m_icon.lock().get(), iconSizeXY);
@@ -205,17 +205,22 @@ void Editor::UI::Inspector::SetFileSelected(List<Shared<File>>* files)
 
 void Editor::UI::Inspector::UpdateFileSelected()
 {
-	if (m_selectedFiles->empty())
+	if (m_selectedFiles->empty() && m_selectedGameObject.empty())
 	{
 		m_mode = InspectorMode::None;
+	}
+	else if (m_selectedFiles->empty())
+	{
+		m_mode = InspectorMode::Scene;
 	}
 	else
 	{
 		m_mode = InspectorMode::Asset;
+		ClearSelectedGameObjects();
 	}
 }
 
-void Editor::UI::Inspector::ClearSelected()
+void Editor::UI::Inspector::ClearSelectedGameObjects()
 {
 	for (const auto& selected : m_selectedGameObject)
 	{
@@ -224,10 +229,15 @@ void Editor::UI::Inspector::ClearSelected()
 	}
 	m_selectedGameObject.clear();
 
-	EditorUIManager::GetInstance()->GetFileExplorer()->ClearSelected();
-
 	const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 	gizmo->SetGameObject({});
+}
+
+void Editor::UI::Inspector::ClearSelected()
+{
+	ClearSelectedGameObjects();
+
+	EditorUIManager::GetInstance()->GetFileExplorer()->ClearSelected();
 
 	m_mode = InspectorMode::None;
 }

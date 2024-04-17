@@ -23,13 +23,14 @@ namespace GALAXY {
 
 			void ShowGameObject(Core::GameObject* object);
 
-			void ShowFile(const File* file);
+			void ShowFile(const File* file) const;
 
 			void AddSelected(const Weak<Core::GameObject>& gameObject);
 			void SetSelected(const Weak<Core::GameObject>& gameObject);
 
 			void SetFileSelected(List<Shared<File>>* files);
 			void UpdateFileSelected();
+			void ClearSelectedGameObjects();
 
 			void ClearSelected();
 

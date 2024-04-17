@@ -164,22 +164,7 @@ void main()
 		SendRequest();
 		p_loaded = true;
 	}
-
-	void Resource::BaseShader::ShowInInspector()
-	{
-		size_t i = 0;
-		for (auto& shader : p_shaders)
-		{
-			ImGui::Separator();
-			auto shaderPtr = shader.lock();
-			if (shaderPtr)
-				ImGui::TextWrapped(shaderPtr->GetFileInfo().GetRelativePath().string().c_str());
-			else
-				ImGui::TextWrapped("Empty");
-		}
-		ImGui::Separator();
-	}
-
+	
 	void Resource::Shader::Send()
 	{
 		if (p_hasBeenSent)
@@ -433,6 +418,22 @@ void main()
 		std::get<2>(p_subShaders) = ResourceManager::GetResource<FragmentShader>(fragmentUUID);
 		*/
 	}
+	
+	void Resource::BaseShader::ShowInInspector()
+	{
+		size_t i = 0;
+		for (auto& shader : p_shaders)
+		{
+			ImGui::Separator();
+			auto shaderPtr = shader.lock();
+			if (shaderPtr)
+				ImGui::TextWrapped(shaderPtr->GetFileInfo().GetRelativePath().string().c_str());
+			else
+				ImGui::TextWrapped("Empty");
+		}
+		ImGui::SeparatorText("Content");
+		ImGui::TextWrapped(p_content.c_str());
+	}
 
 	// === Base Shader === //
 	void Resource::BaseShader::AddShader(const Weak<Shader>& shader)
@@ -489,8 +490,19 @@ void main()
 		p_shouldBeLoaded = true;
 		p_content = Utils::FileSystem::ReadFile(p_fileInfo.GetFullPath());
 		p_loaded = true;
+		
 		if (!std::filesystem::exists(GetDataFilePath()))
 			CreateDataFile();
+		
+		// Handle case of reload
+		for (const Weak<Shader>& shader : p_shaders)
+		{
+			if (shader.lock())
+			{
+				shader.lock()->p_hasBeenSent = false;
+				shader.lock()->SendRequest();
+			}
+		}
 		SendRequest();
 	}
 

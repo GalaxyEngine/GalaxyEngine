@@ -49,7 +49,7 @@ add_requires("openfbx")
 add_requires("miniaudio")
 
 -- enable features 
-add_defines("ENABLE_MULTITHREAD")
+add_defines("ENABLE_MULTI_THREAD")
 
 set_languages("c++20")
 

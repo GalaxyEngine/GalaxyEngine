@@ -99,11 +99,11 @@ namespace GALAXY
 			// Load the resource if not loaded.
 			if (!resource->second->p_shouldBeLoaded.load())
 			{
-#ifdef ENABLE_MULTITHREAD
+#ifdef ENABLE_MULTI_THREAD
 				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
 #else
 				resource->second->Load();
-#endif // ENABLE_MULTITHREAD
+#endif // ENABLE_MULTI_THREAD
 				return std::dynamic_pointer_cast<T>(resource->second);
 			}
 			else
@@ -121,14 +121,14 @@ namespace GALAXY
 		if (uuid == UUID_NULL)
 			return {};
 
-		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& resource)
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& _resource)
 			{
-				return resource.second->GetUUID() == uuid;
+				return _resource.second->GetUUID() == uuid;
 			});
 		if (resource == m_instance->m_resources.end())
 		{
-			PrintWarning("Resource with UUID %llu not found", uuid);
 			// Not found
+			PrintWarning("Resource with UUID %llu not found", uuid);
 			return {};
 		}
 
@@ -162,11 +162,11 @@ namespace GALAXY
 			// Load the resource if not loaded.
 			if (!resource->second.lock()->p_shouldBeLoaded)
 			{
-#ifdef ENABLE_MULTITHREAD
+#ifdef ENABLE_MULTI_THREAD
 				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.lock().get());
 #else
 				resource->second.lock()->Load();
-#endif // ENABLE_MULTITHREAD
+#endif // ENABLE_MULTI_THREAD
 
 				return std::dynamic_pointer_cast<T>(resource->second.lock());
 			}
@@ -200,14 +200,14 @@ namespace GALAXY
 		if (uuid == UUID_NULL)
 			return {};
 
-		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& resource)
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& _resource)
 			{
-				return resource.second->GetUUID() == uuid;
+				return _resource.second->GetUUID() == uuid;
 			});
 		if (resource == m_instance->m_resources.end())
 		{
-			PrintWarning("Resource with UUID %llu not found", uuid);
 			// Not found
+			PrintWarning("Resource with UUID %llu not found", uuid);
 			return {};
 		}
 
@@ -230,9 +230,9 @@ namespace GALAXY
 	{
 		if (uuid == UUID_NULL)
 			return {};
-		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& resource)
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& _resource)
 			{
-				return resource.second->GetUUID() == uuid;
+				return _resource.second->GetUUID() == uuid;
 			});
 		if (resource == m_instance->m_resources.end())
 		{
@@ -292,7 +292,10 @@ namespace GALAXY
 		bool result = false;
 		if (ImGui::BeginPopup(popupName))
 		{
-			const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
+			constexpr int maxButtonDisplay = 10;
+			const float regionAvailX = ImGui::GetContentRegionAvail().x;
+			constexpr float buttonSizeY = 15.f;
+			Vec2f buttonSize = Vec2f(regionAvailX, 0);
 			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 			if (ImGui::Button("Reset", buttonSize)) {
 				outResource.reset();
@@ -303,6 +306,8 @@ namespace GALAXY
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 			static ImGuiTextFilter filter;
 			filter.Draw();
+			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * buttonSizeY), true);
+			buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
 			const bool checkTypeInRange = typeFilter.size() > 0;
 			for (const auto& [path, resource] : m_resources)
@@ -331,6 +336,7 @@ namespace GALAXY
 					ImGui::PopID();
 				}
 			}
+			ImGui::EndChild();
 			ImGui::EndPopup();
 		}
 		return result;

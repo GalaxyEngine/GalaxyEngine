@@ -18,6 +18,8 @@ namespace GALAXY
 			void Load() override;
 			void Unload() override;
 
+			void ShowInInspector() override;
+
 			const char* GetResourceName() const override { return "Script"; }
 
 			static inline ResourceType GetResourceType() { return ResourceType::Script; }
@@ -25,11 +27,18 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 			static Weak<Script> Create(const Path& path);
 			static void OpenScript(const Path& path);
+#endif
 		private:
+#ifdef WITH_EDITOR
 			static void OpenWithVSCode(const Path& path);
 #ifdef _WIN32
 			static void OpenWithVS(const Path& path);
 #endif
+#endif
+
+		private:
+#ifdef WITH_EDITOR
+			std::string m_scriptContent;
 #endif
 		};
 	}

@@ -4,6 +4,7 @@
 #include "Core/ThreadManager.h"
 
 #include <unordered_map>
+#include <map>
 #include <filesystem>
 
 
@@ -14,6 +15,7 @@ namespace GALAXY {
 		class Application;
 	}
 	namespace Resource {
+		using ResourceMap = std::map<Path, Shared<IResource>>;
 		class ResourceManager
 		{
 		public:
@@ -76,7 +78,7 @@ namespace GALAXY {
 			template <typename T>
 			[[nodiscard]] inline std::vector<Weak<T>> GetAllResources();
 
-			inline UMap<Path, Shared<IResource>>* GetAllResourcesPtr() { return &m_resources; }
+			inline ResourceMap* GetAllResourcesPtr() { return &m_resources; }
 
 			static inline Weak<class Material> GetDefaultMaterial();
 			static inline Weak<Shader> GetDefaultShader();
@@ -110,7 +112,7 @@ namespace GALAXY {
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;
 
-			UMap<Path, Shared<IResource>> m_resources;
+			ResourceMap m_resources;
 			UMap<Path, Weak<IResource>> m_temporaryResources;
 
 			Weak<class Material> m_defaultMaterial;

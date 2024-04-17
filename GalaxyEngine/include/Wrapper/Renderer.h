@@ -18,6 +18,10 @@ namespace GALAXY
 	{
 		class Framebuffer;
 
+		using VertexBuffer = uint32_t;
+		using VertexArray = uint32_t;
+		using IndexBuffer = uint32_t;
+
 		enum class RenderType
 		{
 			Default,
@@ -37,7 +41,7 @@ namespace GALAXY
 			VULKAN,
 			DIRECTX
 		};
-
+		
 
 		class Renderer
 		{
@@ -99,17 +103,19 @@ namespace GALAXY
 			virtual void BindVertexArray(uint32_t vao) {}
 			virtual void UnbindVertexArray() {}
 
-			virtual void CreateAndFillVertexBuffer(uint32_t& vbo, const std::vector<Vec3f>& positions, const std::vector<Vec2f>& textureUVs, const std::vector<Vec3f>& normals) {}
-			virtual void CreateVertexBuffer(uint32_t& vbo, const void* data, size_t dataSize) {}
-			virtual void BindVertexBuffer(uint32_t vbo) {}
+			virtual void CreateAndFillVertexBuffer(Render::VertexBuffer& vbo, const std::vector<Vec3f>& positions, const std::vector<Vec2f>& textureUVs, const std::vector<Vec3f>& normals) {}
+			virtual void CreateVertexBuffer(Render::VertexBuffer& vbo, const void* data, size_t dataSize) {}
+			virtual void BindVertexBuffer(Render::VertexBuffer vbo) {}
 			virtual void UnbindVertexBuffer() {}
 
-			virtual void CreateIndexBuffer(uint32_t& ebo, const void* data, size_t dataSize) {}
-			virtual void BindIndexBuffer(uint32_t ebo) {}
+			virtual void CreateIndexBuffer(Render::IndexBuffer& ebo, const void* data, size_t dataSize) {}
+			virtual void BindIndexBuffer(Render::IndexBuffer ebo) {}
 			virtual void VertexAttribPointer(uint32_t index, int size, int stride, const void* pointer) {}
 
 			virtual void DrawElement(size_t count) {}
 			virtual void DrawArrays(size_t start, size_t count) {}
+
+			virtual void CreateDynamicVertexBuffer(Render::VertexArray& vao, Render::VertexBuffer& vbo, size_t dataSize, size_t numVertices) {}
 
 			// === Render Buffers === //
 			virtual void CreateRenderBuffer(Render::Framebuffer* framebuffer) {}

@@ -4,7 +4,7 @@
 #include "Editor/UI/EditorWindow.h"
 
 #include "Utils/Type.h"
-#include "Resource/IResource.h"
+#include "Resource/ResourceManager.h"
 
 namespace GALAXY 
 {
@@ -20,7 +20,7 @@ namespace GALAXY
 			private:
 				friend class MainBar;
 
-				UMap<Path, Shared<Resource::IResource>>* m_resources;
+				Resource::ResourceMap* m_resources;
 
 				ResourceDir m_resourceDirDisplay = ResourceDir::Project;
 			};

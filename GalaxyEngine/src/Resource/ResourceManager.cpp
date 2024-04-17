@@ -160,6 +160,9 @@ namespace GALAXY {
 			case ResourceType::Data:
 				break;
 			case ResourceType::Script:
+#ifdef WITH_EDITOR
+				GetOrLoad<Script>(resource.second->GetFileInfo().GetFullPath());
+#endif
 				break;
 			case ResourceType::Scene:
 				break;

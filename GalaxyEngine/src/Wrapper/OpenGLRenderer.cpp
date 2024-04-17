@@ -472,6 +472,19 @@ namespace GALAXY
 #endif
 	}
 
+	void Wrapper::OpenGLRenderer::CreateDynamicVertexBuffer(uint32_t& vao, uint32_t& vbo, size_t dataSize, size_t numVertices)
+	{
+		glGenVertexArrays(1, &vao);
+		glGenBuffers(1, &vbo);
+		glBindVertexArray(vao);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, static_cast<int>(numVertices), GL_FLOAT, GL_FALSE, (int)numVertices * sizeof(float), nullptr);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
 	void Wrapper::OpenGLRenderer::DrawLine(const Vec3f pos1, const Vec3f pos2, const Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
 	{
 		static float minMaxWidth[2];

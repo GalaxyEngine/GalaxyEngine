@@ -46,21 +46,26 @@ END_FILE()
 	void Resource::Script::Load()
 	{
 		// do not load .cpp file
-		if (p_loaded || this->p_fileInfo.GetExtension() == ".cpp")
+		if (p_loaded)
 			return;
-		std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
-		//GS::ScriptEngine::Get()->AddHeader(resource);
 		p_loaded = true;
-
-		//OpenScript(GetFileInfo().GetFullPath());
+		
+#ifdef WITH_EDITOR
+		m_scriptContent = Utils::FileSystem::ReadFile(GetFileInfo().GetFullPath());
+#endif
 	}
 
 	void Resource::Script::Unload()
 	{
-		// Remove the resource from ScriptEngine, remove all component when the user rebuild the dll
-		const std::weak_ptr<Script> resource = Resource::ResourceManager::GetInstance()->GetResource<Script>(this->GetFileInfo().GetRelativePath());
-		//GS::ScriptEngine::Get()->RemoveScript(resource);
 		p_loaded = false;
+	}
+
+	void Resource::Script::ShowInInspector()
+	{
+		IResource::ShowInInspector();
+
+		ImGui::SeparatorText("Content");
+		ImGui::TextWrapped(m_scriptContent.c_str());
 	}
 
 #ifdef WITH_EDITOR
@@ -84,15 +89,15 @@ END_FILE()
 			cppFile.close();
 		}
 
-		Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".cpp");
-		auto scriptHeader = Resource::ResourceManager::GetInstance()->GetOrLoad<Script>(path.string() + ".h");
+		Resource::ResourceManager::GetOrLoad<Script>(path.string() + ".cpp");
+		auto scriptHeader = Resource::ResourceManager::GetOrLoad<Script>(path.string() + ".h");
 		Scripting::ScriptEngine::CompileCode();
 		return scriptHeader;
 	}
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
-		Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();
+		const Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();
 		switch (tool)
 		{
 #ifdef _WIN32
@@ -107,6 +112,7 @@ END_FILE()
 			OpenWithVSCode(path);
 			break;
 		}
+		case Editor::ScriptEditorTool::None:
 		default:
 			break;
 		}
