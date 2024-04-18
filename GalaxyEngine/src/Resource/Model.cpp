@@ -189,13 +189,15 @@ namespace GALAXY {
 
 	void Resource::Model::OnMeshLoaded()
 	{
+		// The has been sent is set true when all meshes have been added to the list
+		if (!p_hasBeenSent)
+			return;
 		for (auto& mesh : m_meshes)
 		{
 			if (!mesh.lock()->HasBeenSent())
 				return;
 		}
 		p_loaded.store(true);
-		p_hasBeenSent.store(true);
 		OnLoad.Invoke();
 	}
 

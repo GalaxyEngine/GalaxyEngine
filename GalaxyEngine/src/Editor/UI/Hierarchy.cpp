@@ -260,8 +260,10 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         Vec2f cursorPos = ImGui::GetCursorScreenPos() + Vec2f(9, 10);
         if (i == gameobject->m_children.size() - 1)
             lastChildPos = ImGui::GetCursorScreenPos();
+        // Draw horizontal line
         if (display)
-            drawList->AddLine(cursorPos, cursorPos + Vec2f(9, 0), white);
+            drawList->AddLine(cursorPos, cursorPos + Vec2f(12, 0), white);
+        
         ImGui::TreePush(child->m_name.c_str());
         DisplayGameObject(child, i, display);
         ImGui::TreePop();

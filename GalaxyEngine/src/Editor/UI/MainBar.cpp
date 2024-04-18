@@ -10,6 +10,9 @@
 #include "Core/SceneHolder.h"
 
 #include "Component/CameraComponent.h"
+#include "Component/DirectionalLight.h"
+#include "Component/PointLight.h"
+#include "Component/SpotLight.h"
 
 #include "Utils/OS.h"
 
@@ -96,7 +99,7 @@ namespace GALAXY
 			bool openCreateWithModel = false;
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				if (ImGui::MenuItem("Create With Model"))
+				if (ImGui::MenuItem("With Model"))
 				{
 					openCreateWithModel = true;
 				}
@@ -104,8 +107,37 @@ namespace GALAXY
 				{
 					const auto currentScene = Core::SceneHolder::GetCurrentScene();
 					const auto cameraObject = currentScene->CreateObject();
-					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
 					cameraObject.lock()->AddComponent<Component::CameraComponent>();
+					cameraObject.lock()->SetName("Camera");
+					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
+				}
+				if (ImGui::BeginMenu("Light"))
+				{
+					if (ImGui::MenuItem("Directional"))
+					{
+						const auto currentScene = Core::SceneHolder::GetCurrentScene();
+						const auto object = currentScene->CreateObject();
+						object.lock()->AddComponent<Component::DirectionalLight>();
+						object.lock()->SetName("Directional Light");
+						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+					}
+					if (ImGui::MenuItem("Point"))
+					{
+						const auto currentScene = Core::SceneHolder::GetCurrentScene();
+						const auto object = currentScene->CreateObject();
+						object.lock()->AddComponent<Component::PointLight>();
+						object.lock()->SetName("Point Light");
+						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+					}
+					if (ImGui::MenuItem("Spot"))
+					{
+						const auto currentScene = Core::SceneHolder::GetCurrentScene();
+						const auto object = currentScene->CreateObject();
+						object.lock()->AddComponent<Component::SpotLight>();
+						object.lock()->SetName("Spot Light");
+						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+					}
+					ImGui::EndMenu();
 				}
 				ImGui::EndMenu();
 			}
