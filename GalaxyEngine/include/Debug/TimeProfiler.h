@@ -31,5 +31,5 @@ namespace GALAXY::Debug
     };
 }
 
-#define PROFILE_SCOPE() GALAXY::Debug::TimeProfiler funcNameProfiler(__FILENAME__);
-#define PROFILE_SCOPE_LOG(x, ...) GALAXY::Debug::TimeProfiler funcNameProfiler(__FILENAME__, x, ##__VA_ARGS__);
+#define PROFILE_SCOPE() GALAXY::Debug::TimeProfiler funcNameProfiler(__FUNCTION__);
+#define PROFILE_SCOPE_LOG(x, ...) GALAXY::Debug::TimeProfiler funcNameProfiler(__FUNCTION__, x, ##__VA_ARGS__);

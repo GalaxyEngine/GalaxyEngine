@@ -34,3 +34,5 @@
 
 // -- Colors -- //
 #define BUTTON_RED Vec4f(0.8f, 0.15f, 0.1f, 1.f)
+
+#define UNUSED(x) (void)(x)

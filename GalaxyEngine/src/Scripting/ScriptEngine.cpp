@@ -105,7 +105,7 @@ namespace GALAXY
 		if (m_dllPath.empty())
 			return;
 
-		auto rootGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject();
+		auto rootGameObject = Core::SceneHolder::GetCurrentScene()->GetRootGameObject();
 
 		CppSer::Serializer serializer;
 		for (auto& child : rootGameObject.lock()->GetAllChildren())
@@ -186,11 +186,11 @@ namespace GALAXY
 
 		// Execute your build commands
 #ifdef _MSC_VER
-		system("xmake f -p windows -a x64 -m debug");
+		std::system("xmake f -p windows -a x64 -m debug");
 #elif defined(__linux__)
-		system("xmake f -p linux -a x64 -m debug");
+		std::system("xmake f -p linux -a x64 -m debug");
 #endif
-		system("xmake");
+		std::system("xmake");
 		std::filesystem::current_path(prevPath);
 	}
 
@@ -204,14 +204,14 @@ namespace GALAXY
 #ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-			system("xmake f -p windows -a x64 -m debug");
-			system("xmake project -k vsxmake");
+			std::system("xmake f -p windows -a x64 -m debug");
+			std::system("xmake project -k vsxmake");
 			break;
 		}
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
-			system("xmake project -k compile_commands .vscode");
+			std::system("xmake project -k compile_commands .vscode");
 			std::ofstream file(".vscode/c_cpp_properties.json");
 			if (file.is_open()) {
 				file << std::string(R"(

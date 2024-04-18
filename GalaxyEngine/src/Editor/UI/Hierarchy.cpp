@@ -21,7 +21,7 @@ void Editor::UI::Hierarchy::Draw()
         return;
     if (ImGui::Begin("Hierarchy"))
     {
-        const Weak<GameObject> root = SceneHolder::GetInstance()->GetCurrentScene()->GetRootGameObject();
+        const Weak<GameObject> root = SceneHolder::GetCurrentScene()->GetRootGameObject();
         uint64_t index = 0;
         DisplayGameObject(root, index);
 
@@ -59,7 +59,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
     }
     ImGui::PushID(static_cast<int>(index));
     // Display arrow button
-    if (gameobject->m_children.size() > 0)
+    if (!gameobject->m_children.empty())
     {
         if (!gameobject->m_open)
         {
@@ -161,7 +161,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         // Clear when none is clicked
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             m_inspector->ClearSelected();
-        // clear and open right click popup when no one is right clicked
+        // clear and open right click popup when no one is right-clicked
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
         {
             m_openRightClick = true;
@@ -216,7 +216,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
             for (size_t i = 0; i < indices.size(); i++)
             {
                 Weak<GameObject> payloadGameObject;
-                payloadGameObject = SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[i]);
+                payloadGameObject = SceneHolder::GetCurrentScene()->GetWithSceneGraphID(indices[i]);
                 if (payloadGameObject.lock() && payloadGameObject.lock()->m_parent.lock() && !gameobject->IsAParent(
                     payloadGameObject.lock().get()))
                 {
@@ -228,9 +228,10 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
         {
+            UNUSED(payload);
             const auto explorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
             const auto draggedFiles = explorer->m_draggedFiles;
-            for (int i = 0; i < draggedFiles.size(); ++i)
+            for (size_t i = 0; i < draggedFiles.size(); ++i)
             {
                 if (draggedFiles[i]->m_info.GetResourceType() == Resource::ResourceType::Prefab)
                 {
@@ -245,23 +246,45 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 
     if (display)
         display = gameobject->m_open;
+    
+    auto drawList = ImGui::GetWindowDrawList();
+    Vec2f verticalLine = ImGui::GetCursorScreenPos() + Vec2f(9, -4);
+    Vec2f lastChildPos = Vec3f::Zero();
+    constexpr ImU32 white = 0xffffffff;
     // Do the same for all children
-    for (auto&& child : gameobject->m_children)
+    for (size_t i = 0; i < gameobject->m_children.size(); i++)
     {
+        auto child = gameobject->m_children[i];
         if (!child)
             continue;
+        Vec2f cursorPos = ImGui::GetCursorScreenPos() + Vec2f(9, 10);
+        if (i == gameobject->m_children.size() - 1)
+            lastChildPos = ImGui::GetCursorScreenPos();
+        if (display)
+            drawList->AddLine(cursorPos, cursorPos + Vec2f(9, 0), white);
         ImGui::TreePush(child->m_name.c_str());
-        index++;
-        DisplayGameObject(child, index, display);
+        DisplayGameObject(child, i, display);
         ImGui::TreePop();
     }
+    if (!gameobject->m_children.empty() && gameobject->m_open)
+    {
+        auto lastChild = gameobject->m_children[gameobject->m_children.size() - 1];
+        if (!lastChild->m_open || lastChild->m_children.empty())
+        {
+            drawList->AddLine(verticalLine, ImGui::GetCursorScreenPos()+ Vec2f(9, -13), white);
+        }
+        else
+        {
+            drawList->AddLine(verticalLine, lastChildPos + Vec2f(9, 10), white);
+        }
+    }
+    
     ImGui::PopID();
 }
 
 void CreateGameObject(const List<Weak<GameObject>>& selected)
 {
-    Resource::Scene* currentScene;
-    currentScene = SceneHolder::GetInstance()->GetCurrentScene();
+    Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
     if (selected.empty())
     {
         auto createObject = [currentScene = currentScene]()
@@ -331,7 +354,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
                 if (ImGui::Button("Create Parent", buttonSize))
                 // "Create Parent" button, clickable if at least one item is selected
                 {
-                    const Weak<GameObject> parent = SceneHolder::GetInstance()->GetCurrentScene()->CreateObject();
+                    const Weak<GameObject> parent = SceneHolder::GetCurrentScene()->CreateObject();
                     const uint32_t childIndex = selected[0].lock()->GetParent()->
                                                             GetChildIndex(selected[0].lock().get());
                     selected[0].lock()->GetParent()->AddChild(parent.lock(), childIndex);

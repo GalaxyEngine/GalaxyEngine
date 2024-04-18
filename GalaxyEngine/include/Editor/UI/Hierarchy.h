@@ -14,6 +14,9 @@ namespace GALAXY {
 
 			void Draw() override;
 
+			// Display the GameObject and its children in the Hierarchy
+			// @param index: index of the object in the hierarchy
+			// @param display: if the object should be displayed
 			void DisplayGameObject(const Weak<Core::GameObject>& weakGO, uint64_t& index, bool display = true);
 
 			void RightClickPopup();

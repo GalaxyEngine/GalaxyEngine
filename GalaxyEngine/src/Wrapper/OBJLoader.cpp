@@ -13,6 +13,7 @@
 void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 {
 	PROFILE_SCOPE_LOG("OBJLoader::Load(%s)", fullPath.string().c_str());
+	
 	OBJLoader model;
 	model.m_path = fullPath;
 	if (!model.Parse())
