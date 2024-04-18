@@ -196,6 +196,38 @@ namespace GALAXY {
 		ImGui::TreePop();
 	}
 
+	void Wrapper::GUI::TreePush(const void* ptr_id, float indent)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		ImGui::Indent(indent);
+		window->DC.TreeDepth++;
+		ImGui::PushID(ptr_id);
+	}
+
+	void Wrapper::GUI::TreePop(float indent)
+	{
+		ImGuiContext& g = *GImGui;
+		ImGuiWindow* window = g.CurrentWindow;
+		ImGui::Unindent(indent);
+
+		window->DC.TreeDepth--;
+		ImU32 tree_depth_mask = (1 << window->DC.TreeDepth);
+
+		// Handle Left arrow to move to parent tree node (when ImGuiTreeNodeFlags_NavLeftJumpsBackHere is enabled)
+		if (window->DC.TreeJumpToParentOnPopMask & tree_depth_mask) // Only set during request
+		{
+			ImGuiNavTreeNodeData* nav_tree_node_data = &g.NavTreeNodeStack.back();
+			IM_ASSERT(nav_tree_node_data->ID == window->IDStack.back());
+			if (g.NavIdIsAlive && g.NavMoveDir == ImGuiDir_Left && g.NavWindow == window && ImGui::NavMoveRequestButNoResultYet())
+				ImGui::NavMoveRequestResolveWithPastTreeNode(&g.NavMoveResultLocal, nav_tree_node_data);
+			g.NavTreeNodeStack.pop_back();
+		}
+		window->DC.TreeJumpToParentOnPopMask &= tree_depth_mask - 1;
+
+		IM_ASSERT(window->IDStack.Size > 1); // There should always be 1 element in the IDStack (pushed during window creation). If this triggers you called TreePop/PopID too much.
+		ImGui::PopID();
+	}
+
 	void Wrapper::GUI::PushID(const size_t id)
 	{
 		ImGui::PushID(static_cast<int>(id));

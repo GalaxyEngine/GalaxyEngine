@@ -79,7 +79,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
     }
     else
     {
-        ImGui::Button("#", Vec2f(20));
+        ImGui::Button("O", Vec2f(ImGui::GetFrameHeight()));
         ImGui::SameLine();
     }
 
@@ -246,39 +246,35 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 
     if (display)
         display = gameobject->m_open;
-    
-    auto drawList = ImGui::GetWindowDrawList();
-    Vec2f verticalLine = ImGui::GetCursorScreenPos() + Vec2f(9, -4);
+
+    const auto drawList = ImGui::GetWindowDrawList();
+    const float centerX = std::floorf(ImGui::GetFrameHeight() * 0.5f);
+    const Vec2f verticalLine = ImGui::GetCursorScreenPos() + Vec2f(centerX, -4);
     Vec2f lastChildPos = Vec3f::Zero();
-    constexpr ImU32 white = 0xffffffff;
+    constexpr ImU32 white = IM_COL32_WHITE;
     // Do the same for all children
     for (size_t i = 0; i < gameobject->m_children.size(); i++)
     {
         auto child = gameobject->m_children[i];
         if (!child)
             continue;
-        Vec2f cursorPos = ImGui::GetCursorScreenPos() + Vec2f(9, 10);
+        Vec2f cursorPos = ImGui::GetCursorScreenPos() + Vec2f(centerX + 1, centerX);
         if (i == gameobject->m_children.size() - 1)
             lastChildPos = ImGui::GetCursorScreenPos();
+        
         // Draw horizontal line
         if (display)
-            drawList->AddLine(cursorPos, cursorPos + Vec2f(12, 0), white);
+            drawList->AddLine(cursorPos, cursorPos + Vec2f(centerX, 0), white);
         
-        ImGui::TreePush(child->m_name.c_str());
+        Wrapper::GUI::TreePush(child->m_name.c_str(), ImGui::GetFrameHeight());
         DisplayGameObject(child, i, display);
-        ImGui::TreePop();
-    }
+        Wrapper::GUI::TreePop(ImGui::GetFrameHeight());
+    }        
+
     if (!gameobject->m_children.empty() && gameobject->m_open)
     {
         auto lastChild = gameobject->m_children[gameobject->m_children.size() - 1];
-        if (!lastChild->m_open || lastChild->m_children.empty())
-        {
-            drawList->AddLine(verticalLine, ImGui::GetCursorScreenPos()+ Vec2f(9, -13), white);
-        }
-        else
-        {
-            drawList->AddLine(verticalLine, lastChildPos + Vec2f(9, 10), white);
-        }
+        drawList->AddLine(verticalLine, lastChildPos + Vec2f(centerX, centerX + 1), white);
     }
     
     ImGui::PopID();

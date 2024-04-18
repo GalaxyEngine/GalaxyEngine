@@ -56,6 +56,10 @@ namespace GALAXY {
 			void SetNextItemOpen(bool open = true);
 			bool TreeNode(const char* treeName);
 			void TreePop();
+
+			void TreePush(const void* ptr_id, float indent);
+			void TreePop(float indent);
+			
 			void PushID(size_t id);
 			void PopID();
 			bool Button(const char* buttonName, Vec2f buttonSize = Vec2f(0));
