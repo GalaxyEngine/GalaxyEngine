@@ -44,6 +44,11 @@ namespace GALAXY::Editor::UI {
 		void SetShouldDisplayClosePopup(bool shouldDisplay) { m_shouldDisplayClosePopup = shouldDisplay; }
 		bool ShouldDisplaySafeClose();
 
+		void AddResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) == m_loadingResources.end()); m_loadingResources.insert(uuid);}
+		void RemoveResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) != m_loadingResources.end()); m_loadingResources.erase(uuid); }
+
+		std::set<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
+
 		inline MainBar* GetMainBar() const { return m_mainBar.get(); }
 		inline Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }
 		inline Inspector* GetInspector() const { return m_inspector.get(); }
@@ -70,5 +75,7 @@ namespace GALAXY::Editor::UI {
 
 		bool m_shouldUpdateDPIScale = true;
 		float m_prevDPIScale = 0.0f;
+
+		std::set<Core::UUID> m_loadingResources;
 	};
 }

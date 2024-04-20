@@ -283,6 +283,21 @@ namespace GALAXY {
 		return GetOrLoad(fullPath);
 	}
 
+	Weak<Resource::IResource> Resource::ResourceManager::GetResource(const Core::UUID& uuid)
+	{
+		if (uuid == UUID_NULL)
+			return {};
+		auto resource = std::ranges::find_if(m_instance->m_resources, [&](const std::pair<Path, Shared<IResource>>& _resource)
+		{
+			return _resource.second->GetUUID() == uuid;
+		});
+
+		if (resource == m_instance->m_resources.end())
+			return {};
+
+		return resource->second;
+	}
+
 	bool Resource::ResourceManager::IsDataFileUpToDate(const Path& resourcePath)
 	{
 		const Path dataFilePath = resourcePath.string() + ".gdata";

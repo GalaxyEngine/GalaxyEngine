@@ -188,7 +188,7 @@ namespace GALAXY
 		}
 
 		const Shared<IResource> resource = m_instance->m_resources.at(relativePath);
-		T* resourcePtr = dynamic_pointer_cast<T>(resource).get();
+		T* resourcePtr = static_pointer_cast<T>(resource).get();
 		*resourcePtr = T(fullPath);
 
 		return GetOrLoad<T>(fullPath);
@@ -220,7 +220,7 @@ namespace GALAXY
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (m_instance->m_resources.contains(relativePath))
 		{
-			return std::dynamic_pointer_cast<T>(m_instance->m_resources.at(relativePath));
+			return std::static_pointer_cast<T>(m_instance->m_resources.at(relativePath));
 		}
 		return {};
 	}
@@ -240,7 +240,7 @@ namespace GALAXY
 			return {};
 		}
 
-		return GetOrLoad<T>(resource->first);
+		return std::static_pointer_cast<T>(resource->second);
 	}
 
 	template<typename T>

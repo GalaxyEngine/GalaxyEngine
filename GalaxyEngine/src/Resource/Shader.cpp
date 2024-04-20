@@ -126,12 +126,14 @@ void main()
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
+		
 		if (std::get<0>(p_subShaders).lock() || std::get<1>(p_subShaders).lock() || std::get<2>(p_subShaders).lock())
 		{
-			SendRequest();
 			p_loaded = true;
+			SendRequest();
 			return;
 		}
+		StartLoading();
 
 		const Weak<Shader> thisShader = ResourceManager::GetResource<Resource::Shader>(p_fileInfo.GetFullPath());
 
@@ -161,8 +163,8 @@ void main()
 				SetFragment(fragmentShader.lock(), thisShader);
 			}
 		}
-		SendRequest();
 		p_loaded = true;
+		SendRequest();
 	}
 	
 	void Resource::Shader::Send()
@@ -180,6 +182,7 @@ void main()
 			Render::LightManager::AddShader(weak_this);
 			if (!std::filesystem::exists(GetDataFilePath()))
 				CreateDataFile();
+			FinishLoading();
 		}
 	}
 

@@ -64,6 +64,7 @@ namespace GALAXY {
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
 			[[nodiscard]] static inline Weak<T> GetResource(const Core::UUID& uuid);
+			[[nodiscard]] static Weak<IResource> GetResource(const Core::UUID& uuid);
 
 			template <typename T>
 			static inline Shared<T> TemporaryAdd(const Path& fullPath);

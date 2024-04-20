@@ -4,6 +4,7 @@
 #include "Resource/ResourceManager.h"
 
 #include "Core/Application.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Utils/OS.h"
 
@@ -58,6 +59,28 @@ namespace GALAXY {
 			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << resource.lock()->GetUUID();
 		else
 			serializer << CppSer::Pair::Key << name << CppSer::Pair::Value << UUID_NULL;
+	}
+
+	void Resource::IResource::StartLoading() const
+	{
+#if WITH_EDITOR
+		Core::ThreadManager::Lock();
+		ASSERT(p_shouldBeLoaded);
+		auto editorUiManager = Editor::UI::EditorUIManager::GetInstance();
+		ASSERT(editorUiManager);
+		editorUiManager->AddResourceLoading(this->p_uuid);
+		Core::ThreadManager::Unlock();
+#endif
+	}
+
+	void Resource::IResource::FinishLoading() const
+	{
+#if WITH_EDITOR
+		Core::ThreadManager::Lock();
+		ASSERT(p_loaded);
+		Editor::UI::EditorUIManager::GetInstance()->RemoveResourceLoading(this->p_uuid);
+		Core::ThreadManager::Unlock();
+#endif
 	}
 
 	void Resource::IResource::Serialize(CppSer::Serializer& serializer) const

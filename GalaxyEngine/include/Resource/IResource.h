@@ -91,7 +91,7 @@ namespace GALAXY::Resource {
 		return static_cast<ResourceStatus>(~static_cast<int>(a));
 	}
 
-	class IResource : public std::enable_shared_from_this<IResource>
+	class GALAXY_API IResource : public std::enable_shared_from_this<IResource>
 	{
 	public:
 		explicit IResource(const Path& fullPath);
@@ -109,6 +109,7 @@ namespace GALAXY::Resource {
 		virtual void OnAdd() {}
 
 		virtual const char* GetResourceName() const = 0;
+		static ResourceType GetResourceType() { return ResourceType::None; }
 
 		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }
 		inline bool IsLoaded() const { return p_loaded.load(); }
@@ -140,6 +141,9 @@ namespace GALAXY::Resource {
 		Path GetDataFilePath() const;
 
 		static void SerializeResource(CppSer::Serializer& serializer, const char* name, Weak<IResource> resource);
+
+		void StartLoading() const;
+		void FinishLoading() const;
 	protected:
 		virtual void Serialize(CppSer::Serializer& serializer) const;
 		virtual void Deserialize(CppSer::Parser& parser);

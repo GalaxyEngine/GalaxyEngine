@@ -48,6 +48,7 @@ namespace GALAXY {
 		if (p_hasBeenSent)
 			return;
 		p_hasBeenSent = true;
+		StartLoading();
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 
 		renderer->CreateVertexArray(m_vertexArrayIndex);
@@ -79,6 +80,7 @@ namespace GALAXY {
 
 		m_indices.clear();
 		m_indices.shrink_to_fit();
+		FinishLoading();
 	}
 
 	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/) const

@@ -19,6 +19,7 @@ void Resource::Texture::Load()
 	if (p_shouldBeLoaded.load())
 		return;
 	p_shouldBeLoaded.store(true);
+	StartLoading();
 
 	if (p_fileInfo.GetExtension() == ".tmb") {
 		this->SetDisplayOnInspector(false);
@@ -39,6 +40,8 @@ void Resource::Texture::Load()
 	if (!std::filesystem::exists(GetDataFilePath()))
 		CreateDataFile();
 	SendRequest();
+
+	FinishLoading();
 }
 
 void Resource::Texture::Send()

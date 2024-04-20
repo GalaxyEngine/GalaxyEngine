@@ -61,6 +61,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		mesh->SendRequest();
 	}
+	outputModel->p_hasBeenSent = true;
 	outputModel->ComputeBoundingBox(positionVertices);
 
 	PrintLog("Successfully Loaded Model %s", fullPath.string().c_str());

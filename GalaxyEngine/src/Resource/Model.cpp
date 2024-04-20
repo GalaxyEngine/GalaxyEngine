@@ -105,6 +105,8 @@ namespace GALAXY {
 		if (p_shouldBeLoaded)
 			return;
 		p_shouldBeLoaded = true;
+		StartLoading();
+		
 		if (p_fileInfo.GetExtension() == ".fbx")
 		{
 			m_modelType = Resource::ModelExtension::FBX;
@@ -119,9 +121,8 @@ namespace GALAXY {
 		// Call every time because meshes can change
 		CreateDataFile();
 #ifdef WITH_EDITOR
-		if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
-			return;
-		CreateThumbnail();
+		if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
+			CreateThumbnail();
 #endif
 	}
 
@@ -199,6 +200,8 @@ namespace GALAXY {
 		}
 		p_loaded.store(true);
 		OnLoad.Invoke();
+		
+		FinishLoading();
 	}
 
 #ifdef WITH_EDITOR
