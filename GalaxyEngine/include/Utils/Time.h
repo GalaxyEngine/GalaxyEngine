@@ -25,6 +25,8 @@ namespace GALAXY
 
 			static void UpdateDeltaTime();
 
+			static std::string FormatTimeSeconds(float seconds, const std::string& format = "hh:mm:ss");
+
 		private:
 			static float s_deltaTime;
 

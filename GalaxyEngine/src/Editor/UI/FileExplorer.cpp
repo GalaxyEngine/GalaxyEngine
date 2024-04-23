@@ -13,6 +13,7 @@
 #include "Resource/Material.h"
 #include "Resource/Model.h"
 #include "Resource/Prefab.h"
+#include "Resource/Sound.h"
 
 #include "Wrapper/Window.h"
 
@@ -38,6 +39,7 @@ namespace GALAXY {
 		{ Resource::ResourceType::Shader, 0xFFFFCC00 },
 		{ Resource::ResourceType::VertexShader, 0xFF00FFCC },
 		{ Resource::ResourceType::FragmentShader, 0xFFCC00FF },
+		{ Resource::ResourceType::Sound, 0xFFCCFF00 },
 
 
 	};
@@ -116,7 +118,11 @@ namespace GALAXY {
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
-
+		case ResourceType::Sound:
+		{
+			// m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(SOUND_ICON_PATH);
+			break;
+		}
 		default:
 		{
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
@@ -575,6 +581,15 @@ namespace GALAXY {
 								for (const Shared<File>& file : m_rightClickedFiles)
 								{
 									ResourceManager::GetOrLoad<Material>(file->m_info.GetFullPath());
+								}
+							}
+							break;
+						case ResourceType::Sound:
+							if (ImGui::Button("Load", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									ResourceManager::GetOrLoad<Resource::Sound>(file->m_info.GetFullPath());
 								}
 							}
 							break;

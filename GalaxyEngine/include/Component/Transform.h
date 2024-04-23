@@ -3,6 +3,8 @@
 #include "Component/IComponent.h"
 #include <galaxymath/Maths.h>
 
+#include "Utils/Event.h"
+
 namespace GALAXY {
 	enum class Space
 	{
@@ -71,6 +73,8 @@ namespace GALAXY {
 			inline void Rotate(Vec3f axis, float angle, Space relativeTo = Space::Local);
 
 			inline bool WasDirty() const { return m_wasDirty; }
+			
+			Utils::Event<> EOnUpdate;
 		private:
 			Math::Mat4     m_modelMatrix = Math::Mat4(1);
 			Math::Vec3f    m_localPosition = Math::Vec3f();
