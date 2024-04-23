@@ -3,13 +3,14 @@
 
 #include <memory>
 #include <filesystem>
-#include <miniaudio.h>
 
 #include "Core/GameObject.h"
 #include "Core/UUID.h"
 
 struct ma_device;
 struct ma_context;
+struct ma_sound;
+struct ma_engine;
 namespace GALAXY 
 {
 	enum class AttenuationModel;
