@@ -8,6 +8,7 @@
 #include "Resource/Material.h"
 #include "Resource/Scene.h"
 #include "Resource/Prefab.h"
+#include "Resource/Sound.h"
 
 namespace GALAXY
 {

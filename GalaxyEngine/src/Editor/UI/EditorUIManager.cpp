@@ -28,8 +28,6 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::Initialize()
 	{
-		if (!m_instance)
-			m_instance = std::make_unique<EditorUIManager>();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
 		m_instance->BindEvents();
@@ -123,6 +121,12 @@ namespace GALAXY {
 
 	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::GetInstance()
 	{
+		return m_instance.get();
+	}
+
+	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::CreateInstance()
+	{
+		m_instance = std::make_unique<EditorUIManager>();
 		return m_instance.get();
 	}
 

@@ -4,6 +4,10 @@
 
 namespace GALAXY 
 {
+	namespace Wrapper
+	{
+		class Audio;
+	}
 	namespace Resource
 	{
 		class Sound : public IResource
@@ -18,10 +22,17 @@ namespace GALAXY
 			void Load() override;
 			void Unload() override;
 
+			void Play();
+			void Stop();
+
 			const char* GetResourceName() const override { return "Sound"; }
 
 			static inline ResourceType GetResourceType() { return ResourceType::Sound; }
+			
+			void ShowInInspector() override;
+
 		private:
+			friend Wrapper::Audio;
 
 		};
 	}

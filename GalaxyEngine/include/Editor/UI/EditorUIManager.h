@@ -25,7 +25,8 @@ namespace GALAXY::Editor::UI {
 
 		static EditorUIManager* GetInstance();
 
-		static void Initialize();
+		static EditorUIManager* CreateInstance();
+		void Initialize();
 		void BindEvents();
 
 		static void Release();

@@ -14,6 +14,8 @@
 
 #include <set>
 
+#include "Resource/Sound.h"
+
 #ifdef WITH_EDITOR
 #include "Editor/ThumbnailCreator.h"
 #include "Editor/UI/FileExplorer.h"
@@ -111,7 +113,11 @@ namespace GALAXY {
 			GetOrLoad<Script>(resourcePath);
 		}
 		break;
+		case ResourceType::Sound:
+			AddResource<Sound>(resourcePath);
+			break;
 		default:
+			PrintError("Unknown resource type: %s", SerializeResourceTypeValue(type));
 			break;
 		}
 		}
@@ -165,6 +171,8 @@ namespace GALAXY {
 #endif
 				break;
 			case ResourceType::Scene:
+				break;
+			case ResourceType::Sound:
 				break;
 			default:
 				break;

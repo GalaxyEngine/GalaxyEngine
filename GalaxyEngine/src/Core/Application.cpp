@@ -71,9 +71,7 @@ namespace GALAXY {
 		m_threadManager->Initialize();
 
 #ifdef WITH_EDITOR
-		// Initialize Editor::UI
-		Editor::UI::EditorUIManager::Initialize();
-		m_editorUI = Editor::UI::EditorUIManager::GetInstance();
+		m_editorUI = Editor::UI::EditorUIManager::CreateInstance();
 
 		// Create Thumbnail Creator before ResourceManager
 		m_thumbnailCreator = new Editor::ThumbnailCreator();
@@ -103,6 +101,9 @@ namespace GALAXY {
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
 #ifdef WITH_EDITOR
+		// Initialize Editor::UI
+		m_editorUI->Initialize();
+		
 		m_editorSettings.LoadSettings();
 		const std::function<void(bool)> shouldCloseCallback = std::bind(&Editor::UI::EditorUIManager::SetShouldDisplayClosePopup, m_editorUI, std::placeholders::_1);
 		m_window->SetShouldCloseCallback(shouldCloseCallback);
