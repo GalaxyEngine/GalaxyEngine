@@ -20,7 +20,7 @@ namespace GALAXY {
 
 			void Update();
 
-			inline void SwitchScene(const Weak<Resource::Scene>& scene);
+			inline void SwitchScene(const Weak<Resource::Scene>& scene, bool copyData = false);
 
 			static Resource::Scene* GetCurrentScene();
 
@@ -37,6 +37,10 @@ namespace GALAXY {
 			Shared<Resource::Scene> m_currentScene;
 
 			Shared<Resource::Scene> m_nextScene;
+
+#ifdef WITH_EDITOR
+			bool m_copyData = false;
+#endif
 		};
 	}
 }

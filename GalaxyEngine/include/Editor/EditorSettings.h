@@ -13,6 +13,13 @@ namespace GALAXY
 	}
 	namespace Editor
 	{
+		enum class ApplicationMode
+		{
+			Play = 0,
+			Editor,
+		};
+		
+		
 		enum class EditorSettingsTab
 		{
 			General = 0,

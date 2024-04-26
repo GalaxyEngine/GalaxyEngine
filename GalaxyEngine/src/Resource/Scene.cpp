@@ -31,6 +31,7 @@ namespace GALAXY
 	{
 		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
 		m_root->m_scene = this;
+		m_lightManager = std::make_shared<Render::LightManager>();
 	}
 
 	void Scene::Initialize()
@@ -44,7 +45,6 @@ namespace GALAXY
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 #endif
-		m_lightManager = std::make_shared<Render::LightManager>();
 	}
 
 	bool Scene::WasModified() const
@@ -255,7 +255,7 @@ namespace GALAXY
 
 	void Scene::RemoveCamera(const Component::CameraComponent* camera)
 	{
-		for (auto it = m_cameras.begin(); it != m_cameras.end(); it++)
+		for (auto it = m_cameras.begin(); it != m_cameras.end(); ++it)
 		{
 			if (it->lock().get() == camera)
 			{
@@ -273,6 +273,7 @@ namespace GALAXY
 	{
 		if (m_root)
 		{
+			m_root->SetScene(nullptr);
 			m_root->Destroy();
 			m_root.reset();
 		}
@@ -298,7 +299,7 @@ namespace GALAXY
 	{
 		const Scene scene(path);
 		scene.Save();
-		return ResourceManager::GetInstance()->GetOrLoad<Scene>(path);
+		return ResourceManager::GetOrLoad<Scene>(path);
 	}
 #pragma endregion
 }

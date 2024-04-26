@@ -141,6 +141,19 @@ namespace GALAXY
 				}
 				ImGui::EndMenu();
 			}
+			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.5f;
+			ImGui::SetCursorPosX(cursorPosX);
+			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[]" : "|>"))
+			{
+				auto& appInstance = Core::Application::GetInstance();
+				appInstance.SetApplicationMode(Core::Application::IsPlayMode() ? ApplicationMode::Editor : ApplicationMode::Play);
+			}
+			if (ImGui::MenuItem("||"))
+			{
+				//TODO Handle time scale
+			}
+			
+			
 			if (openCreateWithModel)
 			{
 				ImGui::OpenPopup("Create With Model");

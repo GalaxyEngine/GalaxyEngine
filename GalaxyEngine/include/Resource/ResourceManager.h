@@ -95,8 +95,8 @@ namespace GALAXY {
 			template <typename T>
 			inline bool ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter = {});
 
-			Path GetAssetPath() const { return m_assetPath; }
-			Path GetProjectPath() const { return m_projectPath; }
+			static Path GetAssetPath() { return m_instance->m_assetPath; }
+			static Path GetProjectPath() { return m_instance->m_projectPath; }
 
 			void ReadCache();
 			void CreateCache();

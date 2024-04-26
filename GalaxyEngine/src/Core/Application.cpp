@@ -300,6 +300,29 @@ namespace GALAXY {
 		}
 		m_clipboard = serializer.GetContent();
 	}
+
+	void Core::Application::SetApplicationMode(Editor::ApplicationMode mode)
+	{
+		if (m_applicationMode == mode)
+		{
+			PrintError("Application mode already set to %s", m_applicationMode == Editor::ApplicationMode::Editor ? "Editor" : "Play");
+			return;
+		}
+		m_applicationMode = mode;
+
+		auto projectPath = Resource::ResourceManager::GetProjectPath();
+		if (m_applicationMode == Editor::ApplicationMode::Play)
+		{
+			Core::SceneHolder::GetCurrentScene()->Save(projectPath / PLAYMODE_SCENE_PATH);
+		}
+		else if (m_applicationMode == Editor::ApplicationMode::Editor)
+		{
+			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
+
+			// Only set the date of the scene			
+			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
+		}
+	}
 #endif
 
 	void Core::Application::Destroy() const

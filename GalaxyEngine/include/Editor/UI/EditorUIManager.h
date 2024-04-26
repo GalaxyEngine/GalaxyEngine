@@ -14,7 +14,7 @@
 #include <optional>
 
 namespace GALAXY::Editor::UI {
-	class EditorUIManager
+	class GALAXY_API EditorUIManager
 	{
 	public:
 		EditorUIManager();

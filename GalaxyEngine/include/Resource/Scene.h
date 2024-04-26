@@ -106,6 +106,8 @@ namespace GALAXY {
 			inline const UMap<Core::UUID, Shared<Core::GameObject>>& GetObjectList() const;
 
 			Shared<Render::LightManager> GetLightManager() const { return m_lightManager; }
+
+			inline void SetData(const Resource::Scene* other);
 		protected:
 			friend Core::SceneHolder;
 

@@ -55,12 +55,11 @@ void Core::SceneHolder::Release()
 
 void Core::SceneHolder::SwitchSceneUpdate()
 {
-	if (m_nextScene && m_nextScene->IsLoaded())
-	{
 #ifdef WITH_EDITOR
+	if (m_nextScene && m_nextScene->IsLoaded() && !m_copyData)
+	{
 		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
 		m_nextScene->m_editorCamera = m_currentScene->m_editorCamera;
-#endif
 		if (m_currentScene != m_nextScene) {
 			// Do not unload if the next scene is the same as the current scene
 			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
@@ -70,4 +69,22 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_currentScene = m_nextScene;
 		m_nextScene.reset();
 	}
+	else if (m_nextScene && m_nextScene->IsLoaded() && m_copyData)
+	{
+		m_currentScene->SetData(m_nextScene.get());	
+		m_nextScene.reset();
+	}
+#else
+	if (m_nextScene && m_nextScene->IsLoaded())
+	{
+		if (m_currentScene != m_nextScene) {
+			// Do not unload if the next scene is the same as the current scene
+			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+		}
+		m_currentScene.reset();
+
+		m_currentScene = m_nextScene;
+		m_nextScene.reset();
+	}
+#endif
 }

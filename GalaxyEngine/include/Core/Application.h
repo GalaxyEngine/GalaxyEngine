@@ -57,6 +57,11 @@ namespace GALAXY
 			inline Editor::Benchmark& GetBenchmark();
 			Editor::ThumbnailCreator* GetThumbnailCreator() const { return m_thumbnailCreator; }
 			inline bool* GetDrawGridPtr();
+
+			static bool IsEditorMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Editor; }
+			static bool IsPlayMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Play; }
+
+			void SetApplicationMode(Editor::ApplicationMode mode);
 #endif
 			inline ProjectSettings& GetProjectSettings();
 
@@ -78,6 +83,8 @@ namespace GALAXY
 			Editor::ThumbnailCreator* m_thumbnailCreator = nullptr;
 			Editor::Benchmark m_benchmark;
 			bool m_drawGrid = true;
+
+			Editor::ApplicationMode m_applicationMode = Editor::ApplicationMode::Editor;
 #endif
 
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;

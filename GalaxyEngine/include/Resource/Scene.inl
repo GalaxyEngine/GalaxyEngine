@@ -36,8 +36,9 @@ namespace GALAXY
 
 	inline void Resource::Scene::RemoveObject(Core::GameObject* object)
 	{
-		const auto shared = std::ranges::find_if(m_objectList, [&](const std::pair<uint64_t, std::shared_ptr<Core::GameObject>>& element) {
-			return element.second.get() == object; });
+		if (m_objectList.empty() || !object)
+			return;
+		const auto shared = m_objectList.find(object->m_UUID);
 		if (shared != m_objectList.end()) {
 			if (shared != m_objectList.end())
 			{
@@ -100,6 +101,17 @@ namespace GALAXY
 	inline const UMap<Core::UUID, Shared<Core::GameObject>>& Resource::Scene::GetObjectList() const
 	{
 		return m_objectList;
+	}
+
+	inline void Resource::Scene::SetData(const Resource::Scene* other)
+	{
+		m_root = other->m_root;
+		m_lightManager = other->m_lightManager;
+		m_cameras = other->m_cameras;
+		m_mainCamera = other->m_mainCamera;
+		m_objectList = other->m_objectList;
+		// This will set the scene for all children as well
+		m_root->SetScene(this);
 	}
 
 #ifdef WITH_EDITOR

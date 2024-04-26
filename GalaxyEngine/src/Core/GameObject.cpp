@@ -8,6 +8,7 @@
 #include "Resource/Scene.h"
 
 #include "Component/ComponentHolder.h"
+#include "Core/Application.h"
 
 using namespace Core;
 using namespace Component;
@@ -106,8 +107,10 @@ namespace GALAXY
 		for (const auto& m_component : m_components)
 		{
 			if (m_component->IsEnable()) {
-				m_component->OnUpdate();
-				m_component->OnEditorUpdate();
+				if (Core::Application::IsPlayMode())
+					m_component->OnUpdate();
+				else
+					m_component->OnEditorUpdate();
 			}
 		}
 
@@ -316,7 +319,9 @@ namespace GALAXY
 			m_UUID = parser["UUID"].As<uint64_t>();
 
 		const size_t componentNumber = parser["Component Number"].As<size_t>();
-		m_children.resize(parser["Child Number"].As<size_t>());
+		size_t childNumber = parser["Child Number"].As<size_t>();
+		if (childNumber != UINT64_NULL)
+			m_children.resize(childNumber);
 
 		parser.PushDepth();
 		m_transform->Deserialize(parser);

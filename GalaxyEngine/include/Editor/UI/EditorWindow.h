@@ -1,7 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
 namespace GALAXY::Editor::UI {
-	class EditorWindow
+	class GALAXY_API EditorWindow
 	{
 	public:
 		virtual ~EditorWindow() {}

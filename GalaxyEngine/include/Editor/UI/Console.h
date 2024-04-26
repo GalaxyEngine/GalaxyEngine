@@ -18,7 +18,7 @@ namespace GALAXY
 	}
 	namespace Editor::UI
 	{
-		class Console : public EditorWindow
+		class GALAXY_API Console : public EditorWindow
 		{
 		public:
 			~Console() override = default;
