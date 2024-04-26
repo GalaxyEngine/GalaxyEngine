@@ -17,7 +17,7 @@ namespace GALAXY::Debug
 #ifdef _WIN32
             sprintf_s(buf, format, args ...);
 #elif defined(__linux__)
-			snprintf(buf, sizeof(buf2), format, args...);
+			snprintf(buf, sizeof(buf), format, args...);
 #endif
             m_content = std::string(buf);
             m_startTime = std::chrono::steady_clock::now();

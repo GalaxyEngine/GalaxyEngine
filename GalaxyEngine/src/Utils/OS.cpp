@@ -7,6 +7,10 @@
 
 #include <nfd.hpp>
 
+#ifdef __linux__
+#include <sys/stat.h>
+#endif
+
 namespace GALAXY
 {
 

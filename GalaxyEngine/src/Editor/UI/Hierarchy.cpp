@@ -248,7 +248,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         display = gameobject->m_open;
 
     const auto drawList = ImGui::GetWindowDrawList();
-    const float centerX = std::floorf(ImGui::GetFrameHeight() * 0.5f);
+    const float centerX = std::floor(ImGui::GetFrameHeight() * 0.5f);
     const Vec2f verticalLine = ImGui::GetCursorScreenPos() + Vec2f(centerX, -4);
     Vec2f lastChildPos = Vec3f::Zero();
     constexpr ImU32 white = IM_COL32_WHITE;
