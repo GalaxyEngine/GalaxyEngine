@@ -108,13 +108,13 @@ namespace GALAXY {
 			break;
 		}
 		case ResourceType::Script:
-		{
 			// Default load all scripts
 			GetOrLoad<Script>(resourcePath);
-		}
 		break;
 		case ResourceType::Sound:
 			AddResource<Sound>(resourcePath);
+			break;
+		case ResourceType::Materials:
 			break;
 		default:
 			PrintError("Unknown resource type: %s", SerializeResourceTypeValue(type));
@@ -520,10 +520,13 @@ namespace GALAXY {
 			return AddResource<Scene>(fullPath);
 		case Resource::ResourceType::Script:
 			return GetOrLoad<Script>(fullPath);
+		case Resource::ResourceType::Sound:
+			return GetOrLoad<Sound>(fullPath);
 		case Resource::ResourceType::Data:
 			return {};
 		default:
-			PrintWarning("Resource %s not handled", fullPath.string().c_str());
+			ASSERT(false);
+			PrintError("Resource %s not handled", fullPath.string().c_str());
 			return {};
 		}
 	}
