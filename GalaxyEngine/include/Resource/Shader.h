@@ -7,7 +7,13 @@
 
 
 namespace GALAXY {
-	namespace Wrapper { class Renderer; class OpenGLRenderer; }
+	namespace Wrapper {
+		class Renderer;
+		namespace RendererAPI
+		{
+			class OpenGLRenderer;
+		}
+	}
 	namespace Resource {
 		class VertexShader;
 		class GeometryShader;
@@ -76,7 +82,7 @@ namespace GALAXY {
 		
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 			friend class BaseShader;
 
 			Shared<Shader> m_pickingVariant;
@@ -119,7 +125,7 @@ namespace GALAXY {
 
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 		};
 
 		class GeometryShader : public BaseShader
@@ -135,7 +141,7 @@ namespace GALAXY {
 
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 		};
 
 		class FragmentShader : public BaseShader
@@ -154,7 +160,7 @@ namespace GALAXY {
 
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 		};
 	}
 }

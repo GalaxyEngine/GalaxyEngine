@@ -6,7 +6,11 @@ namespace GALAXY
 	namespace Wrapper
 	{
 		class Renderer;
-		class OpenGLRenderer;
+
+		namespace RendererAPI
+		{
+			class OpenGLRenderer;
+		}
 	}
 	namespace Resource
 	{
@@ -40,7 +44,7 @@ namespace GALAXY
 			void SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader);
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 
 			std::shared_ptr<Framebuffer> m_postProcess;
 

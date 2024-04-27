@@ -1,7 +1,7 @@
 #include "pch.h"
 
 #include "Wrapper/Renderer.h"
-#include "Wrapper/OpenGLRenderer.h"
+#include "Wrapper/RendererAPI/OpenGLRenderer.h"
 #include "Wrapper/Window.h"
 
 #include "Core/SceneHolder.h"
@@ -19,7 +19,7 @@ namespace GALAXY {
 		{
 		case RenderAPI::OPENGL:
 		{
-			m_instance = std::make_unique<Wrapper::OpenGLRenderer>();
+			m_instance = std::make_unique<Wrapper::RendererAPI::OpenGLRenderer>();
 			break;
 		}
 		case RenderAPI::VULKAN:

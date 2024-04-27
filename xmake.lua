@@ -10,6 +10,7 @@ set_allowedmodes("debug", "release", "gamedbg", "game")
 set_defaultmode("debug")
 
 local isEditor = is_mode("debug") or is_mode("release")
+local isDebug = is_mode("debug")
 
 if (is_mode("gamedbg")) then
     add_defines("GAME_DEBUG")
@@ -47,7 +48,7 @@ add_requires("stb")
 add_requires("nativefiledialog-extended")
 add_requires("openfbx")
 add_requires("miniaudio")
-add_requires("joltphysics")
+add_requires("joltphysics", { configs = { debug = isDebug }})
 
 -- enable features 
 add_defines("ENABLE_MULTI_THREAD")

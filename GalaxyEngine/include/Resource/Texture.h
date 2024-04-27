@@ -4,7 +4,11 @@
 namespace GALAXY {
 	namespace Wrapper { 
 		class Renderer;
-		class OpenGLRenderer;
+
+		namespace RendererAPI
+		{
+			class OpenGLRenderer;
+		}
 		class Window;
 		struct Image;
 	}
@@ -76,7 +80,7 @@ namespace GALAXY {
 
 		private:
 			friend Wrapper::Renderer;
-			friend Wrapper::OpenGLRenderer;
+			friend Wrapper::RendererAPI::OpenGLRenderer;
 			friend Wrapper::Window;
 
 			uint32_t m_id = -1;
