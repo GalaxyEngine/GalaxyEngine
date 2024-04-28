@@ -120,6 +120,17 @@ namespace GALAXY {
 		return list;
 	}
 
+	template <typename T>
+	Shared<T> Core::GameObject::GetComponent()
+	{
+		for (auto& comp : m_components) {
+			if (Shared<T> castedComp = std::dynamic_pointer_cast<T>(comp)) {
+				return castedComp;
+			}
+		}
+		return {};
+	}
+
 	template<typename T>
 	inline Weak<T> Core::GameObject::GetWeakComponent()
 	{

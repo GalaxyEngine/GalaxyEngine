@@ -16,6 +16,7 @@ namespace GALAXY
 		enum class ApplicationMode
 		{
 			Play = 0,
+			Pause,
 			Editor,
 		};
 		

@@ -38,6 +38,10 @@ namespace GALAXY {
 			GameObject(GameObject&&) noexcept = default;
 			virtual ~GameObject();
 
+
+			// === Methods === //
+			void StartSelfAndChild() const;
+			
 			void UpdateSelfAndChild() const;
 			void DrawSelfAndChild(DrawMode drawMode) const;
 
@@ -88,6 +92,8 @@ namespace GALAXY {
 			inline List<Weak<T>> GetComponentsInChildren();
 			template<typename T>
 			inline List<Weak<T>> GetComponents();
+			template<typename T>
+			inline Shared<T> GetComponent();
 			template<typename T>
 			inline Weak<T> GetWeakComponent();
 

@@ -101,6 +101,20 @@ namespace GALAXY
 			m_children.erase(m_children.begin() + index);
 	}
 
+	void GameObject::StartSelfAndChild() const
+	{
+		for (const auto& m_component : m_components)
+		{
+			// Does the component need to be started ?
+			if (m_component->IsEnable())
+				m_component->OnStart();
+		}
+		for (const Shared<GameObject>& m_child : m_children)
+		{
+			m_child->StartSelfAndChild();
+		}
+	}
+
 	void GameObject::UpdateSelfAndChild() const
 	{
 		m_transform->OnUpdate();

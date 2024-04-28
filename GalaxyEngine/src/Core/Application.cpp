@@ -33,6 +33,8 @@
 
 #include <cpp_serializer/CppSerializer.h>
 
+#include "Wrapper/PhysicsWrapper.h"
+
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
@@ -54,6 +56,9 @@ namespace GALAXY {
 		m_window->Create(windowConfig);
 		m_window->SetVSync(true);
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
+
+		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Jolt);
+		m_physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
 
 		m_audioSystem = Wrapper::Audio::GetInstance();
 		m_audioSystem->Initialize();
@@ -308,20 +313,24 @@ namespace GALAXY {
 			PrintError("Application mode already set to %s", m_applicationMode == Editor::ApplicationMode::Editor ? "Editor" : "Play");
 			return;
 		}
-		m_applicationMode = mode;
 
 		auto projectPath = Resource::ResourceManager::GetProjectPath();
-		if (m_applicationMode == Editor::ApplicationMode::Play)
+		if (mode == Editor::ApplicationMode::Play && m_applicationMode == Editor::ApplicationMode::Editor)
 		{
-			Core::SceneHolder::GetCurrentScene()->Save(projectPath / PLAYMODE_SCENE_PATH);
+			Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+			currentScene->Save(projectPath / PLAYMODE_SCENE_PATH);
+
+			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
+			
 		}
-		else if (m_applicationMode == Editor::ApplicationMode::Editor)
+		else if (m_applicationMode == Editor::ApplicationMode::Editor && mode == Editor::ApplicationMode::Play)
 		{
 			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
 
 			// Only set the date of the scene			
 			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
 		}
+		m_applicationMode = mode;
 	}
 #endif
 
@@ -358,6 +367,10 @@ namespace GALAXY {
 		// Audio Wrapper
 		if (m_audioSystem)
 			m_audioSystem->Release();
+
+		// Physics Wrapper
+		if (m_physicsWrapper)
+			m_physicsWrapper->Release();
 
 		// Window
 		if (m_window)

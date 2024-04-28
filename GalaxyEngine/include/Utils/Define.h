@@ -21,6 +21,7 @@
 
 // -- Meshes -- //
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Plane.obj:Plane"
+#define CUBE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Cube.obj:Cube"
 #define SPHERE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Sphere.obj:Sphere"
 
 // -- Paths -- //

@@ -19,7 +19,9 @@ namespace GALAXY
 {
 	namespace Editor { class ThumbnailCreator; }
 	namespace Resource { class ResourceManager; class IResource; }
-	namespace Wrapper { class Window; class Renderer; class Audio; }
+	namespace Wrapper {
+		class PhysicsWrapper;
+		class Window; class Renderer; class Audio; }
 #ifdef WITH_EDITOR
 	namespace Editor::UI { class EditorUIManager; }
 #endif
@@ -60,6 +62,7 @@ namespace GALAXY
 
 			static bool IsEditorMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Editor; }
 			static bool IsPlayMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Play; }
+			static bool IsPauseMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Pause; }
 
 			void SetApplicationMode(Editor::ApplicationMode mode);
 #endif
@@ -72,6 +75,7 @@ namespace GALAXY
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
 			Wrapper::Audio* m_audioSystem = nullptr;
+			Wrapper::PhysicsWrapper* m_physicsWrapper = nullptr;
 
 			Core::ThreadManager* m_threadManager = nullptr;
 			Core::SceneHolder* m_sceneHolder = nullptr;

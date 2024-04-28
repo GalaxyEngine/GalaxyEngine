@@ -1,16 +1,20 @@
 #include "pch.h"
 #include "Editor/UI/MainBar.h"
+
+#include "Component/BoxCollider.h"
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
 #include "Resource/Model.h"
+#include "Resource/Mesh.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
 
 #include "Component/CameraComponent.h"
 #include "Component/DirectionalLight.h"
+#include "Component/MeshComponent.h"
 #include "Component/PointLight.h"
 #include "Component/SpotLight.h"
 
@@ -18,7 +22,6 @@
 
 namespace GALAXY
 {
-
 	void Editor::UI::MainBar::Draw()
 	{
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
@@ -111,6 +114,26 @@ namespace GALAXY
 					cameraObject.lock()->SetName("Camera");
 					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
 				}
+				if (ImGui::BeginMenu("3D Object"))
+				{
+					if (ImGui::MenuItem("Cube"))
+					{
+						const auto currentScene = Core::SceneHolder::GetCurrentScene();
+						const auto object = currentScene->CreateObject().lock();
+						auto cubeMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
+						auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
+						meshComp->SetMesh(cubeMesh);
+						meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
+						object->AddComponent<Component::BoxCollider>();
+						object->SetName("Cube");
+						currentScene->GetRootGameObject().lock()->AddChild(object);
+					}
+					if (ImGui::MenuItem("Sphere"))
+					{
+					}
+					ImGui::EndMenu();
+				}
+				
 				if (ImGui::BeginMenu("Light"))
 				{
 					if (ImGui::MenuItem("Directional"))
@@ -148,10 +171,16 @@ namespace GALAXY
 				auto& appInstance = Core::Application::GetInstance();
 				appInstance.SetApplicationMode(Core::Application::IsPlayMode() ? ApplicationMode::Editor : ApplicationMode::Play);
 			}
+			bool isPauseMode = Core::Application::IsPauseMode();
+			if (isPauseMode)
+				ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(0.4f, 0.59f, 0.73f, 1.0f));
 			if (ImGui::MenuItem("||"))
 			{
-				//TODO Handle time scale
+				if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
+					Core::Application::GetInstance().SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
 			}
+			if (isPauseMode)
+				ImGui::PopStyleColor();
 			
 			
 			if (openCreateWithModel)

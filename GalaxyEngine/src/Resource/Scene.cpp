@@ -21,6 +21,7 @@
 #include "Component/CameraComponent.h"
 
 #include "Wrapper/Window.h"
+#include "Wrapper/PhysicsWrapper.h"
 
 #include "Core/Input.h"
 
@@ -84,6 +85,8 @@ namespace GALAXY
 			return;
 
 		m_root->UpdateSelfAndChild();
+		auto physics = Wrapper::PhysicsWrapper::GetInstance();
+		physics->Update();
 
 #ifdef WITH_EDITOR
 		m_actionManager->Update();
