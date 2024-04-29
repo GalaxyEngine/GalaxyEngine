@@ -46,7 +46,12 @@ namespace GALAXY
 	void Render::LightManager::RemoveLight(const Weak<Component::Light>& light)
 	{
 		const Shared<Component::Light> lightShared = light.lock();
-		auto lightManager = lightShared->GetGameObject()->GetScene()->GetLightManager();
+		Resource::Scene* scene = lightShared->GetGameObject()->GetScene();
+		// This case should only happen when unloading a scene
+		if (!scene)
+			return;
+		
+		auto lightManager = scene->GetLightManager();
 		if (lightShared->GetLightIndex() == INDEX_NONE)
 			return;
 

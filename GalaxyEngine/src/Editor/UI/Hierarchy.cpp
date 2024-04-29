@@ -330,34 +330,37 @@ void CreateGameObject(const List<Weak<GameObject>>& selected)
 
 void Editor::UI::Hierarchy::RightClickPopup()
 {
+    static bool openModelPopup = false;
     if (ImGui::BeginPopup("RightClick", ImGuiWindowFlags_NoDecoration))
     {
-        const List<Weak<GameObject>> selected = m_inspector->GetSelectedGameObjects();
+        const List<Weak<GameObject>> selectedGameObjects = m_inspector->GetSelectedGameObjects();
         const auto buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
-        if (ImGui::Button("Create GameObject", buttonSize))
+        
+        if (ImGui::BeginMenu("Create"))
         {
-            CreateGameObject(selected);
-            ImGui::CloseCurrentPopup();
+            MainBar::DisplayCreateGameObject(openModelPopup);
+            ImGui::EndMenu();
         }
+        
 
         // === At least one selected === //
-        if (!selected.empty())
+        if (!selectedGameObjects.empty())
         {
             // === if selected are sibling === //
-            if (!selected.empty())
+            if (!selectedGameObjects.empty())
             {
-                ImGui::BeginDisabled(!selected[0].lock()->IsSibling(selected));
+                ImGui::BeginDisabled(!selectedGameObjects[0].lock()->IsSibling(selectedGameObjects));
             }
             {
                 if (ImGui::Button("Create Parent", buttonSize))
                 // "Create Parent" button, clickable if at least one item is selected
                 {
                     const Weak<GameObject> parent = SceneHolder::GetCurrentScene()->CreateObject();
-                    const uint32_t childIndex = selected[0].lock()->GetParent()->
-                                                            GetChildIndex(selected[0].lock().get());
-                    selected[0].lock()->GetParent()->AddChild(parent.lock(), childIndex);
+                    const uint32_t childIndex = selectedGameObjects[0].lock()->GetParent()->
+                                                            GetChildIndex(selectedGameObjects[0].lock().get());
+                    selectedGameObjects[0].lock()->GetParent()->AddChild(parent.lock(), childIndex);
 
-                    for (const Weak<GameObject>& i : selected)
+                    for (const Weak<GameObject>& i : selectedGameObjects)
                     {
                         i.lock()->SetParent(parent);
                     }
@@ -365,16 +368,16 @@ void Editor::UI::Hierarchy::RightClickPopup()
                     ImGui::CloseCurrentPopup();
                 }
             }
-            if (!selected.empty())
+            if (!selectedGameObjects.empty())
             {
                 ImGui::EndDisabled();
             }
             // === if only one selected === //
-            ImGui::BeginDisabled(selected.size() > 1);
+            ImGui::BeginDisabled(selectedGameObjects.size() > 1);
             {
                 if (ImGui::Button("Rename", buttonSize))
                 {
-                    SetRename(selected[0].lock().get());
+                    SetRename(selectedGameObjects[0].lock().get());
                     ImGui::CloseCurrentPopup();
                 }
             }
@@ -382,7 +385,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
 
             if (ImGui::Button("Delete", buttonSize))
             {
-                for (const Weak<GameObject>& i : selected)
+                for (const Weak<GameObject>& i : selectedGameObjects)
                 {
                     i.lock()->Destroy();
                 }
@@ -402,6 +405,27 @@ void Editor::UI::Hierarchy::RightClickPopup()
         }
         ImGui::EndPopup();
     }
+
+    if (openModelPopup)
+    {
+        
+        const List<Weak<GameObject>> selectedGameObjects = m_inspector->GetSelectedGameObjects();
+
+        bool terminate = false;
+        if (!selectedGameObjects.empty())
+        {
+            terminate = MainBar::UpdateModelPopup(openModelPopup, selectedGameObjects[0].lock().get());
+        }
+        else
+        {
+            terminate = MainBar::UpdateModelPopup(openModelPopup);
+        }
+        if (terminate)
+        {
+            openModelPopup = false;
+        }
+    }
+    
 }
 
 void Editor::UI::Hierarchy::SetRename(GameObject* gameObject)

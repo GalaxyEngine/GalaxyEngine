@@ -88,7 +88,8 @@ namespace GALAXY
 			char tmp[size];
 			fbxScene->getEmbeddedFilename(i).toString(tmp);
 			std::filesystem::path texPath = tmp;
-			if (!std::filesystem::exists(texPath)) {
+			std::filesystem::path texPath2 = fullPath.parent_path().stem() / texPath.filename();
+			if (!std::filesystem::exists(texPath) || !std::filesystem::exists(texPath2)) {
 				const ofbx::DataView& embeddedData = fbxScene->getEmbeddedData(i); // Assuming this function exists.
 
 				const ofbx::u8* textureData = embeddedData.begin + 4;
@@ -101,18 +102,21 @@ namespace GALAXY
 				*/
 				auto image = Wrapper::ImageLoader::LoadFromMemory((unsigned char*)textureData, static_cast<int>(textureSize));
 
-				Resource::Texture::CreateWithData(texPath, image);
+				Resource::Texture::CreateWithData(texPath2, image);
 
 				const bool exportImage = true;
 				if (exportImage)
 				{
-					std::filesystem::create_directories(texPath.parent_path());
+					std::filesystem::create_directories(texPath2);
 					Wrapper::ImageLoader::SaveImage(texPath.string().c_str(), image);
 				}
 			}
 			else
 			{
-				Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath);
+				if (!std::filesystem::exists(texPath))
+					Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath2);
+				else
+					Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath);
 			}
 		}
 	}

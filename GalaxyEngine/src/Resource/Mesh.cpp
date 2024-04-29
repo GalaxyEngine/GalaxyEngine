@@ -126,7 +126,7 @@ namespace GALAXY {
 
 	void Resource::Mesh::ComputeBoundingBox(const std::vector<Vec3f>& positionVertices)
 	{
-		ASSERT(!positionVertices.empty());
+		// ASSERT(!positionVertices.empty());
 		for (const auto& vertex : positionVertices) {
 			m_boundingBox.min.x = std::min(m_boundingBox.min.x, vertex.x);
 			m_boundingBox.min.y = std::min(m_boundingBox.min.y, vertex.y);

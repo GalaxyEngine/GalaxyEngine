@@ -102,68 +102,11 @@ namespace GALAXY
 			bool openCreateWithModel = false;
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				if (ImGui::MenuItem("With Model"))
-				{
-					openCreateWithModel = true;
-				}
-				if (ImGui::MenuItem("Camera"))
-				{
-					const auto currentScene = Core::SceneHolder::GetCurrentScene();
-					const auto cameraObject = currentScene->CreateObject();
-					cameraObject.lock()->AddComponent<Component::CameraComponent>();
-					cameraObject.lock()->SetName("Camera");
-					currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
-				}
-				if (ImGui::BeginMenu("3D Object"))
-				{
-					if (ImGui::MenuItem("Cube"))
-					{
-						const auto currentScene = Core::SceneHolder::GetCurrentScene();
-						const auto object = currentScene->CreateObject().lock();
-						auto cubeMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
-						auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
-						meshComp->SetMesh(cubeMesh);
-						meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
-						object->AddComponent<Component::BoxCollider>();
-						object->SetName("Cube");
-						currentScene->GetRootGameObject().lock()->AddChild(object);
-					}
-					if (ImGui::MenuItem("Sphere"))
-					{
-					}
-					ImGui::EndMenu();
-				}
-				
-				if (ImGui::BeginMenu("Light"))
-				{
-					if (ImGui::MenuItem("Directional"))
-					{
-						const auto currentScene = Core::SceneHolder::GetCurrentScene();
-						const auto object = currentScene->CreateObject();
-						object.lock()->AddComponent<Component::DirectionalLight>();
-						object.lock()->SetName("Directional Light");
-						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
-					}
-					if (ImGui::MenuItem("Point"))
-					{
-						const auto currentScene = Core::SceneHolder::GetCurrentScene();
-						const auto object = currentScene->CreateObject();
-						object.lock()->AddComponent<Component::PointLight>();
-						object.lock()->SetName("Point Light");
-						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
-					}
-					if (ImGui::MenuItem("Spot"))
-					{
-						const auto currentScene = Core::SceneHolder::GetCurrentScene();
-						const auto object = currentScene->CreateObject();
-						object.lock()->AddComponent<Component::SpotLight>();
-						object.lock()->SetName("Spot Light");
-						currentScene->GetRootGameObject().lock()->AddChild(object.lock());
-					}
-					ImGui::EndMenu();
-				}
+				DisplayCreateGameObject(openCreateWithModel);
 				ImGui::EndMenu();
 			}
+			UpdateModelPopup(openCreateWithModel);
+			
 			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.5f;
 			ImGui::SetCursorPosX(cursorPosX);
 			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[  ]" : "|>"))
@@ -182,25 +125,6 @@ namespace GALAXY
 			if (isPauseMode)
 				ImGui::PopStyleColor();
 			
-			
-			if (openCreateWithModel)
-			{
-				ImGui::OpenPopup("Create With Model");
-			}
-			Weak<Resource::Model> model;
-			if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
-			{
-				if (const auto modelShared = model.lock())
-				{
-					m_waitingModel = modelShared;
-					if (!modelShared->IsLoaded()) {
-						auto bind = [this] { AddModelToScene(); };
-						modelShared->OnLoad.Bind(bind);
-						return;
-					}
-					AddModelToScene();
-				}
-			}
 			ImGui::EndMainMenuBar();
 		}
 	}
@@ -233,5 +157,113 @@ namespace GALAXY
 		currentScene->GetRootGameObject().lock()->AddChild(object);
 	}
 
+	void Editor::UI::MainBar::DisplayCreateGameObject(bool& openModelPopup)
+	{
+		if (ImGui::MenuItem("With Model"))
+		{
+			openModelPopup = true;
+		}
+		if (ImGui::MenuItem("Camera"))
+		{
+			const auto currentScene = Core::SceneHolder::GetCurrentScene();
+			const auto cameraObject = currentScene->CreateObject();
+			cameraObject.lock()->AddComponent<Component::CameraComponent>();
+			cameraObject.lock()->SetName("Camera");
+			currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
+		}
+		if (ImGui::BeginMenu("3D Object"))
+		{
+			if (ImGui::MenuItem("Cube"))
+			{
+				const auto currentScene = Core::SceneHolder::GetCurrentScene();
+				const auto object = currentScene->CreateObject().lock();
+				auto cubeMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
+				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
+				meshComp->SetMesh(cubeMesh);
+				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
+				object->AddComponent<Component::BoxCollider>();
+				object->SetName("Cube");
+				currentScene->GetRootGameObject().lock()->AddChild(object);
+			}
+			if (ImGui::MenuItem("Sphere"))
+			{
+				const auto currentScene = Core::SceneHolder::GetCurrentScene();
+				const auto object = currentScene->CreateObject().lock();
+				auto sphereMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(SPHERE_PATH);
+				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
+				meshComp->SetMesh(sphereMesh);
+				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
+				object->SetName("Sphere");
+				currentScene->GetRootGameObject().lock()->AddChild(object);
+			}
+			ImGui::EndMenu();
+		}
+		
+		if (ImGui::BeginMenu("Light"))
+		{
+			if (ImGui::MenuItem("Directional"))
+			{
+				const auto currentScene = Core::SceneHolder::GetCurrentScene();
+				const auto object = currentScene->CreateObject();
+				object.lock()->AddComponent<Component::DirectionalLight>();
+				object.lock()->SetName("Directional Light");
+				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+			}
+			if (ImGui::MenuItem("Point"))
+			{
+				const auto currentScene = Core::SceneHolder::GetCurrentScene();
+				const auto object = currentScene->CreateObject();
+				object.lock()->AddComponent<Component::PointLight>();
+				object.lock()->SetName("Point Light");
+				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+			}
+			if (ImGui::MenuItem("Spot"))
+			{
+				const auto currentScene = Core::SceneHolder::GetCurrentScene();
+				const auto object = currentScene->CreateObject();
+				object.lock()->AddComponent<Component::SpotLight>();
+				object.lock()->SetName("Spot Light");
+				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+			}
+			ImGui::EndMenu();
+		}
+	}
+
+	bool Editor::UI::MainBar::UpdateModelPopup(bool openModelPopup, Core::GameObject* parent)
+	{
+		if (openModelPopup)
+		{
+			ImGui::OpenPopup("Create With Model");
+		}
+		Weak<Resource::Model> model;
+		if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
+		{
+			if (const Shared<Resource::Model> modelShared = model.lock())
+			{
+				auto bind = [modelShared, parent]
+				{
+					if (!modelShared)
+						return;
+					const auto object = modelShared->ToGameObject();
+					
+					Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+					auto parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
+					
+					parentObject->GetScene()->AddObject(object);
+					parentObject->AddChild(object);
+				};
+				if (!modelShared->IsLoaded()) {
+					
+					modelShared->OnLoad.Bind(bind);
+				}
+				else
+				{
+					bind();
+				}
+				return  true;
+			}
+		}
+		return false;
+	}
 }
 
