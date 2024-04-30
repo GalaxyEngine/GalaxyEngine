@@ -34,11 +34,11 @@ namespace GALAXY {
 			inline bool Contains(const Path& fullPath) const;
 
 			// Remove the Resource of the resource Manager
-			inline void RemoveResource(IResource* resource);
+			static inline void RemoveResource(IResource* resource);
 
-			inline void RemoveResource(const Shared<IResource>& resource);
+			static inline void RemoveResource(const Shared<IResource>& resource);
 
-			inline void RemoveResource(const Path& relativePath);
+			static inline void RemoveResource(const Path& fullPath);
 
 			// Get and load the resources if not loaded yet, 
 			// import the resource if not inside the resource Manager

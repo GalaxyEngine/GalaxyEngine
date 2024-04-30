@@ -199,7 +199,7 @@ namespace GALAXY {
 			std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
-			const Path assetPath = this->GetAssetPath();
+			const Path assetPath = GetAssetPath();
 
 			m_fileWatchCurrent.reset();
 			m_fileWatchCurrent = std::make_shared<Editor::UI::File>(assetPath, true);

@@ -105,7 +105,8 @@ namespace GALAXY {
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
-		if (ImGui::Button(m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str() : "Empty", buttonSize))
+		const char* label = m_mesh.expired() ? "Missing" :m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str() : "Empty";
+		if (ImGui::Button(label, buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}

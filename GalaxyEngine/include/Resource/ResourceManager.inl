@@ -41,10 +41,10 @@ namespace GALAXY
 	{
 		if (!resource)
 			return;
-		if (const auto it = m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_resources.end())
+		if (const auto it = m_instance->m_resources.find(resource->GetFileInfo().GetRelativePath());  it != m_instance->m_resources.end())
 		{
 			it->second->Unload();
-			m_resources.erase(it);
+			m_instance->m_resources.erase(it);
 		}
 		else
 		{
@@ -59,14 +59,15 @@ namespace GALAXY
 		RemoveResource(resource.get());
 	}
 
-	inline void Resource::ResourceManager::RemoveResource(const Path& relativePath)
+	inline void Resource::ResourceManager::RemoveResource(const Path& fullPath)
 	{
-		if (!m_resources.contains(relativePath))
+		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
+		if (!m_instance->m_resources.contains(relativePath))
 			return;
 
-		auto it = m_resources[relativePath];
+		auto it = m_instance->m_resources[relativePath];
 		it->Unload();
-		m_resources.erase(relativePath);
+		m_instance->m_resources.erase(relativePath);
 		it.reset();
 	}
 

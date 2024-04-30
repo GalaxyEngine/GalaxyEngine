@@ -107,7 +107,7 @@ namespace GALAXY
 			}
 			UpdateModelPopup(openCreateWithModel);
 			
-			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.5f;
+			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.48f;
 			ImGui::SetCursorPosX(cursorPosX);
 			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[  ]" : "|>"))
 			{

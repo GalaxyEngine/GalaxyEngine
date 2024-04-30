@@ -38,7 +38,7 @@ namespace GALAXY {
 		if (auto renderer = Wrapper::Renderer::GetInstance()) {
 			renderer->DeleteRenderBuffer(this);
 			s_indexArray.erase(m_index);
-			Resource::ResourceManager::GetInstance()->RemoveResource(m_renderTexture->GetFileInfo().GetRelativePath());
+			Resource::ResourceManager::RemoveResource(m_renderTexture->GetFileInfo().GetFullPath());
 			m_renderTexture.reset();
 		}
 	}

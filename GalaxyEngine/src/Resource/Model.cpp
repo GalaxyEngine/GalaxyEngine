@@ -98,6 +98,7 @@ namespace GALAXY {
 	Resource::Model::~Model()
 	{
 		m_meshes.clear();
+		m_meshes.shrink_to_fit();
 	}
 
 	void Resource::Model::Load()
@@ -130,7 +131,7 @@ namespace GALAXY {
 	{
 		for (auto& mesh : m_meshes)
 		{
-			Resource::ResourceManager::GetInstance()->RemoveResource(mesh.lock()->GetFileInfo().GetRelativePath());
+			Resource::ResourceManager::GetInstance()->RemoveResource(mesh.lock()->GetFileInfo().GetFullPath());
 		}
 	}
 

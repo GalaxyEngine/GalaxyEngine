@@ -70,7 +70,7 @@ namespace GALAXY
 
 	Path Utils::FileInfo::ToPath(const Path& path)
 	{
-		Path canonicalPath = std::filesystem::weakly_canonical(path);
+		Path canonicalPath = (path.generic_string());
 		// Temp Try to remove this line :
 		// return canonicalPath.make_preferred();
 		return canonicalPath;

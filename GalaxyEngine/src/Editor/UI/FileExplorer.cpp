@@ -617,7 +617,7 @@ namespace GALAXY {
 					for (const Shared<File>& file : m_rightClickedFiles)
 					{
 						// Remove Resource file
-						Resource::ResourceManager::GetInstance()->RemoveResource(file->m_info.GetRelativePath());
+						Resource::ResourceManager::RemoveResource(file->m_info.GetFullPath());
 						std::filesystem::remove(file->m_info.GetFullPath().string().c_str());
 						std::filesystem::remove((file->m_info.GetFullPath().string() + ".gdata").c_str());
 					}
