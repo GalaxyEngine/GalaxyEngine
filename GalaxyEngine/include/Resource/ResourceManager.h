@@ -43,19 +43,19 @@ namespace GALAXY {
 			// Get and load the resources if not loaded yet, 
 			// import the resource if not inside the resource Manager
 			template <typename T>
-			static inline Weak<T> GetOrLoad(const Path& fullPath);
+			static inline Weak<T> GetOrLoad(const Path& fullPath, bool async = true);
 
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
 
-			static inline Weak<IResource> GetOrLoad(const Path& fullPath);
+			static inline Weak<IResource> GetOrLoad(const Path& fullPath, bool async = true);
 
 			template <typename T>
-			static inline Weak<T> ReloadResource(const Path& fullPath);
+			static inline Weak<T> ReloadResource(const Path& fullPath, bool async = true);
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Core::UUID& uuid);
 
-			static inline Weak<IResource> ReloadResource(const Path& fullPath);
+			static inline Weak<IResource> ReloadResource(const Path& fullPath, bool async = true);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>

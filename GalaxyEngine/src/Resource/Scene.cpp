@@ -98,7 +98,7 @@ namespace GALAXY
 
 			const auto& selectedGameObjects = inspector->GetSelectedGameObjects();
 			// Outline 
-			if (selectedGameObjects.size() > 0 || shouldClearOutline)
+			if (!selectedGameObjects.empty() || shouldClearOutline)
 			{
 				shouldClearOutline = true;
 				Render::Framebuffer* outlineFrameBuffer = m_editorCamera->GetOutlineFramebuffer();
@@ -284,6 +284,9 @@ namespace GALAXY
 
 	void Scene::Send()
 	{
+		if (p_hasBeenSent)
+			return;
+		p_hasBeenSent = true;
 		m_root->AfterLoad();
 		Initialize();
 	}

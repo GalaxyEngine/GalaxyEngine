@@ -77,8 +77,11 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline Weak<T> Resource::ResourceManager::GetOrLoad(const Path& fullPath)
+	inline Weak<T> Resource::ResourceManager::GetOrLoad(const Path& fullPath, bool async /*= true*/)
 	{
+#ifndef ENABLE_MULTI_THREAD
+		async = false;
+#endif
 		if (fullPath.empty())
 			return {};
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
@@ -101,11 +104,14 @@ namespace GALAXY
 			// Load the resource if not loaded.
 			if (!resource->second->p_shouldBeLoaded.load())
 			{
-#ifdef ENABLE_MULTI_THREAD
-				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
-#else
-				resource->second->Load();
-#endif // ENABLE_MULTI_THREAD
+				if (async)
+				{
+					Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
+				}
+				else
+				{
+					resource->second->Load();
+				}
 				return std::dynamic_pointer_cast<T>(resource->second);
 			}
 			else
@@ -181,19 +187,19 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline Weak<T> Resource::ResourceManager::ReloadResource(const Path& fullPath)
+	inline Weak<T> Resource::ResourceManager::ReloadResource(const Path& fullPath, bool async /*= true*/)
 	{
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.contains(relativePath)) {
 			//PrintWarning("Resource %s not found in Resource Manager, Create it", relativePath.string().c_str());
-			return GetOrLoad<T>(fullPath);
+			return GetOrLoad<T>(fullPath, async);
 		}
 
 		const Shared<IResource> resource = m_instance->m_resources.at(relativePath);
 		T* resourcePtr = static_pointer_cast<T>(resource).get();
 		*resourcePtr = T(fullPath);
 
-		return GetOrLoad<T>(fullPath);
+		return GetOrLoad<T>(fullPath, async);
 	}
 
 	template<typename T>
@@ -213,7 +219,7 @@ namespace GALAXY
 			return {};
 		}
 
-		return ReloadResource<T>(resource->first);
+		return ReloadResource<T>(resource->first, TODO);
 	}
 
 	template <typename T>

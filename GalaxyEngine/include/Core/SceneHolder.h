@@ -19,6 +19,8 @@ namespace GALAXY {
 			static SceneHolder* GetInstance();
 
 			void Update();
+			
+			static void OpenScene(const std::filesystem::path& path);
 
 			inline void SwitchScene(const Weak<Resource::Scene>& scene, bool copyData = false);
 
@@ -28,7 +30,7 @@ namespace GALAXY {
 		private:
 			void SwitchSceneUpdate();
 
-			void SetCurrentScene(Shared<Resource::Scene> scene) { m_currentScene = scene; }
+			void SetCurrentScene(const Shared<Resource::Scene>& scene) { m_currentScene = scene; }
 		private:
 			friend Editor::ThumbnailCreator;
 

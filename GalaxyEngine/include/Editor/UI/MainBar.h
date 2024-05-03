@@ -19,8 +19,6 @@ namespace GALAXY
 
 			static void SaveScene(std::string path);
 
-			static void OpenScene(const std::string& path);
-
 			void AddModelToScene() const;
 
 			static void DisplayCreateGameObject(bool& openModelPopup);
