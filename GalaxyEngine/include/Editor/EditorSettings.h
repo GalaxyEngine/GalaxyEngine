@@ -1,6 +1,12 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <optional>
+#include <map>
+#include <string>
+
+#include "Utils/FileInfo.h"
+
+
 namespace GALAXY 
 {
 	namespace Core
@@ -44,28 +50,37 @@ namespace GALAXY
 		enum class ScriptEditorTool
 		{
 			None = 0,
+			VisualStudioCode = 1,
 #ifdef _WIN32
-			VisualStudio = 1,
+			VisualStudio = 2,
+			Rider = 3,
 #endif
-			VisualStudioCode
+			Custom = 4
 		};
 
-		inline const char* SerializeScriptEditorToolEnum()
+		inline const char* SerializeScriptEditorToolValue(ScriptEditorTool tool)
 		{
+			switch (tool)
+			{
+			case ScriptEditorTool::None: return "None";
+			case ScriptEditorTool::VisualStudioCode: return "Visual Studio Code";
 #ifdef _WIN32
-			return "None\0Visual Studio\0Visual Studio Code\0";
-#else
-			return "None\0Visual Studio Code\0";
+			case ScriptEditorTool::VisualStudio: return "Visual Studio";
+			case ScriptEditorTool::Rider: return "Rider";
 #endif
+			case ScriptEditorTool::Custom: return "Custom";
+			default: return "Invalid";
+			}
 		}
 
 		class EditorSettings
 		{
 		public:
+			EditorSettings();
 			~EditorSettings();
 
 			static EditorSettings& GetInstance();
-
+			
 			void Display();
 
 			void TakeScreenShot();
@@ -74,15 +89,25 @@ namespace GALAXY
 
 			[[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
 			void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
+			void OpenWithScriptEditorTool(const Path& path);
 
 			void SaveSettings() const;
 			void LoadSettings();
+
+			void InitializeScriptEditorTools();
+
+			[[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
+
 		private:
 			void DisplayTab(EditorSettingsTab tab);
 
 			void DisplayGeneralTab();
+			
 			void DisplayExternalToolTab();
+			void ChangeOtherScriptTool();
+			
 			void DisplayAppearanceTab();
+			
 			void DisplayBenchmarkTab();
 
 			void UpdateScreenShot();
@@ -92,11 +117,18 @@ namespace GALAXY
 			bool m_shouldTakeScreenshot = false;
 
 			EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
+
+#pragma region External Tools
+			std::optional<Path> m_otherScriptEditorToolPath = std::nullopt;
+
+			std::map<ScriptEditorTool, std::string> m_scriptEditorToolsString = {}; 
 #if defined(_WIN32)
 			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudio;
 #else
 			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
 #endif
+#pragma endregion
+			
 			Weak<Resource::Texture> m_projectThumbnail = {};
 		};
 	}

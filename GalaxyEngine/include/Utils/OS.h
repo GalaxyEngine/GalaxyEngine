@@ -1,12 +1,7 @@
 #pragma once
-#include "GalaxyAPI.h"
+#include <filesystem>
 
-#if defined(_WIN32) && defined(_MSC_VER)
-#pragma comment(lib, "Comdlg32.lib")
-#elif defined(__linux__)
-#define HANDLE_FILE_DIALOG
-#endif
-#define HANDLE_FILE_DIALOG
+#include "GalaxyAPI.h"
 
 namespace GALAXY 
 {
@@ -44,8 +39,10 @@ namespace GALAXY
 
 		void OpenWithVSCode(const std::filesystem::path& filePath);
 
+		void OpenWith(const std::filesystem::path& appPath, const std::filesystem::path& filePath);
 #ifdef _WIN32
 		void OpenWithVS(const std::filesystem::path& filePath);
+		void OpenWithRider(const std::filesystem::path& filePath);
 #endif
 	}
 }

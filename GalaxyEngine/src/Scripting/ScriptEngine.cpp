@@ -6,12 +6,14 @@
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
+#include "Core/Application.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
 
 #include "Component/ComponentHolder.h"
 #include "Component/ScriptComponent.h"
+
 #include "Utils/OS.h"
 
 #ifdef WITH_EDITOR
@@ -181,7 +183,7 @@ namespace GALAXY
 	void Scripting::ScriptEngine::CompileCode()
 	{
 		const Path prevPath = std::filesystem::current_path();
-		const Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
+		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 		std::filesystem::current_path(projectPath);
 
 		// Execute your build commands
@@ -202,6 +204,7 @@ namespace GALAXY
 		switch (tool)
 		{
 #ifdef _WIN32
+		case Editor::ScriptEditorTool::Rider:
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
 			std::system("xmake f -p windows -a x64 -m debug");
@@ -227,6 +230,7 @@ namespace GALAXY
 			break;
 		}
 		default:
+			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolValue(tool));
 			break;
 		}
 		std::filesystem::current_path(prevPath);
@@ -239,13 +243,24 @@ namespace GALAXY
 #ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-			Utils::OS::OpenWithVS(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
+			Utils::OS::OpenWithVS(Resource::ResourceManager::GetProjectPath().string() + "\"");
+			break;
+		}
+		case Editor::ScriptEditorTool::Rider:
+		{
+			Utils::OS::OpenWithRider(Resource::ResourceManager::GetProjectPath().string() + "\"");
 			break;
 		}
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
-			Utils::OS::OpenWithVSCode(Resource::ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
+			Utils::OS::OpenWithVSCode(Resource::ResourceManager::GetProjectPath().string() + "\"");
+			break;
+		}
+		case Editor::ScriptEditorTool::Custom:
+		{
+			auto editorSettings = Core::Application::GetInstance().GetEditorSettings();
+			Utils::OS::OpenWith(editorSettings.GetOtherScriptEditorToolPath(),Resource::ResourceManager::GetProjectPath().string() + "\"");
 			break;
 		}
 		}

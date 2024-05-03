@@ -110,6 +110,7 @@ namespace GALAXY
 		m_cameras = other->m_cameras;
 		m_mainCamera = other->m_mainCamera;
 		m_objectList = other->m_objectList;
+		
 		// This will set the scene for all children as well
 		m_root->SetScene(this);
 	}

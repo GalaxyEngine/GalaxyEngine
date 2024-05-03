@@ -70,7 +70,7 @@ namespace GALAXY
 
 	Path Utils::FileInfo::ToPath(const Path& path)
 	{
-		Path canonicalPath = (path.generic_string());
+		Path canonicalPath = std::filesystem::weakly_canonical(path);
 		// Temp Try to remove this line :
 		// return canonicalPath.make_preferred();
 		return canonicalPath;
@@ -79,7 +79,7 @@ namespace GALAXY
 	Path Utils::FileInfo::ToRelativePath(Path path)
 	{
 		path = ToPath(path);
-		const Path relativeAsset = std::filesystem::relative(path, Resource::ResourceManager::GetInstance()->GetAssetPath());
+		const Path relativeAsset = std::filesystem::relative(path, Resource::ResourceManager::GetAssetPath());
 		if (!relativeAsset.empty() && relativeAsset.string().find(ENGINE_RESOURCE_FOLDER_NAME) == std::string::npos)
 		{
 			if (relativeAsset == ".")

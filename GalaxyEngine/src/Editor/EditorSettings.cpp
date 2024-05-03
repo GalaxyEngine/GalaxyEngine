@@ -7,6 +7,7 @@
 #include "Core/Application.h"
 
 #include "Render/Camera.h"
+
 #include "Editor/EditorCamera.h"
 
 #include "Resource/ResourceManager.h"
@@ -16,9 +17,13 @@
 #include "Wrapper/ImageLoader.h"
 
 #include "Utils/FileInfo.h"
+#include "Utils/OS.h"
 
 namespace GALAXY
-{
+{	
+	Editor::EditorSettings::EditorSettings()
+	{
+	}
 
 	Editor::EditorSettings::~EditorSettings()
 	{
@@ -132,12 +137,46 @@ namespace GALAXY
 		}
 	}
 
+	void Editor::EditorSettings::ChangeOtherScriptTool()
+	{
+		auto out = Utils::OS::OpenDialog({{"Script Editor Tool", "exe"}});
+		if (!out.empty())
+		{
+			m_otherScriptEditorToolPath = out;
+			m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(out).stem().string();
+		}
+	}
+
 	void Editor::EditorSettings::DisplayExternalToolTab()
 	{
-		int externalToolID = static_cast<int>(Core::Application::GetInstance().GetEditorSettings().GetScriptEditorTool());
-		if (ImGui::Combo("Script Editor Tool", &externalToolID, SerializeScriptEditorToolEnum()))
+		ScriptEditorTool externalToolID = Core::Application::GetInstance().GetEditorSettings().GetScriptEditorTool();
+		if (ImGui::BeginCombo("Script Editor Tool", m_scriptEditorToolsString[externalToolID].c_str()))
 		{
-			Core::Application::GetInstance().GetEditorSettings().SetScriptEditorTool(static_cast<ScriptEditorTool>(externalToolID));
+			for (auto& i : m_scriptEditorToolsString)
+			{
+				bool isOther = i.first == ScriptEditorTool::Custom;
+				if (ImGui::Selectable(i.second.c_str(), i.first == externalToolID, ImGuiSelectableFlags_AllowItemOverlap))
+				{
+					SetScriptEditorTool(i.first);
+
+					if (isOther && !m_otherScriptEditorToolPath.has_value())
+					{
+						ChangeOtherScriptTool();
+					}
+
+					continue;
+				}
+				if (!isOther || !m_otherScriptEditorToolPath.has_value())
+					continue;
+				ImGui::SameLine();
+				if (ImGui::SmallButton("X"))
+				{
+					SetScriptEditorTool(ScriptEditorTool::None);
+					m_otherScriptEditorToolPath.reset();
+					i.second = "Other";
+				}
+			}
+			ImGui::EndCombo();
 		}
 		if (ImGui::Button("Compile code"))
 		{
@@ -214,7 +253,7 @@ namespace GALAXY
 		renderer->BindRenderBuffer(Render::Camera::GetEditorCamera()->GetFramebuffer().get());
 		renderer->ReadPixels(imageData.size, imageData.data);
 
-		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetInstance()->GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
 
 		PrintLog("Save project thumbnail to %s", thumbnailPath.generic_string().c_str());
 		Wrapper::ImageLoader::SaveImage(thumbnailPath.generic_string().c_str(), imageData);
@@ -228,21 +267,47 @@ namespace GALAXY
 		CppSer::Serializer serializer("Editor.settings");
 		serializer << CppSer::Pair::BeginMap << "Editor Settings";
 		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
+		if (m_otherScriptEditorToolPath.has_value())
+			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
 		serializer << CppSer::Pair::EndMap << "Editor Settings";
 	}
 
 	void Editor::EditorSettings::LoadSettings()
 	{
+		InitializeScriptEditorTools();
 		CppSer::Parser parser(Path("Editor.settings"));
 		if (!parser.IsFileOpen())
 		{
 			PrintError("Can't open Editor.settings");
 			return;
 		}
-		m_scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+		auto scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+		
+		if (m_scriptEditorToolsString.contains(scriptEditorTool))
+			SetScriptEditorTool(scriptEditorTool);
 
-		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetInstance()->GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+		auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
+		if (!otherScriptEditorTool.empty())
+		{
+			m_otherScriptEditorToolPath = otherScriptEditorTool;
+			m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(otherScriptEditorTool).stem().string();
+		}
+
+		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
 		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
 
+	void Editor::EditorSettings::InitializeScriptEditorTools()
+	{
+		m_scriptEditorToolsString[ScriptEditorTool::None] = "None";
+#ifdef _WIN32
+		m_scriptEditorToolsString[ScriptEditorTool::VisualStudio] = "Visual Studio";
+		if (ShellExecute(NULL, "open", "rider64.exe", NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32)
+		{
+			m_scriptEditorToolsString[ScriptEditorTool::Rider] = "Rider";
+		}
+#endif
+		m_scriptEditorToolsString[ScriptEditorTool::VisualStudioCode] = "Visual Studio Code";
+		m_scriptEditorToolsString[ScriptEditorTool::Custom] = "Custom";
+	}
 }

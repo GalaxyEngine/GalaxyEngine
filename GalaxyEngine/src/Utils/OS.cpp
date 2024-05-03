@@ -184,7 +184,16 @@ namespace GALAXY
 	{
 		std::string command = "code ";
 		command += "\"" + filePath.string();
-		system(command.c_str());
+		std::system(command.c_str());
+	}
+
+	void Utils::OS::OpenWith(const std::filesystem::path& appPath, const std::filesystem::path& filePath)
+	{
+		auto prevPath = std::filesystem::current_path();
+		std::string command = appPath.string();
+		command += " \"";
+		command += filePath.string();
+		std::system(command.c_str());
 	}
 
 #ifdef _WIN32
@@ -208,15 +217,14 @@ namespace GALAXY
 	void Utils::OS::OpenWithVS(const std::filesystem::path& filePath)
 	{
 		// Find the Visual Studio window by its class name or window title
-		std::string windowName = Resource::ResourceManager::GetInstance()->GetProjectPath().filename().stem().string() + " - Microsoft Visual Studio";
+		std::string windowName = Resource::ResourceManager::GetProjectPath().filename().stem().string() + " - Microsoft Visual Studio";
 
 		HWND hwnd = nullptr; // This will hold the window handle of the specific instance
 
 		// Enumerate windows to find the specific instance of Visual Studio
 		EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnd));
 		if (!hwnd) {
-			const auto resourceManager = Resource::ResourceManager::GetInstance();
-			const std::string slnPath = (resourceManager->GetAssetPath().parent_path() / "vsxmake2022" / (resourceManager->GetProjectPath().filename().stem().string() + ".sln")).string();
+			const std::string slnPath = (Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln")).string();
 			const std::string command = "start \"\" \"" + slnPath + "\"";
 			system(command.c_str());
 		}
@@ -235,6 +243,18 @@ namespace GALAXY
 			//ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
 		}
 	}
+
+	void Utils::OS::OpenWithRider(const std::filesystem::path& filePath)
+	{
+		auto prevPath = std::filesystem::current_path();
+		std::string riderPath = "rider";
+		const std::string slnPath = (Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln");
+		std::filesystem::current_path(Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022");
+		const std::string command = riderPath + " \"" + slnPath + "\"";
+		std::system(command.c_str());
+		std::filesystem::current_path(prevPath);
+	}
+
 #endif
 
 	void Utils::OS::ShowFile(const std::filesystem::path& filePath, bool showFile)
