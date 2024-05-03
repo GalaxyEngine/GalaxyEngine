@@ -230,7 +230,8 @@ void Editor::UI::Inspector::ClearSelectedGameObjects()
 	m_selectedGameObject.clear();
 
 	const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
-	gizmo->SetGameObject({});
+	if (gizmo)
+		gizmo->SetGameObject({});
 }
 
 void Editor::UI::Inspector::ClearSelected()

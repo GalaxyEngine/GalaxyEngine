@@ -274,7 +274,7 @@ namespace GALAXY {
 	}
 #endif
 
-	inline Weak<Resource::IResource> Resource::ResourceManager::ReloadResource(const Path& fullPath)
+	inline Weak<Resource::IResource> Resource::ResourceManager::ReloadResource(const Path& fullPath, bool async /* = true*/)
 	{
 		const Path relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.contains(relativePath)) {
@@ -288,7 +288,7 @@ namespace GALAXY {
 		resource->p_shouldBeLoaded = false;
 		resource->p_hasBeenSent = false;
 
-		return GetOrLoad(fullPath);
+		return GetOrLoad(fullPath, async);
 	}
 
 	Weak<Resource::IResource> Resource::ResourceManager::GetResource(const Core::UUID& uuid)
@@ -489,7 +489,7 @@ namespace GALAXY {
 		m_instance.reset();
 	}
 
-	Weak<GALAXY::Resource::IResource> Resource::ResourceManager::GetOrLoad(const Path& fullPath)
+	Weak<GALAXY::Resource::IResource> Resource::ResourceManager::GetOrLoad(const Path& fullPath, bool async /* = true */)
 	{
 		if (std::filesystem::is_directory(fullPath))
 			return {};
@@ -497,31 +497,31 @@ namespace GALAXY {
 		switch (type)
 		{
 		case Resource::ResourceType::Shader:
-			return GetOrLoad<Shader>(fullPath);
+			return GetOrLoad<Shader>(fullPath, async);
 		case Resource::ResourceType::VertexShader:
-			return GetOrLoad<VertexShader>(fullPath);
+			return GetOrLoad<VertexShader>(fullPath, async);
 		case Resource::ResourceType::FragmentShader:
-			return GetOrLoad<FragmentShader>(fullPath);
+			return GetOrLoad<FragmentShader>(fullPath, async);
 		case Resource::ResourceType::GeometryShader:
-			return GetOrLoad<GeometryShader>(fullPath);
+			return GetOrLoad<GeometryShader>(fullPath, async);
 		case Resource::ResourceType::Materials:
-			return GetOrLoad<Material>(fullPath);
+			return GetOrLoad<Material>(fullPath, async);
 		case Resource::ResourceType::PostProcessShader:
-			return GetOrLoad<PostProcessShader>(fullPath);
+			return GetOrLoad<PostProcessShader>(fullPath, async);
 		case Resource::ResourceType::Material:
-			return GetOrLoad<Material>(fullPath);
+			return GetOrLoad<Material>(fullPath, async);
 		case Resource::ResourceType::Mesh:
-			return GetOrLoad<Mesh>(fullPath);
+			return GetOrLoad<Mesh>(fullPath, async);
 		case Resource::ResourceType::Texture:
-			return GetOrLoad<Texture>(fullPath);
+			return GetOrLoad<Texture>(fullPath, async);
 		case Resource::ResourceType::Model:
-			return GetOrLoad<Model>(fullPath);
+			return GetOrLoad<Model>(fullPath, async);
 		case Resource::ResourceType::Scene:
 			return AddResource<Scene>(fullPath);
 		case Resource::ResourceType::Script:
-			return GetOrLoad<Script>(fullPath);
+			return GetOrLoad<Script>(fullPath, async);
 		case Resource::ResourceType::Sound:
-			return GetOrLoad<Sound>(fullPath);
+			return GetOrLoad<Sound>(fullPath, async);
 		case Resource::ResourceType::Data:
 			return {};
 		default:

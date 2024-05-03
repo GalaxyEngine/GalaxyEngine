@@ -86,7 +86,7 @@ namespace GALAXY {
 							break;
 						case Resource::ResourceType::Scene:
 							{
-								MainBar::OpenScene(fileInfo.GetFullPath());
+								Core::SceneHolder::OpenScene(fileInfo.GetFullPath());
 								break;
 							}
 						default:

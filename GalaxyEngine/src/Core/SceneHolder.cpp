@@ -42,6 +42,22 @@ void Core::SceneHolder::Update()
 	SwitchSceneUpdate();
 }
 
+void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
+{
+	Weak<Resource::Scene> sceneResource;
+	if (Core::SceneHolder::GetCurrentScene() != Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
+	{
+		sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
+	}
+	else
+	{
+		// if the scene is the same as the current, reload it only in the SwitchUpdate() with async = false
+		sceneResource = Resource::ResourceManager::GetResource<Resource::Scene>(path);
+	}
+
+	m_instance->SwitchScene(sceneResource);
+}
+
 Resource::Scene* Core::SceneHolder::GetCurrentScene()
 {
 	return GetInstance()->m_currentScene.get();
@@ -63,6 +79,11 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		if (m_currentScene != m_nextScene) {
 			// Do not unload if the next scene is the same as the current scene
 			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+		}
+		else
+		{
+			Resource::ResourceManager::ReloadResource<Resource::Scene>(m_currentScene->GetFileInfo().GetFullPath(), false);
+			m_nextScene->Send();
 		}
 		m_currentScene.reset();
 

@@ -38,7 +38,7 @@ namespace GALAXY
 					{
 						if (std::filesystem::path(path).extension() != ".galaxy")
 							return;
-						OpenScene(path);
+						Core::SceneHolder::OpenScene(path);
 					}
 				}
 				if (ImGui::MenuItem("Save Scene As"))
@@ -127,15 +127,6 @@ namespace GALAXY
 			
 			ImGui::EndMainMenuBar();
 		}
-	}
-
-	void Editor::UI::MainBar::OpenScene(const std::filesystem::path& path)
-	{
-		if (Core::SceneHolder::GetCurrentScene() == Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
-			return;
-		const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
-
-		Core::SceneHolder::GetInstance()->SwitchScene(sceneResource);
 	}
 
 	void Editor::UI::MainBar::SaveScene(std::string path)
