@@ -129,7 +129,7 @@ namespace GALAXY
 		}
 	}
 
-	void Editor::UI::MainBar::OpenScene(const std::string& path)
+	void Editor::UI::MainBar::OpenScene(const std::filesystem::path& path)
 	{
 		if (Core::SceneHolder::GetCurrentScene() == Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
 			return;

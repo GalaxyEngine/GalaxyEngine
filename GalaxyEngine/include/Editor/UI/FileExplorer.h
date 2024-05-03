@@ -42,6 +42,11 @@ namespace GALAXY
 			const Path& GetPath() const { return m_info.GetFullPath(); }
 
 			const List<Shared<File>>& GetChildren() const  { return m_children; }
+
+			Utils::FileInfo& GetFileInfo() { return m_info; }
+
+			template <typename T>
+			Shared<T> GetResource() const { return m_resource.lock() ? std::dynamic_pointer_cast<T>(m_resource.lock()) : nullptr; }
 		private:
 			friend class Inspector;
 			friend class FileExplorer;
@@ -88,8 +93,9 @@ namespace GALAXY
 			void DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick);
 
 			void ReloadContent();
-		private:
 
+			const List<Shared<File>>& GetDraggedFiles() const { return m_draggedFiles; }
+		private:
 			void SetCurrentFile(const Shared<File>& file);
 
 			void RightClickWindow();

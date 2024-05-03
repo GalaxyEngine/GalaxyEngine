@@ -11,6 +11,7 @@
 #include "Render/Framebuffer.h"
 
 #include "Editor/Gizmo.h"
+#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/Texture.h"
 #include "Resource/ResourceManager.h"
@@ -67,6 +68,35 @@ namespace GALAXY {
 			ImGui::Separator();
 
 			DrawImage();
+
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
+					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
+					auto draggedFiles = fileExplorer->GetDraggedFiles();
+					if (draggedFiles.size() == 1)
+					{
+						std::shared_ptr<File> file = draggedFiles[0];
+						Utils::FileInfo fileInfo = file->GetFileInfo();
+						switch (fileInfo.GetResourceType()) {
+						case Resource::ResourceType::Texture:
+							break;
+						case Resource::ResourceType::Shader:
+							break;
+						case Resource::ResourceType::Model:
+							break;
+						case Resource::ResourceType::Scene:
+							{
+								MainBar::OpenScene(fileInfo.GetFullPath());
+								break;
+							}
+						default:
+							break;
+						}
+					}
+					
+				}
+				ImGui::EndDragDropTarget();
+			}
 
 		}
 		ImGui::End();
