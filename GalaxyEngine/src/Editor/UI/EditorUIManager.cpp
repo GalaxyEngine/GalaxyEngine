@@ -53,7 +53,7 @@ namespace GALAXY {
 		m_resourceWindow->Draw();
 		m_debugWindow->Draw();
 
-		if (m_shouldDisplayClosePopup) 
+		if (s_shouldDisplayClosePopup.has_value() && s_shouldDisplayClosePopup.value()) 
 		{
 			ImGui::OpenPopup("Are you sure ?");
 			DisplayClosePopup();
@@ -64,9 +64,11 @@ namespace GALAXY {
 	{
 		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		if (ImGui::BeginPopupModal("Are you sure ?")) {
-			if (ImGui::Button("Yes")) {
-
-				Core::Application::GetInstance().GetWindow()->ForceClose();
+			if (ImGui::Button("Yes"))
+			{
+				m_onValidatePopup();
+				m_onValidatePopup = nullptr;
+				s_shouldDisplayClosePopup.reset();
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::SameLine();
@@ -75,14 +77,18 @@ namespace GALAXY {
 				if (currentScene->GetFileInfo().Exist())
 				{
 					currentScene->Save(currentScene->GetFileInfo().GetFullPath());
-					Core::Application::GetInstance().GetWindow()->ForceClose();
+					m_onValidatePopup();
+					m_onValidatePopup = nullptr;
+					s_shouldDisplayClosePopup.reset();
 				}
 				else
 				{
 					if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
 					{
 						MainBar::SaveScene(path);
-						Core::Application::GetInstance().GetWindow()->ForceClose();
+						m_onValidatePopup();
+						m_onValidatePopup = nullptr;
+						s_shouldDisplayClosePopup.reset();
 					}
 				}
 				ImGui::CloseCurrentPopup();
@@ -91,28 +97,37 @@ namespace GALAXY {
 			if (ImGui::Button("Cancel"))
 			{
 				Core::Application::GetInstance().GetWindow()->CancelClose();
-				m_shouldDisplaySafeClose.reset();
-				m_shouldDisplayClosePopup = false;
+				m_onValidatePopup = nullptr;
+				s_shouldDisplayClosePopup.reset();
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();
 		}
 	}
 
+	void Editor::UI::EditorUIManager::SetOnValidatePopupEvent(const std::function<void()>& onValidate)
+	{
+		m_onValidatePopup = onValidate;
+		s_shouldDisplayClosePopup = true;
+	}
+
 	bool Editor::UI::EditorUIManager::ShouldDisplaySafeClose()
 	{
-		if (m_shouldDisplaySafeClose.has_value())
-			return m_shouldDisplaySafeClose.value();
-
+		if (m_instance->s_shouldDisplayClosePopup.has_value())
+			return m_instance->s_shouldDisplayClosePopup.value();
+		
 		const auto currentScene = Core::SceneHolder::GetCurrentScene();
-		if (!currentScene->GetFileInfo().Exist()) {
 
-			m_shouldDisplaySafeClose.emplace(true);
+		auto objectCount = currentScene->GetObjectList().size();
+		
+		if (objectCount != 0 && !currentScene->GetFileInfo().Exist()) {
+
+			m_instance->s_shouldDisplayClosePopup.emplace(true);
 			return true;
 		}
 
-		if (currentScene->WasModified()) {
-			m_shouldDisplaySafeClose.emplace(true);
+		if (objectCount != 0 && currentScene->WasModified()) {
+			m_instance->s_shouldDisplayClosePopup.emplace(true);
 			return true;
 		}
 

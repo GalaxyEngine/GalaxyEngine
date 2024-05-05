@@ -14,6 +14,7 @@
 #include <optional>
 
 namespace GALAXY::Editor::UI {
+	// Manager for all the UI
 	class GALAXY_API EditorUIManager
 	{
 	public:
@@ -42,8 +43,9 @@ namespace GALAXY::Editor::UI {
 
 		// Safe popup to save scene if modified
 		void DisplayClosePopup();
-		void SetShouldDisplayClosePopup(bool shouldDisplay) { m_shouldDisplayClosePopup = shouldDisplay; }
-		bool ShouldDisplaySafeClose();
+		// call this only when you want to display the popup
+		void SetOnValidatePopupEvent(const std::function<void()>& onValidate);
+		static bool ShouldDisplaySafeClose();
 
 		void AddResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) == m_loadingResources.end()); m_loadingResources.insert(uuid);}
 		void RemoveResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) != m_loadingResources.end()); m_loadingResources.erase(uuid); }
@@ -71,12 +73,13 @@ namespace GALAXY::Editor::UI {
 		Unique<ResourceWindow> m_resourceWindow;
 		Unique<DebugWindow> m_debugWindow;
 
-		bool m_shouldDisplayClosePopup = false;
-		std::optional<bool> m_shouldDisplaySafeClose;
+		std::optional<bool> s_shouldDisplayClosePopup;
 
 		bool m_shouldUpdateDPIScale = true;
 		float m_prevDPIScale = 0.0f;
 
 		std::set<Core::UUID> m_loadingResources;
+
+		std::function<void()> m_onValidatePopup;
 	};
 }

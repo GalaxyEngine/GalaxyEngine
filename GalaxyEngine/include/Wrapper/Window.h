@@ -1,5 +1,10 @@
 #pragma once
 #include <GalaxyAPI.h>
+
+#ifdef WITH_EDITOR
+#include "Editor/UI/EditorUIManager.h"
+#endif
+
 struct GLFWwindow;
 
 #ifdef _WIN32
@@ -105,7 +110,7 @@ namespace GALAXY
 
 			void SetIcon(const std::filesystem::path& pathToIcon);
 
-			bool ShouldClose() const;
+			bool ShouldClose();
 			void Close() const;
 			void ForceClose();
 			void CancelClose();
@@ -120,8 +125,6 @@ namespace GALAXY
 			[[nodiscard]] float GetScreenScale() const;
 
 			[[nodiscard]] void* GetCurrentMonitor() const;
-			inline void SetShouldCloseCallback(std::function<void(bool)> val) { m_shouldCloseCallback = val; }
-			inline void SetShouldDisplaySafeClose(std::function<bool()> val) { m_shouldDisplaySafeClose = val; }
 		public:
 			Utils::Event<const Vec2i& /*pos*/> EOnMove;
 			Utils::Event<const Vec2f& /*dpi*/> EOnDPIChange;
@@ -133,10 +136,8 @@ namespace GALAXY
 			bool m_vsync = true;
 
 			float m_scale = 1.0f;
-
-			std::function<void(bool)> m_shouldCloseCallback;
-			std::function<bool()> m_shouldDisplaySafeClose = [] {return true; };
-			bool m_forceClose;
+			
+			bool m_forceClose = false;
 
 		};
 	}

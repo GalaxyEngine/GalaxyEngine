@@ -61,6 +61,8 @@ namespace GALAXY
 
 	inline void Resource::ResourceManager::RemoveResource(const Path& fullPath)
 	{
+		if (!m_instance)
+			return;
 		auto relativePath = Utils::FileInfo::ToRelativePath(fullPath);
 		if (!m_instance->m_resources.contains(relativePath))
 			return;
@@ -219,7 +221,7 @@ namespace GALAXY
 			return {};
 		}
 
-		return ReloadResource<T>(resource->first, TODO);
+		return ReloadResource<T>(resource->first);
 	}
 
 	template <typename T>

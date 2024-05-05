@@ -44,6 +44,32 @@ void Core::SceneHolder::Update()
 
 void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
 {
+#ifdef WITH_EDITOR
+	if (m_instance->first && Core::Application::IsEditorMode() && Editor::UI::EditorUIManager::ShouldDisplaySafeClose())
+	{
+		auto onValidateEvent = [&, path]() { OpenScene(path); };
+		Editor::UI::EditorUIManager::GetInstance()->SetOnValidatePopupEvent(onValidateEvent);
+		m_instance->first = false;
+		return;
+	}
+	else
+	{
+		Weak<Resource::Scene> sceneResource;
+		if (Core::SceneHolder::GetCurrentScene() != Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
+		{
+			sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(path);
+		}
+		else
+		{
+			// if the scene is the same as the current, reload it only in the SwitchUpdate() with async = false
+			sceneResource = Resource::ResourceManager::GetResource<Resource::Scene>(path);
+		}
+
+		m_instance->SwitchScene(sceneResource);
+		m_instance->first = true;
+	}
+	
+#else
 	Weak<Resource::Scene> sceneResource;
 	if (Core::SceneHolder::GetCurrentScene() != Resource::ResourceManager::GetResource<Resource::Scene>(path).lock().get())
 	{
@@ -56,8 +82,8 @@ void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
 	}
 
 	m_instance->SwitchScene(sceneResource);
+#endif
 }
-
 Resource::Scene* Core::SceneHolder::GetCurrentScene()
 {
 	return GetInstance()->m_currentScene.get();
@@ -82,8 +108,10 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		}
 		else
 		{
+			auto editorCamera = m_currentScene->m_editorCamera;
 			Resource::ResourceManager::ReloadResource<Resource::Scene>(m_currentScene->GetFileInfo().GetFullPath(), false);
 			m_nextScene->Send();
+			m_nextScene->m_editorCamera = editorCamera;
 		}
 		m_currentScene.reset();
 

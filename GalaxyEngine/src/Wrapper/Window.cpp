@@ -124,12 +124,13 @@ namespace GALAXY {
 		glfwSwapInterval(enable); // Enable vsync
 	}
 
-	bool Wrapper::Window::ShouldClose() const
+	bool Wrapper::Window::ShouldClose()
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		bool shouldClose = glfwWindowShouldClose(glfwWindow);
-		if (shouldClose && m_shouldDisplaySafeClose()) {
-			m_shouldCloseCallback(shouldClose);
+		if (shouldClose && Editor::UI::EditorUIManager::ShouldDisplaySafeClose()) {
+			auto eventOnValidate = [this] { ForceClose(); };
+			Editor::UI::EditorUIManager::GetInstance()->SetOnValidatePopupEvent(eventOnValidate);
 			return shouldClose && m_forceClose;
 		}
 		else

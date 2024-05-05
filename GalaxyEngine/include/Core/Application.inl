@@ -6,7 +6,7 @@ namespace GALAXY
 	{
 		if (fullPath.empty())
 			return;
-		if (!std::ranges::count(m_resourceToSend, fullPath))
+		if (std::ranges::find(m_resourceToSend, fullPath) == m_resourceToSend.end())
 			m_resourceToSend.push_back(fullPath);
 	}
 

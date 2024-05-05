@@ -14,6 +14,8 @@
 
 #include <set>
 
+#include "Core/SceneHolder.h"
+
 #include "Resource/Sound.h"
 
 #ifdef WITH_EDITOR
@@ -255,7 +257,9 @@ namespace GALAXY {
 			for (const auto& file : modifiedFiles) {
 				shouldReload = true;
 				PrintLog("Modified file: %s", file.string().c_str());
-				ReloadResource(file);
+				// Do not reload the current scene if it is modified
+				if (Core::SceneHolder::GetCurrentScene()->GetFileInfo().GetFullPath() != file)
+					ReloadResource(file);
 			}
 
 			m_fileWatchPrevious = m_fileWatchCurrent;

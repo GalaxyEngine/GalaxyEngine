@@ -110,10 +110,6 @@ namespace GALAXY {
 		m_editorUI->Initialize();
 		
 		m_editorSettings.LoadSettings();
-		const std::function<void(bool)> shouldCloseCallback = std::bind(&Editor::UI::EditorUIManager::SetShouldDisplayClosePopup, m_editorUI, std::placeholders::_1);
-		m_window->SetShouldCloseCallback(shouldCloseCallback);
-		const std::function<bool()> shouldDisplaySafeCloseCallback = std::bind(&Editor::UI::EditorUIManager::ShouldDisplaySafeClose, m_editorUI);
-		m_window->SetShouldDisplaySafeClose(shouldDisplaySafeCloseCallback);
 #else
 		m_window->SetShouldDisplaySafeClose([]() {return false; });
 #endif

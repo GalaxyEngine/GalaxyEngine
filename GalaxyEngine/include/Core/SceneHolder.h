@@ -42,6 +42,8 @@ namespace GALAXY {
 
 #ifdef WITH_EDITOR
 			bool m_copyData = false;
+			
+			bool first = true;
 #endif
 		};
 	}
