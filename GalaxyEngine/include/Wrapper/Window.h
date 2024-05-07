@@ -17,7 +17,6 @@ struct GLFWwindow;
 #include "Utils/Event.h"
 
 #include <galaxymath/Maths.h>
-#include <functional>
 
 namespace GALAXY
 {

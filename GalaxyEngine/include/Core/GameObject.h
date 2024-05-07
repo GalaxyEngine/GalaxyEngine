@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Debug/Log.h"
 #include "Component/Transform.h"
 #include "Core/UUID.h"
 #include <string>
@@ -81,6 +82,7 @@ namespace GALAXY {
 			inline Component::Transform* GetTransform() const;
 			inline Shared<Core::GameObject> GetParent() const;
 
+			inline uint32_t GetChildrenCount() const;
 			inline List<Weak<GameObject>> GetChildren() const;
 			List<Weak<GameObject>> GetAllChildren() const;
 			inline Weak<GameObject> GetChild(uint32_t index);

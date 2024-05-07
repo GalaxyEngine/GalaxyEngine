@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorWindow.h"
 namespace GALAXY {
 	namespace Core { class GameObject; }
+	namespace Component {class BaseComponent;}
 	namespace Editor::UI
 	{
 		class File;

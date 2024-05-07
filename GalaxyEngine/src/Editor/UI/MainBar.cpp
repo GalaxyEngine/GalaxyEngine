@@ -148,25 +148,31 @@ namespace GALAXY
 		currentScene->GetRootGameObject().lock()->AddChild(object);
 	}
 
-	void Editor::UI::MainBar::DisplayCreateGameObject(bool& openModelPopup)
+	void Editor::UI::MainBar::DisplayCreateGameObject(bool& openModelPopup, Core::GameObject* parent)
 	{
+		const auto currentScene = Core::SceneHolder::GetCurrentScene();
+		if (!parent)
+			parent = currentScene->GetRootGameObject().lock().get(); 
+		if (ImGui::MenuItem("Empty"))
+		{
+			auto emptyObject = currentScene->CreateObject();
+			parent->AddChild(emptyObject.lock());
+		}
 		if (ImGui::MenuItem("With Model"))
 		{
 			openModelPopup = true;
 		}
 		if (ImGui::MenuItem("Camera"))
 		{
-			const auto currentScene = Core::SceneHolder::GetCurrentScene();
 			const auto cameraObject = currentScene->CreateObject();
 			cameraObject.lock()->AddComponent<Component::CameraComponent>();
 			cameraObject.lock()->SetName("Camera");
-			currentScene->GetRootGameObject().lock()->AddChild(cameraObject.lock());
+			parent->AddChild(cameraObject.lock());
 		}
 		if (ImGui::BeginMenu("3D Object"))
 		{
 			if (ImGui::MenuItem("Cube"))
 			{
-				const auto currentScene = Core::SceneHolder::GetCurrentScene();
 				const auto object = currentScene->CreateObject().lock();
 				auto cubeMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
 				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
@@ -174,18 +180,17 @@ namespace GALAXY
 				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
 				object->AddComponent<Component::BoxCollider>();
 				object->SetName("Cube");
-				currentScene->GetRootGameObject().lock()->AddChild(object);
+				parent->AddChild(object);
 			}
 			if (ImGui::MenuItem("Sphere"))
 			{
-				const auto currentScene = Core::SceneHolder::GetCurrentScene();
 				const auto object = currentScene->CreateObject().lock();
 				auto sphereMesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(SPHERE_PATH);
 				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
 				meshComp->SetMesh(sphereMesh);
 				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
 				object->SetName("Sphere");
-				currentScene->GetRootGameObject().lock()->AddChild(object);
+				parent->AddChild(object);
 			}
 			ImGui::EndMenu();
 		}
@@ -194,27 +199,24 @@ namespace GALAXY
 		{
 			if (ImGui::MenuItem("Directional"))
 			{
-				const auto currentScene = Core::SceneHolder::GetCurrentScene();
 				const auto object = currentScene->CreateObject();
 				object.lock()->AddComponent<Component::DirectionalLight>();
 				object.lock()->SetName("Directional Light");
-				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+				parent->AddChild(object.lock());
 			}
 			if (ImGui::MenuItem("Point"))
 			{
-				const auto currentScene = Core::SceneHolder::GetCurrentScene();
 				const auto object = currentScene->CreateObject();
 				object.lock()->AddComponent<Component::PointLight>();
 				object.lock()->SetName("Point Light");
-				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+				parent->AddChild(object.lock());
 			}
 			if (ImGui::MenuItem("Spot"))
 			{
-				const auto currentScene = Core::SceneHolder::GetCurrentScene();
 				const auto object = currentScene->CreateObject();
 				object.lock()->AddComponent<Component::SpotLight>();
 				object.lock()->SetName("Spot Light");
-				currentScene->GetRootGameObject().lock()->AddChild(object.lock());
+				parent->AddChild(object.lock());
 			}
 			ImGui::EndMenu();
 		}
@@ -251,8 +253,8 @@ namespace GALAXY
 				{
 					bind();
 				}
-				return  true;
 			}
+				return  true;
 		}
 		return false;
 	}

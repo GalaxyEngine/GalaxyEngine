@@ -30,6 +30,11 @@ namespace GALAXY {
 		return m_parent.lock();
 	}
 
+	inline uint32_t Core::GameObject::GetChildrenCount() const
+	{
+		return static_cast<uint32_t>(m_children.size());
+	}
+
 	void Core::GameObject::SetHierarchyOpen(const bool val)
 	{
 		m_open = val;

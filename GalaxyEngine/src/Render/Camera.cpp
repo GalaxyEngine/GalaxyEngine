@@ -57,9 +57,14 @@ namespace GALAXY
 	Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f& point)
 	{
 		const Vec3f position = GetTransform()->GetWorldPosition();
-		const Vec3f unprojectPoint = UnProject({ point.x, point.y, p_far });
+		const Vec3f unprojectPoint = UnProject({ point.x, point.y, point.z });
 		const Vec3f direction = (unprojectPoint - position).GetNormalize();
-		return Physic::Ray(position, direction, p_far);
+		return Physic::Ray(position, direction, point.z);
+	}
+
+	Physic::Ray Render::Camera::ScreenPointToRay(const Vec2f& point)
+	{
+		return ScreenPointToRay(Vec3f(point, p_far));
 	}
 
 	Vec2i Render::Camera::GetScreenResolution() const

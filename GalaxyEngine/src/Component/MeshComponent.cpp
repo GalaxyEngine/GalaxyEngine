@@ -10,8 +10,6 @@
 
 #include "Component/CameraComponent.h"
 
-#include "Wrapper/Renderer.h"
-
 #include "Core/GameObject.h"
 
 #if WITH_EDITOR
@@ -105,8 +103,8 @@ namespace GALAXY {
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
-		const char* label = m_mesh.expired() ? "Missing" :m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName().c_str() : "Empty";
-		if (ImGui::Button(label, buttonSize))
+		std::string label = m_mesh.expired() ? "Missing" :m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName() : "Empty";
+		if (ImGui::Button(label.c_str(), buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}

@@ -1,11 +1,18 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include <galaxymath/Maths.h>
 #include "Editor/UI/EditorWindow.h"
 
 namespace GALAXY
 {
+	namespace Core
+	{
+		class GameObject;
+	}
+
 	namespace Resource
 	{
+		class Model;
 		class Texture;
 	}
 	namespace Editor::UI
@@ -26,6 +33,11 @@ namespace GALAXY
 			inline bool IsVisible() const { return m_visible; }
 			inline bool IsHovered() const { return m_isHovered; }
 			inline bool IsFocused() const { return m_isFocused; }
+
+#ifdef WITH_EDITOR
+			void UpdateDragModel();
+			void OnModelLoaded(Weak<Resource::Model> model);
+#endif
 		private:
 			friend class MainBar;
 
@@ -40,6 +52,11 @@ namespace GALAXY
 
 			std::weak_ptr<Resource::Texture> m_settingsIcon;
 			std::weak_ptr<Resource::Texture> m_menuIcon;
+			
+#ifdef WITH_EDITOR
+			Weak<Resource::Model> m_dragModel;
+			Shared<Core::GameObject> m_dragModelObject = nullptr;
+#endif
 		};
 	}
 }

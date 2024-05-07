@@ -12,6 +12,7 @@
 
 #include "Editor/Gizmo.h"
 #include "Editor/UI/EditorUIManager.h"
+#include "Resource/Model.h"
 
 #include "Resource/Texture.h"
 #include "Resource/ResourceManager.h"
@@ -22,6 +23,8 @@ namespace GALAXY {
 	Editor::UI::SceneWindow::~SceneWindow()
 	{
 	}
+	static bool s_modelLoaded = false;
+	static bool s_modelFirstLoad = true;
 
 	void Editor::UI::SceneWindow::Draw()
 	{
@@ -69,7 +72,10 @@ namespace GALAXY {
 
 			DrawImage();
 
+			UpdateDragModel();
+			
 			if (ImGui::BeginDragDropTarget()) {
+				// When Relased
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
 					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
 					auto draggedFiles = fileExplorer->GetDraggedFiles();
@@ -78,12 +84,6 @@ namespace GALAXY {
 						std::shared_ptr<File> file = draggedFiles[0];
 						Utils::FileInfo fileInfo = file->GetFileInfo();
 						switch (fileInfo.GetResourceType()) {
-						case Resource::ResourceType::Texture:
-							break;
-						case Resource::ResourceType::Shader:
-							break;
-						case Resource::ResourceType::Model:
-							break;
 						case Resource::ResourceType::Scene:
 							{
 								Core::SceneHolder::OpenScene(fileInfo.GetFullPath());
@@ -93,7 +93,32 @@ namespace GALAXY {
 							break;
 						}
 					}
-					
+				}
+				// When Hovering
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE", ImGuiDragDropFlags_AcceptBeforeDelivery)) {
+					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
+					auto draggedFiles = fileExplorer->GetDraggedFiles();
+					if (draggedFiles.size() == 1)
+					{
+						std::shared_ptr<File> file = draggedFiles[0];
+						Utils::FileInfo fileInfo = file->GetFileInfo();
+						switch (fileInfo.GetResourceType()) {
+						case Resource::ResourceType::Model:
+							{
+								if (!s_modelFirstLoad) return;
+								s_modelFirstLoad = false;
+								m_dragModel = Resource::ResourceManager::GetOrLoad<Resource::Model>(fileInfo.GetFullPath());
+								m_dragModel.lock()->OnLoad.Bind([this]() { OnModelLoaded(m_dragModel); });
+								if (m_dragModel.lock()->IsLoaded() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
+								{
+									OnModelLoaded(m_dragModel);
+								}
+								break;
+							}
+						default:
+							break;
+						}
+					}
 				}
 				ImGui::EndDragDropTarget();
 			}
@@ -117,6 +142,41 @@ namespace GALAXY {
 	Math::Vec2f Editor::UI::SceneWindow::GetMousePosition() const
 	{
 		return (Vec2i)(Input::GetMousePosition() - m_imagePosition);
+	}
+
+	void Editor::UI::SceneWindow::UpdateDragModel()
+	{
+		if (!m_dragModelObject || !s_modelLoaded)
+		{
+			return;
+		}
+
+		auto scene = Core::SceneHolder::GetCurrentScene();
+		
+		const Physic::Ray ray = scene->GetEditorCamera()->ScreenPointToRay(Vec3f(GetMousePosition(), 10.f));
+		auto cameraPosition = ray.origin;
+		auto clickPosition = ray.origin + ray.direction * ray.scale;
+
+		m_dragModelObject->GetTransform()->SetWorldPosition(clickPosition);
+
+		if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
+		{
+			m_dragModelObject.reset();
+			m_dragModel.reset();
+			s_modelLoaded = false;
+			s_modelFirstLoad = true;
+		}
+		
+	}
+
+	void Editor::UI::SceneWindow::OnModelLoaded(Weak<Resource::Model> model)
+	{
+		if (s_modelLoaded)
+			return;
+		s_modelLoaded = true;
+		m_dragModelObject = model.lock()->ToGameObject();
+		auto scene = Core::SceneHolder::GetCurrentScene();
+		scene->GetRootGameObject().lock()->AddChild(m_dragModelObject);
 	}
 
 	void Editor::UI::SceneWindow::DrawImage()

@@ -23,6 +23,8 @@ namespace GALAXY
 
     void Component::BoxCollider::OnEditorDraw()
     {
+        if (!p_gameObject->IsSelected())
+            return;
         auto position = p_gameObject->GetTransform()->GetWorldPosition();
         auto scale = p_gameObject->GetTransform()->GetWorldScale();
         Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, Vec4f(0, 1, 0, 1), 10.f);

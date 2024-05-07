@@ -1,9 +1,15 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Core/GameObject.h"
+#include "Utils/Type.h"
+#include <string>
 
 namespace GALAXY 
 {
+	namespace Core
+	{
+		class GameObject;
+	}
+	
 	namespace Resource
 	{
 		class Model;
@@ -21,7 +27,7 @@ namespace GALAXY
 
 			void AddModelToScene() const;
 
-			static void DisplayCreateGameObject(bool& openModelPopup);
+			static void DisplayCreateGameObject(bool& openModelPopup, Core::GameObject* parent = nullptr);
 			static bool UpdateModelPopup(bool openModelPopup, Core::GameObject* parent = nullptr);
 		private:
 			Weak<Resource::Model> m_waitingModel;

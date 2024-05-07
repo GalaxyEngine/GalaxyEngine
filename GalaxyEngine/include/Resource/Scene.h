@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 
+#include "Debug/Log.h"
+
 #include "Resource/IResource.h"
 
 #include "Core/GameObject.h"

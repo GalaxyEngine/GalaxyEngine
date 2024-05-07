@@ -10,6 +10,9 @@
 #include "Resource/Prefab.h"
 #include "Resource/Sound.h"
 
+#include <imgui.h>
+#include <imgui_internal.h>
+
 namespace GALAXY
 {
 	inline void Resource::ResourceManager::AddResource(const Shared<IResource>& resource)
@@ -306,6 +309,10 @@ namespace GALAXY
 			const float regionAvailX = ImGui::GetContentRegionAvail().x;
 			constexpr float buttonSizeY = 15.f;
 			Vec2f buttonSize = Vec2f(regionAvailX, 0);
+			if (ImGui::Button("Cancel", buttonSize)) {
+				result = true;
+				ImGui::CloseCurrentPopup();
+			}
 			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
 			if (ImGui::Button("Reset", buttonSize)) {
 				outResource.reset();

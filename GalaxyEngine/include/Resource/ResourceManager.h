@@ -15,6 +15,7 @@ namespace GALAXY {
 		class Application;
 	}
 	namespace Resource {
+		class Shader;
 		using ResourceMap = std::map<Path, Shared<IResource>>;
 		class ResourceManager
 		{

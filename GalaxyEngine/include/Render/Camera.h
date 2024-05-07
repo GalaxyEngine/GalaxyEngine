@@ -52,6 +52,7 @@ namespace GALAXY
 			inline Mat4 GetViewProjectionMatrix() const;
 			inline Vec4f GetClearColor() const { return p_clearColor; }
 			Physic::Ray ScreenPointToRay(const Vec3f& point);
+			Physic::Ray ScreenPointToRay(const Vec2f& point);
 
 			virtual Vec2i GetScreenResolution() const;
 			inline Vec2f ToViewport(const Vec2f& pos) const;

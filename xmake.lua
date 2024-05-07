@@ -10,7 +10,11 @@ set_allowedmodes("debug", "release", "gamedbg", "game")
 set_defaultmode("debug")
 
 local isEditor = is_mode("debug") or is_mode("release")
-local isDebug = is_mode("debug")
+local isDebug = is_mode("debug") or is_mode("gamedbg")
+
+if (isDebug) then
+    add_defines("_DEBUG")
+end
 
 if (is_mode("gamedbg")) then
     add_defines("GAME_DEBUG")
@@ -109,5 +113,8 @@ target("GalaxyCore")
     add_deps("GalaxyEngine")
     add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
+    
+    -- Packages
     add_packages("galaxymath")
+    add_packages("imgui")
 target_end()

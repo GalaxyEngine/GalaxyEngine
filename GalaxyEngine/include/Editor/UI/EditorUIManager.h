@@ -47,8 +47,8 @@ namespace GALAXY::Editor::UI {
 		void SetOnValidatePopupEvent(const std::function<void()>& onValidate);
 		static bool ShouldDisplaySafeClose();
 
-		void AddResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) == m_loadingResources.end()); m_loadingResources.insert(uuid);}
-		void RemoveResourceLoading(const Core::UUID& uuid) { ASSERT(m_loadingResources.find(uuid) != m_loadingResources.end()); m_loadingResources.erase(uuid); }
+		void AddResourceLoading(const Core::UUID& uuid) { m_loadingResources.insert(uuid);}
+		void RemoveResourceLoading(const Core::UUID& uuid) { m_loadingResources.erase(uuid); }
 
 		std::set<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
 

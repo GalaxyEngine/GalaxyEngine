@@ -43,6 +43,15 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 
     gameobject->m_sceneGraphID = index;
 
+#ifdef _DEBUG
+    if (gameobject->GetParent())
+    {
+        bool contains = gameobject->GetScene()->GetObjectList().contains(gameobject->GetUUID());
+        if (!contains)
+            PrintError("Object list of the scene does not countain the gameObject : %s with uuid %llu", gameobject->GetName().c_str(), gameobject->GetUUID());
+    }
+#endif
+    
     if (!display)
     {
         // Do the same for all children
@@ -267,7 +276,8 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
             drawList->AddLine(cursorPos, cursorPos + Vec2f(centerX, 0), white);
         
         Wrapper::GUI::TreePush(child->m_name.c_str(), ImGui::GetFrameHeight());
-        DisplayGameObject(child, i, display);
+        index++;
+        DisplayGameObject(child, index, display);
         Wrapper::GUI::TreePop(ImGui::GetFrameHeight());
     }        
 
@@ -336,29 +346,44 @@ void Editor::UI::Hierarchy::RightClickPopup()
         const List<Weak<GameObject>> selectedGameObjects = m_inspector->GetSelectedGameObjects();
         const auto buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
         
+            
+        auto firstGameObjectSelected = selectedGameObjects.size() ? selectedGameObjects[0].lock() : nullptr;
         if (ImGui::BeginMenu("Create"))
         {
-            MainBar::DisplayCreateGameObject(openModelPopup);
+            uint32_t lastChildrenCount = 0;
+            if (firstGameObjectSelected)
+                lastChildrenCount = firstGameObjectSelected->GetChildrenCount();
+            
+            MainBar::DisplayCreateGameObject(openModelPopup, firstGameObjectSelected.get());
+            if (selectedGameObjects.size() > 1 && lastChildrenCount != firstGameObjectSelected->GetChildrenCount())
+            {
+                auto lastChild = firstGameObjectSelected->GetChild(firstGameObjectSelected->GetChildrenCount() - 1).lock();
+                for (size_t i = 1; i < selectedGameObjects.size(); i++)
+                {
+                    auto clone = lastChild->Clone();
+                    clone->GetScene()->AddObject(clone);
+                    selectedGameObjects[i].lock()->AddChild(clone);
+                }
+            }
+                
             ImGui::EndMenu();
         }
-        
-
         // === At least one selected === //
         if (!selectedGameObjects.empty())
         {
             // === if selected are sibling === //
             if (!selectedGameObjects.empty())
             {
-                ImGui::BeginDisabled(!selectedGameObjects[0].lock()->IsSibling(selectedGameObjects));
+                ImGui::BeginDisabled(!firstGameObjectSelected->IsSibling(selectedGameObjects));
             }
             {
                 if (ImGui::Button("Create Parent", buttonSize))
                 // "Create Parent" button, clickable if at least one item is selected
                 {
                     const Weak<GameObject> parent = SceneHolder::GetCurrentScene()->CreateObject();
-                    const uint32_t childIndex = selectedGameObjects[0].lock()->GetParent()->
-                                                            GetChildIndex(selectedGameObjects[0].lock().get());
-                    selectedGameObjects[0].lock()->GetParent()->AddChild(parent.lock(), childIndex);
+                    const uint32_t childIndex = firstGameObjectSelected->GetParent()->
+                                                            GetChildIndex(firstGameObjectSelected.get());
+                    firstGameObjectSelected->GetParent()->AddChild(parent.lock(), childIndex);
 
                     for (const Weak<GameObject>& i : selectedGameObjects)
                     {
@@ -377,7 +402,7 @@ void Editor::UI::Hierarchy::RightClickPopup()
             {
                 if (ImGui::Button("Rename", buttonSize))
                 {
-                    SetRename(selectedGameObjects[0].lock().get());
+                    SetRename(firstGameObjectSelected.get());
                     ImGui::CloseCurrentPopup();
                 }
             }

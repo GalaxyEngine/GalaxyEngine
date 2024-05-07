@@ -8,6 +8,10 @@
 
 #include "Utils/FileInfo.h"
 
+namespace CppSer {
+	class Serializer;
+	class Parser;
+}
 
 namespace GALAXY::Resource {
 	enum class ResourceType
