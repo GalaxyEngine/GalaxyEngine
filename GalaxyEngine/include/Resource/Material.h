@@ -25,6 +25,7 @@ namespace GALAXY
 			void OnAdd() override;
 
 			const char* GetResourceName() const override { return "Material"; }
+			Path GetThumbnailPath() const override;
 
 			bool LoadMatFile();
 

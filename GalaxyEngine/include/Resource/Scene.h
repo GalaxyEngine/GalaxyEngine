@@ -59,6 +59,7 @@ namespace GALAXY {
 			virtual void Save(const Path& fullPath = "") const;
 
 			const char* GetResourceName() const override { return "Scene"; }
+			Path GetThumbnailPath() const override { return "";}
 
 			static Weak<Scene> Create(const Path& path);
 

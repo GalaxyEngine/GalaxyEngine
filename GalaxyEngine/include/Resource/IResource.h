@@ -113,6 +113,7 @@ namespace GALAXY::Resource {
 		virtual void OnAdd() {}
 
 		virtual const char* GetResourceName() const = 0;
+		virtual Path GetThumbnailPath() const {return "";}
 		static ResourceType GetResourceType() { return ResourceType::None; }
 
 		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }

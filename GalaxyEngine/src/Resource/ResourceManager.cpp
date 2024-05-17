@@ -488,6 +488,30 @@ namespace GALAXY {
 		m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;
 	}
 
+	void Resource::ResourceManager::ShowFileInInternExplorer(const Path& path)
+	{
+		auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+		fileExplorer->NavigateToFile(path);
+	}
+
+	const Path& Resource::ResourceManager::GetSelectedFileInInternExplorer()
+	{
+		auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+		auto selectedFiles = fileExplorer->GetSelectedFiles();
+		if (selectedFiles.empty())
+			return "";
+		return selectedFiles[0]->GetFileInfo().GetFullPath();
+	}
+
+	Weak<Resource::IResource> Resource::ResourceManager::GetExplorerDraggedFile()
+	{
+		auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+		auto draggedFiles = fileExplorer->GetDraggedFiles();
+		if (draggedFiles.empty())
+			return {};
+		return draggedFiles[0]->GetResource<Resource::IResource>();
+	}
+
 	void Resource::ResourceManager::Release()
 	{
 		m_instance.reset();

@@ -32,6 +32,7 @@ namespace GALAXY {
 			void Save();
 
 			const char* GetResourceName() const override { return "Shader"; }
+			Path GetThumbnailPath() const override {return "";}
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }

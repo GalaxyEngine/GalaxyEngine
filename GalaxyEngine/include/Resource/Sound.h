@@ -26,6 +26,7 @@ namespace GALAXY
 			void Stop();
 
 			const char* GetResourceName() const override { return "Sound"; }
+			Path GetThumbnailPath() const override {return "";}
 
 			static inline ResourceType GetResourceType() { return ResourceType::Sound; }
 			

@@ -25,6 +25,7 @@ namespace GALAXY
 			~Mesh() override {}
 
 			const char* GetResourceName() const override { return "Mesh"; }
+			Path GetThumbnailPath() const override;
 
 			std::string GetMeshName();
 

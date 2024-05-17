@@ -45,6 +45,7 @@ namespace GALAXY {
 			void Unload() override;
 
 			const char* GetResourceName() const override { return "Default Resource"; }
+			Path GetThumbnailPath() const override;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
 		

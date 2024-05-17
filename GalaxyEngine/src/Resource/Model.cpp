@@ -135,6 +135,11 @@ namespace GALAXY {
 		}
 	}
 
+	Path Resource::Model::GetThumbnailPath() const
+	{
+		return Editor::ThumbnailCreator::GetThumbnailPath(p_uuid);
+	}
+
 	Shared<Core::GameObject> Resource::Model::ToGameObject()
 	{
 		Shared<Core::GameObject> root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());

@@ -77,6 +77,10 @@ namespace GALAXY
 
 			void Initialize() override;
 
+			void SetDirectory(const Path& directory);
+
+			void NavigateToFile(const Path& filePath);
+
 			void Draw() override;
 
 			void DragAndDrop(Shared<File>& child);
@@ -95,6 +99,7 @@ namespace GALAXY
 			void ReloadContent();
 
 			const List<Shared<File>>& GetDraggedFiles() const { return m_draggedFiles; }
+			const List<Shared<File>>& GetSelectedFiles() const { return m_selectedFiles; }
 		private:
 			void SetCurrentFile(const Shared<File>& file);
 

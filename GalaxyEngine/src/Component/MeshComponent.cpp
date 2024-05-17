@@ -103,16 +103,20 @@ namespace GALAXY {
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
+		/*
 		std::string label = m_mesh.expired() ? "Missing" :m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName() : "Empty";
 		if (ImGui::Button(label.c_str(), buttonSize))
 		{
 			ImGui::OpenPopup("MeshPopup");
 		}
+		
 		Weak<Resource::Mesh> mesh;
 		if (Resource::ResourceManager::GetInstance()->ResourcePopup("MeshPopup", mesh))
 		{
 			m_mesh = mesh;
 		}
+		*/
+		Resource::ResourceManager::ResourceField(m_mesh, "Mesh");
 		static uint32_t selected = 0;
 		static uint32_t clicked = 0;
 		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -121,6 +125,7 @@ namespace GALAXY {
 				ImGui::PushID(i);
 				ImGui::BeginGroup();
 				Vec2f size = Vec2f(0, 16 * Wrapper::GUI::GetScaleFactor());
+				/*
 				if (ImGui::Selectable(("Element " + std::to_string(i)).c_str(), selected == i, ImGuiSelectableFlags_AllowItemOverlap, size))
 				{
 					selected = i;
@@ -134,6 +139,34 @@ namespace GALAXY {
 				}
 				ImGui::EndGroup();
 				ImGui::PopID();
+				*/
+				ImGui::BeginGroup();
+				if (i != 0 && m_materials.size() > 1 && ImGui::ArrowButton("Up", ImGuiDir_Up))
+				{
+					if (i == 0)
+						continue;
+					auto material = m_materials[i];
+					m_materials.erase(m_materials.begin() + i);
+					m_materials.insert(m_materials.begin() + i - 1, material);
+				}
+				else
+				{
+					ImGui::InvisibleButton("Up", Vec2f(0, ImGui::GetFrameHeight()));
+				}
+				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 16.f);
+				if (i != m_materials.size() - 1 && m_materials.size() > 1 && ImGui::ArrowButton("Down", ImGuiDir_Down))
+				{
+					auto material = m_materials[i];
+					m_materials.erase(m_materials.begin() + i);
+					m_materials.insert(m_materials.begin() + i + 1, material);
+				}
+				else
+				{
+					ImGui::InvisibleButton("Down", Vec2f(0, ImGui::GetFrameHeight()));
+				}
+				ImGui::EndGroup();
+				ImGui::SameLine();
+				Resource::ResourceManager::ResourceField(m_materials[i], ("Element " + std::to_string(i)).c_str());
 				if (ImGui::BeginDragDropSource()) {
 					ImGui::SetDragDropPayload("MATERIAL", &i, sizeof(size_t));
 					ImGui::Text("Element %d", i);

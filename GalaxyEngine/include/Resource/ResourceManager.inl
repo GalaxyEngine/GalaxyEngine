@@ -300,7 +300,7 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline bool Resource::ResourceManager::ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter /* = {}*/)
+	inline bool Resource::ResourceManager::ResourcePopup(const char* popupName, Weak<T>& outResource)
 	{
 		bool result = false;
 		if (ImGui::BeginPopup(popupName))
@@ -326,21 +326,25 @@ namespace GALAXY
 			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * buttonSizeY), true);
 			buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
-			const bool checkTypeInRange = typeFilter.size() > 0;
-			for (const auto& [path, resource] : m_resources)
+			bool isAMesh = std::is_base_of<Resource::Mesh, T>::value;
+			for (const auto& [path, resource] : m_instance->m_resources)
 			{
-				bool typeChecked;
-				if (checkTypeInRange)
-					typeChecked = std::ranges::find(typeFilter, resource->GetFileInfo().GetResourceType()) != typeFilter.end();
-				else {
-					typeChecked = dynamic_pointer_cast<T>(resource) != nullptr;
-				}
+				bool typeChecked = dynamic_pointer_cast<T>(resource) != nullptr;
 
-				if (typeChecked && filter.PassFilter(resource->GetFileInfo().GetFileNameNoExtension().c_str())
+				std::string name = resource->GetFileInfo().GetFileNameNoExtension();
+
+				if (isAMesh)
+				{
+					// if is a mesh we want to display the name of the mesh not the name of the model
+					name = resource->GetFileInfo().GetFileName();
+					name = name.substr(name.find(':') + 1);
+				}
+				
+				if (typeChecked && filter.PassFilter(name.c_str())
 					&& resource->ShouldDisplayOnInspector())
 				{
 					ImGui::PushID(static_cast<int>(i++));
-					if (ImGui::Button(resource->GetFileInfo().GetFileNameNoExtension().c_str(), buttonSize))
+					if (ImGui::Button(name.c_str(), buttonSize))
 					{
 						result = true;
 						outResource = GetOrLoad<T>(path);
@@ -357,6 +361,68 @@ namespace GALAXY
 			ImGui::EndPopup();
 		}
 		return result;
+	}
+
+	template <typename T>
+	inline bool Resource::ResourceManager::ResourceField(Weak<T>& outResource, const std::string& fieldName)
+	{
+		// TODO ? Make a struct to check for rightclick
+		ImGui::PushID(fieldName.c_str());
+		std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
+		std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
+
+		Resource::Texture* texture = nullptr;
+		uint32_t id = 0;
+		if (auto resource = outResource.lock())
+		{
+			texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
+			if (texture)
+				id = texture->GetID();
+		}
+		auto prevPos = ImGui::GetCursorPos();
+		ImGui::Selectable("##", false, ImGuiSelectableFlags_AllowOverlap, Vec2f(ImGui::GetContentRegionAvail().x, 64));
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
+			{
+				auto draggedFiles = GetExplorerDraggedFile();
+				if (auto resource = draggedFiles.lock())
+				{
+					if (auto castResource = std::dynamic_pointer_cast<T>(resource))
+					{
+						if (!castResource->IsLoaded())
+							GetOrLoad<T>(castResource->GetFileInfo().GetFullPath());
+						outResource = castResource;
+					}
+				}
+			}
+		}
+		ImGui::SetCursorPos(prevPos);
+		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), Vec2f(64, 64));
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		ImGui::TextUnformatted((resourceName + " | " + fieldName).c_str());
+		if (ImGui::Button(label.c_str(), Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+		{
+			ImGui::OpenPopup(fieldName.c_str());
+		}
+		if (outResource.lock())
+		{
+			if (ImGui::Button("Find"))
+			{
+				auto path = outResource.lock()->GetFileInfo().GetFullPath();
+				ShowFileInInternExplorer(path);
+			}
+		}
+		ImGui::EndGroup();
+		if (ResourceManager::ResourcePopup(fieldName.c_str(), outResource))
+		{
+			ImGui::PopID();
+			return true;
+		}
+		
+		ImGui::PopID();
+		return false;
 	}
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()

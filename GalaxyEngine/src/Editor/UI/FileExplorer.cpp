@@ -276,6 +276,21 @@ namespace GALAXY {
 
 		EditorUIManager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
 	}
+	
+	void Editor::UI::FileExplorer::SetDirectory(const Path& directory)
+	{
+		auto file = m_mainFile->GetWithPath(directory);
+		if (!file)
+			return;
+		SetCurrentFile(file);
+	}
+
+	void Editor::UI::FileExplorer::NavigateToFile(const Path& filePath)
+	{
+		SetDirectory(filePath.parent_path());
+		if (auto file = m_mainFile->GetWithPath(filePath))
+			AddFileSelected(file);
+	}
 
 	void Editor::UI::FileExplorer::Draw()
 	{
@@ -378,7 +393,7 @@ namespace GALAXY {
 				}
 				ImGui::OpenPopup("RightClickPopup");
 			}
-			if (ImGui::IsMouseClicked(0) && ImGui::GetHoveredID() == 0)
+			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(0) && ImGui::GetHoveredID() == 0)
 				ClearSelected();
 			RightClickWindow();
 			ImGui::EndChild();
@@ -946,13 +961,8 @@ namespace GALAXY {
 
 		if (!file->m_rename && file->m_hovered && !this->m_rightClickOpen)
 		{
-			if (ImGui::IsMouseClicked(0) || ImGui::IsMouseClicked(1) && !file->m_selected)
+			if (ImGui::IsMouseReleased(0) || ImGui::IsMouseClicked(1) && !file->m_selected)
 			{
-				if (ImGui::IsMouseDoubleClicked(0) && file->m_selected && isFolder)
-				{
-					SetCurrentFile(file);
-					shouldBreak = true;
-				}
 				if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 				{
 					if (!file->m_selected)
@@ -980,6 +990,11 @@ namespace GALAXY {
 					ClearSelected();
 					AddFileSelected(file);
 				}
+			}
+			else if (ImGui::IsMouseDoubleClicked(0) && file->m_selected && isFolder)
+			{
+				SetCurrentFile(file);
+				shouldBreak = true;
 			}
 			if (ImGui::IsMouseClicked(1))
 			{

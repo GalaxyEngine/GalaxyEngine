@@ -94,7 +94,10 @@ namespace GALAXY {
 			static bool IsDataFileUpToDate(const Path& resourcePath);
 
 			template <typename T>
-			inline bool ResourcePopup(const char* popupName, Weak<T>& outResource, const std::vector<Resource::ResourceType>& typeFilter = {});
+			static inline bool ResourcePopup(const char* popupName, Weak<T>& outResource);
+
+			template <typename T>
+			static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName);
 
 			static Path GetAssetPath() { return m_instance->m_assetPath; }
 			static Path GetProjectPath() { return m_instance->m_projectPath; }
@@ -110,6 +113,12 @@ namespace GALAXY {
 
 			static void RenameSingle(const Path& oldPath, const Path& newPath);
 			static bool DoesProjectExists() { return m_instance->m_projectExists; }
+		private:
+			static void ShowFileInInternExplorer(const Path& path);
+
+			static const Path& GetSelectedFileInInternExplorer();
+
+			static Weak<IResource> GetExplorerDraggedFile();
 		private:
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;

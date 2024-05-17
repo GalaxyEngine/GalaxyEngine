@@ -66,6 +66,7 @@ namespace GALAXY {
 			void ShowInInspector() override;
 
 			const char* GetResourceName() const override { return "Texture"; }
+			inline Path GetThumbnailPath() const override { return p_fileInfo.GetFullPath(); }
 
 			void Bind(uint32_t index = 0);
 			static void UnBind();

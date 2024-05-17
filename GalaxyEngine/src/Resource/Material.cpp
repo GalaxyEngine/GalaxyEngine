@@ -48,6 +48,11 @@ namespace GALAXY {
 	{
 	}
 
+	Path Resource::Material::GetThumbnailPath() const
+	{
+		return Editor::ThumbnailCreator::GetThumbnailPath(p_uuid);
+	}
+
 	bool Resource::Material::LoadMatFile()
 	{
 		CppSer::Parser parser(p_fileInfo.GetFullPath());
@@ -101,7 +106,7 @@ namespace GALAXY {
 				ImGui::OpenPopup("ShaderPopup");
 			}
 			Weak<Shader> sha;
-			if (Resource::ResourceManager::GetInstance()->ResourcePopup("ShaderPopup", sha, { Resource::ResourceType::Shader, Resource::ResourceType::PostProcessShader }); sha.lock())
+			if (Resource::ResourceManager::GetInstance()->ResourcePopup("ShaderPopup", sha/*, { Resource::ResourceType::Shader, Resource::ResourceType::PostProcessShader }*/); sha.lock())
 			{
 				m_shader = sha;
 			}
@@ -109,9 +114,12 @@ namespace GALAXY {
 			ImGui::ColorEdit4("Diffuse", &m_diffuse.x);
 			ImGui::ColorEdit4("Specular", &m_specular.x);
 
-			DisplayTexture("Set Albedo", m_albedo);
-			DisplayTexture("Set Normal Map", m_normalMap);
-			DisplayTexture("Set Parallax Map", m_parallaxMap);
+			Resource::ResourceManager::ResourceField(m_albedo, "Albedo");
+			Resource::ResourceManager::ResourceField(m_normalMap, "Normal Map");
+			Resource::ResourceManager::ResourceField(m_parallaxMap, "Parallax Map");
+			// DisplayTexture("Set Albedo", m_albedo);
+			// DisplayTexture("Set Normal Map", m_normalMap);
+			// DisplayTexture("Set Parallax Map", m_parallaxMap);
 			if (m_parallaxMap.lock())
 			{
 				ImGui::DragFloat("Height Scale", &m_heightScale, 0.1f);

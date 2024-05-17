@@ -11,6 +11,10 @@
 
 #include "Component/Transform.h"
 
+#ifdef WITH_EDITOR
+#include "Editor/ThumbnailCreator.h"
+#endif
+
 #include "Wrapper/Renderer.h"
 
 #include "Render/Camera.h"
@@ -19,8 +23,12 @@ namespace GALAXY {
 	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
 	{
 		p_status = ResourceStatus::DisplayOnInspector;
-		const std::string fullPathString = p_fileInfo.m_fullPath.string();
 		p_fileInfo.m_resourceType = ResourceType::Mesh;
+	}
+
+	Path Resource::Mesh::GetThumbnailPath() const
+	{
+		return Editor::ThumbnailCreator::GetThumbnailPath(p_uuid);
 	}
 
 	std::string Resource::Mesh::GetMeshName()
