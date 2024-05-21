@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Component/MeshComponent.h"
-
 #include "Resource/ResourceManager.h"
 #include "Resource/Model.h"
 #include "Resource/Mesh.h"
@@ -17,20 +16,33 @@
 #endif
 
 namespace GALAXY {
+	void Component::MeshComponent::OnEditorDraw()
+	{
+		const auto gameObject = GetGameObject();
+		
+		Shared<Resource::Mesh> mesh = m_mesh.lock();
+		if (!mesh)
+			return;
+		
+		if (m_drawBoundingBox)
+			mesh->DrawBoundingBox(gameObject->GetTransform());
+
+		if (m_drawModelBoundingBox)
+			mesh->GetModel()->DrawBoundingBox(gameObject->GetTransform());
+	}
 
 	void Component::MeshComponent::OnDraw()
 	{
-		auto gameObject = GetGameObject();
+		const auto gameObject = GetGameObject();
+		
 		auto mesh = m_mesh.lock();
 		if (!mesh)
 			return;
-
-		if (m_drawBoundingBox)
-			m_mesh.lock()->DrawBoundingBox(gameObject->GetTransform());
-
-		const auto& currentCamera = gameObject->GetScene()->GetCurrentCamera();
+		
+		const Shared<Render::Camera>& currentCamera = gameObject->GetScene()->GetCurrentCamera();
 		if (currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
 			return;
+		
 		m_mesh.lock()->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
 	}
 
@@ -103,48 +115,21 @@ namespace GALAXY {
 	{
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
-		/*
-		std::string label = m_mesh.expired() ? "Missing" :m_mesh.lock() ? m_mesh.lock()->GetFileInfo().GetFileName() : "Empty";
-		if (ImGui::Button(label.c_str(), buttonSize))
-		{
-			ImGui::OpenPopup("MeshPopup");
-		}
-		
-		Weak<Resource::Mesh> mesh;
-		if (Resource::ResourceManager::GetInstance()->ResourcePopup("MeshPopup", mesh))
-		{
-			m_mesh = mesh;
-		}
-		*/
-		Resource::ResourceManager::ResourceField(m_mesh, "Mesh");
-		static uint32_t selected = 0;
+		ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
+		Resource::ResourceManager::ResourceField(m_mesh, "Mesh", false);
+		static uint32_t selected = -1;
 		static uint32_t clicked = 0;
 		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
 			for (uint32_t i = 0; i < m_materials.size(); i++)
 			{
 				ImGui::PushID(i);
+				ImGui::Separator();
 				ImGui::BeginGroup();
-				Vec2f size = Vec2f(0, 16 * Wrapper::GUI::GetScaleFactor());
-				/*
-				if (ImGui::Selectable(("Element " + std::to_string(i)).c_str(), selected == i, ImGuiSelectableFlags_AllowItemOverlap, size))
-				{
-					selected = i;
-				}
-				ImGui::SameLine();
-				buttonSize = { ImGui::GetContentRegionAvail().x, size.y };
-				if (ImGui::Button(m_materials[i].lock() ? m_materials[i].lock()->GetFileInfo().GetFileName().c_str() : "Missing", buttonSize))
-				{
-					ImGui::OpenPopup("MaterialPopup");
-					clicked = i;
-				}
-				ImGui::EndGroup();
-				ImGui::PopID();
-				*/
-				ImGui::BeginGroup();
+				const Vec2f size = Vec2f(0, 64 * Wrapper::GUI::GetScaleFactor());
+				const Vec2f prevPos = ImGui::GetCursorPos();
 				if (i != 0 && m_materials.size() > 1 && ImGui::ArrowButton("Up", ImGuiDir_Up))
 				{
-					if (i == 0)
-						continue;
+					// Move up
 					auto material = m_materials[i];
 					m_materials.erase(m_materials.begin() + i);
 					m_materials.insert(m_materials.begin() + i - 1, material);
@@ -153,9 +138,10 @@ namespace GALAXY {
 				{
 					ImGui::InvisibleButton("Up", Vec2f(0, ImGui::GetFrameHeight()));
 				}
-				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 16.f);
+				ImGui::SetCursorPosY(prevPos.y + size.y - ImGui::GetFrameHeight());
 				if (i != m_materials.size() - 1 && m_materials.size() > 1 && ImGui::ArrowButton("Down", ImGuiDir_Down))
 				{
+					// Move down
 					auto material = m_materials[i];
 					m_materials.erase(m_materials.begin() + i);
 					m_materials.insert(m_materials.begin() + i + 1, material);
@@ -166,7 +152,12 @@ namespace GALAXY {
 				}
 				ImGui::EndGroup();
 				ImGui::SameLine();
-				Resource::ResourceManager::ResourceField(m_materials[i], ("Element " + std::to_string(i)).c_str());
+				bool wasSelected = i == selected;
+				Resource::ResourceManager::ResourceField(m_materials[i], "Element " + std::to_string(i), &wasSelected);
+				if (wasSelected != (i == selected))
+				{
+					selected = i;
+				}
 				if (ImGui::BeginDragDropSource()) {
 					ImGui::SetDragDropPayload("MATERIAL", &i, sizeof(size_t));
 					ImGui::Text("Element %d", i);
@@ -183,13 +174,6 @@ namespace GALAXY {
 					ImGui::EndDragDropTarget();
 				}
 			}
-			ImGui::PushID(clicked);
-			Weak<Resource::Material> mat;
-			if (Resource::ResourceManager::GetInstance()->ResourcePopup("MaterialPopup", mat))
-			{
-				m_materials[clicked] = mat;
-			}
-			ImGui::PopID();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.15f, 0.8f, 0.1f, 1.f));
 			if (ImGui::Button("Add"))
 			{
@@ -207,6 +191,7 @@ namespace GALAXY {
 			ImGui::TreePop();
 		}
 
+		/*
 		// Debug
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
@@ -216,6 +201,7 @@ namespace GALAXY {
 			m_materials[i].lock()->ShowInInspector();
 			ImGui::PopID();
 		}
+		*/
 	}
 
 }

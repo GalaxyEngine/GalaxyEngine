@@ -219,6 +219,18 @@ namespace GALAXY {
 
 		thumbnailCreator->AddToQueue(modelWeak);
 	}
+
+	void Resource::Model::DrawBoundingBox(const Component::Transform* transform) const
+	{
+		const BoundingBox box = GetBoundingBox();
+		const auto instance = Wrapper::Renderer::GetInstance();
+
+		instance->DrawWireCube(transform->GetWorldPosition() + box.GetCenter(), Vec3f(
+			(box.max.x - box.min.x) / 2.0f,
+			(box.max.y - box.min.y) / 2.0f,
+			(box.max.z - box.min.z) / 2.0f
+		) * transform->GetWorldScale(), Vec4f(1, 0, 0, 1), 5.f);
+	}
 #endif
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)

@@ -97,7 +97,7 @@ namespace GALAXY {
 			static inline bool ResourcePopup(const char* popupName, Weak<T>& outResource);
 
 			template <typename T>
-			static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName);
+			static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected = nullptr);
 
 			static Path GetAssetPath() { return m_instance->m_assetPath; }
 			static Path GetProjectPath() { return m_instance->m_projectPath; }
@@ -116,7 +116,7 @@ namespace GALAXY {
 		private:
 			static void ShowFileInInternExplorer(const Path& path);
 
-			static const Path& GetSelectedFileInInternExplorer();
+			static Path GetSelectedFileInInternExplorer();
 
 			static Weak<IResource> GetExplorerDraggedFile();
 		private:

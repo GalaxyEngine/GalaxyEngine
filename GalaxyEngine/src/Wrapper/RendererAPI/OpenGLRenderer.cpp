@@ -127,7 +127,7 @@ namespace GALAXY
 			PrintError("Error when Link shader %s :\n %s", shader->GetFileInfo().GetRelativePath().string().c_str(), infoLog);
 			return false;
 		}
-		PrintLog("Linked shader %s", shader->GetFileInfo().GetRelativePath().string().c_str());
+		// PrintLog("Linked shader %s", shader->GetFileInfo().GetRelativePath().string().c_str());
 		return true;
 	}
 

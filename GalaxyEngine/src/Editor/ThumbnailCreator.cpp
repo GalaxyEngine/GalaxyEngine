@@ -103,6 +103,15 @@ namespace GALAXY
 					break;
 				}
 			}
+			for (auto& mesh : modelShared->GetMeshes())
+			{
+				Shared<Resource::Mesh> meshLock = mesh.lock();
+				if (!meshLock->HasBeenSent())
+				{
+					canBeCreated = false;
+					break;
+				}
+			}
 		}
 
 		if (!canBeCreated)

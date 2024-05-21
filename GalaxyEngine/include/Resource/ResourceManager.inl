@@ -364,13 +364,14 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline bool Resource::ResourceManager::ResourceField(Weak<T>& outResource, const std::string& fieldName)
+	inline bool Resource::ResourceManager::ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected)
 	{
 		// TODO ? Make a struct to check for rightclick
 		ImGui::PushID(fieldName.c_str());
-		std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
-		std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
+		const std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
+		const std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
 
+		const Vec2f imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
 		Resource::Texture* texture = nullptr;
 		uint32_t id = 0;
 		if (auto resource = outResource.lock())
@@ -380,7 +381,11 @@ namespace GALAXY
 				id = texture->GetID();
 		}
 		auto prevPos = ImGui::GetCursorPos();
-		ImGui::Selectable("##", false, ImGuiSelectableFlags_AllowOverlap, Vec2f(ImGui::GetContentRegionAvail().x, 64));
+		bool result = false;
+		if (selected)
+			result = *selected;
+		if (ImGui::Selectable("##", result, ImGuiSelectableFlags_AllowOverlap, Vec2f(ImGui::GetContentRegionAvail().x, imageSize.y)) && selected)
+			*selected = !result;
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
@@ -398,7 +403,7 @@ namespace GALAXY
 			}
 		}
 		ImGui::SetCursorPos(prevPos);
-		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), Vec2f(64, 64));
+		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), imageSize);
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::TextUnformatted((resourceName + " | " + fieldName).c_str());
@@ -420,7 +425,6 @@ namespace GALAXY
 			ImGui::PopID();
 			return true;
 		}
-		
 		ImGui::PopID();
 		return false;
 	}

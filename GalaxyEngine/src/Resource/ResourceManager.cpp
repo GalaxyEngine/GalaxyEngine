@@ -494,7 +494,7 @@ namespace GALAXY {
 		fileExplorer->NavigateToFile(path);
 	}
 
-	const Path& Resource::ResourceManager::GetSelectedFileInInternExplorer()
+	Path Resource::ResourceManager::GetSelectedFileInInternExplorer()
 	{
 		auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
 		auto selectedFiles = fileExplorer->GetSelectedFiles();

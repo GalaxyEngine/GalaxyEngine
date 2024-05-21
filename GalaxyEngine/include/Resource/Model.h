@@ -53,13 +53,16 @@ namespace GALAXY {
 
 			Shared<Core::GameObject> ToGameObject();
 
-			Utils::Event<> OnLoad;
-
 #ifdef WITH_EDITOR
 			void CreateThumbnail();
 #endif
+			
+			void DrawBoundingBox(const Component::Transform* transform) const;
+			
 			const std::vector<Weak<class Material>>& GetMaterials() const { return m_materials; }
 			const std::vector<Weak<class Mesh>>& GetMeshes() const { return m_meshes; }
+		public:
+			Utils::Event<> OnLoad;
 		private:
 			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 
