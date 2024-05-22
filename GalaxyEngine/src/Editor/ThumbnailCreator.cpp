@@ -161,6 +161,74 @@ namespace GALAXY
 		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
 
+	void Editor::ThumbnailCreator::CreateMeshThumbnail(const Weak<Resource::Mesh>& mesh)
+	{
+		if (!m_initialized)
+			return;
+		auto meshShared = mesh.lock();
+		ASSERT(meshShared != nullptr);
+
+		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		bool canBeCreated = meshShared->HasBeenSent();
+		if (canBeCreated) {
+			for (auto& material : meshShared->GetMaterials())
+			{
+				Shared<Resource::Material> materialLock = material.lock();
+				if (!materialLock->IsLoaded() || !materialLock->GetShader() || !materialLock->GetShader()->HasBeenSent())
+				{
+					canBeCreated = false;
+					break;
+				}
+			}
+		}
+
+		if (!canBeCreated)
+		{
+			AddToQueue(mesh);
+			return;
+		}
+
+		auto meshObject = meshShared->ToGameObject();
+		meshObject->SetScene(m_scene.get());
+
+		float max = FLT_MIN;
+		for (int i = 0; i < 3; i++)
+		{
+			max = std::max(max, meshShared->GetBoundingBox().max[i]);
+		}
+
+		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
+		auto lookAt = Quat::LookRotation((cameraPosition - meshShared->GetBoundingBox().GetCenter()).GetNormalize(), Vec3f(0, -1, 0));
+		const Quat cameraRotation = lookAt;
+
+		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
+		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+		m_cameraObject->UpdateSelfAndChild();
+
+		m_camera->SetSize(m_thumbnailSize);
+		m_scene->SetCurrentCamera(m_camera);
+		renderer->SetViewport(m_thumbnailSize);
+		m_camera->Begin();
+
+		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
+
+		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
+
+		meshObject->DrawSelfAndChild(DrawMode::Game);
+
+		m_camera->End();
+
+		// Reset previous data
+		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
+
+		auto texture = m_camera->GetRenderTexture();
+
+		// Save thumbnail to file 
+		const Path thumbnailPath = GetThumbnailPath(meshShared->GetUUID());
+
+		SaveThumbnail(thumbnailPath, m_thumbnailSize);
+	}
+
 	void Editor::ThumbnailCreator::CreateMaterialThumbnail(const Weak<Resource::Material>& material)
 	{
 		if (!m_initialized)
@@ -240,6 +308,11 @@ namespace GALAXY
 				CreateModelThumbnail(std::dynamic_pointer_cast<Resource::Model>(resource.lock()));
 				break;
 			}
+			case Resource::ResourceType::Mesh:
+			{
+				CreateMeshThumbnail(std::dynamic_pointer_cast<Resource::Mesh>(resource.lock()));
+				break;
+			}
 			default:
 				break;
 			}
@@ -253,7 +326,7 @@ namespace GALAXY
 
 	std::filesystem::path Editor::ThumbnailCreator::GetThumbnailPath(const Core::UUID& uuid)
 	{
-		return Resource::ResourceManager::GetInstance()->GetProjectPath() / THUMBNAIL_PATH / (std::to_string(uuid) + ".tmb");
+		return Resource::ResourceManager::GetProjectPath() / THUMBNAIL_PATH / (std::to_string(uuid) + ".tmb");
 	}
 
 	bool Editor::ThumbnailCreator::IsThumbnailUpToDate(Resource::IResource* resource)

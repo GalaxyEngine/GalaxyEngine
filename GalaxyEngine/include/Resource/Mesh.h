@@ -44,6 +44,11 @@ namespace GALAXY
 
 			Model* GetModel() const { return m_model; }
 
+			Shared<Core::GameObject> ToGameObject();
+			
+			// @return List of default materials used by this mesh
+			List<Weak<Material>> GetMaterials() const;
+
 			bool HasModel() const { return !m_model; }
 
 			Utils::Event<> OnLoad;

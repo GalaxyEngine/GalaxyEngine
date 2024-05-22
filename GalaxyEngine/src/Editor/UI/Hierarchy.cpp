@@ -31,6 +31,26 @@ void Editor::UI::Hierarchy::Draw()
             m_openRightClick = false;
         }
         RightClickPopup();
+
+#ifdef _DEBUG
+        auto childs = root.lock()->GetAllChildren();
+        auto objectList = SceneHolder::GetCurrentScene()->GetObjectList();
+        for (const auto& pair : objectList)
+        {
+            auto object = pair.second;
+            bool found = false;
+            for (auto&& child : childs)
+            {
+                if (object == child.lock())
+                {
+                    found = true;
+                    continue;
+                }
+            }
+            if (!found)
+                PrintError("Object list of the scene does not countain the gameObject : %s with uuid %llu", object->GetName().c_str(), object->GetUUID());
+        }
+#endif
     }
     ImGui::End();
 }

@@ -17,7 +17,7 @@ namespace GALAXY {
 			void OnEditorDraw() override;
 			void OnDraw() override;
 
-			inline void SetMesh(const Weak<Resource::Mesh>& mesh) { if (mesh.lock()) { m_mesh = mesh; } }
+			inline void SetMesh(Weak<Resource::Mesh> mesh) { if (mesh.lock()) { m_mesh = mesh; } }
 			inline Weak<Resource::Mesh> GetMesh() const { return m_mesh; }
 
 			void Serialize(CppSer::Serializer& serializer) override;

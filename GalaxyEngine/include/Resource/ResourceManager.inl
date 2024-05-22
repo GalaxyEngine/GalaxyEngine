@@ -305,10 +305,11 @@ namespace GALAXY
 		bool result = false;
 		if (ImGui::BeginPopup(popupName))
 		{
-			constexpr int maxButtonDisplay = 10;
+			constexpr int maxButtonDisplay = 5;
 			const float regionAvailX = ImGui::GetContentRegionAvail().x;
-			constexpr float buttonSizeY = 15.f;
 			Vec2f buttonSize = Vec2f(regionAvailX, 0);
+			const Vec2f imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
+			const Vec2f selectableSize(buttonSize.x, imageSize.y);
 			if (ImGui::Button("Cancel", buttonSize)) {
 				result = true;
 				ImGui::CloseCurrentPopup();
@@ -323,7 +324,7 @@ namespace GALAXY
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 			static ImGuiTextFilter filter;
 			filter.Draw();
-			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * buttonSizeY), true);
+			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * imageSize.y), true);
 			buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
 			bool isAMesh = std::is_base_of<Resource::Mesh, T>::value;
@@ -343,7 +344,28 @@ namespace GALAXY
 				if (typeChecked && filter.PassFilter(name.c_str())
 					&& resource->ShouldDisplayOnInspector())
 				{
+					std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
 					ImGui::PushID(static_cast<int>(i++));
+					auto cursorPos = ImGui::GetCursorPos();
+					if (ImGui::Selectable("##", false, 0, selectableSize))
+					{
+						result = true;
+						outResource = GetOrLoad<T>(path);
+						ImGui::CloseCurrentPopup();
+					}
+					if (ImGui::IsItemHovered())
+					{
+						ImGui::SetTooltip(resource->GetFileInfo().GetRelativePath().string().c_str());
+					}
+					ImGui::SetCursorPos(cursorPos);
+					auto thumbnail = GetOrLoad<Texture>(resource->GetThumbnailPath()).lock();
+					auto id = thumbnail ? thumbnail->GetID() : 0;
+					ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), imageSize);
+					ImGui::SameLine();
+					ImGui::BeginGroup();
+					ImGui::TextUnformatted((resourceName + " | " + name).c_str());
+					ImGui::EndGroup();
+					/*
 					if (ImGui::Button(name.c_str(), buttonSize))
 					{
 						result = true;
@@ -354,6 +376,7 @@ namespace GALAXY
 					{
 						ImGui::SetTooltip(resource->GetFileInfo().GetRelativePath().string().c_str());
 					}
+					*/
 					ImGui::PopID();
 				}
 			}
@@ -386,6 +409,8 @@ namespace GALAXY
 			result = *selected;
 		if (ImGui::Selectable("##", result, ImGuiSelectableFlags_AllowOverlap, Vec2f(ImGui::GetContentRegionAvail().x, imageSize.y)) && selected)
 			*selected = !result;
+		if (outResource.lock() && ImGui::IsItemHovered())
+			ImGui::SetTooltip(std::to_string(outResource.lock()->GetUUID()).c_str());
 		if (ImGui::BeginDragDropTarget())
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))

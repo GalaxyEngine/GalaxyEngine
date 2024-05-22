@@ -31,7 +31,8 @@ namespace GALAXY {
 			bool IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform) const;
 			bool isOnOrForwardPlane(const Physic::Plane& plane) const;
 		};
-
+		class Material;
+		class Mesh;
 		class Model : public IResource
 		{
 		public:
@@ -58,9 +59,11 @@ namespace GALAXY {
 #endif
 			
 			void DrawBoundingBox(const Component::Transform* transform) const;
+
+			List<Weak<Material>> GetMaterialsOfMesh(const class Mesh* mesh) const;
 			
-			const std::vector<Weak<class Material>>& GetMaterials() const { return m_materials; }
-			const std::vector<Weak<class Mesh>>& GetMeshes() const { return m_meshes; }
+			const std::vector<Weak<Material>>& GetMaterials() const { return m_materials; }
+			const std::vector<Weak<Mesh>>& GetMeshes() const { return m_meshes; }
 		public:
 			Utils::Event<> OnLoad;
 		private:
@@ -68,6 +71,8 @@ namespace GALAXY {
 
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
+
+			void ShowInInspector() override;
 
 			void OnMeshLoaded();
 		private:

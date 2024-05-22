@@ -167,13 +167,13 @@ namespace GALAXY {
 	{
 		IResource::Serialize(serializer);
 		serializer << CppSer::Pair::BeginMap << "Model";
-		serializer << CppSer::Pair::Key << "Mesh Count" << CppSer::Pair::Value << m_meshes.size();
 		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_meshes.size(); i++)
 		{
-			auto meshName = m_meshes[i].lock()->GetFileInfo().GetFileName();
+			auto mesh = m_meshes[i].lock();
+			auto meshName = mesh->GetFileInfo().GetFileName();
 			meshName = meshName.substr(meshName.find(':') + 1);
-			serializer << CppSer::Pair::Key << "Mesh " + std::to_string(i) << CppSer::Pair::Value << meshName;
+			serializer << CppSer::Pair::Key << mesh->GetUUID() << CppSer::Pair::Value << meshName;
 		}
 		serializer << CppSer::Pair::EndTab;
 		serializer << CppSer::Pair::EndMap << "Model";
@@ -184,13 +184,25 @@ namespace GALAXY {
 		IResource::Deserialize(parser);
 		parser.PushDepth();
 		const size_t meshCount = parser["Mesh Count"].As<size_t>();
-		if (meshCount == -1)
-			return;
-		for (int i = 0; i < meshCount; i++)
+		if (meshCount != -1)
 		{
-			std::string meshName = parser["Mesh " + std::to_string(i)];
-			auto meshPath = Mesh::CreateMeshPath(GetFileInfo().GetFullPath(), meshName);
-			Resource::ResourceManager::AddResource<Mesh>(meshPath);
+			PrintError("You have a out dated .gdata file");
+			return;
+		}
+		for (auto [key, value] : parser.GetValueMap()[parser.GetCurrentDepth()])
+		{
+			auto meshPath = Mesh::CreateMeshPath(p_fileInfo.GetFullPath(), value.As<std::string>());
+			auto mesh = Resource::ResourceManager::AddResource<Mesh>(meshPath).lock();
+			Core::UUID uuid = std::stoull(key);
+			mesh->SetUUID(uuid);
+		}
+	}
+
+	void Resource::Model::ShowInInspector()
+	{
+		if (ImGui::Button("Reload Thumbnail"))
+		{
+			CreateThumbnail();
 		}
 	}
 
@@ -218,6 +230,10 @@ namespace GALAXY {
 		const Weak modelWeak = std::dynamic_pointer_cast<Model>(shared_from_this());
 
 		thumbnailCreator->AddToQueue(modelWeak);
+		for (auto& mesh : m_meshes)
+		{
+			thumbnailCreator->AddToQueue(mesh.lock());
+		}
 	}
 
 	void Resource::Model::DrawBoundingBox(const Component::Transform* transform) const
@@ -230,6 +246,27 @@ namespace GALAXY {
 			(box.max.y - box.min.y) / 2.0f,
 			(box.max.z - box.min.z) / 2.0f
 		) * transform->GetWorldScale(), Vec4f(1, 0, 0, 1), 5.f);
+	}
+
+	List<Weak<Resource::Material>> Resource::Model::GetMaterialsOfMesh(const Mesh* mesh) const
+	{
+		List<Weak<Resource::Material>> materials;
+		size_t index = 0;
+		for (size_t i = 0; i < m_meshes.size(); i++)
+		{
+			if (m_meshes[i].lock().get() == mesh)
+			{
+				for (size_t j = 0; j < mesh->m_subMeshes.size(); j++)
+				{
+					if (m_materials.size() > index + j)
+						materials.push_back(m_materials[index + j]);
+					else
+						materials.push_back(ResourceManager::GetDefaultMaterial());
+				}
+			}
+			index += m_meshes[i].lock()->m_subMeshes.size();
+		}
+		return materials;
 	}
 #endif
 

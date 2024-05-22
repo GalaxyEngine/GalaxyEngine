@@ -190,9 +190,28 @@ namespace GALAXY {
 			ImGui::PopStyleColor();
 			ImGui::TreePop();
 		}
-
-		/*
+		
 		// Debug
+		if (ImGui::Button("Create Object"))
+		{
+			auto object = m_mesh.lock()->ToGameObject();
+			object->SetName("New Object");
+			p_gameObject->AddChild(object);
+		}
+		
+		/*
+		if (m_mesh.lock())
+		{
+			if (ImGui::Button("Print Material of Mesh"))
+			{
+				for (auto material : m_mesh.lock()->GetMaterials())
+				{
+					PrintLog(material.lock()->GetName().c_str());
+				}
+			}
+		}
+		
+		
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
 			if (!m_materials[i].lock())

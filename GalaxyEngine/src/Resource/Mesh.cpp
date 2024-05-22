@@ -15,6 +15,7 @@
 #include "Editor/ThumbnailCreator.h"
 #endif
 
+#include "Component/MeshComponent.h"
 #include "Wrapper/Renderer.h"
 
 #include "Render/Camera.h"
@@ -130,6 +131,31 @@ namespace GALAXY {
 	Path Resource::Mesh::CreateMeshPath(const Path& modelPath, const Path& fileName)
 	{
 		return modelPath.wstring() + L":" + fileName.wstring();
+	}
+
+	Shared<Core::GameObject> Resource::Mesh::ToGameObject()
+	{
+		Shared<Core::GameObject> meshGO = std::make_shared<Core::GameObject>(GetMeshName());
+		auto meshComponent = meshGO->AddComponent<Component::MeshComponent>();
+		auto self = std::dynamic_pointer_cast<Resource::Mesh>(shared_from_this());
+		meshComponent.lock()->SetMesh(self);
+		auto materials = GetMaterials();
+		size_t index = 0;
+		for (auto& subMesh : m_subMeshes) {
+			if (index < materials.size())
+				meshComponent.lock()->AddMaterial(materials[index]);
+			else
+				meshComponent.lock()->AddMaterial(ResourceManager::GetInstance()->GetDefaultMaterial());
+			index++;
+		}
+		return meshGO;
+	}
+
+	List<Weak<Resource::Material>> Resource::Mesh::GetMaterials() const
+	{
+		if (!m_model)
+			return List<Weak<Resource::Material>>();
+		return m_model->GetMaterialsOfMesh(this);
 	}
 
 	void Resource::Mesh::ComputeBoundingBox(const std::vector<Vec3f>& positionVertices)

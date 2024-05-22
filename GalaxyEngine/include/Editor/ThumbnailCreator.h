@@ -17,6 +17,7 @@ namespace GALAXY
 	}
 	namespace Resource
 	{
+		class Mesh;
 		class Scene;
 		class IResource;
 		class Material;
@@ -33,6 +34,8 @@ namespace GALAXY
 			void AddToQueue(const Weak<Resource::IResource>& material);
 
 			void CreateModelThumbnail(const Weak<Resource::Model>& model);
+
+			void CreateMeshThumbnail(const Weak<Resource::Mesh>& mesh);
 
 			auto CreateMaterialThumbnail(const Weak<Resource::Material>& material) -> void;
 
