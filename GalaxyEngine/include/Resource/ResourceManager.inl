@@ -13,6 +13,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
+#include <Wrapper/GUI.h>
+
 namespace GALAXY
 {
 	inline void Resource::ResourceManager::AddResource(const Shared<IResource>& resource)
@@ -106,6 +108,11 @@ namespace GALAXY
 		}
 		if (resource != m_instance->m_resources.end())
 		{
+			if (!resource->second)
+			{
+				PrintError("Resource %s not found in Resource Manager", relativePath.string().c_str());
+				return Weak<T>{};
+			}
 			// Load the resource if not loaded.
 			if (!resource->second->p_shouldBeLoaded.load())
 			{
@@ -407,7 +414,7 @@ namespace GALAXY
 		bool result = false;
 		if (selected)
 			result = *selected;
-		if (ImGui::Selectable("##", result, ImGuiSelectableFlags_AllowOverlap, Vec2f(ImGui::GetContentRegionAvail().x, imageSize.y)) && selected)
+		if (ImGui::Selectable("##", result, ImGuiSelectableFlags_AllowOverlap, ImVec2(ImGui::GetContentRegionAvail().x, imageSize.y)) && selected)
 			*selected = !result;
 		if (outResource.lock() && ImGui::IsItemHovered())
 			ImGui::SetTooltip(std::to_string(outResource.lock()->GetUUID()).c_str());
