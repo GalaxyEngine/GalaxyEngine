@@ -217,7 +217,7 @@ namespace GALAXY {
 				return;
 		}
 		p_loaded.store(true);
-		OnLoad.Invoke();
+		EOnLoad.Invoke();
 		
 		FinishLoading();
 	}

@@ -175,7 +175,9 @@ void main()
 
 		p_hasBeenSent = Wrapper::Renderer::GetInstance()->LinkShaders(this);
 
-		p_locations.clear();
+		p_uniforms.clear();
+
+		p_uniforms = Wrapper::Renderer::GetInstance()->GetShaderUniforms(this);
 
 		if (p_hasBeenSent && !p_isAVariant) {
 			const auto weak_this = Resource::ResourceManager::GetResource<Resource::Shader>(GetFileInfo().GetFullPath());
@@ -197,6 +199,11 @@ void main()
 		SerializeResource(serializer, "Geometry", GetGeometry());
 		SerializeResource(serializer, "Fragment", GetFragment());
 		serializer <<CppSer::Pair::EndMap << "Shader";
+	}
+
+	Path Resource::Shader::GetThumbnailPath() const
+	{
+		return SHADER_ICON_PATH;
 	}
 
 	void Resource::Shader::ShowInInspector()
@@ -538,13 +545,17 @@ void main()
 	int Resource::Shader::GetLocation(const char* locationName)
 	{
 		ASSERT(HasBeenSent());
-		const auto it = p_locations.find(locationName);
-		if (it != p_locations.end())
+		const auto it = p_uniforms.find(locationName);
+		if (it != p_uniforms.end())
 		{
-			return it->second;
+			return it->second.location;
 		}
 		else
-			return p_locations[locationName] = Wrapper::Renderer::GetInstance()->GetShaderLocation(p_id, locationName);
+		{
+			PrintError("Uniform not found: %s", locationName);
+			p_uniforms[locationName] = {};
+			return -1;
+		}
 	}
 
 	void Resource::Shader::SendInt(const char* locationName, const int value)

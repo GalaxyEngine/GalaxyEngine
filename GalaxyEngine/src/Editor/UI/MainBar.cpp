@@ -247,7 +247,7 @@ namespace GALAXY
 				};
 				if (!modelShared->IsLoaded()) {
 					
-					modelShared->OnLoad.Bind(bind);
+					modelShared->EOnLoad.Bind(bind);
 				}
 				else
 				{

@@ -55,37 +55,44 @@ namespace GALAXY
 			{
 				Vec3f ambient;
 				iss >> ambient.x >> ambient.y >> ambient.z;
-				currentMaterial->m_ambient = ambient;
+				currentMaterial->SetAmbient(ambient);
 			}
 			// Diffuse
 			else if (token == "Kd")
 			{
 				Vec3f diffuse;
 				iss >> diffuse.x >> diffuse.y >> diffuse.z;
-				currentMaterial->m_diffuse = diffuse;
+				currentMaterial->SetDiffuse(diffuse);
 			}
 			// Specular
 			else if (token == "Ks")
 			{
 				Vec3f specular;
 				iss >> specular.x >> specular.y >> specular.z;
-				currentMaterial->m_specular = specular;
+				currentMaterial->SetSpecular(specular);
 			}
 			// Emissive
 			else if (token == "d")
 			{
 				float transparency;
 				iss >> transparency;
-				currentMaterial->m_ambient.w = transparency;
-				currentMaterial->m_diffuse.w = transparency;
-				currentMaterial->m_specular.w = transparency;
+
+				auto ambient = currentMaterial->GetAmbient();
+				ambient.w = transparency;
+				currentMaterial->SetAmbient(ambient);
+				auto diffuse = currentMaterial->GetDiffuse();
+				diffuse.w = transparency;
+				currentMaterial->SetDiffuse(diffuse);
+				auto specular = currentMaterial->GetSpecular();
+				specular.w = transparency;
+				currentMaterial->SetSpecular(specular);
 			}
 			else if (token == "map_Kd")
 			{
 				std::filesystem::path texPath;
 				iss >> texPath;
 				texPath = path.parent_path() / texPath;
-				currentMaterial->m_albedo = Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath);
+				currentMaterial->SetAlbedo(Resource::ResourceManager::GetOrLoad<Resource::Texture>(texPath));
 			}
 		}
 		endMaterial(currentMaterial);

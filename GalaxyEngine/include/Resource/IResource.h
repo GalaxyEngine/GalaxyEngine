@@ -156,7 +156,6 @@ namespace GALAXY::Resource {
 	private:
 		bool ShouldDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }
 		bool ShouldCreateDataFile() const { return (p_status & ResourceStatus::CreateDataFile) != ResourceStatus::None; }
-
 	protected:
 		friend class ResourceManager;
 

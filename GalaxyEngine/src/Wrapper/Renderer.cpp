@@ -33,6 +33,11 @@ namespace GALAXY {
 		m_instance->EnableDebugOutput();
 	}
 
+	UMap<std::string, Resource::Uniform> Wrapper::Renderer::GetShaderUniforms(Resource::Shader* shader)
+	{
+		return {};
+	}
+
 	void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)
 	{
 		// Define the eight vertices of the cube

@@ -52,7 +52,15 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		mesh->p_shouldBeLoaded = true;
 		mesh->p_loaded = true;
 
-		outputModel->m_meshes.push_back(meshWeak);
+		bool alreadyCountain = false;
+		for (const auto& insideMesh : outputModel->m_meshes) {
+			if (insideMesh.lock().get() == meshWeak.lock().get()) {
+				alreadyCountain = true;
+				break;
+			}
+		}
+		if (!alreadyCountain)
+			outputModel->m_meshes.push_back(meshWeak);
 
 		mesh->m_model = outputModel;
 

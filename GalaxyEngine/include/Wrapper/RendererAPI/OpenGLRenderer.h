@@ -1,5 +1,8 @@
 #pragma once
+#include <glad/glad.h>
+
 #include "GalaxyAPI.h"
+#include "Resource/Shader.h"
 #include "Wrapper/Renderer.h"
 
 namespace GALAXY::Wrapper::RendererAPI
@@ -40,6 +43,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			void UseShader(Resource::Shader* shader) override;
 
 			int GetShaderLocation(uint32_t id, const std::string& locationName) override;
+			UMap<std::string, Resource::Uniform> GetShaderUniforms(Resource::Shader* shader) override;
 
 			void ShaderSendInt(uint32_t location, int value) override;
 			void ShaderSendFloat(uint32_t location, float value) override;

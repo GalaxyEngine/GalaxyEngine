@@ -1,6 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "IResource.h"
+#include "Shader.h"
+
 namespace GALAXY
 {
 	namespace Wrapper
@@ -35,7 +36,7 @@ namespace GALAXY
 
 			void ShowInInspector() override;
 
-			void DisplayTexture(const char* textureLabel, Weak<Texture>& textureRef) const;
+			void SendForDefault(Shared<Resource::Shader> shader) const;
 
 			Weak<Shader> SendValues(uint64_t id = -1) const;
 
@@ -44,22 +45,69 @@ namespace GALAXY
 			static Weak<Material> Create(const std::filesystem::path& path);
 
 			inline Shared<Shader> GetShader() const { return m_shader.lock(); }
-			inline Vec4f GetAmbient() const { return m_ambient; }
-			inline Vec4f GetDiffuse() const { return m_diffuse; }
-			inline Vec4f GetSpecular() const { return m_specular; }
-			inline Weak<Texture> GetAlbedo() const { return m_albedo; }
-			inline Weak<Texture> GetNormalMap() const { return m_normalMap; }
-			inline Weak<Texture> GetParallaxMap() const { return m_parallaxMap; }
-			inline float GetHeightScale() const { return m_heightScale; }
+			inline Vec4f GetAmbient() const { return GetColor("ambient"); }
+			inline Vec4f GetDiffuse() const { return GetColor("diffuse"); }
+			inline Vec4f GetSpecular() const { return GetColor("specular"); }
+			inline Weak<Texture> GetAlbedo() const { return GetTexture("albedo"); }
+			inline Weak<Texture> GetNormalMap() const { return GetTexture("normalMap"); }
+			inline Weak<Texture> GetParallaxMap() const { return GetTexture("parallaxMap"); }
+			inline float GetHeightScale() const { return GetFloat("heightScale"); }
 
-			inline void SetShader(const Weak<Shader>& val) { m_shader = val; }
-			inline void SetAmbient(const Vec4f val) { m_ambient = val; }
-			inline void SetDiffuse(const Vec4f val) { m_diffuse = val; }
-			inline void SetSpecular(const Vec4f val) { m_specular = val; }
-			inline void SetAlbedo(const Weak<Texture>& val) { m_albedo = val; }
-			inline void SetNormalMap(const Weak<Texture>& val) { m_normalMap = val; }
-			inline void SetParallaxMap(const Weak<Texture>& val) { m_parallaxMap = val; }
-			inline void SetHeightScale(const float val) { m_heightScale = val; }
+			void SetShader(const Weak<Shader>& val);
+
+			inline bool IsShaderValid() const { return m_shader.lock() && m_shader.lock()->HasBeenSent(); }
+
+			inline void SetBool(const std::string& name, const bool val)
+			{
+				// Check if shader is valid, if yes check also if the name is in the map else create it because we don't know if we will need it
+				if (!IsShaderValid() || IsShaderValid() && m_bools.contains(name))
+					m_bools[name] = val;
+			}
+			inline void SetInteger(const std::string& name, const int val)
+			{
+				if (!IsShaderValid() || IsShaderValid() && m_ints.contains(name))
+					m_ints[name] = val;
+			}
+			inline void SetFloat(const std::string& name, const float val)
+			{
+				if (!IsShaderValid() || IsShaderValid() && m_floats.contains(name))
+					m_floats[name] = val;
+			}
+			inline void SetColor(const std::string& name, const Vec4f& val)
+			{
+				if (!IsShaderValid() || IsShaderValid() && m_float4.contains(name))
+					m_float4[name] = val;
+			}
+			inline void SetTexture(const std::string& name, const Weak<Texture>& val)
+			{
+				if (!IsShaderValid() || IsShaderValid() && m_textures.contains(name))
+					m_textures[name] = val;
+			}
+
+			inline bool GetBool(const std::string& name) const { return m_bools.contains(name) ? m_bools.at(name) : false; }
+			inline int GetInteger(const std::string& name) const { return m_ints.contains(name) ? m_ints.at(name) : -1; }
+			inline float GetFloat(const std::string& name) const { return m_floats.contains(name) ? m_floats.at(name) : 0.0f; }
+			inline Vec4f GetColor(const std::string& name) const { return m_float4.contains(name) ? m_float4.at(name) : Vec4f(0.0f, 0.0f, 0.0f, 0.0f); }
+			inline Weak<Texture> GetTexture(const std::string& name) const { return m_textures.contains(name) ? m_textures.at(name) : Weak<Texture>(); }
+			
+			inline void SetAmbient(const Vec4f& val) { SetColor("ambient", val); }
+			inline void SetDiffuse(const Vec4f& val) { SetColor("diffuse", val); }
+			inline void SetSpecular(const Vec4f& val) { SetColor("specular", val); }
+			inline void SetAlbedo(const Weak<Texture>& val)
+			{
+				SetBool("hasAlbedo", val.lock() ? 1 : 0);
+				SetTexture("albedo", val);
+			}
+			inline void SetNormalMap(const Weak<Texture>& val)
+			{
+				SetBool("hasNormalMap", val.lock() ? 1 : 0);
+				SetTexture("normalMap", val);
+			}
+			inline void SetParallaxMap(const Weak<Texture>& val) {
+				SetBool("hasParallaxMap", val.lock() ? 1 : 0);
+				SetTexture("parallaxMap", val);
+			}
+			inline void SetHeightScale(const float val) { SetFloat("heightScale", val); }
 
 #ifdef WITH_EDITOR
 			void CreateThumbnail();
@@ -71,14 +119,11 @@ namespace GALAXY
 
 			Weak<Shader> m_shader;
 
-			Vec4f m_ambient = Vec4f(1.f);
-			Vec4f m_diffuse = Vec4f(1.f);
-			Vec4f m_specular = Vec4f(1.f);
-
-			Weak<Texture> m_albedo;
-			Weak<Texture> m_normalMap;
-			Weak<Texture> m_parallaxMap;
-			float m_heightScale = 1.f;
+			UMap<std::string, bool> m_bools;
+			UMap<std::string, float> m_floats;
+			UMap<std::string, int> m_ints;
+			UMap<std::string, Vec4f> m_float4;
+			UMap<std::string, Weak<Texture>> m_textures;
 
 		};
 	}

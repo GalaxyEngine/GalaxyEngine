@@ -65,7 +65,7 @@ namespace GALAXY {
 			const std::vector<Weak<Material>>& GetMaterials() const { return m_materials; }
 			const std::vector<Weak<Mesh>>& GetMeshes() const { return m_meshes; }
 		public:
-			Utils::Event<> OnLoad;
+			Utils::Event<> EOnLoad;
 		private:
 			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 

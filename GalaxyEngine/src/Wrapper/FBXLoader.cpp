@@ -221,13 +221,17 @@ namespace GALAXY
 				{
 					material = Resource::ResourceManager::AddResource<Resource::Material>(materialFullPath).lock();
 					material->m_shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
-					material->m_ambient = ToVec4f(fbxMaterial->getAmbientColor());
-					material->m_diffuse = ToVec4f(fbxMaterial->getDiffuseColor());
-					material->m_specular = ToVec4f(fbxMaterial->getSpecularColor());
-					material->m_heightScale = (float)fbxMaterial->getBumpFactor();
+					material->SetAmbient(ToVec4f(fbxMaterial->getAmbientColor()));
+					material->SetDiffuse(ToVec4f(fbxMaterial->getDiffuseColor()));
+					material->SetSpecular(ToVec4f(fbxMaterial->getSpecularColor()));
+					material->SetHeightScale(static_cast<float>(fbxMaterial->getBumpFactor()));
 
-					SetMaterialTexture(&material->m_albedo, fbxMaterial, fullPath, ofbx::Texture::TextureType::DIFFUSE);
-					SetMaterialTexture(&material->m_normalMap, fbxMaterial, fullPath, ofbx::Texture::TextureType::NORMAL);
+					auto albedo = material->GetAlbedo();
+					SetMaterialTexture(&albedo, fbxMaterial, fullPath, ofbx::Texture::TextureType::DIFFUSE);
+					material->SetAlbedo(albedo);
+					auto normalMap = material->GetNormalMap();
+					SetMaterialTexture(&normalMap, fbxMaterial, fullPath, ofbx::Texture::TextureType::NORMAL);
+					material->SetNormalMap(normalMap);
 
 					material->Save();
 					material->Load();

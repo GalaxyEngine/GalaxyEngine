@@ -305,6 +305,72 @@ namespace GALAXY
 		return glGetUniformLocation(id, locationName.c_str());
 	}
 
+	Resource::UniformType UniformTypeFromAPI(GLenum type)
+	{
+		switch (type)
+		{
+		case GL_FLOAT:
+			return Resource::UniformType::Float;
+		case GL_FLOAT_VEC2:
+			return Resource::UniformType::Float2;
+		case GL_FLOAT_VEC3:
+			return Resource::UniformType::Float3;
+		case GL_FLOAT_VEC4:
+			return Resource::UniformType::Float4;
+		case GL_INT:
+			return Resource::UniformType::Int;
+		case GL_INT_VEC2:
+			return Resource::UniformType::Int2;
+		case GL_INT_VEC3:
+			return Resource::UniformType::Int3;
+		case GL_INT_VEC4:
+			return Resource::UniformType::Int4;
+		case GL_SAMPLER_2D:
+			return Resource::UniformType::Texture2D;
+		case GL_FLOAT_MAT4:
+			return Resource::UniformType::Mat4;
+		case GL_BOOL:
+			return Resource::UniformType::Bool;
+		default:
+			PrintError("Uniform type not recognize");
+			return Resource::UniformType::None;
+		}
+	}
+
+	UMap<std::string, Resource::Uniform> Wrapper::RendererAPI::OpenGLRenderer::GetShaderUniforms(Resource::Shader* shader)
+	{
+		UMap<std::string, Resource::Uniform> uniforms;
+		auto shaderProgram = shader->p_id;
+		GLint numUniforms = 0;
+		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
+
+		for (GLint i = 0; i < numUniforms; ++i) {
+			
+			const GLsizei bufSize = 256; // Maximum name length
+			GLchar name[bufSize];
+			GLsizei length;
+			GLint size;
+			GLenum type; 
+			glGetActiveUniform(shaderProgram, i, bufSize, &length, &size, &type, name);
+			
+			GLint location = glGetUniformLocation(shaderProgram, name); // Get the location of the uniform
+			
+			Resource::Uniform uniform = {};
+			uniform.location = location;
+			uniform.type = UniformTypeFromAPI(type);
+			
+			std::string uniformName(name);
+			if (size_t pos = uniformName.find("material."); pos != std::string::npos)
+			{
+				uniform.displayName = uniformName.substr(9);
+				uniform.shouldDisplay = true;
+			}
+			
+			uniforms[uniformName] = uniform;
+		}
+		return uniforms;
+	}
+
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendInt(const uint32_t location, const int value)
 	{
 		if (location == INDEX_NONE)

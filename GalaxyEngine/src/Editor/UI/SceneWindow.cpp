@@ -108,7 +108,7 @@ namespace GALAXY {
 								if (!s_modelFirstLoad) return;
 								s_modelFirstLoad = false;
 								m_dragModel = Resource::ResourceManager::GetOrLoad<Resource::Model>(fileInfo.GetFullPath());
-								m_dragModel.lock()->OnLoad.Bind([this]() { OnModelLoaded(m_dragModel); });
+								m_dragModel.lock()->EOnLoad.Bind([this]() { OnModelLoaded(m_dragModel); });
 								if (m_dragModel.lock()->IsLoaded() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 								{
 									OnModelLoaded(m_dragModel);

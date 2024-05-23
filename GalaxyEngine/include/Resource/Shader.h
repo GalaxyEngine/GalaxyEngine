@@ -5,6 +5,8 @@
 #include <unordered_map>
 #include <deque>
 
+#include "Utils/Event.h"
+
 
 namespace GALAXY {
 	namespace Wrapper {
@@ -18,6 +20,28 @@ namespace GALAXY {
 		class VertexShader;
 		class GeometryShader;
 		class FragmentShader;
+		enum class UniformType
+		{
+			None = 0,
+			Bool,
+			Float,
+			Float2,
+			Float3,
+			Float4,
+			Int,
+			Int2,
+			Int3,
+			Int4,
+			Mat4,
+			Texture2D,
+		};
+		struct Uniform
+		{
+			int location = -1;
+			UniformType type;
+			std::string displayName;
+			bool shouldDisplay;
+		};
 		class Shader : public IResource
 		{
 		public:
@@ -32,7 +56,7 @@ namespace GALAXY {
 			void Save();
 
 			const char* GetResourceName() const override { return "Shader"; }
-			Path GetThumbnailPath() const override {return "";}
+			Path GetThumbnailPath() const override;
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
@@ -51,6 +75,7 @@ namespace GALAXY {
 
 			void Use();
 			int GetLocation(const char* locationName);
+			const UMap<std::string, Uniform>& GetUniforms() const { return p_uniforms; }
 
 			void SendInt(const char* locationName, int value);
 			void SendFloat(const char* locationName, float value);
@@ -71,9 +96,11 @@ namespace GALAXY {
 		protected:
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
+		public:
+			Utils::Event<> OnLoad;
 
 		protected:
-			UMap<std::string, int> p_locations = {};
+			UMap<std::string, Resource::Uniform> p_uniforms;
 
 			uint32_t p_id = -1;
 

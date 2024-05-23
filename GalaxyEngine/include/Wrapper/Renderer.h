@@ -2,9 +2,13 @@
 #include "GalaxyAPI.h"
 #include <vector>
 #include <string>
+
+#include "Utils/Type.h"
+
 namespace GALAXY
 {
 	namespace Resource {
+		struct Uniform;
 		enum class TextureFormat;
 		enum class TextureWrapping;
 		enum class TextureFiltering;
@@ -86,6 +90,7 @@ namespace GALAXY
 			virtual void UseShader(Resource::Shader* shader) {}
 
 			virtual int GetShaderLocation(uint32_t id, const std::string& locationName) { return -1; }
+			virtual UMap<std::string, Resource::Uniform> GetShaderUniforms(Resource::Shader* shader);
 
 			virtual void ShaderSendInt(uint32_t location, int value) {}
 			virtual void ShaderSendFloat(uint32_t location, float value) {}
