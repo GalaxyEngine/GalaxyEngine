@@ -6,6 +6,7 @@
 #include "Core/SceneHolder.h"
 
 #include "Editor/ThumbnailCreator.h"
+#include "Resource/Cubemap.h"
 
 #include "Resource/IResource.h"
 #include "Resource/ResourceManager.h"
@@ -373,7 +374,7 @@ namespace GALAXY {
 					}
 					for (size_t i = 0; i < indices.size(); i++) {
 						Weak<Core::GameObject> payloadGameObject;
-						payloadGameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[i]);
+						payloadGameObject = Core::SceneHolder::GetCurrentScene()->GetWithSceneGraphID(indices[i]);
 
 						Resource::Prefab::CreateWith(m_currentFile->m_info.GetFullPath() / (payloadGameObject.lock()->GetName() + ".prefab"), payloadGameObject.lock());
 					}
@@ -600,6 +601,15 @@ namespace GALAXY {
 								}
 							}
 							break;
+						case ResourceType::Cubemap:
+							if (ImGui::Button("Load", buttonSize))
+							{
+								for (const Shared<File>& file : m_rightClickedFiles)
+								{
+									ResourceManager::GetOrLoad<Cubemap>(file->m_info.GetFullPath());
+								}
+							}
+							break;
 						case ResourceType::Sound:
 							if (ImGui::Button("Load", buttonSize))
 							{
@@ -720,6 +730,16 @@ namespace GALAXY {
 						quitPopup();
 					}
 					ImGui::EndPopup();
+				}
+				if (ImGui::Button("Cubemap", buttonSize))
+				{
+					const auto materialPath = m_currentFile->m_info.GetFullPath() / "New Cubemap.cubemap";
+					Resource::Cubemap::Create(materialPath);
+					const Shared<File> file = std::make_shared<File>(materialPath);
+					m_currentFile->AddChild(file);
+					SetRenameFile(file);
+
+					quitPopup();
 				}
 				ImGui::EndMenu();
 			}

@@ -13,6 +13,7 @@
 
 #include "Physic/2D/Rect.h"
 #include "Physic/Ray.h"
+#include "Resource/Mesh.h"
 
 #ifdef WITH_EDITOR
 #include "Editor/EditorCamera.h"
@@ -86,6 +87,18 @@ namespace GALAXY
 		p_frustum.Create(this);
 	}
 
+	void Render::Camera::RenderSkybox()
+	{
+		if (p_skybox.lock())
+		{
+			Wrapper::Renderer::GetInstance()->ActiveDepth(false);
+			auto cube = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
+			// cube.lock()->Render(Mat4(), { p_skybox.lock()->GetMaterial() });
+			// p_skybox.lock()->Draw();
+			Wrapper::Renderer::GetInstance()->ActiveDepth(true);
+		}
+	}
+
 #ifdef WITH_EDITOR
 	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
 	{
@@ -115,6 +128,14 @@ namespace GALAXY
 	void Render::Camera::Begin() const
 	{
 		p_framebuffer->Begin(p_framebufferSize);
+		Wrapper::Renderer::GetInstance()->ClearColorAndBuffer(p_clearColor);
+
+		if (p_skybox.lock())
+		{
+			Wrapper::Renderer::GetInstance()->ActiveDepth(false);
+			
+			Wrapper::Renderer::GetInstance()->ActiveDepth(true);
+		}
 	}
 
 	void Render::Camera::End() const

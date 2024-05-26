@@ -31,6 +31,11 @@ namespace GALAXY
 	void Component::CameraComponent::OnDestroy()
 	{
 		auto scene = GetGameObject()->GetScene();
+		if (!scene)
+		{
+			PrintError("Scene not found");
+			return;
+		}
 		scene->RemoveCamera(this);
 	}
 

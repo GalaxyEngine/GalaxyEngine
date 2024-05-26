@@ -15,6 +15,7 @@
 #include <set>
 
 #include "Core/SceneHolder.h"
+#include "Resource/Cubemap.h"
 
 #include "Resource/Sound.h"
 
@@ -98,6 +99,9 @@ namespace GALAXY {
 			break;
 		case ResourceType::Prefab:
 			AddResource<Prefab>(resourcePath);
+			break;
+		case ResourceType::Cubemap:
+			AddResource<Cubemap>(resourcePath);
 			break;
 		case ResourceType::Data:
 		{
@@ -550,6 +554,8 @@ namespace GALAXY {
 			return GetOrLoad<Script>(fullPath, async);
 		case Resource::ResourceType::Sound:
 			return GetOrLoad<Sound>(fullPath, async);
+		case Resource::ResourceType::Cubemap:
+			return GetOrLoad<Cubemap>(fullPath, async);
 		case Resource::ResourceType::Data:
 			return {};
 		default:

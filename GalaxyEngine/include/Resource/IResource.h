@@ -32,6 +32,7 @@ namespace GALAXY::Resource {
 		Scene,
 		Sound,
 		Prefab,
+		Cubemap
 	};
 
 	inline const char* SerializeResourceTypeValue(ResourceType type)
@@ -68,6 +69,10 @@ namespace GALAXY::Resource {
 			return "Scene";
 		case Resource::ResourceType::Sound:
 			return "Sound";
+		case Resource::ResourceType::Prefab:
+			return "Prefab";
+		case Resource::ResourceType::Cubemap:
+			return "Cubemap";
 		default:
 			return "Unknown";
 		}
