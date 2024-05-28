@@ -28,6 +28,9 @@ namespace GALAXY
             void UpdateFace(uint32_t index, const Path& path);
             void UpdateFace(uint32_t index, const Weak<Texture>& texture);
 
+            // Todo move to skybox class
+            void RenderCubemap();
+
             static Weak<Cubemap> Create(const Path& path);
 
             void ShowInInspector();
@@ -41,7 +44,9 @@ namespace GALAXY
             // direction : +X, -X, +Y, -Y, +Z, -Z
             std::array<Weak<Texture>, 6> m_textures;
 
-            
+            // Todo move to skybox class
+            uint32_t skyboxVAO, skyboxVBO;
+            Weak<Shader> m_skyboxShader;
         };
     }
 }

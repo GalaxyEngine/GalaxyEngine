@@ -43,6 +43,8 @@ namespace GALAXY {
 		glfwSetErrorCallback(glfw_error_callback);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		s_initialized = true;
 		return true;
 	}

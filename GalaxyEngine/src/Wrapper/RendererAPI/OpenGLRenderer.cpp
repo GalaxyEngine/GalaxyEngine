@@ -82,12 +82,12 @@ namespace GALAXY
 	{
 		GLint flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-		//if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
-		glEnable(GL_DEBUG_OUTPUT);
-		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-		glDebugMessageCallback(DebugCallback, nullptr);
-		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
-		//}
+		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT) {
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(DebugCallback, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+		}
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
@@ -341,6 +341,8 @@ namespace GALAXY
 
 	UMap<std::string, Resource::Uniform> Wrapper::RendererAPI::OpenGLRenderer::GetShaderUniforms(Resource::Shader* shader)
 	{
+		if (!shader->IsLoaded() || !shader->HasBeenSent())
+			return {};
 		UMap<std::string, Resource::Uniform> uniforms;
 		auto shaderProgram = shader->p_id;
 		GLint numUniforms = 0;
@@ -635,7 +637,7 @@ namespace GALAXY
 
 	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(int face, const Wrapper::Image& image)
 	{
-		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, image.size.x, image.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGBA, image.size.x, image.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::DestroyCubemap(Resource::Cubemap* cubemap)

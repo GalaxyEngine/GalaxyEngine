@@ -170,7 +170,10 @@ namespace GALAXY {
 	{
 		if (ImGui::CollapsingHeader(GetName().c_str()))
 		{
-			Resource::ResourceManager::ResourceField(m_shader, "Shader");
+			if (Resource::ResourceManager::ResourceField(m_shader, "Shader"))
+			{
+				SetShader(m_shader);
+			}
 			/*
 			ImGui::ColorEdit4("Ambient", &m_ambient.x);
 			ImGui::ColorEdit4("Diffuse", &m_diffuse.x);

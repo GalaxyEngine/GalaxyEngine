@@ -880,7 +880,9 @@ namespace GALAXY {
 		// Draw list pointer
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
-		const ImTextureID textureID = file->m_icon.lock() ? Wrapper::GUI::GetTextureID(file->m_icon.lock().get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
+		std::shared_ptr<Resource::Texture> texture = file->m_icon.lock();
+		const ImTextureID textureID = texture ? Wrapper::GUI::GetTextureID(texture.get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
+		const bool shouldDrawImage = texture && texture->IsLoaded() && texture->HasBeenSent();
 		if (!isFolder || file->m_selected || file->m_hovered) {
 			// Draw Shadow behind the thumbnail
 			drawList->AddRectFilled(shadowMin, shadowMax, 1677721600, cornerRounding, 240);
@@ -889,7 +891,8 @@ namespace GALAXY {
 			// Draw Thumbnail background
 			drawList->AddRectFilled(thumbnailMin, thumbnailMax, color, cornerRounding, 48);
 			// Draw Thumbnail image with rounded corners
-			drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			if (shouldDrawImage)
+				drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 
 			color = isFolder ? (file->m_selected ? clickedColor : hoveredColor) : File::ResourceTypeToColor(file->m_info.GetResourceType());
 			// Line under the thumbnail
@@ -900,7 +903,8 @@ namespace GALAXY {
 		}
 		else
 		{
-			drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
+			if (shouldDrawImage)
+				drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 		}
 
 		//Content

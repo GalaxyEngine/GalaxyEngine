@@ -92,11 +92,14 @@ namespace GALAXY
 	{
 		if (!p_skybox.lock() || !p_skybox.lock()->HasBeenSent() || !p_skybox.lock()->IsLoaded())
 			return;
+		p_skybox.lock()->RenderCubemap();
+		/*
 		for (const auto& shader : Resource::ResourceManager::GetAllResources<Resource::Shader>())
 		{
 			Wrapper::Renderer::GetInstance()->BindCubemap(p_skybox.lock().get());
 			shader.lock()->SendInt("skybox", 0);
 		}
+		*/
 
 		/*
 		Wrapper::Renderer::GetInstance()->ActiveDepth(false);
@@ -158,13 +161,6 @@ namespace GALAXY
 		p_framebuffer->Begin(p_framebufferSize);
 		Wrapper::Renderer::GetInstance()->ClearColorAndBuffer(p_clearColor);
 		RenderSkybox();
-
-		if (p_skybox.lock())
-		{
-			Wrapper::Renderer::GetInstance()->ActiveDepth(false);
-			
-			Wrapper::Renderer::GetInstance()->ActiveDepth(true);
-		}
 	}
 
 	void Render::Camera::End() const

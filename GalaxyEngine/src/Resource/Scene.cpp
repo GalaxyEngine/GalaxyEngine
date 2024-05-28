@@ -122,7 +122,6 @@ namespace GALAXY
 
 			// Bind Default Framebuffer
 			currentCamera->Begin();
-			renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
 			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
 			m_editorCamera->Update();
