@@ -8,6 +8,7 @@
 namespace GALAXY
 {
 	namespace Resource {
+		class Cubemap;
 		struct Uniform;
 		enum class TextureFormat;
 		enum class TextureWrapping;
@@ -39,6 +40,8 @@ namespace GALAXY
 	}
 	namespace Wrapper
 	{
+		struct Image;
+
 		enum class RenderAPI
 		{
 			OPENGL,
@@ -77,6 +80,13 @@ namespace GALAXY
 
 			virtual void BindTexture(Resource::Texture* texture, uint32_t id = 0) {}
 			virtual void UnbindTexture() {}
+
+			// === Cube map === //
+			virtual void CreateCubemap(Resource::Cubemap* cubemap) {}
+			virtual void SetCubemapFace(int face, const Wrapper::Image &image) {}
+			virtual void DestroyCubemap(Resource::Cubemap* cubemap) {}
+
+			virtual void BindCubemap(Resource::Cubemap* cubemap, uint32_t id = 0) {}
 
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
 			virtual uint32_t TextureWrappingToAPI(Resource::TextureWrapping filtering) { return -1; }

@@ -8,7 +8,7 @@
 #include "Resource/Material.h"
 #include "Resource/Scene.h"
 #include "Resource/Prefab.h"
-// #include "Resource/Cubemap.h"
+#include "Resource/Cubemap.h"
 #include "Resource/Sound.h"
 
 #include <imgui.h>
@@ -297,7 +297,7 @@ namespace GALAXY
 	inline std::vector<Weak<T>> Resource::ResourceManager::GetAllResources()
 	{
 		std::vector<Weak<T>> m_resourcesOfType;
-		for (Shared<IResource>& val : m_resources | std::views::values)
+		for (Shared<IResource>& val : m_instance->m_resources | std::views::values)
 		{
 			if (val->GetFileInfo().GetResourceType() == T::GetResourceType())
 			{
@@ -335,7 +335,7 @@ namespace GALAXY
 			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * imageSize.y), true);
 			buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
-			bool isAMesh = std::is_base_of<Resource::Mesh, T>::value;
+			bool isAMesh = std::is_base_of_v<Resource::Mesh, T>;
 			for (const auto& [path, resource] : m_instance->m_resources)
 			{
 				bool typeChecked = dynamic_pointer_cast<T>(resource) != nullptr;
@@ -403,11 +403,10 @@ namespace GALAXY
 		const std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
 
 		const Vec2f imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
-		Resource::Texture* texture = nullptr;
 		uint32_t id = 0;
 		if (auto resource = outResource.lock())
 		{
-			texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
+			const Resource::Texture* texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
 			if (texture)
 				id = texture->GetID();
 		}
@@ -423,6 +422,7 @@ namespace GALAXY
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
 			{
+				UNUSED(payload);
 				auto draggedFiles = GetExplorerDraggedFile();
 				if (auto resource = draggedFiles.lock())
 				{

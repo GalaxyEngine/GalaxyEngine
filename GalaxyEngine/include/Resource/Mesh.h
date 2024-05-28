@@ -52,6 +52,10 @@ namespace GALAXY
 			bool HasModel() const { return !m_model; }
 
 			Utils::Event<> OnLoad;
+
+			uint32_t GetVertexArrayIndex() const { return m_vertexArrayIndex; }
+			uint32_t GetVertexBufferIndex() const { return m_vertexBufferIndex; }
+			uint32_t GetIndexBufferIndex() const { return m_indexBufferIndex; }
 		private:
 			void ComputeBoundingBox(const std::vector<Vec3f>& positionVertices);
 

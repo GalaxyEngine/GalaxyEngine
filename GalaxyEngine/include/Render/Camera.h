@@ -93,7 +93,7 @@ namespace GALAXY
             Physic::Frustum& GetFrustum() { return p_frustum; }
 
         private:
-            void RenderSkybox();
+            void RenderSkybox() const;
 
         protected:
             float p_fov = 70.f;

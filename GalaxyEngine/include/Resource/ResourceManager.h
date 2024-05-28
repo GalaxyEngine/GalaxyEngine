@@ -78,7 +78,7 @@ namespace GALAXY {
 			[[nodiscard]] inline Shared<T> GetTemporaryResource(const Path& fullPath);
 
 			template <typename T>
-			[[nodiscard]] inline std::vector<Weak<T>> GetAllResources();
+			[[nodiscard]] static inline std::vector<Weak<T>> GetAllResources();
 
 			inline ResourceMap* GetAllResourcesPtr() { return &m_resources; }
 

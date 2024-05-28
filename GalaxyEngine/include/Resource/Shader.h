@@ -122,6 +122,7 @@ namespace GALAXY {
 			explicit BaseShader(const Path& fullPath) : IResource(fullPath) {}
 
 			virtual void Load() override;
+			virtual void OnAdd() override;
 			void AddShader(const Weak<Shader>& shader);
 
 			virtual void ShowInInspector() override;

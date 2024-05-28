@@ -38,6 +38,7 @@ namespace GALAXY
 		ImGui::SliderFloat("FOV", &p_fov, 25.f, 120.f);
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
 		ImGui::ColorEdit4("Clear Color", &p_clearColor.x);
+		Resource::ResourceManager::ResourceField<Resource::Cubemap>(p_skybox, "Cubemap");
 		std::string buttonName;
 		if (const Shared<Resource::PostProcessShader> shader = p_framebuffer->GetPostProcessShader().lock())
 			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
@@ -87,16 +88,43 @@ namespace GALAXY
 		p_frustum.Create(this);
 	}
 
-	void Render::Camera::RenderSkybox()
+	void Render::Camera::RenderSkybox() const
 	{
-		if (p_skybox.lock())
+		if (!p_skybox.lock() || !p_skybox.lock()->HasBeenSent() || !p_skybox.lock()->IsLoaded())
+			return;
+		for (const auto& shader : Resource::ResourceManager::GetAllResources<Resource::Shader>())
 		{
-			Wrapper::Renderer::GetInstance()->ActiveDepth(false);
-			auto cube = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
-			// cube.lock()->Render(Mat4(), { p_skybox.lock()->GetMaterial() });
-			// p_skybox.lock()->Draw();
-			Wrapper::Renderer::GetInstance()->ActiveDepth(true);
+			Wrapper::Renderer::GetInstance()->BindCubemap(p_skybox.lock().get());
+			shader.lock()->SendInt("skybox", 0);
 		}
+
+		/*
+		Wrapper::Renderer::GetInstance()->ActiveDepth(false);
+		static auto cube = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(CUBE_PATH);
+		if (auto mesh = cube.lock())
+		{
+			if (!mesh->HasBeenSent() || !mesh->IsLoaded())
+				return;
+			Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+			renderer->BindVertexArray(mesh->GetVertexArrayIndex());
+			auto skyboxShader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(SKYBOX_PATH).lock();
+			if (!skyboxShader || !skyboxShader->HasBeenSent() || !skyboxShader->IsLoaded())
+				return;
+			const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+			skyboxShader->SendMat4("Model", Mat4(1));
+			skyboxShader->SendMat4("MVP", this->GetViewProjectionMatrix());
+			
+			Wrapper::Renderer::GetInstance()->BindCubemap(p_skybox.lock().get());
+			skyboxShader->SendInt("skybox", 0);
+			
+			renderer->DrawArrays(0, 36);
+			
+			renderer->UnbindVertexArray();
+		}
+		
+		// p_skybox.lock()->Draw();
+		Wrapper::Renderer::GetInstance()->ActiveDepth(true);
+		*/
 	}
 
 #ifdef WITH_EDITOR
@@ -129,6 +157,7 @@ namespace GALAXY
 	{
 		p_framebuffer->Begin(p_framebufferSize);
 		Wrapper::Renderer::GetInstance()->ClearColorAndBuffer(p_clearColor);
+		RenderSkybox();
 
 		if (p_skybox.lock())
 		{

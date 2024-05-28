@@ -218,7 +218,7 @@ void main()
 			ImGui::OpenPopup("VertexPopup");
 		}
 		Weak<VertexShader> vertexShader;
-		if (ResourceManager::GetInstance()->ResourcePopup("VertexPopup", vertexShader))
+		if (ResourceManager::ResourcePopup("VertexPopup", vertexShader))
 		{
 			SetVertex(vertexShader.lock(), ResourceManager::GetResource<Shader>(this->GetFileInfo().GetFullPath()));
 			Recompile();
@@ -234,7 +234,7 @@ void main()
 			ImGui::OpenPopup("GeometryPopup");
 		}
 		Weak<GeometryShader> geometryShader;
-		if (ResourceManager::GetInstance()->ResourcePopup("GeometryPopup", geometryShader))
+		if (ResourceManager::ResourcePopup("GeometryPopup", geometryShader))
 		{
 			SetGeometry(geometryShader.lock(), ResourceManager::GetResource<Shader>(this->GetFileInfo().GetFullPath()));
 			Recompile();
@@ -250,7 +250,7 @@ void main()
 			ImGui::OpenPopup("FragmentPopup");
 		}
 		Weak<FragmentShader> fragmentShader;
-		if (ResourceManager::GetInstance()->ResourcePopup("FragmentPopup", fragmentShader))
+		if (ResourceManager::ResourcePopup("FragmentPopup", fragmentShader))
 		{
 			SetFragment(fragmentShader.lock(), ResourceManager::GetResource<Shader>(this->GetFileInfo().GetFullPath()));
 			Recompile();
@@ -514,6 +514,12 @@ void main()
 			}
 		}
 		SendRequest();
+	}
+
+	void Resource::BaseShader::OnAdd()
+	{
+		if (!std::filesystem::exists(GetDataFilePath()))
+			CreateDataFile();
 	}
 
 	// === Vertex === //

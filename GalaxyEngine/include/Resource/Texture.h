@@ -1,6 +1,8 @@
 #pragma once
 #include <GalaxyAPI.h>
 #include "Resource/IResource.h"
+#include "Utils/Event.h"
+
 namespace GALAXY {
 	namespace Wrapper { 
 		class Renderer;
@@ -78,7 +80,7 @@ namespace GALAXY {
 		private:
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
-
+		public:
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;

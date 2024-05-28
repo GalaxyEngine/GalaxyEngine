@@ -5,12 +5,14 @@
 
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Window.h"
+#include "Wrapper/ImageLoader.h"
 
 #include "Core/SceneHolder.h"
 
 #include "Component/Transform.h"
 
 #include "Render/Framebuffer.h"
+#include "Resource/Cubemap.h"
 
 #include "Resource/Scene.h"
 #include "Resource/ResourceManager.h"
@@ -622,6 +624,30 @@ namespace GALAXY
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	void Wrapper::RendererAPI::OpenGLRenderer::CreateCubemap(Resource::Cubemap* cubemap)
+	{
+		glGenTextures(1, &cubemap->m_id);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
+		
+	}
+
+	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(int face, const Wrapper::Image& image)
+	{
+		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGB, image.size.x, image.size.y, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
+	}
+
+	void Wrapper::RendererAPI::OpenGLRenderer::DestroyCubemap(Resource::Cubemap* cubemap)
+	{
+		glDeleteTextures(1, &cubemap->m_id);
+	}
+
+	void Wrapper::RendererAPI::OpenGLRenderer::BindCubemap(Resource::Cubemap* cubemap, uint32_t id)
+	{
+		ASSERT(cubemap->HasBeenSent());
+		glActiveTexture(GL_TEXTURE0 + id);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::CreateRenderBuffer(Render::Framebuffer* framebuffer)

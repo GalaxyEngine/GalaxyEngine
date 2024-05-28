@@ -5,6 +5,7 @@
 #define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PostProcess/Outline/outline.ppshader"
 #define BILLBOARD_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/BillboardShader/billboard.shader"
 #define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/GridShader/grid.shader"
+#define SKYBOX_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/Skybox/skybox.shader"
 
 // -- Icons -- //
 #define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/folder.png"
