@@ -33,6 +33,7 @@
 
 #include <cpp_serializer/CppSerializer.h>
 
+#include "Render/Skybox.h"
 #include "Wrapper/PhysicsWrapper.h"
 
 namespace GALAXY {
@@ -98,6 +99,7 @@ namespace GALAXY {
 		*/
 		m_resourceManager->ImportAllFilesInFolder(m_resourceManager->m_assetPath);
 		m_resourceManager->ImportAllFilesInFolder(ENGINE_RESOURCE_FOLDER_NAME);
+		Render::Skybox::Initialize();
 		m_resourceManager->LoadNeededResources();
 		m_resourceManager->ReadCache();
 

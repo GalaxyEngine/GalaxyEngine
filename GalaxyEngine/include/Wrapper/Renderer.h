@@ -84,6 +84,7 @@ namespace GALAXY
 			// === Cube map === //
 			virtual void CreateCubemap(Resource::Cubemap* cubemap) {}
 			virtual void SetCubemapFace(int face, const Wrapper::Image &image) {}
+			virtual void SetCubemapParameters() {}
 			virtual void DestroyCubemap(Resource::Cubemap* cubemap) {}
 
 			virtual void BindCubemap(Resource::Cubemap* cubemap, uint32_t id = 0) {}
@@ -141,7 +142,7 @@ namespace GALAXY
 
 			virtual void SetViewport(const Vec2i& size) {}
 
-			virtual void ActiveDepth(bool active = true) {}
+			virtual void EnableDepth(bool active = true) {}
 			virtual void SetDepthRange(float _near, float _far) {}
 
 			virtual Vec4f ReadPixelColor(const Vec2f& mousePos) { return Vec4f(0, 0, 0, 0); }

@@ -453,7 +453,7 @@ void main()
 		const size_t size = p_shaders.size();
 		if (size > 0)
 		{
-			for (auto&& _shader : p_shaders)
+			for (const auto& _shader : p_shaders)
 			{
 				if (!_shader.lock())
 					continue;

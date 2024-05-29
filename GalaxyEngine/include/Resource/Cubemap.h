@@ -6,7 +6,13 @@
 
 namespace GALAXY 
 {
-
+    namespace Wrapper
+    {
+        namespace RendererAPI
+        {
+            class OpenGLRenderer;
+        }
+    }
     namespace Resource
     {
         class Cubemap : public IResource
@@ -19,6 +25,7 @@ namespace GALAXY
             ~Cubemap() override;
 
             const char* GetResourceName() const override { return "Cubemap"; }
+            Path GetThumbnailPath() const override;
             static inline ResourceType GetResourceType() { return ResourceType::Cubemap; }
 
             void Load() override;
@@ -28,14 +35,14 @@ namespace GALAXY
             void UpdateFace(uint32_t index, const Path& path);
             void UpdateFace(uint32_t index, const Weak<Texture>& texture);
 
-            // Todo move to skybox class
-            void RenderCubemap();
+            inline uint32_t GetID() const { return m_id; }
+
+            static std::string GetDirectionFromIndex(uint32_t index);
 
             static Weak<Cubemap> Create(const Path& path);
 
             void ShowInInspector();
         private:
-            static std::string GetDirectionFromIndex(uint32_t index);
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             
@@ -43,10 +50,6 @@ namespace GALAXY
             
             // direction : +X, -X, +Y, -Y, +Z, -Z
             std::array<Weak<Texture>, 6> m_textures;
-
-            // Todo move to skybox class
-            uint32_t skyboxVAO, skyboxVBO;
-            Weak<Shader> m_skyboxShader;
         };
     }
 }

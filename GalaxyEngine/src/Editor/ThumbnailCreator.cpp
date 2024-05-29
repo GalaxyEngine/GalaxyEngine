@@ -37,6 +37,7 @@ namespace GALAXY
 		m_cameraObject = std::make_shared<Core::GameObject>("Camera");
 		m_scene->AddObject(m_cameraObject);
 		m_camera = m_cameraObject->AddComponent<Component::CameraComponent>().lock();
+		m_camera->SetSkybox(Resource::ResourceManager::GetOrLoad<Resource::Cubemap>(DEFAULT_SKYBOX_PATH).lock());
 		m_camera->SetClearColor(clearColor);
 
 		m_sphereMaterialObject = std::make_shared<Core::GameObject>("Sphere");
@@ -142,8 +143,6 @@ namespace GALAXY
 		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
-		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
-
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
 
 		modelObject->DrawSelfAndChild(DrawMode::Game);
@@ -210,8 +209,6 @@ namespace GALAXY
 		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
 
-		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
-
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
 
 		meshObject->DrawSelfAndChild(DrawMode::Game);
@@ -261,8 +258,6 @@ namespace GALAXY
 		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
 		m_camera->Begin();
-
-		renderer->ClearColorAndBuffer(m_camera->GetClearColor());
 
 		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), cameraPosition);
 

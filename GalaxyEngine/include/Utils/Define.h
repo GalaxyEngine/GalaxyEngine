@@ -5,7 +5,7 @@
 #define OUTLINE_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/PostProcess/Outline/outline.ppshader"
 #define BILLBOARD_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/BillboardShader/billboard.shader"
 #define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/GridShader/grid.shader"
-#define SKYBOX_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/Skybox/skybox.shader"
+#define SKYBOX_SHADER_PATH ENGINE_RESOURCE_FOLDER_NAME"/shaders/Skybox/skybox.shader"
 
 // -- Icons -- //
 #define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/folder.png"
@@ -25,6 +25,9 @@
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Plane.obj:Plane"
 #define CUBE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Cube.obj:Cube"
 #define SPHERE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Sphere.obj:Sphere"
+
+// -- Cubemaps -- //
+#define DEFAULT_SKYBOX_PATH ENGINE_RESOURCE_FOLDER_NAME"/cubemaps/default.cubemap"
 
 // -- Paths -- //
 #define ASSET_FOLDER_NAME "Assets"

@@ -13,6 +13,7 @@
 
 #include "Physic/2D/Rect.h"
 #include "Physic/Ray.h"
+#include "Render/Skybox.h"
 #include "Resource/Mesh.h"
 
 #ifdef WITH_EDITOR
@@ -92,7 +93,7 @@ namespace GALAXY
 	{
 		if (!p_skybox.lock() || !p_skybox.lock()->HasBeenSent() || !p_skybox.lock()->IsLoaded())
 			return;
-		p_skybox.lock()->RenderCubemap();
+		Render::Skybox::Render(GetViewMatrix(), GetProjectionMatrix(), p_skybox);
 		/*
 		for (const auto& shader : Resource::ResourceManager::GetAllResources<Resource::Shader>())
 		{

@@ -2,15 +2,13 @@
 #include "Resource/Texture.h"
 #include "Resource/Cubemap.h"
 
-#include <glad/glad.h>
-
 #include "Core/SceneHolder.h"
 #include "Render/Camera.h"
 #include "Resource/ResourceManager.h"
 #include "Wrapper/ImageLoader.h"
 
 
-namespace GALAXY 
+namespace GALAXY
 {
     Resource::Cubemap::Cubemap(const Path& fullPath) : IResource(fullPath)
     {
@@ -21,57 +19,21 @@ namespace GALAXY
         Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
     }
 
-    static float skyboxVertices[] = {
-        // positions          
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
-    };
+    Path Resource::Cubemap::GetThumbnailPath() const
+    {
+        if (m_textures[2].lock())
+        {
+            return m_textures[2].lock()->GetThumbnailPath();
+        }
+        return Path();
+    }
 
     void Resource::Cubemap::Load()
     {
         if (p_loaded)
             return;
         p_loaded = true;
-        
+
         CppSer::Parser parser(p_fileInfo.GetFullPath());
         if (!parser.IsFileOpen())
         {
@@ -79,21 +41,18 @@ namespace GALAXY
             return;
         }
 
-        
+
         for (uint32_t i = 0; i < 6; i++)
         {
             auto textureUUID = parser[GetDirectionFromIndex(i)].As<uint64_t>();
             m_textures[i] = Resource::ResourceManager::GetResource<Texture>(textureUUID);
         }
-        
+
         if (!std::filesystem::exists(GetDataFilePath()))
             CreateDataFile();
 
         SendRequest();
         FinishLoading();
-
-        //TODO init with opengl cubemap
-        m_skyboxShader = Resource::ResourceManager::GetResource<Shader>(SKYBOX_PATH);
     }
 
     void Resource::Cubemap::Send()
@@ -108,7 +67,8 @@ namespace GALAXY
                 return;
             if (auto texture = m_textures[i].lock())
             {
-                Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(), 4);
+                Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(),
+                                                                  4);
                 Wrapper::Renderer::GetInstance()->SetCubemapFace(i, image);
                 Wrapper::ImageLoader::ImageFree(image);
             }
@@ -117,26 +77,13 @@ namespace GALAXY
                 Wrapper::Renderer::GetInstance()->SetCubemapFace(i, Wrapper::Image());
             }
         }
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        
-        // Todo move to skybox class
-        // skybox VAO
-        glGenVertexArrays(1, &skyboxVAO);
-        glGenBuffers(1, &skyboxVBO);
-        glBindVertexArray(skyboxVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+        Wrapper::Renderer::GetInstance()->SetCubemapParameters();
     }
 
     void Resource::Cubemap::Save() const
     {
-		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
+        CppSer::Serializer serializer(p_fileInfo.GetFullPath());
 
         serializer << CppSer::Pair::BeginMap << "Cubemap";
 
@@ -144,13 +91,13 @@ namespace GALAXY
         {
             SerializeResource(serializer, GetDirectionFromIndex(i).c_str(), m_textures[i]);
         }
-        
+
         serializer << CppSer::Pair::EndMap << "Cubemap";
     }
 
     void Resource::Cubemap::UpdateFace(uint32_t index, const Path& path)
     {
-       UpdateFace(index, Resource::ResourceManager::GetOrLoad<Texture>(path));
+        UpdateFace(index, Resource::ResourceManager::GetOrLoad<Texture>(path));
     }
 
     void Resource::Cubemap::UpdateFace(uint32_t index, const Weak<Texture>& texture)
@@ -158,7 +105,8 @@ namespace GALAXY
         m_textures[index] = texture;
         if (texture.lock())
         {
-            Wrapper::Image image = Wrapper::ImageLoader::Load(texture.lock()->GetFileInfo().GetFullPath().string().c_str(), 4);
+            Wrapper::Image image = Wrapper::ImageLoader::Load(
+                texture.lock()->GetFileInfo().GetFullPath().string().c_str(), 4);
             Wrapper::Renderer::GetInstance()->SetCubemapFace(index, image);
             Wrapper::ImageLoader::ImageFree(image);
         }
@@ -167,32 +115,6 @@ namespace GALAXY
             Wrapper::Renderer::GetInstance()->SetCubemapFace(index, Wrapper::Image());
         }
         Save();
-    }
-
-    void Resource::Cubemap::RenderCubemap()
-    {
-        if (!m_skyboxShader.lock() || !m_skyboxShader.lock()->IsLoaded() || !m_skyboxShader.lock()->HasBeenSent())
-            return;
-
-        if (!p_loaded || !p_hasBeenSent)
-            return;
-
-        auto skyboxShader = m_skyboxShader.lock();
-        skyboxShader->Use();
-	    glDisable(GL_DEPTH_TEST);
-        auto camera = Core::SceneHolder::GetCurrentScene()->GetCurrentCamera();
-
-        auto mat = camera->GetViewMatrix();
-        mat[3] = Vec3f(0); // Remove translation
-        skyboxShader->SendMat4("VP",  camera->GetProjectionMatrix() * mat);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
-        skyboxShader->SendInt("skybox", 0);
-        
-        glBindVertexArray(skyboxVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-	    glEnable(GL_DEPTH_TEST);
     }
 
     Weak<Resource::Cubemap> Resource::Cubemap::Create(const Path& path)

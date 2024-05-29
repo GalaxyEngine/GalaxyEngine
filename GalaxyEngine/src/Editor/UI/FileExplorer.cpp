@@ -17,6 +17,7 @@
 #include "Resource/Sound.h"
 
 #include "Wrapper/Window.h"
+#include "Wrapper/ImageLoader.h"
 
 #include "Utils/OS.h"
 
@@ -125,6 +126,11 @@ namespace GALAXY {
 			// m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(SOUND_ICON_PATH);
 			break;
 		}
+		case ResourceType::Cubemap:
+			{
+				//TODO Add icon to cubemap resource, draw a cube with the cubemap textures
+				break;
+			}
 		default:
 		{
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(FILE_ICON_PATH);
@@ -512,6 +518,10 @@ namespace GALAXY {
 						switch (commonType)
 						{
 						case ResourceType::Texture:
+							if (ImGui::Button("Convert to six sided", buttonSize))
+							{
+								Wrapper::ImageLoader::CubemapTextureToSixSided(m_rightClickedFiles[0]->m_info.GetFullPath());
+							}
 							break;
 						case ResourceType::Shader:
 							if (ImGui::Button("Edit", buttonSize))

@@ -34,6 +34,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			// === Cubemap === //
 			void CreateCubemap(Resource::Cubemap* cubemap) override;
 			void SetCubemapFace(int face, const Wrapper::Image &image) override;
+			void SetCubemapParameters() override;
 			void DestroyCubemap(Resource::Cubemap* cubemap) override;
 
 			void BindCubemap(Resource::Cubemap* cubemap, uint32_t id = 0) override;
@@ -92,7 +93,7 @@ namespace GALAXY::Wrapper::RendererAPI
 
 			void SetViewport(const Vec2i& size) override;
 
-			void ActiveDepth(bool active = true) override;
+			void EnableDepth(bool active = true) override;
 			void SetDepthRange(float _near, float _far) override;
 
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;

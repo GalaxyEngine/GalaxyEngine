@@ -22,5 +22,7 @@ namespace GALAXY::Wrapper
 		void ImageFree(void* data);
 		void ImageFree(const Image& image);
 
+		void CubemapTextureToSixSided(const std::filesystem::path& cubemapPath);
+
 	}
 }
