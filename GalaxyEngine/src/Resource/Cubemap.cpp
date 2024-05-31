@@ -10,57 +10,45 @@
 
 namespace GALAXY
 {
-    Resource::Cubemap::Cubemap(const Path& fullPath) : IResource(fullPath)
+    void Resource::CubemapTexture::ShowOnInspector()
     {
+        Resource::ResourceManager::ResourceField(m_texture, "Texture");
     }
 
-    Resource::Cubemap::~Cubemap()
+    void Resource::CubemapTexture::Load(CppSer::Parser& parser)
     {
-        Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
+        //TODO : Load
     }
 
-    Path Resource::Cubemap::GetThumbnailPath() const
+    void Resource::CubemapTexture::Send(Resource::Cubemap* cubemap)
     {
-        if (m_textures[2].lock())
+        //TODO : Send
+    }
+
+    void Resource::CubemapTexture::Save(CppSer::Serializer& serializer) const
+    {
+        //TODO : Save
+    }
+#pragma region SixSidedTexture
+    void Resource::SixSidedTexture::ShowOnInspector()
+    {
+        for (uint32_t i = 0; i < m_textures.size(); i++)
         {
-            return m_textures[2].lock()->GetThumbnailPath();
+            Resource::ResourceManager::ResourceField(m_textures[i], Cubemap::GetDirectionFromIndex(i));
         }
-        return Path();
     }
 
-    void Resource::Cubemap::Load()
+    void Resource::SixSidedTexture::Load(CppSer::Parser& parser)
     {
-        if (p_loaded)
-            return;
-        p_loaded = true;
-
-        CppSer::Parser parser(p_fileInfo.GetFullPath());
-        if (!parser.IsFileOpen())
-        {
-            PrintError("Cubemap file not found : %s", p_fileInfo.GetFullPath().string().c_str());
-            return;
-        }
-
-
         for (uint32_t i = 0; i < 6; i++)
         {
-            auto textureUUID = parser[GetDirectionFromIndex(i)].As<uint64_t>();
+            auto textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
             m_textures[i] = Resource::ResourceManager::GetResource<Texture>(textureUUID);
         }
-
-        if (!std::filesystem::exists(GetDataFilePath()))
-            CreateDataFile();
-
-        SendRequest();
-        FinishLoading();
     }
 
-    void Resource::Cubemap::Send()
+    void Resource::SixSidedTexture::Send(Resource::Cubemap* cubemap)
     {
-        if (p_hasBeenSent)
-            return;
-        p_hasBeenSent = true;
-        Wrapper::Renderer::GetInstance()->CreateCubemap(this);
         for (uint32_t i = 0; i < m_textures.size(); i++)
         {
             if (!m_textures[i].lock())
@@ -77,30 +65,22 @@ namespace GALAXY
                 Wrapper::Renderer::GetInstance()->SetCubemapFace(i, Wrapper::Image());
             }
         }
-
-        Wrapper::Renderer::GetInstance()->SetCubemapParameters();
     }
 
-    void Resource::Cubemap::Save() const
+    void Resource::SixSidedTexture::Save(CppSer::Serializer& serializer) const
     {
-        CppSer::Serializer serializer(p_fileInfo.GetFullPath());
-
-        serializer << CppSer::Pair::BeginMap << "Cubemap";
-
         for (uint32_t i = 0; i < m_textures.size(); i++)
         {
-            SerializeResource(serializer, GetDirectionFromIndex(i).c_str(), m_textures[i]);
+            IResource::SerializeResource(serializer, Cubemap::GetDirectionFromIndex(i).c_str(), m_textures[i]);
         }
-
-        serializer << CppSer::Pair::EndMap << "Cubemap";
     }
 
-    void Resource::Cubemap::UpdateFace(uint32_t index, const Path& path)
+    void Resource::SixSidedTexture::UpdateFace(uint32_t index, const Path& path)
     {
         UpdateFace(index, Resource::ResourceManager::GetOrLoad<Texture>(path));
     }
 
-    void Resource::Cubemap::UpdateFace(uint32_t index, const Weak<Texture>& texture)
+    void Resource::SixSidedTexture::UpdateFace(uint32_t index, const Weak<Texture>& texture)
     {
         m_textures[index] = texture;
         if (texture.lock())
@@ -114,7 +94,77 @@ namespace GALAXY
         {
             Wrapper::Renderer::GetInstance()->SetCubemapFace(index, Wrapper::Image());
         }
-        Save();
+        //Save();
+    }
+#pragma endregion 
+
+    Resource::Cubemap::Cubemap(const Path& fullPath) : IResource(fullPath)
+    {
+        SetType(CubemapType::SixSided);
+    }
+
+    Resource::Cubemap::~Cubemap()
+    {
+        Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
+    }
+
+    Path Resource::Cubemap::GetThumbnailPath() const
+    {
+        return Path();
+    }
+
+    void Resource::Cubemap::Load()
+    {
+        if (p_loaded)
+            return;
+        p_loaded = true;
+
+        CppSer::Parser parser(p_fileInfo.GetFullPath());
+        if (!parser.IsFileOpen())
+        {
+            PrintError("Cubemap file not found : %s", p_fileInfo.GetFullPath().string().c_str());
+            p_loaded = false;
+            return;
+        }
+        if (parser.GetVersion() != "1.0")
+        {
+            PrintError("Cubemap version %s not supported : %s", parser.GetVersion().c_str(),  p_fileInfo.GetFullPath().string().c_str());
+            p_loaded = false;
+            return;
+        }
+
+        m_type = static_cast<CubemapType>(parser["Type"].As<int>());
+        SetType(m_type);
+        m_texture->Load(parser);
+
+        if (!std::filesystem::exists(GetDataFilePath()))
+            CreateDataFile();
+
+        SendRequest();
+        FinishLoading();
+    }
+
+    void Resource::Cubemap::Send()
+    {
+        if (p_hasBeenSent)
+            return;
+        p_hasBeenSent = true;
+        Wrapper::Renderer::GetInstance()->CreateCubemap(this);
+        m_texture->Send(this);
+        
+
+        Wrapper::Renderer::GetInstance()->SetCubemapParameters();
+    }
+
+    void Resource::Cubemap::Save() const
+    {
+        CppSer::Serializer serializer(p_fileInfo.GetFullPath());
+        serializer.SetVersion("1.0");
+        serializer << CppSer::Pair::BeginMap << "Cubemap";
+        serializer << CppSer::Pair::Key << "Type" << CppSer::Pair::Value << static_cast<int>(m_type);
+        m_texture->Save(serializer);
+
+        serializer << CppSer::Pair::EndMap << "Cubemap";
     }
 
     Weak<Resource::Cubemap> Resource::Cubemap::Create(const Path& path)
@@ -124,12 +174,29 @@ namespace GALAXY
         return cubemap;
     }
 
+    void Resource::Cubemap::SetType(CubemapType type)
+    {
+        m_type = type;
+        switch (type)
+        {
+        case CubemapType::Default:
+            m_texture = std::make_unique<CubemapTexture>();
+            break;
+        case CubemapType::SixSided:
+            m_texture = std::make_unique<SixSidedTexture>();
+            break;
+        case CubemapType::Panoramic:
+            PrintError("Cubemap Type not implemented : %s", p_fileInfo.GetFullPath().string().c_str());
+            break;
+        default: ;
+        }
+    }
+
     void Resource::Cubemap::ShowInInspector()
     {
-        for (uint32_t i = 0; i < m_textures.size(); i++)
-        {
-            Resource::ResourceManager::ResourceField(m_textures[i], GetDirectionFromIndex(i));
-        }
+        if (p_shouldBeLoaded && !p_loaded)
+            return;
+        m_texture->ShowOnInspector();
         if (ImGui::Button("Save"))
         {
             Save();

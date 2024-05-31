@@ -22,7 +22,16 @@ namespace GALAXY::Wrapper
 		void ImageFree(void* data);
 		void ImageFree(const Image& image);
 
+		// This will devided a cubemap texture to 6 different textures saved inside the same folder.
+		//     +---+
+		//     | U |
+		// +---+---+---+---+
+		// | L | F | R | B |
+		// +---+---+---+---+
+		//     | D |
+		//     +---+
 		void CubemapTextureToSixSided(const std::filesystem::path& cubemapPath);
 
+		
 	}
 }

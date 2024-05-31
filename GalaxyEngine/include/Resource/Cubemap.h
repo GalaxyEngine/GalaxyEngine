@@ -15,6 +15,43 @@ namespace GALAXY
     }
     namespace Resource
     {
+        class CubemapTexture
+        {
+        public:
+            virtual void ShowOnInspector();
+            virtual void Load(CppSer::Parser& parser);
+            virtual void Send(Resource::Cubemap* cubemap);
+            virtual void Save(CppSer::Serializer& serializer) const;
+        private:
+            Weak<Texture> m_texture;
+        };
+
+        class SixSidedTexture : public CubemapTexture
+        {
+        public:
+            void ShowOnInspector() override;
+
+            void Load(CppSer::Parser& parser) override;
+            void Send(Resource::Cubemap* cubemap) override;
+            void Save(CppSer::Serializer& serializer) const;
+
+            void UpdateFace(uint32_t index, const Path& path);
+            void UpdateFace(uint32_t index, const Weak<Texture>& texture);
+            
+        private:
+            friend Wrapper::RendererAPI::OpenGLRenderer;
+            
+            // direction : +X, -X, +Y, -Y, +Z, -Z
+            std::array<Weak<Texture>, 6> m_textures;
+            
+        };
+        
+        enum class CubemapType
+        {
+            Default,
+            SixSided,
+            Panoramic
+        };
         class Cubemap : public IResource
         {
         public:
@@ -32,24 +69,25 @@ namespace GALAXY
             void Send() override;
             void Save() const;
 
-            void UpdateFace(uint32_t index, const Path& path);
-            void UpdateFace(uint32_t index, const Weak<Texture>& texture);
-
             inline uint32_t GetID() const { return m_id; }
 
             static std::string GetDirectionFromIndex(uint32_t index);
 
             static Weak<Cubemap> Create(const Path& path);
 
+            void SetType(CubemapType type);
+
             void ShowInInspector();
-        private:
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             
 			uint32_t m_id = -1;
             
             // direction : +X, -X, +Y, -Y, +Z, -Z
-            std::array<Weak<Texture>, 6> m_textures;
+            // std::array<Weak<Texture>, 6> m_textures;
+
+            CubemapType m_type = CubemapType::Default;
+            Unique<CubemapTexture> m_texture;
         };
     }
 }
