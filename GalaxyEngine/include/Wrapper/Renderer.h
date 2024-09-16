@@ -50,7 +50,7 @@ namespace GALAXY
 		};
 		
 
-		class Renderer
+		class GALAXY_API Renderer
 		{
 		public:
 			Renderer() {}
@@ -83,7 +83,7 @@ namespace GALAXY
 
 			// === Cube map === //
 			virtual void CreateCubemap(Resource::Cubemap* cubemap) {}
-			virtual void SetCubemapFace(int face, const Wrapper::Image &image) {}
+			virtual void SetCubemapFace(uint32_t face, const Wrapper::Image &image) {}
 			virtual void SetCubemapParameters() {}
 			virtual void DestroyCubemap(Resource::Cubemap* cubemap) {}
 

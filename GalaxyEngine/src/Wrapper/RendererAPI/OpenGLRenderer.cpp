@@ -55,6 +55,7 @@ namespace GALAXY
 		case GL_DEBUG_SOURCE_THIRD_PARTY:     log += "Source: Third Party\n"; break;
 		case GL_DEBUG_SOURCE_APPLICATION:     log += "Source: Application\n"; break;
 		case GL_DEBUG_SOURCE_OTHER:           log += "Source: Other\n"; break;
+		default :							  log += "Source: Unknown\n"; break;
 		}
 		switch (type)
 		{
@@ -67,10 +68,12 @@ namespace GALAXY
 		case GL_DEBUG_TYPE_PUSH_GROUP:          log += "Type: Push Group\n"; break;
 		case GL_DEBUG_TYPE_POP_GROUP:           log += "Type: Pop Group\n"; break;
 		case GL_DEBUG_TYPE_OTHER:               log += "Type: Other\n"; break;
+		default :								log += "Type: Unknown\n"; break;
 		}
 
 		switch (severity)
 		{
+		default:
 		case GL_DEBUG_SEVERITY_HIGH:         LOG(Debug::LogType::L_ERROR, "Debug message (%d): %s\n%s", id, message, log.c_str()); break;
 		case GL_DEBUG_SEVERITY_MEDIUM:       LOG(Debug::LogType::L_WARNING, "Debug message (%d): %s\n%s", id, message, log.c_str()); break;
 		case GL_DEBUG_SEVERITY_LOW:          LOG(Debug::LogType::L_WARNING, "Debug message (%d): %s\n%s", id, message, log.c_str()); break;
@@ -192,9 +195,9 @@ namespace GALAXY
 
 	void Wrapper::RendererAPI::OpenGLRenderer::CreateTexture(Resource::Texture* texture)
 	{
-		const uint32_t wrap = TextureWrappingToAPI(texture->m_wrapping);
-		const uint32_t filter = TextureFilteringToAPI(texture->m_filtering);
-		const uint32_t format = TextureFormatToAPI(texture->m_format);
+		const int32_t wrap = static_cast<int32_t>(TextureWrappingToAPI(texture->m_wrapping));
+		const int32_t filter = static_cast<int32_t>(TextureFilteringToAPI(texture->m_filtering));
+		const int32_t format = static_cast<int32_t>(TextureFormatToAPI(texture->m_format));
 
 		glGenTextures(1, &texture->m_id);
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
@@ -217,7 +220,7 @@ namespace GALAXY
 	{
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
 
-		auto wrap = TextureWrappingToAPI(wrapping);
+		int32_t wrap = static_cast<int32_t>(TextureWrappingToAPI(wrapping));
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
@@ -231,7 +234,7 @@ namespace GALAXY
 	{
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
 
-		auto filter = TextureFilteringToAPI(filtering);
+		int32_t filter = static_cast<int32_t>(TextureFilteringToAPI(filtering));
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
@@ -349,8 +352,7 @@ namespace GALAXY
 		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
 		for (GLint i = 0; i < numUniforms; ++i) {
-			
-			const GLsizei bufSize = 256; // Maximum name length
+			constexpr GLsizei bufSize = 256; // Maximum name length
 			GLchar name[bufSize];
 			GLsizei length;
 			GLint size;
@@ -379,70 +381,70 @@ namespace GALAXY
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform1i(location, value);
+		glUniform1i(static_cast<int32_t>(location), value);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendFloat(const uint32_t location, const float value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform1f(location, value);
+		glUniform1f(static_cast<int32_t>(location), value);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendDouble(const uint32_t location, const double value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform1d(location, value);
+		glUniform1d(static_cast<int32_t>(location), value);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec2f(const uint32_t location, const Vec2f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform2fv(location, 1, value.Data());
+		glUniform2fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec3f(const uint32_t location, const Vec3f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform3fv(location, 1, value.Data());
+		glUniform3fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec4f(const uint32_t location, const Vec4f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform4fv(location, 1, value.Data());
+		glUniform4fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec2i(const uint32_t location, const Vec2i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform2iv(location, 1, value.Data());
+		glUniform2iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec3i(const uint32_t location, const Vec3i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform3iv(location, 1, value.Data());
+		glUniform3iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec4i(const uint32_t location, const Vec4i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniform4iv(location, 1, value.Data());
+		glUniform4iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendMat4(const uint32_t location, const Mat4& value, const bool transpose /*= false*/)
 	{
 		if (location == INDEX_NONE)
 			return;
-		glUniformMatrix4fv(location, 1, transpose, value.Data());
+		glUniformMatrix4fv(static_cast<int32_t>(location), 1, transpose, value.Data());
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::CreateVertexArray(uint32_t& vao)
@@ -463,7 +465,7 @@ namespace GALAXY
 		// Vertex buffer initialization
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(Vec3f), positions.data()->Data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(positions.size() * sizeof(Vec3f)), positions.data()->Data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(0);
 
@@ -471,7 +473,7 @@ namespace GALAXY
 		// Texture coordinate buffer initialization
 		glGenBuffers(1, &m_textureUVs);
 		glBindBuffer(GL_ARRAY_BUFFER, m_textureUVs);
-		glBufferData(GL_ARRAY_BUFFER, textureUVs.size() * sizeof(Vec2f), textureUVs.data()->Data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(textureUVs.size() * sizeof(Vec2f)), textureUVs.data()->Data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(1);
 
@@ -479,7 +481,7 @@ namespace GALAXY
 		uint32_t m_normals;
 		glGenBuffers(1, &m_normals);
 		glBindBuffer(GL_ARRAY_BUFFER, m_normals);
-		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(Vec3f), normals.data()->Data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(normals.size() * sizeof(Vec3f)), normals.data()->Data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(2);
 	}
@@ -488,7 +490,7 @@ namespace GALAXY
 	{
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, dataSize, data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(dataSize), data, GL_STATIC_DRAW);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::BindVertexBuffer(const uint32_t vbo)
@@ -500,7 +502,7 @@ namespace GALAXY
 	{
 		glGenBuffers(1, &ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dataSize, data, GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<int64_t>(dataSize), data, GL_STATIC_DRAW);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::BindIndexBuffer(const uint32_t ebo)
@@ -544,9 +546,9 @@ namespace GALAXY
 		glGenBuffers(1, &vbo);
 		glBindVertexArray(vao);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, dataSize, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(dataSize), nullptr, GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, static_cast<int>(numVertices), GL_FLOAT, GL_FALSE, (int)numVertices * sizeof(float), nullptr);
+		glVertexAttribPointer(0, static_cast<int>(numVertices), GL_FLOAT, GL_FALSE, static_cast<int>(numVertices * sizeof(float)), nullptr);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
@@ -632,10 +634,9 @@ namespace GALAXY
 	{
 		glGenTextures(1, &cubemap->m_id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
-		
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(int face, const Wrapper::Image& image)
+	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(uint32_t face, const Wrapper::Image& image)
 	{
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGBA, image.size.x, image.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
 	}

@@ -5,7 +5,13 @@
 
 #include "Resource/ResourceManager.h"
 
+#include "Core/ThreadManager.h"
+
 #include <nfd.hpp>
+#include <iostream>
+#include <array>
+#include <cstdio>
+#include <memory>
 
 #ifdef __linux__
 #include <sys/stat.h>
@@ -253,6 +259,32 @@ namespace GALAXY
 		const std::string command = riderPath + " \"" + slnPath + "\"";
 		std::system(command.c_str());
 		std::filesystem::current_path(prevPath);
+	}
+	
+	void Utils::OS::RunCommand(const std::string& command) {
+		// Open a pipe to read the command's output
+		std::array<char, 1024> buffer;
+		std::string result;
+		
+		std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
+
+		if (!pipe) {
+			PrintError("popen() failed!");
+			return;
+		}
+
+		// Read the output a line at a time
+		while (fgets(buffer.data(), (int)buffer.size(), pipe.get()) != nullptr) {
+			result += buffer.data();
+		}
+
+		// Print the result
+		PrintLog(result.c_str());
+	}
+
+	void Utils::OS::RunCommandThread(const std::string& command)
+	{
+		Core::ThreadManager::GetInstance()->AddTask(([command] { RunCommand(command); }));
 	}
 
 #endif

@@ -3,7 +3,6 @@
 #include "Resource/Cubemap.h"
 
 #include "Core/SceneHolder.h"
-#include "Render/Camera.h"
 #include "Resource/ResourceManager.h"
 #include "Wrapper/ImageLoader.h"
 
@@ -17,6 +16,8 @@ namespace GALAXY
 
     void Resource::CubemapTexture::Load(CppSer::Parser& parser)
     {
+        auto textureUUID = parser["Texture"].As<uint64_t>();
+        m_texture = ResourceManager::GetResource<Texture>(textureUUID);
         //TODO : Load
     }
 
@@ -27,6 +28,7 @@ namespace GALAXY
 
     void Resource::CubemapTexture::Save(CppSer::Serializer& serializer) const
     {
+        IResource::SerializeResource(serializer, "Texture", m_texture);
         //TODO : Save
     }
 #pragma region SixSidedTexture
@@ -43,7 +45,7 @@ namespace GALAXY
         for (uint32_t i = 0; i < 6; i++)
         {
             auto textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
-            m_textures[i] = Resource::ResourceManager::GetResource<Texture>(textureUUID);
+            m_textures[i] = ResourceManager::GetResource<Texture>(textureUUID);
         }
     }
 
@@ -57,12 +59,12 @@ namespace GALAXY
             {
                 Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(),
                                                                   4);
-                Wrapper::Renderer::GetInstance()->SetCubemapFace(i, image);
+                Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), image);
                 Wrapper::ImageLoader::ImageFree(image);
             }
             else
             {
-                Wrapper::Renderer::GetInstance()->SetCubemapFace(i, Wrapper::Image());
+                Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), Wrapper::Image());
             }
         }
     }
@@ -87,12 +89,12 @@ namespace GALAXY
         {
             Wrapper::Image image = Wrapper::ImageLoader::Load(
                 texture.lock()->GetFileInfo().GetFullPath().string().c_str(), 4);
-            Wrapper::Renderer::GetInstance()->SetCubemapFace(index, image);
+            Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(index), image);
             Wrapper::ImageLoader::ImageFree(image);
         }
         else
         {
-            Wrapper::Renderer::GetInstance()->SetCubemapFace(index, Wrapper::Image());
+            Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(index), Wrapper::Image());
         }
         //Save();
     }
@@ -188,7 +190,9 @@ namespace GALAXY
         case CubemapType::Panoramic:
             PrintError("Cubemap Type not implemented : %s", p_fileInfo.GetFullPath().string().c_str());
             break;
-        default: ;
+        default:
+            PrintError("Unknown Cubemap Type : %s", p_fileInfo.GetFullPath().string().c_str());
+            break;
         }
     }
 

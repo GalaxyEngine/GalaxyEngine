@@ -15,6 +15,7 @@ namespace GALAXY
     }
     namespace Resource
     {
+        class Cubemap;
         class CubemapTexture
         {
         public:
@@ -77,7 +78,7 @@ namespace GALAXY
 
             void SetType(CubemapType type);
 
-            void ShowInInspector();
+            void ShowInInspector() override;
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             

@@ -58,6 +58,7 @@ namespace GALAXY
 			void Deserialize(CppSer::Parser& parser) override;
 			*/
 
+			void OnCreate() override;
 			void AfterLoad() override;
 
 			template<typename T>

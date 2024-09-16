@@ -44,6 +44,8 @@ namespace GALAXY
 		void OpenWithVS(const std::filesystem::path& filePath);
 		void OpenWithRider(const std::filesystem::path& filePath);
 #endif
+		void RunCommand(const std::string& command);
+		void RunCommandThread(const std::string& command);
 	}
 }
 #include "Utils/OS.inl" 

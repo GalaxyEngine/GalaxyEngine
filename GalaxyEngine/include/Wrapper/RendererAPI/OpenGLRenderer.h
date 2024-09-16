@@ -1,13 +1,11 @@
 #pragma once
-#include <glad/glad.h>
-
 #include "GalaxyAPI.h"
 #include "Resource/Shader.h"
 #include "Wrapper/Renderer.h"
 
 namespace GALAXY::Wrapper::RendererAPI
 {
-		class OpenGLRenderer : public Renderer
+		class GALAXY_API OpenGLRenderer : public Renderer
 		{
 		public:
 			OpenGLRenderer() = default;
@@ -33,7 +31,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			
 			// === Cubemap === //
 			void CreateCubemap(Resource::Cubemap* cubemap) override;
-			void SetCubemapFace(int face, const Wrapper::Image &image) override;
+			void SetCubemapFace(uint32_t face, const Wrapper::Image &image) override;
 			void SetCubemapParameters() override;
 			void DestroyCubemap(Resource::Cubemap* cubemap) override;
 
@@ -69,7 +67,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			void BindVertexArray(uint32_t vao) override;
 			void UnbindVertexArray() override;
 
-			void CreateAndFillVertexBuffer(uint32_t& vbo, const std::vector<Vec3f>& positions, const std::vector<Vec2f>& textureUVs, const std::vector<Vec3f>& normals);
+			void CreateAndFillVertexBuffer(uint32_t& vbo, const std::vector<Vec3f>& positions, const std::vector<Vec2f>& textureUVs, const std::vector<Vec3f>& normals) override;
 			void CreateVertexBuffer(uint32_t& vbo, const void* data, size_t dataSize) override;
 			void BindVertexBuffer(uint32_t vbo) override;
 			void UnbindVertexBuffer() override;

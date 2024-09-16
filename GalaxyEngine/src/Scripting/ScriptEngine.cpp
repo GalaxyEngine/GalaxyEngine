@@ -184,22 +184,26 @@ namespace GALAXY
 	{
 		const Path prevPath = std::filesystem::current_path();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
-		std::filesystem::current_path(projectPath);
 
 		// Execute your build commands
+		auto threadMethod = [&]()
+		{
+			std::filesystem::current_path(projectPath);
 #ifdef _MSC_VER
-		std::system("xmake f -p windows -a x64 -m debug");
+			Utils::OS::RunCommand("xmake f -p windows -a x64 -m debug");
 #elif defined(__linux__)
-		std::system("xmake f -p linux -a x64 -m debug");
+			Utils::OS::RunCommand("xmake f -p linux -a x64 -m debug");
 #endif
-		std::system("xmake");
-		std::filesystem::current_path(prevPath);
+			Utils::OS::RunCommand("xmake");
+			std::filesystem::current_path(prevPath);
+		};
+		Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 	}
 
 	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorTool tool)
 	{
 		const Path prevPath = std::filesystem::current_path();
-		const Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
+		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 		std::filesystem::current_path(projectPath);
 		switch (tool)
 		{
@@ -207,17 +211,22 @@ namespace GALAXY
 		case Editor::ScriptEditorTool::Rider:
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-			std::system("xmake f -p windows -a x64 -m debug");
-			std::system("xmake project -k vsxmake");
+				auto threadMethod = [&](){
+					Utils::OS::RunCommand("xmake f -p windows -a x64 -m debug");
+					Utils::OS::RunCommand("xmake project -k vsxmake");
+				};
+				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 			break;
 		}
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
-			std::system("xmake project -k compile_commands .vscode");
-			std::ofstream file(".vscode/c_cpp_properties.json");
-			if (file.is_open()) {
-				file << std::string(R"(
+				auto threadMethod = [&]()
+				{
+					Utils::OS::RunCommand(("xmake project -k compile_commands .vscode");
+					std::ofstream file(".vscode/c_cpp_properties.json");
+					if (file.is_open()) {
+						file << std::string(R"(
 {
    "configurations": [
        {
@@ -226,7 +235,9 @@ namespace GALAXY
    ],
    "version": 4
 })");
-			}
+					}
+				};
+				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 			break;
 		}
 		default:

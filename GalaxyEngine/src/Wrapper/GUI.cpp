@@ -238,19 +238,43 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	bool Wrapper::GUI::Button(const char* buttonName, const Vec2f buttonSize)
-	{
-		return ImGui::Button(buttonName, buttonSize);
-	}
-
 	void Wrapper::GUI::SameLine()
 	{
 		ImGui::SameLine();
 	}
 
+	bool Wrapper::GUI::Button(const char* buttonName, const Vec2f& size)
+	{
+		return ImGui::Button(buttonName, size);
+	}
+
+	bool Wrapper::GUI::DragFloat(const char* label, float* value, float speed, float min, float max, const char* format,
+		int flags)
+	{
+		return ImGui::DragFloat(label, value, speed, min, max, format, flags);
+	}
+
+	bool Wrapper::GUI::DragInt(const char* label, int* value, float speed, int min, int max, const char* format,
+		int flags)
+	{
+		return ImGui::DragInt(label, value, speed, min, max, format, flags);
+	}
+
+	bool Wrapper::GUI::DragDouble(const char* label, double* value, float speed, double min, double max,
+		const char* format, int flags)
+	{
+		return ImGui::DragScalar(label, ImGuiDataType_Double, value, speed, &min, &max, format, flags);
+	}
+
 	float Wrapper::GUI::GetScaleFactor()
 	{
 		return Core::Application::GetInstance().GetWindow()->GetScreenScale();
+	}
+
+	void Wrapper::GUI::Test(Component::BaseComponent* component)
+	{
+		PrintError("eysy");
+		
 	}
 
 	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, const float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)

@@ -29,6 +29,12 @@ void Component::ScriptComponent::ShowInInspector()
 	}
 }
 
+void Component::ScriptComponent::OnCreate()
+{
+	// Setup Variables so the ptrs are correct
+	SetupVariables();
+}
+
 void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
 {
 	for (auto& variable : m_variablesInfo)
