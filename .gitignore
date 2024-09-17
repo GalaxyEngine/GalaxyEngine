@@ -12,7 +12,6 @@ GalaxyCore/GalaxyCore.*
 GalaxyCore/GalaxyCore
 compile.*
 
-
 *.dll
 *.so
 *.pdb
@@ -20,3 +19,4 @@ compile.*
 /.vscode
 *.a
 GalaxyCore/GalaxyHeaderTool
+Editor.settings
