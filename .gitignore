@@ -19,4 +19,4 @@ compile.*
 /.vscode
 *.a
 GalaxyCore/GalaxyHeaderTool
-Editor.settings
+GalaxyCore/Editor.settings
