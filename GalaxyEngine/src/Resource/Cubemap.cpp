@@ -6,37 +6,100 @@
 #include "Resource/ResourceManager.h"
 #include "Wrapper/ImageLoader.h"
 
+using namespace Wrapper;
 
 namespace GALAXY
 {
+    Resource::CubemapTexture::CubemapTexture(Cubemap* owner) : p_owner(owner)
+    {
+        
+    }
+
+    Resource::CubemapTexture::~CubemapTexture()
+    {
+        if (m_image)
+        {
+            ImageLoader::ImageFree(*m_image);
+            delete m_image;
+            m_image = nullptr;
+        }
+    }
+
     void Resource::CubemapTexture::ShowOnInspector()
     {
-        Resource::ResourceManager::ResourceField(m_texture, "Texture");
+        if (Resource::ResourceManager::ResourceField(m_texture, "Texture"))
+            UpdateCubemap();
     }
 
     void Resource::CubemapTexture::Load(CppSer::Parser& parser)
     {
         auto textureUUID = parser["Texture"].As<uint64_t>();
         m_texture = ResourceManager::GetResource<Texture>(textureUUID);
-        //TODO : Load
+        if (m_texture.lock())
+        {
+            m_image = new Image(ImageLoader::Load(m_texture.lock()->GetFileInfo().GetFullPath()));
+        }
     }
+    
 
     void Resource::CubemapTexture::Send(Resource::Cubemap* cubemap)
     {
-        //TODO : Send
+        if (m_image)
+        {
+            auto textures = ImageLoader::CubemapTextureToSixSided(*m_image);
+
+            ImageLoader::ImageFree(*m_image);
+            delete m_image;
+            m_image = nullptr;
+
+            for (uint32_t i = 0; i < textures.size(); i++)
+            {
+                Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), textures[i]);
+                ImageLoader::ImageFree(textures[i]);
+            }
+        }
     }
 
     void Resource::CubemapTexture::Save(CppSer::Serializer& serializer) const
     {
         IResource::SerializeResource(serializer, "Texture", m_texture);
-        //TODO : Save
+    }
+
+    void Resource::CubemapTexture::UpdateCubemap()
+    {
+        m_image = new Image(ImageLoader::Load(m_texture.lock()->GetFileInfo().GetFullPath()));
+        auto textures = ImageLoader::CubemapTextureToSixSided(*m_image);
+
+        ImageLoader::ImageFree(*m_image);
+        delete m_image;
+        m_image = nullptr;
+
+        for (uint32_t i = 0; i < textures.size(); i++)
+        {
+            Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), textures[i]);
+            ImageLoader::ImageFree(textures[i]);
+        }
     }
 #pragma region SixSidedTexture
+
+    Resource::SixSidedTexture::SixSidedTexture(Cubemap* owner): CubemapTexture(owner)
+    {
+    }
+
+    Resource::SixSidedTexture::~SixSidedTexture()
+    {
+        
+    }
+
     void Resource::SixSidedTexture::ShowOnInspector()
     {
+        ImGui::TextWrapped("Textures needs to be all the same resolution");
         for (uint32_t i = 0; i < m_textures.size(); i++)
         {
-            Resource::ResourceManager::ResourceField(m_textures[i], Cubemap::GetDirectionFromIndex(i));
+            if (Resource::ResourceManager::ResourceField(m_textures[i], Cubemap::GetDirectionFromIndex(i)))
+            {
+                UpdateFace(i, m_textures[i]);
+            }
         }
     }
 
@@ -45,20 +108,20 @@ namespace GALAXY
         for (uint32_t i = 0; i < 6; i++)
         {
             auto textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
-            m_textures[i] = ResourceManager::GetResource<Texture>(textureUUID);
+            m_textures[i] = ResourceManager::GetOrLoad<Texture>(textureUUID);
         }
     }
 
     void Resource::SixSidedTexture::Send(Resource::Cubemap* cubemap)
     {
+        // Bind previously
         for (uint32_t i = 0; i < m_textures.size(); i++)
         {
             if (!m_textures[i].lock())
                 return;
             if (auto texture = m_textures[i].lock())
             {
-                Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(),
-                                                                  4);
+                Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(), 4);
                 Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), image);
                 Wrapper::ImageLoader::ImageFree(image);
             }
@@ -84,6 +147,9 @@ namespace GALAXY
 
     void Resource::SixSidedTexture::UpdateFace(uint32_t index, const Weak<Texture>& texture)
     {
+        // TODO : Multi thread this
+        auto renderer = Wrapper::Renderer::GetInstance();
+        renderer->BindCubemap(p_owner);
         m_textures[index] = texture;
         if (texture.lock())
         {
@@ -96,6 +162,7 @@ namespace GALAXY
         {
             Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(index), Wrapper::Image());
         }
+        renderer->UnbindCubemap();
         //Save();
     }
 #pragma endregion 
@@ -112,7 +179,7 @@ namespace GALAXY
 
     Path Resource::Cubemap::GetThumbnailPath() const
     {
-        return Path();
+        return {};
     }
 
     void Resource::Cubemap::Load()
@@ -151,11 +218,11 @@ namespace GALAXY
         if (p_hasBeenSent)
             return;
         p_hasBeenSent = true;
-        Wrapper::Renderer::GetInstance()->CreateCubemap(this);
-        m_texture->Send(this);
+        auto renderer = Wrapper::Renderer::GetInstance();
         
-
-        Wrapper::Renderer::GetInstance()->SetCubemapParameters();
+        renderer->CreateCubemap(this);
+        m_texture->Send(this);
+        renderer->SetCubemapParameters();
     }
 
     void Resource::Cubemap::Save() const
@@ -165,7 +232,6 @@ namespace GALAXY
         serializer << CppSer::Pair::BeginMap << "Cubemap";
         serializer << CppSer::Pair::Key << "Type" << CppSer::Pair::Value << static_cast<int>(m_type);
         m_texture->Save(serializer);
-
         serializer << CppSer::Pair::EndMap << "Cubemap";
     }
 
@@ -182,10 +248,10 @@ namespace GALAXY
         switch (type)
         {
         case CubemapType::Default:
-            m_texture = std::make_unique<CubemapTexture>();
+            m_texture = std::make_unique<CubemapTexture>(this);
             break;
         case CubemapType::SixSided:
-            m_texture = std::make_unique<SixSidedTexture>();
+            m_texture = std::make_unique<SixSidedTexture>(this);
             break;
         case CubemapType::Panoramic:
             PrintError("Cubemap Type not implemented : %s", p_fileInfo.GetFullPath().string().c_str());
@@ -200,6 +266,12 @@ namespace GALAXY
     {
         if (p_shouldBeLoaded && !p_loaded)
             return;
+        int currentType = (int)m_type;
+        if (ImGui::Combo("Cubemap Type", &currentType, SerializeCubemapTypeEnum()))
+            SetType(static_cast<CubemapType>(currentType));
+
+        ImGui::Separator();
+        
         m_texture->ShowOnInspector();
         if (ImGui::Button("Save"))
         {

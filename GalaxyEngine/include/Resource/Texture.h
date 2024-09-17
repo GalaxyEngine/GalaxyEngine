@@ -92,6 +92,7 @@ namespace GALAXY {
 			TextureFormat m_format = TextureFormat::RGBA;
 			TextureWrapping m_wrapping = TextureWrapping::REPEAT;
 
+			// Temporary variable, deleted when the texture is sent to the render api
 			unsigned char* m_bytes = nullptr;
 			Vec2i m_size = {};
 

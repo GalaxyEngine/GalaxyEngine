@@ -36,6 +36,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			void DestroyCubemap(Resource::Cubemap* cubemap) override;
 
 			void BindCubemap(Resource::Cubemap* cubemap, uint32_t id = 0) override;
+			void UnbindCubemap() override;
 
 			uint32_t TextureFormatToAPI(Resource::TextureFormat format) override;
 			uint32_t TextureWrappingToAPI(Resource::TextureWrapping wrapping) override;

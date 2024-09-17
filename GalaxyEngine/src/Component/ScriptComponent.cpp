@@ -4,9 +4,14 @@
 #include "Core/SceneHolder.h"
 #include "Resource/Scene.h"
 
-void Component::ScriptComponent::SetupVariables()
+void Component::ScriptComponent::InitializeVariablesInfo()
 {
 	m_variablesInfo = Scripting::ScriptEngine::GetInstance()->GetAllScriptVariablesInfo(GetComponentName());
+}
+
+void Component::ScriptComponent::SetupVariables()
+{
+	InitializeVariablesInfo();
 
 	m_variablesPtr.clear();
 	for (const auto& variable : m_variablesInfo) {

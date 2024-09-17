@@ -23,17 +23,36 @@ namespace GALAXY {
 		stbi_image_free(image.data);
 	}
 
-	Wrapper::Image extract_face(const Wrapper::Image& cubemap, int x, int y, int faceWidth, int faceHeight) {
+	std::array<Wrapper::Image, 6> Wrapper::ImageLoader::CubemapTextureToSixSided(const Wrapper::Image& cubemapTexture)
+	{
+		std::array<Wrapper::Image, 6> output;
+		
+		int faceWidth = cubemapTexture.size.x / 4;
+		int faceHeight = cubemapTexture.size.y / 3;
+
+		// Extract each face
+		output[0] = ExtractFace(cubemapTexture, faceWidth * 2, faceHeight * 1, faceWidth, faceHeight); // Right
+		output[1] = ExtractFace(cubemapTexture, 0, faceHeight * 1, faceWidth, faceHeight); // Left
+		output[2] = ExtractFace(cubemapTexture, faceWidth * 1, 0, faceWidth, faceHeight); // Up
+		output[3] = ExtractFace(cubemapTexture, faceWidth * 1, faceHeight * 2, faceWidth, faceHeight); // Down
+		output[4] = ExtractFace(cubemapTexture, faceWidth * 1, faceHeight * 1, faceWidth, faceHeight); // Front
+		output[5] = ExtractFace(cubemapTexture, faceWidth * 3, faceHeight * 1, faceWidth, faceHeight); // Back
+
+		return output;
+	}
+
+	Wrapper::Image Wrapper::ImageLoader::ExtractFace(const Wrapper::Image& cubemap, int x, int y, int faceWidth, int faceHeight)
+	{
 		Wrapper::Image face;
 		face.size.x = faceWidth;
 		face.size.y = faceHeight;
-		face.data = new unsigned char[faceWidth * faceHeight * 4];
+		face.data = new unsigned char[faceWidth * faceHeight * cubemap.channels];
 
 		for (int j = 0; j < faceHeight; ++j) {
 			for (int i = 0; i < faceWidth; ++i) {
-				for (int k = 0; k < 4; ++k) {
-					face.data[(j * faceWidth + i) * 4 + k] =
-						cubemap.data[((y + j) * cubemap.size.x + (x + i)) * 4 + k];
+				for (int k = 0; k < cubemap.channels; ++k) {
+					face.data[(j * faceWidth + i) * cubemap.channels + k] =
+						cubemap.data[((y + j) * cubemap.size.x + (x + i)) * cubemap.channels + k];
 				}
 			}
 		}
@@ -41,30 +60,20 @@ namespace GALAXY {
 		return face;
 	}
 
-	void Wrapper::ImageLoader::CubemapTextureToSixSided(const std::filesystem::path& cubemapPath)
+	void Wrapper::ImageLoader::ExtractSixSidedFromCubemap(const std::filesystem::path& cubemapPath)
 	{
 		stbi_set_flip_vertically_on_load(0);
 
 		Wrapper::Image cubemap = Load(cubemapPath.string().c_str(), 4);
 
-		int faceWidth = cubemap.size.x / 4;
-		int faceHeight = cubemap.size.y / 3;
-		
-		Image faces[6];
-
-		// Extract each face
-		faces[0] = extract_face(cubemap, faceWidth * 2, faceHeight * 1, faceWidth, faceHeight); // Right
-		faces[1] = extract_face(cubemap, 0, faceHeight * 1, faceWidth, faceHeight); // Left
-		faces[2] = extract_face(cubemap, faceWidth * 1, 0, faceWidth, faceHeight); // Up
-		faces[3] = extract_face(cubemap, faceWidth * 1, faceHeight * 2, faceWidth, faceHeight); // Down
-		faces[4] = extract_face(cubemap, faceWidth * 1, faceHeight * 1, faceWidth, faceHeight); // Front
-		faces[5] = extract_face(cubemap, faceWidth * 3, faceHeight * 1, faceWidth, faceHeight); // Back
+		auto faces = CubemapTextureToSixSided(cubemap);
 
 		// Save each face
 		for (int i = 0; i < 6; ++i) {
 			auto directionString = Resource::Cubemap::GetDirectionFromIndex(i);
 			std::string filename = cubemapPath.parent_path().string() + "/" + directionString + ".png";
 			SaveImage(filename.c_str(), faces[i]);
+			ImageFree(faces[i]);
 		}
 		
 		ImageFree(cubemap);
@@ -79,7 +88,13 @@ namespace GALAXY {
 		image.data = data;
 		image.size.x = x;
 		image.size.y = y;
+		image.channels = req_comp;
 		return image;
+	}
+
+	Wrapper::Image Wrapper::ImageLoader::Load(const std::filesystem::path& path, int req_comp)
+	{
+		return Load(path.generic_string().c_str(), req_comp);
 	}
 
 	void Wrapper::ImageLoader::SaveImage(const char* filename, const Image& image)

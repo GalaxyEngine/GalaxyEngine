@@ -638,6 +638,7 @@ namespace GALAXY
 
 	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(uint32_t face, const Wrapper::Image& image)
 	{
+		// OpenGL does not support different image size for each face
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGBA, image.size.x, image.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
 	}
 
@@ -660,6 +661,11 @@ namespace GALAXY
 		ASSERT(cubemap->HasBeenSent());
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
+	}
+
+	void Wrapper::RendererAPI::OpenGLRenderer::UnbindCubemap()
+	{
+		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
 	void Wrapper::RendererAPI::OpenGLRenderer::CreateRenderBuffer(Render::Framebuffer* framebuffer)

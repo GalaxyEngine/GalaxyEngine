@@ -76,6 +76,7 @@ namespace GALAXY
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;
 		private:
+			void InitializeVariablesInfo();
 			void SetupVariables();
 
 		private:

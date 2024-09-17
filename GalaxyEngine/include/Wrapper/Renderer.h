@@ -88,6 +88,7 @@ namespace GALAXY
 			virtual void DestroyCubemap(Resource::Cubemap* cubemap) {}
 
 			virtual void BindCubemap(Resource::Cubemap* cubemap, uint32_t id = 0) {}
+			virtual void UnbindCubemap() {}
 
 			virtual uint32_t TextureFormatToAPI(Resource::TextureFormat format) { return -1; }
 			virtual uint32_t TextureWrappingToAPI(Resource::TextureWrapping filtering) { return -1; }

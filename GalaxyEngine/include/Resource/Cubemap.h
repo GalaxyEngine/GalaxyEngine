@@ -16,20 +16,42 @@ namespace GALAXY
     namespace Resource
     {
         class Cubemap;
+        class Cubemap;
         class CubemapTexture
         {
         public:
+            explicit CubemapTexture(Cubemap* owner);
+            CubemapTexture& operator=(const CubemapTexture& other) {}
+            CubemapTexture(const CubemapTexture&) = default;
+            CubemapTexture(CubemapTexture&&) noexcept = default;
+            ~CubemapTexture();
+            
+            
             virtual void ShowOnInspector();
             virtual void Load(CppSer::Parser& parser);
             virtual void Send(Resource::Cubemap* cubemap);
             virtual void Save(CppSer::Serializer& serializer) const;
+
+            void UpdateCubemap();
+
+        protected:
+            Cubemap* p_owner = nullptr;
         private:
             Weak<Texture> m_texture;
+
+            // Temporary variable, delete when the cube map is sent to the render api
+            Wrapper::Image* m_image = nullptr;
         };
 
         class SixSidedTexture : public CubemapTexture
         {
         public:
+            explicit SixSidedTexture(Cubemap* owner);
+            SixSidedTexture& operator=(const SixSidedTexture& other) = default;
+            SixSidedTexture(const SixSidedTexture&) = default;
+            SixSidedTexture(SixSidedTexture&&) noexcept = default;
+            ~SixSidedTexture();
+
             void ShowOnInspector() override;
 
             void Load(CppSer::Parser& parser) override;
@@ -53,6 +75,12 @@ namespace GALAXY
             SixSided,
             Panoramic
         };
+        
+        inline const char* SerializeCubemapTypeEnum()
+        {
+            return "Default\0SixSided\0";
+        }
+        
         class Cubemap : public IResource
         {
         public:

@@ -520,7 +520,7 @@ namespace GALAXY {
 						case ResourceType::Texture:
 							if (ImGui::Button("Convert to six sided", buttonSize))
 							{
-								Wrapper::ImageLoader::CubemapTextureToSixSided(m_rightClickedFiles[0]->m_info.GetFullPath());
+								Wrapper::ImageLoader::ExtractSixSidedFromCubemap(m_rightClickedFiles[0]->m_info.GetFullPath());
 							}
 							break;
 						case ResourceType::Shader:

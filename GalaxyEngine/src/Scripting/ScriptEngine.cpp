@@ -40,7 +40,7 @@ namespace GALAXY
 		for (auto& instance : m_scriptEngine->GetAllScriptInstances())
 		{
 			auto scriptComp = static_cast<Component::ScriptComponent*>(instance.second->m_constructor());
-			scriptComp->SetupVariables();
+			scriptComp->InitializeVariablesInfo();
 			Component::ComponentHolder::RegisterComponent(scriptComp);
 		}
 	}
@@ -223,7 +223,7 @@ namespace GALAXY
 		{
 				auto threadMethod = [&]()
 				{
-					Utils::OS::RunCommand(("xmake project -k compile_commands .vscode");
+					Utils::OS::RunCommand("xmake project -k compile_commands .vscode");
 					std::ofstream file(".vscode/c_cpp_properties.json");
 					if (file.is_open()) {
 						file << std::string(R"(
