@@ -28,8 +28,10 @@ namespace GALAXY::Debug {
 		~Log();
 		template <typename ...Args> static void Print(const char* file, int line, LogType type, const char* format, Args ... args)
 		{
-			const std::time_t now = std::time(nullptr); // get the current time point
-			const std::tm calendar_time = *std::localtime(std::addressof(now));
+			std::time_t now = std::time(nullptr); // get the current time point
+			std::tm calendar_time;
+			
+			localtime_s(&calendar_time, &now);
 
 			char buf[MAX_LOG_SIZE];
 			char buf2[MAX_LOG_SIZE];

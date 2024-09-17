@@ -2,6 +2,7 @@
 #include "GalaxyAPI.h"
 #include <vector>
 #include <string>
+#include <galaxymath/Maths.h>
 
 #include "Utils/Type.h"
 

@@ -153,6 +153,8 @@ namespace GALAXY
 			}
 
 			const Shared<Component::BaseComponent> script = instanceScriptComponent->Clone();
+			// Setup manually
+			std::dynamic_pointer_cast<Component::ScriptComponent>(script)->SetupVariables();
 
 			script->Deserialize(parser);
 
