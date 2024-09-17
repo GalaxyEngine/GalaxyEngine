@@ -94,6 +94,8 @@ namespace GALAXY
 			Vec2i GetMousePosition(CoordinateSpace coordinate = CoordinateSpace::Window) const;
 			List<VideoMode> GetSupportedFullScreenResolutions() const;
 			VideoMode GetVideoMode() const;
+			static std::string GetNonPrintableKeyName(int key);
+			static std::string GetKeyName(int key);
 
 			Vec2i ToWindowSpace(const Vec2i& pos) const;
 			Vec2i ToScreenSpace(const Vec2i& pos) const;

@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "Core/Input.h"
 #include "Utils/FileInfo.h"
 
 
@@ -26,13 +27,13 @@ namespace GALAXY
 			Editor,
 		};
 		
-		
 		enum class EditorSettingsTab
 		{
 			General = 0,
 			ExternalTool,
 			Appearance,
 			Benchmark,
+			EditorInputs,
 		};
 
 		inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
@@ -43,6 +44,7 @@ namespace GALAXY
 			case EditorSettingsTab::ExternalTool: return "External Tool";
 			case EditorSettingsTab::Appearance:	return "Appearance";
 			case EditorSettingsTab::Benchmark:	return "Benchmark";
+			case EditorSettingsTab::EditorInputs:	return "Editor Inputs";
 			default: return "Invalid";
 			}
 		}
@@ -73,6 +75,41 @@ namespace GALAXY
 			}
 		}
 
+		enum class InputAction
+		{
+			None = 0,
+			Forward,
+			Backward,
+			Left,
+			Right,
+			Up,
+			Down,
+			FastMode,
+		};
+
+		struct EditorInput
+		{
+			std::string name;
+			Key key;
+
+			EditorInput(const std::string& name, const Key key) : name(name), key(key) {}
+			EditorInput() = default;
+		};
+
+		class EditorInputsManager
+		{
+		public:
+			Key GetInputForAction(const InputAction action) const
+			{
+				return EditorInputs.at(action).key;
+			}
+			
+			std::unordered_map<InputAction, EditorInput> EditorInputs;
+
+			void Initialize();
+		};
+		
+
 		class EditorSettings
 		{
 		public:
@@ -98,6 +135,7 @@ namespace GALAXY
 
 			[[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
 
+			[[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
 		private:
 			void DisplayTab(EditorSettingsTab tab);
 
@@ -109,6 +147,8 @@ namespace GALAXY
 			void DisplayAppearanceTab();
 			
 			void DisplayBenchmarkTab();
+
+			void DisplayEditorInputsTab();
 
 			void UpdateScreenShot();
 		private:
@@ -128,6 +168,8 @@ namespace GALAXY
 			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
 #endif
 #pragma endregion
+
+			EditorInputsManager m_editorInputsManager;
 			
 			Weak<Resource::Texture> m_projectThumbnail = {};
 		};

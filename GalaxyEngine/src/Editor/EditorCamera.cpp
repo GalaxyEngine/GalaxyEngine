@@ -34,6 +34,7 @@ namespace GALAXY
 	Vec2f prevMousePos;
 	void Render::EditorCamera::Update()
 	{
+		auto& inputManager = Core::Application::GetInstance().GetEditorSettings().GetEditorInputsManager();
 		GetTransform()->OnUpdate();
 		if (IsLooking() && Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
 		{
@@ -51,38 +52,38 @@ namespace GALAXY
 		if (!m_looking)
 			return;
 
-		const bool fastMode = Input::IsKeyDown(Key::LEFT_SHIFT) || Input::IsKeyDown(Key::RIGHT_SHIFT);
+		const bool fastMode = Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::FastMode));
 		const float movementSpeed = fastMode ? m_fastMovementSpeed : m_movementSpeed;
 
 		const float deltaTime = Utils::Time::DeltaTime();
 
 		const float moveSpeed = movementSpeed * m_multiplierSpeed * deltaTime;
-		if (Input::IsKeyDown(Key::A) || Input::IsKeyDown(Key::LEFT))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Left)) || Input::IsKeyDown(Key::LEFT))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetRight() * moveSpeed));
 		}
 
-		if (Input::IsKeyDown(Key::D) || Input::IsKeyDown(Key::RIGHT))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Right)) || Input::IsKeyDown(Key::RIGHT))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetRight() * moveSpeed));
 		}
 
-		if (Input::IsKeyDown(Key::W) || Input::IsKeyDown(Key::UP))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Forward)) || Input::IsKeyDown(Key::UP))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetForward() * moveSpeed));
 		}
 
-		if (Input::IsKeyDown(Key::S) || Input::IsKeyDown(Key::DOWN))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Backward)) || Input::IsKeyDown(Key::DOWN))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetForward() * moveSpeed));
 		}
 
-		if (Input::IsKeyDown(Key::Q))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Up)))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (m_transform->GetUp() * moveSpeed));
 		}
 
-		if (Input::IsKeyDown(Key::E))
+		if (Input::IsKeyDown(inputManager.GetInputForAction(Editor::InputAction::Down)))
 		{
 			m_transform->SetLocalPosition(m_transform->GetLocalPosition() + (-m_transform->GetUp() * moveSpeed));
 		}

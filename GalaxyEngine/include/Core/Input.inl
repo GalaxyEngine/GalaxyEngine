@@ -1,5 +1,6 @@
 #pragma once
 #include "Core/Input.h"
+
 namespace GALAXY 
 {
 	bool Input::IsKeyPressed(Key key)
@@ -35,6 +36,15 @@ namespace GALAXY
 	float Input::GetScrollWheelValue()
 	{
 		return m_scrollValue;
+	}
+
+	inline Key Input::GetKeyPressed()
+	{
+		for (const auto& i : m_keyPressed)
+		{
+			return static_cast<Key>(i.first);
+		}
+		return Key::NONE;
 	}
 
 	Vec2f Input::GetMouseDragDelta()

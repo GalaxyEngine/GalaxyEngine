@@ -52,6 +52,11 @@ namespace GALAXY
 		m_scrollValue = static_cast<float>(yoffset);
 	}
 
+	std::string Input::GetKeyName(Key key)
+	{
+		return Wrapper::Window::GetKeyName(static_cast<int>(key));
+	}
+
 	void Input::Update()
 	{
 		static Vec2f lastMousePosition = GetMousePosition();

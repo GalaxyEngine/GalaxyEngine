@@ -165,9 +165,11 @@ namespace GALAXY
 		static inline bool IsMouseButtonReleased(MouseButton button);
 		static inline bool IsMouseButtonDown(MouseButton button);
 		static inline float GetScrollWheelValue();
+		static inline Key GetKeyPressed();
 		static void GetMousePosition(Vec2f& mousePosition);
 		static Vec2f GetMousePosition();
 		static inline Vec2f GetMouseDragDelta();
+		static std::string GetKeyName(Key key);
 	private:
 		friend Wrapper::Window;
 		static void key_callback(KeyEvent keyState, int key);
