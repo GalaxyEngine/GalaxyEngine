@@ -49,7 +49,7 @@ namespace GALAXY
 	{
 		for (auto& instance : m_scriptEngine->GetAllScriptInstances())
 		{
-			Component::ComponentHolder::UnregisterComponentByName(instance.first.c_str());
+			Component::ComponentHolder::UnregisterComponentByName(instance.first);
 		}
 	}
 
@@ -64,7 +64,7 @@ namespace GALAXY
 			std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(dllPathExt);
 			if (m_lastWriteTime < lastWriteTime || !m_lastWriteTime.has_value())
 			{
-				PrintLog("Reloading DLL: %s", dllPathExt.string());
+				PrintLog("Reloading DLL: %s", dllPathExt.string().c_str());
 				ReloadDLL();
 			}
 			m_currentTime = 0;
@@ -103,7 +103,6 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ReloadDLL()
 	{
-		std::string content;
 		if (m_dllPath.empty())
 			return;
 
@@ -125,7 +124,7 @@ namespace GALAXY
 				child.lock()->RemoveComponent(scriptComponent.lock().get());
 			}
 		}
-		content = serializer.GetContent();
+		std::string content = serializer.GetContent();
 
 		FreeDLL();
 

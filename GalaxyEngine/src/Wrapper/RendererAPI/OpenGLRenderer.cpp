@@ -9,8 +9,6 @@
 
 #include "Core/SceneHolder.h"
 
-#include "Component/Transform.h"
-
 #include "Render/Framebuffer.h"
 #include "Resource/Cubemap.h"
 
@@ -26,8 +24,9 @@
 
 namespace GALAXY
 {
+	using namespace Wrapper::RendererAPI;
 	// OpenGL Renderer
-	void Wrapper::RendererAPI::OpenGLRenderer::Initialize()
+	void OpenGLRenderer::Initialize()
 	{
 		if (!gladLoadGLLoader((GLADloadproc)(Window::GetProcAddress))) {
 			PrintError("Failed to initialize GLAD");
@@ -81,7 +80,7 @@ namespace GALAXY
 		}
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::EnableDebugOutput()
+	void OpenGLRenderer::EnableDebugOutput()
 	{
 		GLint flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
@@ -97,23 +96,23 @@ namespace GALAXY
 		glCullFace(GL_BACK);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UseShader(Resource::Shader* shader)
+	void OpenGLRenderer::UseShader(Resource::Shader* shader)
 	{
 		glUseProgram(shader->p_id);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::Viewport(const Vec2i& pos, const Vec2i& size)
+	void OpenGLRenderer::Viewport(const Vec2i& pos, const Vec2i& size)
 	{
 		glViewport(pos.x, pos.y, size.x, size.y);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ClearColorAndBuffer(const Vec4f& color)
+	void OpenGLRenderer::ClearColorAndBuffer(const Vec4f& color)
 	{
 		glClearColor(color.x, color.y, color.z, color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
-	bool Wrapper::RendererAPI::OpenGLRenderer::LinkShaders(Resource::Shader* shader)
+	bool OpenGLRenderer::LinkShaders(Resource::Shader* shader)
 	{
 		auto& [vertex, geometry, fragment] = shader->p_subShaders;
 		if (!vertex.lock() || !vertex.lock()->HasBeenSent() || !fragment.lock() || !fragment.lock()->HasBeenSent())
@@ -136,7 +135,7 @@ namespace GALAXY
 		return true;
 	}
 
-	bool Wrapper::RendererAPI::OpenGLRenderer::CompileVertexShader(Resource::VertexShader* vertex)
+	bool OpenGLRenderer::CompileVertexShader(Resource::VertexShader* vertex)
 	{
 		// Create a vertex shader object
 		vertex->m_id = glCreateShader(GL_VERTEX_SHADER);
@@ -165,7 +164,7 @@ namespace GALAXY
 		return true;
 	}
 
-	bool Wrapper::RendererAPI::OpenGLRenderer::CompileFragmentShader(Resource::FragmentShader* fragment)
+	bool OpenGLRenderer::CompileFragmentShader(Resource::FragmentShader* fragment)
 	{
 		// Create a vertex shader object
 		fragment->m_id = glCreateShader(GL_FRAGMENT_SHADER);
@@ -193,7 +192,7 @@ namespace GALAXY
 		return true;
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateTexture(Resource::Texture* texture)
+	void OpenGLRenderer::CreateTexture(Resource::Texture* texture)
 	{
 		const int32_t wrap = static_cast<int32_t>(TextureWrappingToAPI(texture->m_wrapping));
 		const int32_t filter = static_cast<int32_t>(TextureFilteringToAPI(texture->m_filtering));
@@ -216,7 +215,7 @@ namespace GALAXY
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetTextureWrapping(Resource::Texture* texture, Resource::TextureWrapping wrapping)
+	void OpenGLRenderer::SetTextureWrapping(Resource::Texture* texture, Resource::TextureWrapping wrapping)
 	{
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
 
@@ -230,7 +229,7 @@ namespace GALAXY
 		texture->m_wrapping = wrapping;
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetTextureFiltering(Resource::Texture* texture, Resource::TextureFiltering filtering)
+	void OpenGLRenderer::SetTextureFiltering(Resource::Texture* texture, Resource::TextureFiltering filtering)
 	{
 		glBindTexture(GL_TEXTURE_2D, texture->m_id);
 
@@ -244,7 +243,7 @@ namespace GALAXY
 		texture->m_filtering = filtering;
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DestroyTexture(Resource::Texture* texture)
+	void OpenGLRenderer::DestroyTexture(Resource::Texture* texture)
 	{
 		if (texture->m_id != 0) 
 		{
@@ -254,7 +253,7 @@ namespace GALAXY
 
 	}
 
-	uint32_t Wrapper::RendererAPI::OpenGLRenderer::TextureWrappingToAPI(Resource::TextureWrapping filtering)
+	uint32_t OpenGLRenderer::TextureWrappingToAPI(Resource::TextureWrapping filtering)
 	{
 		switch (filtering)
 		{
@@ -272,7 +271,7 @@ namespace GALAXY
 		}
 	}
 
-	uint32_t Wrapper::RendererAPI::OpenGLRenderer::TextureFilteringToAPI(Resource::TextureFiltering filtering)
+	uint32_t OpenGLRenderer::TextureFilteringToAPI(Resource::TextureFiltering filtering)
 	{
 		switch (filtering)
 		{
@@ -286,7 +285,7 @@ namespace GALAXY
 		}
 	}
 
-	uint32_t Wrapper::RendererAPI::OpenGLRenderer::TextureFormatToAPI(const Resource::TextureFormat format)
+	uint32_t OpenGLRenderer::TextureFormatToAPI(const Resource::TextureFormat format)
 	{
 		switch (format) {
 		case Resource::TextureFormat::RGB:
@@ -305,7 +304,7 @@ namespace GALAXY
 		}
 	}
 
-	int Wrapper::RendererAPI::OpenGLRenderer::GetShaderLocation(const uint32_t id, const std::string& locationName)
+	int OpenGLRenderer::GetShaderLocation(const uint32_t id, const std::string& locationName)
 	{
 		return glGetUniformLocation(id, locationName.c_str());
 	}
@@ -342,7 +341,7 @@ namespace GALAXY
 		}
 	}
 
-	UMap<std::string, Resource::Uniform> Wrapper::RendererAPI::OpenGLRenderer::GetShaderUniforms(Resource::Shader* shader)
+	UMap<std::string, Resource::Uniform> OpenGLRenderer::GetShaderUniforms(Resource::Shader* shader)
 	{
 		if (!shader->IsLoaded() || !shader->HasBeenSent())
 			return {};
@@ -377,87 +376,87 @@ namespace GALAXY
 		return uniforms;
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendInt(const uint32_t location, const int value)
+	void OpenGLRenderer::ShaderSendInt(const uint32_t location, const int value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform1i(static_cast<int32_t>(location), value);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendFloat(const uint32_t location, const float value)
+	void OpenGLRenderer::ShaderSendFloat(const uint32_t location, const float value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform1f(static_cast<int32_t>(location), value);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendDouble(const uint32_t location, const double value)
+	void OpenGLRenderer::ShaderSendDouble(const uint32_t location, const double value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform1d(static_cast<int32_t>(location), value);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec2f(const uint32_t location, const Vec2f& value)
+	void OpenGLRenderer::ShaderSendVec2f(const uint32_t location, const Vec2f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform2fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec3f(const uint32_t location, const Vec3f& value)
+	void OpenGLRenderer::ShaderSendVec3f(const uint32_t location, const Vec3f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform3fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec4f(const uint32_t location, const Vec4f& value)
+	void OpenGLRenderer::ShaderSendVec4f(const uint32_t location, const Vec4f& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform4fv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec2i(const uint32_t location, const Vec2i& value)
+	void OpenGLRenderer::ShaderSendVec2i(const uint32_t location, const Vec2i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform2iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec3i(const uint32_t location, const Vec3i& value)
+	void OpenGLRenderer::ShaderSendVec3i(const uint32_t location, const Vec3i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform3iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendVec4i(const uint32_t location, const Vec4i& value)
+	void OpenGLRenderer::ShaderSendVec4i(const uint32_t location, const Vec4i& value)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniform4iv(static_cast<int32_t>(location), 1, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ShaderSendMat4(const uint32_t location, const Mat4& value, const bool transpose /*= false*/)
+	void OpenGLRenderer::ShaderSendMat4(const uint32_t location, const Mat4& value, const bool transpose /*= false*/)
 	{
 		if (location == INDEX_NONE)
 			return;
 		glUniformMatrix4fv(static_cast<int32_t>(location), 1, transpose, value.Data());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateVertexArray(uint32_t& vao)
+	void OpenGLRenderer::CreateVertexArray(uint32_t& vao)
 	{
 		glGenVertexArrays(1, &vao);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindVertexArray(const uint32_t vao)
+	void OpenGLRenderer::BindVertexArray(const uint32_t vao)
 	{
 		glBindVertexArray(vao);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateAndFillVertexBuffer(uint32_t& vbo
+	void OpenGLRenderer::CreateAndFillVertexBuffer(uint32_t& vbo
 		, const std::vector<Vec3f>& positions
 		, const std::vector<Vec2f>& textureUVs
 		, const std::vector<Vec3f>& normals)
@@ -486,52 +485,52 @@ namespace GALAXY
 		glEnableVertexAttribArray(2);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateVertexBuffer(uint32_t& vbo, const void* data, const size_t dataSize)
+	void OpenGLRenderer::CreateVertexBuffer(uint32_t& vbo, const void* data, const size_t dataSize)
 	{
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, static_cast<int64_t>(dataSize), data, GL_STATIC_DRAW);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindVertexBuffer(const uint32_t vbo)
+	void OpenGLRenderer::BindVertexBuffer(const uint32_t vbo)
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateIndexBuffer(uint32_t& ebo, const void* data, const size_t dataSize)
+	void OpenGLRenderer::CreateIndexBuffer(uint32_t& ebo, const void* data, const size_t dataSize)
 	{
 		glGenBuffers(1, &ebo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<int64_t>(dataSize), data, GL_STATIC_DRAW);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindIndexBuffer(const uint32_t ebo)
+	void OpenGLRenderer::BindIndexBuffer(const uint32_t ebo)
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::VertexAttribPointer(const uint32_t index, const int size, const int stride, const void* pointer)
+	void OpenGLRenderer::VertexAttribPointer(const uint32_t index, const int size, const int stride, const void* pointer)
 	{
 		glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, pointer);
 		glEnableVertexAttribArray(index);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DrawElement(size_t count)
+	void OpenGLRenderer::DrawElement(size_t count)
 	{
 		glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(count), GL_UNSIGNED_INT, nullptr);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UnbindVertexArray()
+	void OpenGLRenderer::UnbindVertexArray()
 	{
 		glBindVertexArray(0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UnbindVertexBuffer()
+	void OpenGLRenderer::UnbindVertexBuffer()
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DrawArrays(const size_t start, const size_t count)
+	void OpenGLRenderer::DrawArrays(const size_t start, const size_t count)
 	{
 		glDrawArrays(GL_TRIANGLES, static_cast<GLsizei>(start), static_cast<GLsizei>(count));
 
@@ -540,7 +539,7 @@ namespace GALAXY
 #endif
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateDynamicVertexBuffer(uint32_t& vao, uint32_t& vbo, size_t dataSize, size_t numVertices)
+	void OpenGLRenderer::CreateDynamicVertexBuffer(uint32_t& vao, uint32_t& vbo, size_t dataSize, size_t numVertices)
 	{
 		glGenVertexArrays(1, &vao);
 		glGenBuffers(1, &vbo);
@@ -553,7 +552,7 @@ namespace GALAXY
 		glBindVertexArray(0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DrawLine(const Vec3f pos1, const Vec3f pos2, const Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
+	void OpenGLRenderer::DrawLine(const Vec3f pos1, const Vec3f pos2, const Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
 	{
 		static float minMaxWidth[2];
 
@@ -617,32 +616,32 @@ namespace GALAXY
 		glLineWidth(defaultWidth);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindTexture(Resource::Texture* texture, const uint32_t id /*= 0*/)
+	void OpenGLRenderer::BindTexture(Resource::Texture* texture, const uint32_t id /*= 0*/)
 	{
 		ASSERT(texture->HasBeenSent());
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, texture->GetID());
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UnbindTexture()
+	void OpenGLRenderer::UnbindTexture()
 	{
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateCubemap(Resource::Cubemap* cubemap)
+	void OpenGLRenderer::CreateCubemap(Resource::Cubemap* cubemap)
 	{
 		glGenTextures(1, &cubemap->m_id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapFace(uint32_t face, const Wrapper::Image& image)
+	void OpenGLRenderer::SetCubemapFace(uint32_t face, const Wrapper::Image& image)
 	{
 		// OpenGL does not support different image size for each face
 		glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_RGBA, image.size.x, image.size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetCubemapParameters()
+	void OpenGLRenderer::SetCubemapParameters()
 	{
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -651,24 +650,24 @@ namespace GALAXY
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DestroyCubemap(Resource::Cubemap* cubemap)
+	void OpenGLRenderer::DestroyCubemap(Resource::Cubemap* cubemap)
 	{
 		glDeleteTextures(1, &cubemap->m_id);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindCubemap(Resource::Cubemap* cubemap, uint32_t id)
+	void OpenGLRenderer::BindCubemap(Resource::Cubemap* cubemap, uint32_t id)
 	{
 		ASSERT(cubemap->HasBeenSent());
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UnbindCubemap()
+	void OpenGLRenderer::UnbindCubemap()
 	{
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::CreateRenderBuffer(Render::Framebuffer* framebuffer)
+	void OpenGLRenderer::CreateRenderBuffer(Render::Framebuffer* framebuffer)
 	{
 		if (!framebuffer)
 			return;
@@ -703,25 +702,25 @@ namespace GALAXY
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::BindRenderBuffer(Render::Framebuffer* framebuffer)
+	void OpenGLRenderer::BindRenderBuffer(Render::Framebuffer* framebuffer)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->m_frameBuffer);
 		glBindRenderbuffer(GL_RENDERBUFFER, framebuffer->m_renderBuffer);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::UnbindRenderBuffer(Render::Framebuffer* framebuffer)
+	void OpenGLRenderer::UnbindRenderBuffer(Render::Framebuffer* framebuffer)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::DeleteRenderBuffer(Render::Framebuffer* framebuffer)
+	void OpenGLRenderer::DeleteRenderBuffer(Render::Framebuffer* framebuffer)
 	{
 		glDeleteFramebuffers(1, &framebuffer->m_frameBuffer);
 		glDeleteRenderbuffers(1, &framebuffer->m_renderBuffer);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size)
+	void OpenGLRenderer::ResizeRenderBuffer(Render::Framebuffer* framebuffer, const Vec2i& size)
 	{
 		if (size.x * size.y != 0) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, static_cast<GLsizei>(size.x), static_cast<GLsizei>(size.y), 0, GL_RGBA, GL_FLOAT, nullptr);
@@ -729,12 +728,12 @@ namespace GALAXY
 		}
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::SetViewport(const Vec2i& size)
+	void OpenGLRenderer::SetViewport(const Vec2i& size)
 	{
 		glViewport(0, 0, size.x, size.y);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::EnableDepth(const bool active /*= true*/)
+	void OpenGLRenderer::EnableDepth(const bool active /*= true*/)
 	{
 		if (active)
 			glEnable(GL_DEPTH_TEST);
@@ -742,13 +741,12 @@ namespace GALAXY
 			glDisable(GL_DEPTH_TEST);
 	}
 
-
-	void Wrapper::RendererAPI::OpenGLRenderer::SetDepthRange(const float _near, const float _far)
+	void OpenGLRenderer::SetDepthRange(const float _near, const float _far)
 	{
 		glDepthRange(static_cast<double>(_near), static_cast<double>(_far));
 	}
 
-	Vec4f Wrapper::RendererAPI::OpenGLRenderer::ReadPixelColor(const Vec2f& mousePos)
+	Vec4f OpenGLRenderer::ReadPixelColor(const Vec2f& mousePos)
 	{
 		unsigned char data[4];
 		glFlush();
@@ -759,7 +757,7 @@ namespace GALAXY
 		return Vec4f(data[0], data[1], data[2], data[3]);
 	}
 
-	void Wrapper::RendererAPI::OpenGLRenderer::ReadPixels(const Vec2i& size, unsigned char*& data)
+	void OpenGLRenderer::ReadPixels(const Vec2i& size, unsigned char*& data)
 	{
 		glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
