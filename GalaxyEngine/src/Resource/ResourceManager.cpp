@@ -248,6 +248,8 @@ namespace GALAXY
             for (auto& file : currentFiles)
             {
                 checkFile(file);
+                if (!std::filesystem::exists(file))
+                    continue;
                 auto modifiedTime = std::filesystem::last_write_time(file);
                 auto file_time_tp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
                     modifiedTime - std::filesystem::file_time_type::clock::now() + std::chrono::system_clock::now()

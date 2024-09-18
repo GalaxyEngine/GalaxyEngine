@@ -97,6 +97,7 @@ namespace GALAXY::Wrapper::RendererAPI
 
 			Vec4f ReadPixelColor(const Vec2f& mousePos) override;
 			void ReadPixels(const Vec2i& size, unsigned char*& data) override;
+			void ReadPixels(Resource::Texture* texture, unsigned char*& data) override;
 
 			// Debug
 			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;

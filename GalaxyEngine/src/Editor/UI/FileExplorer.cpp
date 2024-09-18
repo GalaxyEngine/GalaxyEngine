@@ -518,9 +518,18 @@ namespace GALAXY {
 						switch (commonType)
 						{
 						case ResourceType::Texture:
+							//TODO : Move this inside the cubemap inspector, or other 
 							if (ImGui::Button("Convert to six sided", buttonSize))
 							{
 								Wrapper::ImageLoader::ExtractSixSidedFromCubemap(m_rightClickedFiles[0]->m_info.GetFullPath());
+								quitPopup();
+							}
+							//TODO : Remove this (Debug)
+							if (ImGui::Button("Show In popup", buttonSize))
+							{
+								auto texture = m_rightClickedFiles[0]->GetResource<Resource::Texture>().get();
+								Utils::OS::DisplayImageInPopup(texture);
+								quitPopup();
 							}
 							break;
 						case ResourceType::Shader:
@@ -572,20 +581,19 @@ namespace GALAXY {
 							}
 							break;
 						case ResourceType::Model:
-							if (m_rightClickedFiles.size() > 1)
-								break;
-							if (!m_rightClickedFiles[0]->m_resource.lock()->IsLoaded()) {
-								if (ImGui::Button("Load", buttonSize))
+							{
+								if (m_rightClickedFiles.size() > 1)
+									break;
+								auto isLoaded =  m_rightClickedFiles[0]->m_resource.lock()->IsLoaded();
+								if (!isLoaded && ImGui::Button("Load", buttonSize))
 								{
 									for (const Shared<File>& file : m_rightClickedFiles)
 									{
 										ResourceManager::GetOrLoad<Model>(file->m_info.GetFullPath());
 									}
 								}
-							}
-							else
-							{
-								if (ImGui::Button("Create Thumbnail"))
+							
+								if (isLoaded && ImGui::Button("Reload Thumbnail"))
 								{
 									for (const Shared<File>& file : m_rightClickedFiles)
 									{
@@ -596,21 +604,28 @@ namespace GALAXY {
 										}
 									}
 								}
+								break;
 							}
-							break;
 						case ResourceType::Mesh:
 							break;
 						case ResourceType::Material:
-							if (m_rightClickedFiles.size() == 1 && m_rightClickedFiles[0]->m_resource.lock()->IsLoaded())
-								break;
-							if (ImGui::Button("Load", buttonSize))
 							{
-								for (const Shared<File>& file : m_rightClickedFiles)
+								bool isLoaded = m_rightClickedFiles[0]->m_resource.lock()->IsLoaded();
+								if (!isLoaded && ImGui::Button("Load", buttonSize))
 								{
-									ResourceManager::GetOrLoad<Material>(file->m_info.GetFullPath());
+									for (const Shared<File>& file : m_rightClickedFiles)
+									{
+										ResourceManager::GetOrLoad<Material>(file->m_info.GetFullPath());
+									}
 								}
+								if (isLoaded && ImGui::Button("Reload Thumbnail", buttonSize))
+								{
+									auto thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+									thumbnailCreator->AddToQueue(m_rightClickedFiles[0]->m_resource);
+									quitPopup();
+								}
+								break;
 							}
-							break;
 						case ResourceType::Cubemap:
 							if (ImGui::Button("Load", buttonSize))
 							{

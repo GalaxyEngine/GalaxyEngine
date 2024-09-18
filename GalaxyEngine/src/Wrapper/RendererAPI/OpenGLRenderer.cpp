@@ -762,4 +762,11 @@ namespace GALAXY
 		glReadPixels(0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
+	void OpenGLRenderer::ReadPixels(Resource::Texture* texture, unsigned char*& data)
+	{
+		BindTexture(texture);
+		auto size = texture->GetSize();
+		data = new unsigned char[size.x * size.y * 4];
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	}
 }

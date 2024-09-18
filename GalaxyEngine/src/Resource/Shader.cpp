@@ -384,7 +384,7 @@ void main()
 		char content[1024];
 		snprintf(content, sizeof(content), shaderContent, vUUID, fUUID);
 		if (shaderFile.is_open()) {
-			shaderFile << content;  // Write the formatted content, not the original m_shaderContent
+			shaderFile << content;
 			shaderFile.close();
 		}
 
@@ -533,7 +533,6 @@ void main()
 
 	Resource::FragmentShader::~FragmentShader()
 	{
-		auto weak_this = Resource::ResourceManager::GetInstance()->GetResource<FragmentShader>(this->GetFileInfo().GetFullPath());
 	}
 
 	// === Fragment === //
@@ -559,7 +558,6 @@ void main()
 		}
 		else
 		{
-			PrintError("Uniform not found: %s", locationName);
 			p_uniforms[locationName] = {};
 			return -1;
 		}

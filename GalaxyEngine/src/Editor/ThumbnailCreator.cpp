@@ -7,14 +7,17 @@
 #include "Component/MeshComponent.h"
 #include "Component/CameraComponent.h"
 #include "Component/DirectionalLight.h"
-#include "Core/SceneHolder.h"
-#include "Editor/UI/EditorUIManager.h"
-#include "Render/Framebuffer.h"
 
+#include "Core/SceneHolder.h"
+
+#include "Editor/UI/EditorUIManager.h"
+
+#include "Render/Framebuffer.h"
 #include "Render/LightManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Mesh.h"
+
 #include "Wrapper/ImageLoader.h"
 
 namespace GALAXY

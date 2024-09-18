@@ -73,6 +73,8 @@ namespace GALAXY {
 			void Bind(uint32_t index = 0);
 			static void UnBind();
 
+			inline Vec2i GetSize() const { return m_size; }
+
 			// Get the enum with the class
 			static inline ResourceType GetResourceType() { return ResourceType::Texture; }
 

@@ -2,16 +2,18 @@
 #include "Utils/OS.h"
 
 #include "Core/Application.h"
+#include "Core/ThreadManager.h"
 
 #include "Resource/ResourceManager.h"
-
-#include "Core/ThreadManager.h"
+#include "Resource/Texture.h"
 
 #include <nfd.hpp>
 #include <iostream>
 #include <array>
 #include <cstdio>
 #include <memory>
+
+#include "Wrapper/ImageLoader.h"
 
 #ifdef __linux__
 #include <sys/stat.h>
@@ -232,6 +234,32 @@ namespace GALAXY
 		std::system(command.c_str());
 	}
 
+	void Utils::OS::RunCommand(const std::string& command) {
+		// Open a pipe to read the command's output
+		std::array<char, 1024> buffer;
+		std::string result;
+		
+		std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
+
+		if (!pipe) {
+			PrintError("popen() failed!");
+			return;
+		}
+
+		// Read the output a line at a time
+		while (fgets(buffer.data(), (int)buffer.size(), pipe.get()) != nullptr) {
+			result += buffer.data();
+		}
+
+		// Print the result
+		PrintLog(result.c_str());
+	}
+
+	void Utils::OS::RunCommandThread(const std::string& command)
+	{
+		Core::ThreadManager::GetInstance()->AddTask(([command] { RunCommand(command); }));
+	}
+
 #ifdef _WIN32
 	BOOL CALLBACK EnumWindowsProc(const HWND hwnd, const LPARAM lParam) {
 		char windowTitle[256];
@@ -290,34 +318,165 @@ namespace GALAXY
 		std::system(command.c_str());
 		std::filesystem::current_path(prevPath);
 	}
-	
-	void Utils::OS::RunCommand(const std::string& command) {
-		// Open a pipe to read the command's output
-		std::array<char, 1024> buffer;
-		std::string result;
-		
-		std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
 
-		if (!pipe) {
-			PrintError("popen() failed!");
+	// Global variables
+	HBITMAP hBitmap = NULL;
+	int imgWidth, imgHeight; // Store image dimensions
+
+	LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+		switch (msg) {
+		case WM_PAINT: {
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hwnd, &ps);
+			if (hBitmap) {
+				HDC hdcMem = CreateCompatibleDC(hdc);
+				HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+				// Get window size
+				RECT rect;
+				GetClientRect(hwnd, &rect);
+				int winWidth = rect.right - rect.left;
+				int winHeight = rect.bottom - rect.top;
+
+				// Calculate destination rectangle based on image aspect ratio
+				float imgAspect = (float)imgWidth / (float)imgHeight;
+				int drawWidth, drawHeight;
+
+				if (winWidth / (float)winHeight > imgAspect) {
+					drawHeight = winHeight;
+					drawWidth = (int)(winHeight * imgAspect);
+				}
+				else {
+					drawWidth = winWidth;
+					drawHeight = (int)(winWidth / imgAspect);
+				}
+
+				int xOffset = (winWidth - drawWidth) / 2;
+				int yOffset = (winHeight - drawHeight) / 2;
+
+				// Stretch the image to fit within the window while maintaining the aspect ratio
+				StretchBlt(hdc, xOffset, yOffset, drawWidth, drawHeight, hdcMem, 0, 0, imgWidth, imgHeight, SRCCOPY);
+
+				SelectObject(hdcMem, hbmOld);
+				DeleteDC(hdcMem);
+			}
+			EndPaint(hwnd, &ps);
+		}
+					 break;
+		case WM_DESTROY:
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hwnd, msg, wParam, lParam);
+		}
+		return 0;
+	}
+
+	void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight)
+	{
+		auto width = image.size.x;
+		auto height = image.size.y;
+		auto data = image.data;
+		// Store image dimensions globally
+		imgWidth = width;
+		imgHeight = height;
+
+		// Convert RGBA to BGRA
+		for (int i = 0; i < width * height; ++i) {
+			unsigned char* pixel = data + i * 4;
+			std::swap(pixel[0], pixel[2]); // Swap red (R) and blue (B) channels
+		}
+
+		// Create the bitmap
+		HDC hdc = GetDC(NULL);
+		hBitmap = CreateCompatibleBitmap(hdc, width, height);
+		HDC hdcMem = CreateCompatibleDC(hdc);
+		HBITMAP hbmOld = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+		BITMAPINFO bmi;
+		ZeroMemory(&bmi, sizeof(BITMAPINFO));
+		bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+		bmi.bmiHeader.biWidth = width;
+		bmi.bmiHeader.biHeight = -height; // top-down
+		bmi.bmiHeader.biPlanes = 1;
+		bmi.bmiHeader.biBitCount = 32;
+		bmi.bmiHeader.biCompression = BI_RGB;
+
+		SetDIBits(hdcMem, hBitmap, 0, height, data, &bmi, DIB_RGB_COLORS);
+
+		SelectObject(hdcMem, hbmOld);
+		DeleteDC(hdcMem);
+		ReleaseDC(NULL, hdc);
+
+		// Register the window class
+		LPCSTR CLASS_NAME = LPCSTR("ImagePopupWindow");
+		WNDCLASS wc = { };
+		wc.lpfnWndProc = WndProc;
+		wc.hInstance = GetModuleHandle(NULL);
+		wc.lpszClassName = CLASS_NAME;
+		RegisterClass(&wc);
+
+		// Create the window
+		HWND hwnd = CreateWindowEx(
+			0,
+			CLASS_NAME,
+			"Image Popup",
+			WS_OVERLAPPEDWINDOW,
+			CW_USEDEFAULT, CW_USEDEFAULT, windowWidth, windowHeight,
+			NULL,
+			NULL,
+			GetModuleHandle(NULL),
+			NULL
+		);
+
+		if (!hwnd) {
+			MessageBox(NULL, "Failed to create window", "Error", MB_ICONERROR);
 			return;
 		}
 
-		// Read the output a line at a time
-		while (fgets(buffer.data(), (int)buffer.size(), pipe.get()) != nullptr) {
-			result += buffer.data();
+		ShowWindow(hwnd, SW_SHOW);
+
+		// Run the message loop
+		MSG msg = { };
+		while (GetMessage(&msg, NULL, 0, 0)) {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
 
-		// Print the result
-		PrintLog(result.c_str());
+		// Clean up
+		if (hBitmap) {
+			DeleteObject(hBitmap);
+			hBitmap = NULL;
+		}
 	}
-
-	void Utils::OS::RunCommandThread(const std::string& command)
+#elif defined(__linux__)
+	
+	void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { PrintError("Not implemented yet"); }
+	
+#endif // _WIN32
+	
+	void Utils::OS::DisplayImageInPopup(const std::filesystem::path& imagePath, int windowWidth, int windowHeight)
 	{
-		Core::ThreadManager::GetInstance()->AddTask(([command] { RunCommand(command); }));
+		auto image = Wrapper::ImageLoader::Load(imagePath);
+		DisplayImageInPopup(image, windowWidth, windowHeight);
+		Wrapper::ImageLoader::ImageFree(image);
 	}
 
-#endif
+	void Utils::OS::DisplayImageInPopup(Render::Framebuffer* framebuffer, int windowWidth, int windowHeight)
+	{
+		auto renderer = Wrapper::Renderer::GetInstance();
+		renderer->BindRenderBuffer(framebuffer);
+		Wrapper::Image imageData;
+		renderer->ReadPixels(imageData.size, imageData.data);
+		DisplayImageInPopup(imageData, windowWidth, windowHeight);
+	}
+
+	void Utils::OS::DisplayImageInPopup(Resource::Texture* texture, int windowWidth, int windowHeight)
+	{
+		auto image = Wrapper::ImageLoader::FromTextureToImage(texture);
+		DisplayImageInPopup(image, windowWidth, windowHeight);
+		Wrapper::ImageLoader::ImageFree(image);
+	}
 
 	void Utils::OS::ShowFile(const std::filesystem::path& filePath, bool showFile)
 	{

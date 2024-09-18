@@ -5,6 +5,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
+#include "Resource/Texture.h"
+
 #include "Resource/Cubemap.h"
 
 namespace GALAXY {
@@ -77,6 +79,15 @@ namespace GALAXY {
 		}
 		
 		ImageFree(cubemap);
+	}
+
+	Wrapper::Image Wrapper::ImageLoader::FromTextureToImage(Resource::Texture* texture)
+	{
+		Wrapper::Image imageData = Wrapper::Image();
+		imageData.size = texture->GetSize();
+		Wrapper::Renderer::GetInstance()->ReadPixels(texture, imageData.data);
+
+		return imageData;
 	}
 
 	Wrapper::Image Wrapper::ImageLoader::Load(char const* filename, int req_comp)
