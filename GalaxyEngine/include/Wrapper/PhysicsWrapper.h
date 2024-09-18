@@ -12,7 +12,8 @@ namespace GALAXY
         enum class PhysicAPIType
         {
             Jolt,
-            PhysX
+            PhysX,
+            Custom
         };
 
         

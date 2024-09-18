@@ -15,10 +15,40 @@
 
 #ifdef __linux__
 #include <sys/stat.h>
+#elif defined(_WIN32)
+#include <shlobj.h>
 #endif
 
 namespace GALAXY
 {
+	std::filesystem::path GALAXY::Utils::OS::GetUserAppDataFolder()
+	{
+		std::filesystem::path result;
+#ifdef _WIN32
+		char path[MAX_PATH];
+		if (SUCCEEDED(SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, path)))
+		{
+			result = path;
+		}
+		else
+		{
+			PrintError("Failed to get AppData folder path");
+		}
+#elif defined(__linux__)
+		const char* homedir = getenv("HOME");
+		if (homedir == NULL)
+		{
+			PrintError("Failed to get Home directory folder path");
+		}
+		else
+		{
+			result = homedir;
+			result /= ".local/share/";
+		}
+#endif // _WIN32
+
+		return result;
+	}
 
 	std::string Utils::OS::SaveDialog(const std::vector<Filter>& filters)
 	{

@@ -126,15 +126,18 @@ namespace GALAXY
 
 			[[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
 			void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
-			void OpenWithScriptEditorTool(const Path& path);
 
 			void SaveSettings() const;
 			void LoadSettings();
+			void LoadThumbnail();
 
 			void InitializeScriptEditorTools();
 
 			[[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
 
+			Path GetDefaultProjectPath() const { return m_defaultProjectPath; }
+
+			bool GetShouldUseVSync() const { return m_useVSync; }
 			[[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
 		private:
 			void DisplayTab(EditorSettingsTab tab);
@@ -155,6 +158,8 @@ namespace GALAXY
 			friend Core::Application;
 			bool m_firstUpdate = false;
 			bool m_shouldTakeScreenshot = false;
+			bool m_useVSync = true;
+			Path m_defaultProjectPath;
 
 			EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
 

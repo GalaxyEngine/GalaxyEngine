@@ -144,14 +144,13 @@ namespace GALAXY
         }
     }
 
-    void Editor::EditorSettings::DisplayGeneralTab()
-    {
-        bool enableVSync = Core::Application::GetInstance().GetWindow()->IsVSyncEnable();
-        if (ImGui::Checkbox("Enable VSync", &enableVSync))
-        {
-            Core::Application::GetInstance().GetWindow()->SetVSync(enableVSync);
-        }
-    }
+	void Editor::EditorSettings::DisplayGeneralTab()
+	{
+		if (ImGui::Checkbox("Enable VSync", &m_useVSync))
+		{
+			Core::Application::GetInstance().GetWindow()->SetVSync(m_useVSync);
+		}
+	}
 
     void Editor::EditorSettings::ChangeOtherScriptTool()
     {
@@ -308,46 +307,43 @@ namespace GALAXY
         m_projectThumbnail = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
     }
 
-    void Editor::EditorSettings::SaveSettings() const
-    {
-        CppSer::Serializer serializer("Editor.settings");
-        serializer << CppSer::Pair::BeginMap << "Editor Settings";
-        serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(
-            GetScriptEditorTool());
-        if (m_otherScriptEditorToolPath.has_value())
-            serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value <<
-                m_otherScriptEditorToolPath.value();
+	void Editor::EditorSettings::SaveSettings() const
+	{
+		CppSer::Serializer serializer(Utils::OS::GetUserAppDataFolder() / EDITOR_SETTINGS_PATH);
+		serializer << CppSer::Pair::BeginMap << "Editor Settings";
+		serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
+		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
+		if (m_otherScriptEditorToolPath.has_value())
+			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
         for (auto input : m_editorInputsManager.EditorInputs)
         {
             serializer << CppSer::Pair::Key << "Key " + input.second.name << CppSer::Pair::Value << (int)input.second.key;
         }
         serializer << CppSer::Pair::EndMap << "Editor Settings";
-    }
+	}
 
-    void Editor::EditorSettings::LoadSettings()
-    {
-        InitializeScriptEditorTools();
-        CppSer::Parser parser(Path("Editor.settings"));
-        if (!parser.IsFileOpen())
-        {
-            PrintError("Can't open Editor.settings");
-            return;
-        }
-        auto scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+	void Editor::EditorSettings::LoadSettings()
+	{
+		InitializeScriptEditorTools();
+		Path settingsPath = Utils::OS::GetUserAppDataFolder() / EDITOR_SETTINGS_PATH;
+		CppSer::Parser parser(settingsPath);
+		if (!parser.IsFileOpen())
+		{
+			PrintError("Can't open %s", settingsPath.string().c_str());
+			return;
+		}
+		m_useVSync = parser["Use VSync"].As<bool>();
+		auto scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+		
+		if (m_scriptEditorToolsString.contains(scriptEditorTool))
+			SetScriptEditorTool(scriptEditorTool);
 
-        if (m_scriptEditorToolsString.contains(scriptEditorTool))
-            SetScriptEditorTool(scriptEditorTool);
-
-        auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
-        if (!otherScriptEditorTool.empty())
-        {
-            m_otherScriptEditorToolPath = otherScriptEditorTool;
-            m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(otherScriptEditorTool).stem().string();
-        }
-
-        std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
-        m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
-
+		auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
+		if (!otherScriptEditorTool.empty())
+		{
+			m_otherScriptEditorToolPath = otherScriptEditorTool;
+			m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(otherScriptEditorTool).stem().string();
+		}
         m_editorInputsManager.Initialize();
         for (auto& input : m_editorInputsManager.EditorInputs)
         {
@@ -355,7 +351,13 @@ namespace GALAXY
             if (key != 0)
                 input.second.key = static_cast<Key>(key);
         }
-    }
+	}
+
+	void Editor::EditorSettings::LoadThumbnail()
+	{
+		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
+	}
 
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {

@@ -38,7 +38,7 @@ namespace GALAXY
 
 			static inline Application& GetInstance();
 
-			void Initialize(const std::filesystem::path& projectPath);
+			void Initialize(std::filesystem::path projectPath);
 			void Update();
 
 			void Destroy() const;

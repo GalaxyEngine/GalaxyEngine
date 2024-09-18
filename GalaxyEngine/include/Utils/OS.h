@@ -17,6 +17,8 @@ namespace GALAXY
 			// ex : "txt"
 		};
 
+		GALAXY_API std::filesystem::path GetUserAppDataFolder();
+
 		std::string SaveDialog(const std::vector<Filter>& filters);
 
 		std::string OpenDialog(const std::vector<Filter>& filters);

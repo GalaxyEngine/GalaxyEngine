@@ -41,8 +41,16 @@ namespace GALAXY {
 	Core::Application Core::Application::m_instance;
 #pragma endregion
 
-	void Core::Application::Initialize(const std::filesystem::path& projectPath)
+	void Core::Application::Initialize(std::filesystem::path projectPath)
 	{
+#ifdef WITH_EDITOR
+		m_editorSettings.LoadSettings();
+		if (projectPath.empty())
+		{
+			projectPath = m_editorSettings.GetDefaultProjectPath();
+		}
+#endif
+
 		std::cout << projectPath << '\n';
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
@@ -55,7 +63,11 @@ namespace GALAXY {
 		windowConfig.height = 900;
 		windowConfig.name = "Galaxy Engine";
 		m_window->Create(windowConfig);
+#ifdef WITH_EDITOR
+		m_window->SetVSync(m_editorSettings.GetShouldUseVSync());
+#else
 		m_window->SetVSync(true);
+#endif
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
 		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Jolt);
@@ -110,8 +122,8 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 		// Initialize Editor::UI
 		m_editorUI->Initialize();
-		
-		m_editorSettings.LoadSettings();
+
+		m_editorSettings.LoadThumbnail();
 #else
 		m_window->SetShouldDisplaySafeClose([]() {return false; });
 #endif

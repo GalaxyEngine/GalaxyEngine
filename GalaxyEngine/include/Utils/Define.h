@@ -32,6 +32,7 @@
 // -- Paths -- //
 #define ASSET_FOLDER_NAME "Assets"
 #define ENGINE_RESOURCE_FOLDER_NAME "CoreResources"
+#define EDITOR_SETTINGS_PATH "GalaxyEngine/Editor.settings"
 
 // -- Misc -- //
 #define NONE_RESOURCE "None"
