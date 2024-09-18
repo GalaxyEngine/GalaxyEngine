@@ -153,7 +153,7 @@ namespace GALAXY
 	void Editor::Gizmo::Update()
 	{
 		//TODO : Fix bug on scaling when the object is rotated
-		if (!m_object.lock())
+		if (!m_object.lock() || !m_object.lock()->GetParent())
 			return;
 
 		Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();

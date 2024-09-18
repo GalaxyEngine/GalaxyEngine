@@ -37,13 +37,14 @@ namespace GALAXY
 
 			const auto renderer = Wrapper::Renderer::GetInstance();
 			const auto currentCamera = Render::Camera::GetCurrentCamera();
+			const auto scene = Core::SceneHolder::GetCurrentScene();
 
 			renderer->BindVertexArray(m_vao);
 
 			gridShader->Use();
 
-			gridShader->SendMat4("view", currentCamera->GetViewMatrix());
-			gridShader->SendMat4("proj", currentCamera->GetProjectionMatrix());
+			gridShader->SendMat4("view", scene->GetView());
+			gridShader->SendMat4("proj", scene->GetProjection());
 			gridShader->SendFloat("near", currentCamera->GetNear());
 			gridShader->SendFloat("far", currentCamera->GetFar());
 

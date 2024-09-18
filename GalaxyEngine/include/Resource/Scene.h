@@ -92,6 +92,8 @@ namespace GALAXY {
 			// Return the GameObject with the uuid given
 			inline Weak<Core::GameObject> GetWithUUID(const Core::UUID& uuid);
 			inline Weak<Core::GameObject> GetRootGameObject() const;
+			inline const Mat4& GetView() const;
+			inline const Mat4& GetProjection() const;
 			inline const Mat4& GetVP() const;
 			inline const Vec3f& GetCameraUp() const;
 			inline const Vec3f& GetCameraRight() const;
@@ -120,6 +122,8 @@ namespace GALAXY {
 			Shared<Render::LightManager> m_lightManager = nullptr;
 
 			Mat4 m_VP;
+			Mat4 m_view;
+			Mat4 m_projection;
 			Vec3f m_cameraUp;
 			Vec3f m_cameraRight;
 

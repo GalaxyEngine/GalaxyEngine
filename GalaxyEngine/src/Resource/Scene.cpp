@@ -208,10 +208,13 @@ namespace GALAXY
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
 	{
 		m_currentCamera = camera;
-		m_currentCamera.lock()->CreateFrustum();
-		m_VP = m_currentCamera.lock()->GetViewProjectionMatrix();
-		m_cameraUp = m_currentCamera.lock()->GetTransform()->GetUp();
-		m_cameraRight = m_currentCamera.lock()->GetTransform()->GetRight();
+		auto sharedCamera = m_currentCamera.lock();
+		sharedCamera->CreateFrustum();
+		m_VP = sharedCamera->GetViewProjectionMatrix();
+		m_cameraUp = sharedCamera->GetTransform()->GetUp();
+		m_cameraRight = sharedCamera->GetTransform()->GetRight();
+		m_view = sharedCamera->GetViewMatrix();
+		m_projection = sharedCamera->GetProjectionMatrix();
 	}
 
 #pragma region Resource Methods

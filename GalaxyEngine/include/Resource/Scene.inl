@@ -73,6 +73,16 @@ namespace GALAXY
 		return m_root;
 	}
 
+	inline const Mat4& Resource::Scene::GetView() const
+	{
+		return m_view;
+	}
+
+	inline const Mat4& Resource::Scene::GetProjection() const
+	{
+		return m_projection;
+	}
+
 	inline const Mat4& Resource::Scene::GetVP() const
 	{
 		return m_VP;
