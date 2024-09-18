@@ -353,8 +353,11 @@ namespace GALAXY {
 		m_float4.clear();
 		m_textures.clear();
 
-		auto lambda = [&]()
+		auto lambda = [this](Weak<Shader> val)
 		{
+			if (val.expired())
+				return;
+
 			UMap<std::string, Uniform> uniformMap = val.lock()->GetUniforms();
 			for (auto& uniformPair : uniformMap)
 			{
@@ -382,10 +385,9 @@ namespace GALAXY {
 		
 
 		if (val.lock()->HasBeenSent())
-			lambda();
+			lambda(val);
 		else
-			val.lock()->OnLoad.Bind(lambda);
-		
+			val.lock()->OnLoad.Bind(std::bind(lambda, val));
 	}
 
 	void Resource::Material::CreateThumbnail()

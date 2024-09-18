@@ -325,6 +325,8 @@ namespace GALAXY
 	void Editor::EditorSettings::LoadSettings()
 	{
 		InitializeScriptEditorTools();
+        m_editorInputsManager.Initialize();
+        
 		Path settingsPath = Utils::OS::GetUserAppDataFolder() / EDITOR_SETTINGS_PATH;
 		CppSer::Parser parser(settingsPath);
 		if (!parser.IsFileOpen())
@@ -344,7 +346,6 @@ namespace GALAXY
 			m_otherScriptEditorToolPath = otherScriptEditorTool;
 			m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(otherScriptEditorTool).stem().string();
 		}
-        m_editorInputsManager.Initialize();
         for (auto& input : m_editorInputsManager.EditorInputs)
         {
             int key = parser["Key " + input.second.name].As<int>();
@@ -359,12 +360,28 @@ namespace GALAXY
 		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
 
+    bool IsRiderInstalled()
+    {
+		HKEY hKey;
+		const char* subKeyPath = "SOFTWARE\\JetBrains\\Rider";
+
+		LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, subKeyPath, 0, KEY_READ, &hKey);
+
+		if (result == ERROR_SUCCESS) {
+			RegCloseKey(hKey);
+			return true;
+		}
+		else {
+			return false;
+		}
+    }
+
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {
         m_scriptEditorToolsString[ScriptEditorTool::None] = "None";
 #ifdef _WIN32
         m_scriptEditorToolsString[ScriptEditorTool::VisualStudio] = "Visual Studio";
-        if (ShellExecute(NULL, "open", "rider64.exe", NULL, NULL, SW_SHOWNORMAL) <= (HINSTANCE)32)
+        if (IsRiderInstalled())
         {
             m_scriptEditorToolsString[ScriptEditorTool::Rider] = "Rider";
         }

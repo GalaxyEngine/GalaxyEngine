@@ -186,6 +186,7 @@ void main()
 				CreateDataFile();
 			FinishLoading();
 		}
+		OnLoad.Invoke();
 	}
 
 	void Resource::Shader::Save()
