@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <memory>
 
+#include "Render/Framebuffer.h"
 #include "Wrapper/ImageLoader.h"
 
 #ifdef __linux__
@@ -465,9 +466,13 @@ namespace GALAXY
 	void Utils::OS::DisplayImageInPopup(Render::Framebuffer* framebuffer, int windowWidth, int windowHeight)
 	{
 		auto renderer = Wrapper::Renderer::GetInstance();
-		renderer->BindRenderBuffer(framebuffer);
 		Wrapper::Image imageData;
+		imageData.size = framebuffer->GetSize();
+		imageData.data = new uint8_t[imageData.size.x * imageData.size.y * 4];
+		
+		renderer->BindRenderBuffer(framebuffer);
 		renderer->ReadPixels(imageData.size, imageData.data);
+		renderer->UnbindRenderBuffer(framebuffer);
 		DisplayImageInPopup(imageData, windowWidth, windowHeight);
 	}
 
