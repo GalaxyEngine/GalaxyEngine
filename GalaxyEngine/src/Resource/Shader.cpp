@@ -186,7 +186,8 @@ void main()
 				CreateDataFile();
 			FinishLoading();
 		}
-		OnLoad.Invoke();
+		if (p_hasBeenSent.load())
+			OnLoad.Invoke();
 	}
 
 	void Resource::Shader::Save()

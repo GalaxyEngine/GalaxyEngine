@@ -14,6 +14,8 @@ namespace GALAXY
 
             static void Render(const Mat4& view, const Mat4& projection, Weak<Resource::Cubemap> cubemap);
 
+            static Weak<Resource::Shader> GetShader() { return m_instance->m_skyboxShader; }
+
         private:
             static Unique<Skybox> m_instance;
 

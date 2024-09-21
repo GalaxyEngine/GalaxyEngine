@@ -99,6 +99,7 @@ namespace GALAXY {
 			Vec2i m_size = {};
 
 			bool m_generateMipmaps = false;
+			bool m_isAThumbnail = false;
 		};
 	}
 }

@@ -13,6 +13,7 @@ namespace GALAXY
 
 	Editor::EditorIcon::EditorIcon()
 	{
+		// TODO : Only one editor icon per icon
 		m_material = std::make_shared<Resource::Material>("Icon Material");
 		const Weak<Resource::Shader> billboardShader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(BILLBOARD_PATH);
 		m_material->SetShader(billboardShader);

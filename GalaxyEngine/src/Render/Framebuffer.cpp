@@ -125,6 +125,7 @@ namespace GALAXY {
 			m_postProcess = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
 		if (!m_renderMaterial) {
 			m_renderMaterial = std::make_shared<Resource::Material>("RenderMaterial");
+			m_renderMaterial->SetShader(postProcessShader);
 #ifdef WITH_EDITOR
 			m_renderMaterial->SetAlbedo(m_renderTexture);
 #else
@@ -134,7 +135,6 @@ namespace GALAXY {
 			m_renderMaterial->p_loaded = true;
 			m_renderMaterial->p_hasBeenSent = true;
 		}
-		m_renderMaterial->SetShader(postProcessShader);
 		m_postProcess->m_shader = postProcessShader;
 	}
 

@@ -101,7 +101,7 @@ namespace GALAXY {
 		{
 			Shared<Resource::IResource> model = m_resource.lock();
 			ASSERT(model != nullptr);
-			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(model->GetUUID());
+			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(model);
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}
@@ -117,7 +117,7 @@ namespace GALAXY {
 		{
 			Shared<Resource::IResource> material = m_resource.lock();
 			ASSERT(material != nullptr);
-			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(material->GetUUID());
+			auto thumbnailPath = Editor::ThumbnailCreator::GetThumbnailPath(material);
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 			break;
 		}

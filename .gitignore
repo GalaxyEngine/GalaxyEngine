@@ -10,6 +10,7 @@ CMakeLists.txt
 GalaxyCore/GalaxyEngine.*
 GalaxyCore/GalaxyCore.*
 GalaxyCore/GalaxyCore
+GalaxyCore/Cache
 compile.*
 
 *.dll

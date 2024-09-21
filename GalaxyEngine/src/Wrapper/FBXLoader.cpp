@@ -220,7 +220,7 @@ namespace GALAXY
 				if (!material /* && exporting*/)
 				{
 					material = Resource::ResourceManager::AddResource<Resource::Material>(materialFullPath).lock();
-					material->m_shader = Resource::ResourceManager::GetInstance()->GetDefaultShader();
+					material->SetShader(Resource::ResourceManager::GetInstance()->GetDefaultShader());
 					material->SetAmbient(ToVec4f(fbxMaterial->getAmbientColor()));
 					material->SetDiffuse(ToVec4f(fbxMaterial->getDiffuseColor()));
 					material->SetSpecular(ToVec4f(fbxMaterial->getSpecularColor()));

@@ -24,6 +24,7 @@ void Resource::Texture::Load()
 	if (p_fileInfo.GetExtension() == ".tmb") {
 		this->SetDisplayOnInspector(false);
 		this->SetCreateDataFile(false);
+		m_isAThumbnail = true;
 	}
 
 	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
@@ -85,6 +86,15 @@ void Resource::Texture::Deserialize(CppSer::Parser& parser)
 
 void Resource::Texture::ShowInInspector()
 {
+	if (m_isAThumbnail)
+	{
+		// Debug
+		std::string uuidString = p_fileInfo.GetFileNameNoExtension();
+		uint64_t uuid = std::strtoull(uuidString.c_str(), nullptr, 10);
+		Weak<IResource> resource = Resource::ResourceManager::GetResource<Resource::IResource>(uuid);
+		std::string resourcePath = resource.lock()->GetFileInfo().GetRelativePath().string();
+		ImGui::TextUnformatted(resourcePath.c_str());
+	}
 	int filteringMode = (int)m_filtering;
 	if (ImGui::Combo("Filtering", &filteringMode, SerializeTextureFilteringEnum()))
 	{

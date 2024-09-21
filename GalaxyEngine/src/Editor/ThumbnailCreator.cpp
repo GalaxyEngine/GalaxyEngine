@@ -20,6 +20,12 @@
 
 #include "Wrapper/ImageLoader.h"
 
+//Debug
+#include "Render/Skybox.h"
+#include "Utils/OS.h"
+
+#include "Resource/IResource.h"
+
 namespace GALAXY
 {
 
@@ -75,10 +81,10 @@ namespace GALAXY
 		m_initialized = false;
 	}
 
-	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& material)
+	void Editor::ThumbnailCreator::AddToQueue(const Weak<Resource::IResource>& resource)
 	{
 		std::lock_guard lock(Core::ThreadManager::GetMutex());
-		std::filesystem::path fullPath = material.lock()->GetFileInfo().GetFullPath();
+		std::filesystem::path fullPath = resource.lock()->GetFileInfo().GetFullPath();
 		for (auto& path : m_thumbnailQueue)
 		{
 			if (path == fullPath)
@@ -117,6 +123,15 @@ namespace GALAXY
 				}
 			}
 		}
+		
+		auto skybox = m_camera->GetSkybox().lock();
+		bool skyboxLoaded = skybox && skybox->HasBeenSent() && Render::Skybox::GetShader().lock()->HasBeenSent();
+		canBeCreated &= skyboxLoaded;
+
+		// Check for default material if loaded and sent
+		auto defaultMaterial = Resource::ResourceManager::GetDefaultMaterial();
+		canBeCreated &= defaultMaterial.lock()->IsLoaded() && defaultMaterial.lock()->GetShader() && defaultMaterial.lock()->GetShader()->HasBeenSent();
+		
 
 		if (!canBeCreated)
 		{
@@ -158,8 +173,10 @@ namespace GALAXY
 		auto texture = m_camera->GetRenderTexture();
 
 		// Save thumbnail to file 
-		const Path thumbnailPath = GetThumbnailPath(modelShared->GetUUID());
+		const Path thumbnailPath = GetThumbnailPath(modelShared);
 
+		// Utils::OS::DisplayImageInPopup(m_camera->GetFramebuffer().get());
+		
 		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
 
@@ -183,6 +200,9 @@ namespace GALAXY
 				}
 			}
 		}
+		auto skybox = m_camera->GetSkybox().lock();
+		bool skyboxLoaded = skybox && skybox->IsLoaded() && skybox->HasBeenSent();
+		canBeCreated &= skyboxLoaded;
 
 		if (!canBeCreated)
 		{
@@ -224,7 +244,7 @@ namespace GALAXY
 		auto texture = m_camera->GetRenderTexture();
 
 		// Save thumbnail to file 
-		const Path thumbnailPath = GetThumbnailPath(meshShared->GetUUID());
+		const Path thumbnailPath = GetThumbnailPath(meshShared);
 
 		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
@@ -242,8 +262,12 @@ namespace GALAXY
 		const Shared<Component::MeshComponent> meshComponent = m_sphereMaterialObject->GetWeakComponent<Component::MeshComponent>().lock();
 
 		assert(meshComponent != nullptr);
-		const bool canBeCreated = meshComponent->GetMesh().lock()->HasBeenSent() && materialShared->IsLoaded() && materialShared->GetShader() && materialShared->GetShader()->HasBeenSent();
+		bool canBeCreated = meshComponent->GetMesh().lock()->HasBeenSent() && materialShared->IsLoaded() && materialShared->GetShader() && materialShared->GetShader()->HasBeenSent();
 
+		auto skybox = m_camera->GetSkybox().lock();
+		bool skyboxLoaded = skybox && skybox->IsLoaded() && skybox->HasBeenSent();
+		canBeCreated &= skyboxLoaded;
+		
 		if (!canBeCreated)
 		{
 			AddToQueue(material);
@@ -274,7 +298,7 @@ namespace GALAXY
 		auto texture = m_camera->GetRenderTexture();
 
 		// Save thumbnail to file 
-		const Path thumbnailPath = GetThumbnailPath(materialShared->GetUUID());
+		const Path thumbnailPath = GetThumbnailPath(materialShared);
 
 		SaveThumbnail(thumbnailPath, m_thumbnailSize);
 	}
@@ -322,17 +346,28 @@ namespace GALAXY
 		}
 	}
 
-	std::filesystem::path Editor::ThumbnailCreator::GetThumbnailPath(const Core::UUID& uuid)
+	std::filesystem::path Editor::ThumbnailCreator::GetThumbnailPath(const Resource::IResource* resource)
 	{
-		return Resource::ResourceManager::GetProjectPath() / THUMBNAIL_PATH / (std::to_string(uuid) + ".tmb");
+		auto uuid = resource->GetUUID();
+		if (resource->GetFileInfo().GetResourceDir() == ResourceDir::Project)
+			return Resource::ResourceManager::GetProjectPath() / THUMBNAIL_PATH / (std::to_string(uuid) + ".tmb");
+		else
+			return Path(THUMBNAIL_PATH) / (std::to_string(uuid) + ".tmb");
+	}
+
+	std::filesystem::path Editor::ThumbnailCreator::GetThumbnailPath(const Shared<Resource::IResource> resource)
+	{
+		return GetThumbnailPath(resource.get());
 	}
 
 	bool Editor::ThumbnailCreator::IsThumbnailUpToDate(Resource::IResource* resource)
 	{
-		const std::filesystem::path thumbnailPath = GetThumbnailPath(resource->GetUUID());
+		const std::filesystem::path thumbnailPath = GetThumbnailPath(resource);
 		if (!std::filesystem::exists(thumbnailPath))
 			return false;
 
+		if (!std::filesystem::exists(resource->GetFileInfo().GetFullPath()) && dynamic_cast<Resource::Mesh*>(resource))
+			return true; // Case where the file does not exist (Mesh)
 		const auto thumbnailTime = std::filesystem::last_write_time(thumbnailPath);
 		const auto resourceTime = std::filesystem::last_write_time(resource->GetFileInfo().GetFullPath());
 

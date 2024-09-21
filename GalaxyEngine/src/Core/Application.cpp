@@ -43,6 +43,8 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(std::filesystem::path projectPath)
 	{
+		if (!std::filesystem::exists(THUMBNAIL_PATH))
+			std::filesystem::create_directories(THUMBNAIL_PATH);
 #ifdef WITH_EDITOR
 		m_editorSettings.LoadSettings();
 		if (projectPath.empty())

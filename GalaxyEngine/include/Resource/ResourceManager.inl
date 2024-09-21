@@ -367,8 +367,8 @@ namespace GALAXY
 					}
 					ImGui::SetCursorPos(cursorPos);
 					auto thumbnail = GetOrLoad<Texture>(resource->GetThumbnailPath()).lock();
-					auto id = thumbnail ? thumbnail->GetID() : 0;
-					ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), imageSize);
+					if (thumbnail && thumbnail->HasBeenSent())
+						ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(thumbnail->GetID())), imageSize);
 					ImGui::SameLine();
 					ImGui::BeginGroup();
 					ImGui::TextUnformatted((resourceName + " | " + name).c_str());

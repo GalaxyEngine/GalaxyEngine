@@ -42,6 +42,8 @@ namespace GALAXY
 			inline Weak<Resource::PostProcessShader> GetPostProcessShader() const;
 
 			void SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader);
+
+			inline Vec2i GetSize() const {return m_size;}
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;

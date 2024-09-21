@@ -147,6 +147,7 @@ namespace GALAXY::Resource {
 
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
+		inline Utils::FileInfo GetFileInfo() const { return p_fileInfo; }
 		inline Core::UUID GetUUID() const { return p_uuid; }
 		Path GetDataFilePath() const;
 

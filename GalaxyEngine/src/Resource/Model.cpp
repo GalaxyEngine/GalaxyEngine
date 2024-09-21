@@ -124,6 +124,11 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 		if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
 			CreateThumbnail();
+		for (Weak<Mesh>& mesh : m_meshes)
+		{
+			if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(mesh.lock().get()))
+				mesh.lock()->CreateThumbnail();
+		}
 #endif
 	}
 
@@ -137,7 +142,7 @@ namespace GALAXY {
 
 	Path Resource::Model::GetThumbnailPath() const
 	{
-		return Editor::ThumbnailCreator::GetThumbnailPath(p_uuid);
+		return Editor::ThumbnailCreator::GetThumbnailPath(this);
 	}
 
 	Shared<Core::GameObject> Resource::Model::ToGameObject()
@@ -230,10 +235,6 @@ namespace GALAXY {
 		const Weak modelWeak = std::dynamic_pointer_cast<Model>(shared_from_this());
 
 		thumbnailCreator->AddToQueue(modelWeak);
-		for (auto& mesh : m_meshes)
-		{
-			thumbnailCreator->AddToQueue(mesh.lock());
-		}
 	}
 
 	void Resource::Model::DrawBoundingBox(const Component::Transform* transform) const

@@ -109,9 +109,7 @@ namespace GALAXY {
 
 	void Resource::IResource::SendRequest() const
 	{
-		Core::ThreadManager::ForceLock();
 		Core::Application::GetInstance().AddResourceToSend(p_fileInfo.GetFullPath());
-		Core::ThreadManager::Unlock();
 	}
 
 	void Resource::IResource::Rename(const Path& newFullPath)

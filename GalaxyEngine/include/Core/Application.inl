@@ -6,8 +6,10 @@ namespace GALAXY
 	{
 		if (fullPath.empty())
 			return;
+		Core::ThreadManager::Lock();
 		if (std::ranges::find(m_resourceToSend, fullPath) == m_resourceToSend.end())
 			m_resourceToSend.push_back(fullPath);
+		Core::ThreadManager::Unlock();
 	}
 
 	Wrapper::Window* Core::Application::GetWindow() const

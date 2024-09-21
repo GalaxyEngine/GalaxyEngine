@@ -16,6 +16,7 @@
 #endif
 
 #include "Component/MeshComponent.h"
+#include "Core/Application.h"
 #include "Wrapper/Renderer.h"
 
 #include "Render/Camera.h"
@@ -29,7 +30,13 @@ namespace GALAXY {
 
 	Path Resource::Mesh::GetThumbnailPath() const
 	{
-		return Editor::ThumbnailCreator::GetThumbnailPath(p_uuid);
+		return Editor::ThumbnailCreator::GetThumbnailPath(this);
+	}
+
+	void Resource::Mesh::CreateThumbnail()
+	{
+		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
+		thumbnailCreator->AddToQueue(shared_from_this());
 	}
 
 	std::string Resource::Mesh::GetMeshName()
@@ -49,6 +56,7 @@ namespace GALAXY {
 		const std::string fullPathString = GetFileInfo().GetFullPath().string();
 		const std::string modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 		Resource::ResourceManager::GetOrLoad<Model>(modelPath);
+		
 		p_loaded = true;
 	}
 

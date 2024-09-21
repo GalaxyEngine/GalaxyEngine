@@ -31,7 +31,7 @@ namespace GALAXY
 			void Initialize();
 			void Release();
 
-			void AddToQueue(const Weak<Resource::IResource>& material);
+			void AddToQueue(const Weak<Resource::IResource>& resource);
 
 			void CreateModelThumbnail(const Weak<Resource::Model>& model);
 
@@ -41,7 +41,8 @@ namespace GALAXY
 
 			void Update();
 
-			static std::filesystem::path GetThumbnailPath(const Core::UUID& uuid);
+			static std::filesystem::path GetThumbnailPath(const Resource::IResource* resource);
+			static std::filesystem::path GetThumbnailPath(const Shared<Resource::IResource> resource);
 			static bool IsThumbnailUpToDate(Resource::IResource* resource);
 		private:
 			void SaveThumbnail(const std::filesystem::path& thumbnailPath, const Vec2i& frameBufferSize);
