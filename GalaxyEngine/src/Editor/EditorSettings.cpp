@@ -309,7 +309,7 @@ namespace GALAXY
 
 	void Editor::EditorSettings::SaveSettings() const
 	{
-		CppSer::Serializer serializer(Utils::OS::GetUserAppDataFolder() / EDITOR_SETTINGS_PATH);
+		CppSer::Serializer serializer(Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME);
 		serializer << CppSer::Pair::BeginMap << "Editor Settings";
 		serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
 		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
@@ -327,7 +327,7 @@ namespace GALAXY
 		InitializeScriptEditorTools();
         m_editorInputsManager.Initialize();
         
-		Path settingsPath = Utils::OS::GetUserAppDataFolder() / EDITOR_SETTINGS_PATH;
+		Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
 		CppSer::Parser parser(settingsPath);
 		if (!parser.IsFileOpen())
 		{

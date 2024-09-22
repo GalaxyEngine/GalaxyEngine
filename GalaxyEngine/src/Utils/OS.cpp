@@ -53,6 +53,26 @@ namespace GALAXY
 		return result;
 	}
 
+	std::filesystem::path Utils::OS::GetEngineDataFolder()
+	{
+		return GetUserAppDataFolder() / "GalaxyEngine/";
+	}
+
+	int Utils::OS::Snprintf(char* buffer, size_t size, const char* format, ...)
+	{
+		va_list args;
+		va_start(args, format);
+    
+#ifdef _WIN32
+		int result = vsprintf_s(buffer, size, format, args);
+#else
+		int result = vsnprintf(buffer, size, format, args);
+#endif
+
+		va_end(args);
+		return result;
+	}
+
 	std::string Utils::OS::SaveDialog(const std::vector<Filter>& filters)
 	{
 		std::string resultString;

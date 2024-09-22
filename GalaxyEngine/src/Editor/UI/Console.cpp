@@ -67,20 +67,17 @@ namespace GALAXY {
 			ImGui::BeginChild("Message", { 0, bottomSize - 5 }); // - 5 disable scrollbar
 			if (m_textSelected != INDEX_NONE && m_textSelected < m_texts.size())
 			{
-				std::string prefix = "";
+				std::string prefix = "(" + std::string(SerializeLogTypeValue(m_texts[m_textSelected].type)) + ")";
 				Vec4f color = Vec4f(1);
 				switch (m_texts[m_textSelected].type)
 				{
 				case Debug::LogType::L_INFO:
-					prefix = "(Info)";
 					break;
 				case Debug::LogType::L_WARNING:
 					color = Vec4f(1, 1, 0, 1);
-					prefix = "(Warning)";
 					break;
 				case Debug::LogType::L_ERROR:
 					color = Vec4f(1, 0, 0, 1);
-					prefix = "(Error)";
 					break;
 				}
 				const std::string currentText = m_texts[m_textSelected].text;

@@ -12,54 +12,92 @@
 #endif
 
 #define MAX_LOG_SIZE 1024
+#define LOG_PATH "Logs/"
 
-namespace GALAXY::Debug {
+namespace GALAXY::Debug
+{
+    enum class LogType
+    {
+        L_INFO,
+        L_WARNING,
+        L_ERROR
+    };
 
-	enum class LogType
-	{
-		L_INFO,
-		L_WARNING,
-		L_ERROR
-	};
+    static const char* SerializeLogTypeValue(LogType value)
+    {
+        switch (value)
+        {
+        default:
+        case LogType::L_INFO:
+            return "Info";
+        case LogType::L_WARNING:
+            return "Warning";
+        case LogType::L_ERROR:
+            return "Error";
+        }
+    }
 
-	class GALAXY_API Log
-	{
-	public:
-		~Log();
-		template <typename ...Args> static void Print(const char* file, int line, LogType type, const char* format, Args ... args)
-		{
-			std::time_t now = std::time(nullptr); // get the current time point
-			std::tm calendar_time;
-			
-			localtime_s(&calendar_time, &now);
+    class GALAXY_API Log
+    {
+    public:
+        ~Log();
 
-			char buf[MAX_LOG_SIZE];
-			char buf2[MAX_LOG_SIZE];
+        static bool LogToFile;
+
+        static void OpenFile(const std::tm& calendar_time);
+
+        static void WriteToFile(LogType type, const std::tm& calendar_time, char* messageAndFile);
+
+        static void CloseFile();
+
+        template <typename... Args>
+        static void Print(const char* file, int line, LogType type, const char* format, Args... args)
+        {
+            std::time_t now = std::time(nullptr); // get the current time point
+            std::tm calendar_time;
+
+            
 #ifdef _WIN32
-			const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-			sprintf_s(buf2, format, args ...);
-			sprintf_s(buf, "[%02d:%02d:%02d] %s (l:%d): %s\n", calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec, file, line, buf2);
-			switch (type)
-			{
-			case Debug::LogType::L_INFO:
-				SetConsoleTextAttribute(hConsole, 15);
-				break;
-			case Debug::LogType::L_WARNING:
-				SetConsoleTextAttribute(hConsole, 14);
-				break;
-			case Debug::LogType::L_ERROR:
-				SetConsoleTextAttribute(hConsole, 4);
-				break;
-			default:
-				break;
-			}
-			std::cout << buf;
-			SetConsoleTextAttribute(hConsole, 15);
+            localtime_s(&calendar_time, &now);
+#elif defined(__linux__)
+            localtime_r(&now, &calendar_time);
+#endif
+
+            if (LogToFile && !m_isFileOpen)
+            {
+                OpenFile(calendar_time);
+            }
+
+            char result[MAX_LOG_SIZE];
+            char message[MAX_LOG_SIZE];
+            char messageAndFile[MAX_LOG_SIZE];
+#ifdef _WIN32
+            const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+            sprintf_s(message, format, args...);
+            sprintf_s(messageAndFile, "%s (l:%d): %s\n", file, line, message);
+            sprintf_s(result, "[%02d:%02d:%02d] %s", calendar_time.tm_hour,
+                calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
+            switch (type)
+            {
+            case Debug::LogType::L_INFO:
+                SetConsoleTextAttribute(hConsole, 15);
+                break;
+            case Debug::LogType::L_WARNING:
+                SetConsoleTextAttribute(hConsole, 14);
+                break;
+            case Debug::LogType::L_ERROR:
+                SetConsoleTextAttribute(hConsole, 4);
+                break;
+            default:
+                break;
+            }
+            std::cout << result;
+            SetConsoleTextAttribute(hConsole, 15);
 #else
-			snprintf(buf2, sizeof(buf2), format, args...);
-			snprintf(buf, sizeof(buf), "[%02d:%02d:%02d] %s (l:%d): %s",
-				calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec,
-				file, line, buf2);
+			snprintf(message, sizeof(message), format, args...);
+            snprintf(messageAndFile, sizeof(messageAndFile), "%s (l:%d): %s\n", file, line, message);
+			snprintf(result, sizeof(result), "[%02d:%02d:%02d] %s",
+				calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec);
 			switch (type)
 			{
 			case LogType::L_INFO:
@@ -75,18 +113,26 @@ namespace GALAXY::Debug {
 				break;
 			}
 
-			std::cout << buf << std::endl;
+			std::cout << result;
 			std::cout << "\033[0m"; // Reset console text color
 #endif
 #ifdef WITH_EDITOR
-			AddTextToConsole(type, buf);
+            AddTextToConsole(type, result);
 #endif
-		}
+            if (LogToFile && m_isFileOpen)
+            {
+                WriteToFile(type, calendar_time, messageAndFile);
+            }
+        }
 
 #ifdef WITH_EDITOR
-		static void AddTextToConsole(LogType type, const std::string& text);
+        static void AddTextToConsole(LogType type, const std::string& text);
 #endif
-	};
+
+    private:
+        static bool m_isFileOpen;
+        static std::ofstream m_file;
+    };
 }
 
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)

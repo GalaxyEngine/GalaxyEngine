@@ -26,6 +26,8 @@ namespace GALAXY
 		};
 
 		GALAXY_API std::filesystem::path GetUserAppDataFolder();
+		GALAXY_API std::filesystem::path GetEngineDataFolder();
+		GALAXY_API int Snprintf(char* buffer, size_t size, const char* format, ...);
 		
 		std::string SaveDialog(const std::vector<Filter>& filters);
 

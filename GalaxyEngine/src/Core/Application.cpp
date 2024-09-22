@@ -36,6 +36,8 @@
 #include "Render/Skybox.h"
 #include "Wrapper/PhysicsWrapper.h"
 
+#include "Utils/OS.h"
+
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
@@ -43,8 +45,15 @@ namespace GALAXY {
 
 	void Core::Application::Initialize(std::filesystem::path projectPath)
 	{
+		Debug::Log::LogToFile = true;
+		
+		// Create folder that not exist 
 		if (!std::filesystem::exists(THUMBNAIL_PATH))
 			std::filesystem::create_directories(THUMBNAIL_PATH);
+		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
+		if (!std::filesystem::exists(logPath))
+			std::filesystem::create_directories(logPath);
+		
 #ifdef WITH_EDITOR
 		m_editorSettings.LoadSettings();
 		if (projectPath.empty())
@@ -391,6 +400,8 @@ namespace GALAXY {
 		Wrapper::Window::UnInitialize();
 
 		PrintLog("Application clean-up completed.");
+
+		Debug::Log::CloseFile();
 	}
 
 	void Core::Application::Exit() const
