@@ -315,14 +315,14 @@ namespace GALAXY
 		{
 			constexpr int maxButtonDisplay = 5;
 			const float regionAvailX = ImGui::GetContentRegionAvail().x;
-			Vec2f buttonSize = Vec2f(regionAvailX, 0);
-			const Vec2f imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
-			const Vec2f selectableSize(buttonSize.x, imageSize.y);
+			ImVec2 buttonSize = Vec2f(regionAvailX, 0);
+			const ImVec2 imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
+			const ImVec2 selectableSize(buttonSize.x, imageSize.y);
 			if (ImGui::Button("Cancel", buttonSize)) {
 				result = true;
 				ImGui::CloseCurrentPopup();
 			}
-			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(BUTTON_RED));
 			if (ImGui::Button("Reset", buttonSize)) {
 				outResource.reset();
 				result = true;
@@ -332,7 +332,7 @@ namespace GALAXY
 			ImGui::SeparatorEx(ImGuiSeparatorFlags_Horizontal, 2.f);
 			static ImGuiTextFilter filter;
 			filter.Draw();
-			ImGui::BeginChild("ResourceList", Vec2f(regionAvailX, maxButtonDisplay * imageSize.y), true);
+			ImGui::BeginChild("ResourceList", ImVec2(regionAvailX, maxButtonDisplay * imageSize.y), true);
 			buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 			size_t i = 0;
 			bool isAMesh = std::is_base_of_v<Resource::Mesh, T>;
@@ -402,7 +402,7 @@ namespace GALAXY
 		const std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
 		const std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
 
-		const Vec2f imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
+		const ImVec2 imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
 		uint32_t id = 0;
 		if (auto resource = outResource.lock())
 		{
@@ -440,7 +440,7 @@ namespace GALAXY
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::TextUnformatted((resourceName + " | " + fieldName).c_str());
-		if (ImGui::Button(label.c_str(), Vec2f(ImGui::GetContentRegionAvail().x, 0)))
+		if (ImGui::Button(label.c_str(), ImVec2(ImGui::GetContentRegionAvail().x, 0)))
 		{
 			ImGui::OpenPopup(fieldName.c_str());
 		}

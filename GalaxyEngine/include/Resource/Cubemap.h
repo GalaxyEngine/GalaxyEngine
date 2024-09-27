@@ -21,7 +21,7 @@ namespace GALAXY
         {
         public:
             explicit CubemapTexture(Cubemap* owner);
-            CubemapTexture& operator=(const CubemapTexture& other) {}
+            CubemapTexture& operator=(const CubemapTexture& other) = default;
             CubemapTexture(const CubemapTexture&) = default;
             CubemapTexture(CubemapTexture&&) noexcept = default;
             ~CubemapTexture();

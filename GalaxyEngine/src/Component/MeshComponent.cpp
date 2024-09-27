@@ -116,7 +116,7 @@ namespace GALAXY {
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
 		ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
-		Resource::ResourceManager::ResourceField(m_mesh, "Mesh", false);
+		Resource::ResourceManager::ResourceField(m_mesh, "Mesh");
 		static uint32_t selected = -1;
 		static uint32_t clicked = 0;
 		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {

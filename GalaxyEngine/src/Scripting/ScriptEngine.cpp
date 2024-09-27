@@ -94,7 +94,9 @@ namespace GALAXY
 		m_dllPath = dllPath;
 		if (!m_scriptEngine->LoadDLL(dllPath))
 		{
+			// Can happen if the dll is not found, or the dll is not valid (compiled with another compiler)
 			PrintError("Failed to load DLL: %s", dllPath.string().c_str());
+			m_lastWriteTime = std::filesystem::file_time_type::max(); // max value to not spam the reloadDll method
 			return;
 		}
 		m_lastWriteTime = std::filesystem::last_write_time(m_dllPath.string() + Utils::OS::GetDLLExtension());
