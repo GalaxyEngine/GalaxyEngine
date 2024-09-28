@@ -159,6 +159,7 @@ namespace GALAXY
 			virtual void DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 			virtual void DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height = 25.f, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 
+			virtual int GetErrorCode() {return 0;}
 		protected:
 			bool p_initalized = false;
 			Render::RenderType p_renderType = Render::RenderType::Default;

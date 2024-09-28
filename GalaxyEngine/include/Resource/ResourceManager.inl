@@ -407,7 +407,7 @@ namespace GALAXY
 		if (auto resource = outResource.lock())
 		{
 			const Resource::Texture* texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
-			if (texture)
+			if (texture && texture->HasBeenSent())
 				id = texture->GetID();
 		}
 		auto prevPos = ImGui::GetCursorPos();

@@ -769,4 +769,9 @@ namespace GALAXY
 		data = new unsigned char[size.x * size.y * 4];
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
+
+	int OpenGLRenderer::GetErrorCode()
+	{
+		return glGetError();
+	}
 }
