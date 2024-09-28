@@ -235,6 +235,13 @@ namespace GALAXY
         serializer << CppSer::Pair::EndMap << "Cubemap";
     }
 
+    void Resource::Cubemap::Bind(uint32_t index /* = 0*/)
+    {
+        if (!p_hasBeenSent)
+            return;
+        Renderer::GetInstance()->BindCubemap(this, index);
+    }
+
     Weak<Resource::Cubemap> Resource::Cubemap::Create(const Path& path)
     {
         auto cubemap = Resource::ResourceManager::AddResource<Cubemap>(path);

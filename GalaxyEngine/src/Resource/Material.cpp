@@ -51,6 +51,19 @@ namespace GALAXY
         return Editor::ThumbnailCreator::GetThumbnailPath(this);
     }
 
+    template <typename Func>
+    void ProcessDepth(CppSer::Parser& parser, Func func)
+    {
+        parser.PushDepth();
+        if (parser.GetCurrentDepth() < parser.GetValueMap().size())
+        {
+            for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
+            {
+                func(pair);
+            }
+        }
+    }
+
     bool Resource::Material::LoadMatFile()
     {
         CppSer::Parser parser(p_fileInfo.GetFullPath());
@@ -60,8 +73,10 @@ namespace GALAXY
         if (!m_shader.lock())
             SetShader(Resource::ResourceManager::GetDefaultShader());
 
-        if (parser.GetValueMap().size() < 7)
+        /*
+        if (parser.GetVersion() != "1.0")
         {
+            ASSERT(false); // Debug
             PrintError("Invalid .mat file (maybe a previous version) : %s", p_fileInfo.GetFullPath().string().c_str());
 
             // Convert old .mat file to new one
@@ -75,37 +90,15 @@ namespace GALAXY
             Save();
             return true;
         }
+        */
 
         parser.PushDepth();
-        parser.PushDepth();
-        for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
-        {
-            SetBool(pair.first, pair.second.As<bool>());
-        }
-
-        parser.PushDepth();
-        for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
-        {
-            SetInteger(pair.first, pair.second.As<int>());
-        }
-
-        parser.PushDepth();
-        for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
-        {
-            SetFloat(pair.first, pair.second.As<float>());
-        }
-
-        parser.PushDepth();
-        for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
-        {
-            SetColor(pair.first, pair.second.As<Vec4f>());
-        }
-
-        parser.PushDepth();
-        for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
-        {
-            SetTexture(pair.first, ResourceManager::GetOrLoad<Texture>(pair.second.As<uint64_t>()));
-        }
+        ProcessDepth(parser, [this](const auto& pair) {SetBool(pair.first, pair.second.As<bool>()); });
+        ProcessDepth(parser, [this](const auto& pair) {SetInteger(pair.first, pair.second.As<int>()); });
+        ProcessDepth(parser, [this](const auto& pair) {SetFloat(pair.first, pair.second.As<float>()); });
+        ProcessDepth(parser, [this](const auto& pair) {SetColor(pair.first, pair.second.As<Vec4f>()); });
+        ProcessDepth(parser, [this](const auto& pair) {SetTexture(pair.first, ResourceManager::GetOrLoad<Texture>(pair.second.As<uint64_t>())); });
+        ProcessDepth(parser, [this](const auto& pair) {SetCubemap(pair.first, ResourceManager::GetOrLoad<Cubemap>(pair.second.As<uint64_t>())); });
 
         return true;
     }
@@ -118,6 +111,7 @@ namespace GALAXY
     void Resource::Material::Save()
     {
         CppSer::Serializer serializer(p_fileInfo.GetFullPath());
+        serializer.SetVersion("1.0");
         serializer << CppSer::Pair::BeginMap << "Material";
 
         SerializeResource(serializer, "Shader", m_shader);
@@ -154,6 +148,12 @@ namespace GALAXY
             SerializeResource(serializer, pair.first.c_str(), pair.second);
         }
         serializer << CppSer::Pair::EndMap << "Textures";
+        serializer << CppSer::Pair::BeginMap << "Cubemaps";
+        for (auto& pair : m_data.m_cubemaps)
+        {
+            SerializeResource(serializer, pair.first.c_str(), pair.second);
+        }
+        serializer << CppSer::Pair::EndMap << "Cubemaps";
         serializer << CppSer::Pair::EndTab;
         serializer << CppSer::Pair::EndMap << "Uniforms";
 
@@ -211,7 +211,7 @@ namespace GALAXY
 
             for (auto& textureUniform : m_data.m_textures)
             {
-                if (Resource::ResourceManager::ResourceField(textureUniform.second, textureUniform.first))
+                if (ResourceManager::ResourceField(textureUniform.second, textureUniform.first))
                 {
                     if (textureUniform.first == "albedo")
                         SetBool("hasAlbedo", true);
@@ -219,6 +219,14 @@ namespace GALAXY
                         SetBool("hasNormalMap", true);
                     else if (textureUniform.first == "parallaxMap")
                         SetBool("hasParallaxMap", true);
+                }
+            }
+
+            for (auto& cubemapUniform : m_data.m_cubemaps)
+            {
+                if (ResourceManager::ResourceField(cubemapUniform.second, cubemapUniform.first))
+                {
+                    
                 }
             }
 
@@ -259,6 +267,15 @@ namespace GALAXY
             if (!textureUniform.second.lock()) continue;
             textureUniform.second.lock()->Bind(i);
             shader->SendInt(("material." + textureUniform.first).c_str(), i);
+            i++;
+        }
+
+        i = 0;
+        for (auto& cubemapUniform : m_data.m_cubemaps)
+        {
+            if (!cubemapUniform.second.lock()) continue;
+            cubemapUniform.second.lock()->Bind(i);
+            shader->SendInt(("material." + cubemapUniform.first).c_str(), i);
             i++;
         }
 
@@ -390,13 +407,16 @@ namespace GALAXY
             case UniformType::Texture2D:
                 mat->m_data.m_textures[uniformPair.second.displayName] = {};
                 break;
+            case UniformType::CubeMap:
+                mat->m_data.m_cubemaps[uniformPair.second.displayName] = {};
+                break;
             default:
                 PrintError("Not supported uniform type %d", uniformPair.second.type);
                 ASSERT(false);
             }
         }
         if (mat->m_tempData.m_bools.empty() && mat->m_tempData.m_floats.empty() && mat->m_tempData.m_ints.empty() && mat->m_tempData.
-            m_float4.empty() && mat->m_tempData.m_textures.empty())
+            m_float4.empty() && mat->m_tempData.m_textures.empty() && mat->m_tempData.m_cubemaps.empty())
         {
             return;
         }
@@ -434,6 +454,13 @@ namespace GALAXY
             if (mat->m_data.m_textures.contains(textures.first))
             {
                 mat->m_data.m_textures[textures.first] = textures.second;
+            }
+        }
+        for (auto& cubemaps : mat->m_tempData.m_cubemaps)
+        {
+            if (mat->m_data.m_cubemaps.contains(cubemaps.first))
+            {
+                mat->m_data.m_cubemaps[cubemaps.first] = cubemaps.second;
             }
         }
         mat->m_tempData = MaterialData();
@@ -478,6 +505,14 @@ namespace GALAXY
             m_data.m_textures[name] = val;
         else if (!m_shader.lock()->HasBeenSent())
             m_tempData.m_textures[name] = val;
+    }
+
+    void Resource::Material::SetCubemap(const std::string& name, const Weak<Cubemap>& val)
+    {
+        if (IsShaderValid() && m_data.m_cubemaps.contains(name))
+            m_data.m_cubemaps[name] = val;
+        else if (!m_shader.lock()->HasBeenSent())
+            m_tempData.m_cubemaps[name] = val;
     }
 
     bool Resource::Material::GetBool(const std::string& name) const
@@ -572,7 +607,7 @@ namespace GALAXY
             return m_tempData.m_textures.at(name);
         else
         {
-            PrintError("Can't find texture: %s in material %s", name.c_str(), this->GetName());
+            PrintError("Can't find texture: %s in material %s", name.c_str(), GetName());
             return {};
         }
     }
@@ -583,6 +618,27 @@ namespace GALAXY
             return m_data.m_textures;
         else
             return m_tempData.m_textures;
+    }
+
+    Weak<Resource::Cubemap> Resource::Material::GetCubemap(const std::string& name) const
+    {
+        if (IsShaderValid() && m_data.m_cubemaps.contains(name))
+            return m_data.m_cubemaps.at(name);
+        else if (!m_shader.lock()->HasBeenSent() && m_tempData.m_cubemaps.contains(name))
+            return m_tempData.m_cubemaps.at(name);
+        else
+        {
+            PrintError("Can't find cubemap: %s in material %s", name.c_str(), GetName());
+            return {};
+        }
+    }
+
+    const UMap<std::string, Weak<Resource::Cubemap>>& Resource::Material::GetCubemaps() const
+    {
+        if (IsShaderValid() || m_shader.expired())
+            return m_data.m_cubemaps;
+        else
+            return m_tempData.m_cubemaps;
     }
 
     void Resource::Material::CreateThumbnail()

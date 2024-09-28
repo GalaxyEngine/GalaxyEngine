@@ -335,6 +335,8 @@ namespace GALAXY
 			return Resource::UniformType::Mat4;
 		case GL_BOOL:
 			return Resource::UniformType::Bool;
+		case GL_SAMPLER_CUBE:
+			return Resource::UniformType::CubeMap;
 		default:
 			PrintError("Uniform type not recognize");
 			return Resource::UniformType::None;

@@ -34,6 +34,7 @@ namespace GALAXY {
 			Int4,
 			Mat4,
 			Texture2D,
+			CubeMap,
 		};
 		struct Uniform
 		{

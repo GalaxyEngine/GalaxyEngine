@@ -16,7 +16,6 @@ namespace GALAXY
     namespace Resource
     {
         class Cubemap;
-        class Cubemap;
         class CubemapTexture
         {
         public:
@@ -97,6 +96,8 @@ namespace GALAXY
             void Load() override;
             void Send() override;
             void Save() const;
+
+            void Bind(uint32_t index = 0);
 
             inline uint32_t GetID() const { return m_id; }
 

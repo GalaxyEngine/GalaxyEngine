@@ -19,6 +19,7 @@ namespace GALAXY
 			UMap<std::string, Vec4f> m_float4;
 			
 			UMap<std::string, Weak<Texture>> m_textures;
+			UMap<std::string, Weak<Cubemap>> m_cubemaps;
 		};
 		
 		class Texture;
@@ -77,6 +78,8 @@ namespace GALAXY
 
 			inline void SetTexture(const std::string& name, const Weak<Texture>& val);
 
+			inline void SetCubemap(const std::string& name, const Weak<Cubemap>& val);
+
 			bool GetBool(const std::string& name) const;
 			const UMap<std::string, bool>& GetBools() const;
 			int GetInteger(const std::string& name) const;
@@ -87,6 +90,8 @@ namespace GALAXY
 			const UMap<std::string, Vec4f>& GetColors() const;
 			Weak<Texture> GetTexture(const std::string& name) const;
 			const UMap<std::string, Weak<Texture>>& GetTextures() const;
+			Weak<Cubemap> GetCubemap(const std::string& name) const;
+			const UMap<std::string, Weak<Cubemap>>& GetCubemaps() const;
 
 			void SetAmbient(const Vec4f& val) { SetColor("ambient", val); }
 			void SetDiffuse(const Vec4f& val) { SetColor("diffuse", val); }

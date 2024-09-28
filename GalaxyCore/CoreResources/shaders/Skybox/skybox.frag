@@ -4,9 +4,14 @@ out vec4 FragColor;
 
 in vec3 uv;
 
-uniform samplerCube skybox;
+struct Material
+{
+    samplerCube skybox;
+};
+
+uniform Material material;
 
 void main()
 {
-    FragColor = texture(skybox, uv);
+    FragColor = texture(material.skybox, uv);
 }
