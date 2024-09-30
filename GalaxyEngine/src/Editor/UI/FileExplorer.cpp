@@ -183,7 +183,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::File::DisplayOnExplorer() const
+	void Editor::UI::File::DisplayOnExplorer()
 	{
 		FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
 		if (m_info.isDirectory())
@@ -193,13 +193,31 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(m_icon.lock().get(), Vec2f(16));
 				ImGui::SameLine();
 			}
-			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
+			bool clicked = false;
+			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), (m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf) | ImGuiTreeNodeFlags_OpenOnArrow))
 			{
+				if (m_wasOpen)
+					clicked = ImGui::IsItemClicked();
 				for (const Shared<File>& children : m_children)
 				{
 					children->DisplayOnExplorer();
 				}
+				m_wasOpen = true;
 			}
+			else
+			{
+				m_wasOpen = false;
+				clicked = ImGui::IsItemClicked();
+			}
+
+			// When the tree node is clicked, set the directory of the file explorer to the folder
+			if (clicked)
+			{
+				Path directory = GetPath();
+				explorer->SetDirectory(directory);
+			}
+			
+			
 			ImGui::EndGroup();
 
 			if (ImGui::BeginDragDropTarget()) {
@@ -345,7 +363,11 @@ namespace GALAXY {
 				ReloadContent();
 			}
 			ImGui::SameLine();
+			Vec2f lastPos = ImGui::GetCursorPos();
 			std::string in = m_currentFile->m_info.GetRelativePath().string();
+			ImGui::SetNextItemAllowOverlap();
+			ImGui::Button("##SearchButton", Vec2f(ImGui::CalcItemWidth(), 0));
+			/*
 			if (Wrapper::GUI::InputText("Search", &in, ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				in = (Resource::ResourceManager::GetProjectPath() / in).generic_string();
@@ -360,6 +382,43 @@ namespace GALAXY {
 					}
 				}
 			}
+			*/
+			Vec2f afterPos = ImGui::GetCursorPos();
+			bool isSelected = ImGui::IsItemActive();
+			if (!isSelected)
+			{
+				ImGui::SetCursorPos(lastPos);
+				// Separate path into components
+				std::vector<std::string> components;
+				std::string path = m_currentFile->m_info.GetRelativePath().string();
+				std::stringstream ss(path);
+				std::string component;
+				while (std::getline(ss, component, '\\')) {
+					components.push_back(component);
+				}
+
+				for (int i = 0; i < components.size(); i++) {
+					if (ImGui::Button(components[i].c_str())) {
+						// add before components to the path
+						Path finalPath = Resource::ResourceManager::GetProjectPath();
+						for (int j = 0; j != i + 1 ; j++) {
+							finalPath /= components[j];
+						}
+						SetDirectory(finalPath);
+					}
+					ImGui::SameLine();
+					if (i < components.size() - 1)
+					{
+						const float spacingX = ImGui::GetStyle().ItemSpacing.x;
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() - spacingX);
+						ImGui::ArrowButtonEx("##" + i, ImGuiDir_Right, Vec2f(ImGui::GetFrameHeight() + spacingX * 2.5f, ImGui::GetFrameHeight()));
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() - spacingX);
+					}
+				}
+			}
+			
+			ImGui::SetCursorPos(afterPos);
 
 			ImGui::Separator();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0));
@@ -954,13 +1013,28 @@ namespace GALAXY {
 		//Resource Name
 		if (!file->m_rename)
 		{
+			TODO
 			std::string name = file->m_info.GetFileName();
 			const Vec2f textSize = ImGui::CalcTextSize(name.c_str());
+			std::string tempName;
+			const float maxWidth = (contentRegionStart.x + 5.f * thumbnailScale  - contentRegionStart.x + 5.f * thumbnailScale); 
+			for (int i = 0; i < name.length(); i++) {
+				tempName.push_back(name[i]);
+				if (ImGui::CalcTextSize((tempName + "...").c_str()).x > maxWidth) {
+					tempName.pop_back();
+					name = tempName + "...";
+					break;
+				}
+				if (i == name.length() - 1)
+					name = tempName;
+			}
+			/*
 			const size_t length = name.length();
 			if (length > textLength + 3) {
-				name = name.substr(0, textLength);
+				name = name.substr(0, tempName.size() - 3);
 				name.append("...");
 			}
+			*/
 			ImGui::PushID(779144781);
 			Vec2f minTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale);
 			Vec2f maxTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale) + ImGui::CalcTextSize(name.c_str()) * thumbnailScale;

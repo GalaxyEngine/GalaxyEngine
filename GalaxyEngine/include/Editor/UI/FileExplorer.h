@@ -27,7 +27,7 @@ namespace GALAXY
 			void FindChildren();
 			void FindAllChildren();
 
-			void DisplayOnExplorer() const;
+			void DisplayOnExplorer();
 
 			void AddChild(Shared<File> file);
 
@@ -67,6 +67,8 @@ namespace GALAXY
 			bool m_selected = false;
 			bool m_rename = false;
 			bool m_isAnyChildFolder = false;
+
+			bool m_wasOpen = false; // boolean to check if the folder was open in "Display on explorer"
 		};
 
 		class FileExplorer : public EditorWindow
