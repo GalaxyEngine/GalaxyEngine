@@ -35,7 +35,7 @@ namespace GALAXY
 
 			List<Path> GetAllChildrenPath();
 
-			Shared<File> GetWithPath(const Path& path) const;
+			Shared<File> GetWithPath(const Path& path, bool matchCase = true) const;
 
 			static uint32_t ResourceTypeToColor(Resource::ResourceType type);
 
@@ -77,8 +77,9 @@ namespace GALAXY
 
 			void Initialize() override;
 
-			void SetDirectory(const Path& directory);
+			void SetDirectory(const Path& directory, bool matchCase = true);
 
+			// Find the file and select it
 			void NavigateToFile(const Path& filePath);
 
 			void Draw() override;

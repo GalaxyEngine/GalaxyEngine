@@ -27,7 +27,8 @@ void Resource::Texture::Load()
 		m_isAThumbnail = true;
 	}
 
-	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
+	std::string fullPathStr = p_fileInfo.GetFullPath().generic_string();
+	auto image = Wrapper::ImageLoader::Load(fullPathStr.c_str(), 4);
 	if (m_bytes = std::move(image.data)) {
 		p_loaded.store(true);
 		m_size = image.size;

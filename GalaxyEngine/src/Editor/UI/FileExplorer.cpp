@@ -231,17 +231,16 @@ namespace GALAXY {
 		m_children.push_back(file);
 	}
 
-	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path) const
+	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path, bool matchCase) const
 	{
+		using namespace Utils::FileSystem;
 		for (const Shared<File>& child : m_children)
 		{
-			if (child->m_info.GetFullPath() == path)
+			Path fullPath = child->m_info.GetFullPath();
+			if (fullPath == path || !matchCase && ToLower(path) == ToLower(fullPath))
 				return child;
-			else {
-				Shared<File> result = child->GetWithPath(path);
-				if (result)
-					return result;
-			}
+			if (Shared<File> result = child->GetWithPath(path, matchCase))
+				return result;
 		}
 		return nullptr;
 	}
@@ -285,9 +284,15 @@ namespace GALAXY {
 		EditorUIManager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
 	}
 	
-	void Editor::UI::FileExplorer::SetDirectory(const Path& directory)
+	void Editor::UI::FileExplorer::SetDirectory(const Path& directory, bool matchCase)
 	{
-		auto file = m_mainFile->GetWithPath(directory);
+		Shared<File> file;
+		Path fullPath = m_mainFile->m_info.GetFullPath();
+		if (fullPath == directory || !matchCase && Utils::FileSystem::ToLower(directory) == Utils::FileSystem::ToLower(fullPath))
+			file =  m_mainFile;
+		if (Shared<File> result = m_mainFile->GetWithPath(directory, matchCase))
+			file = result;
+		
 		if (!file)
 			return;
 		SetCurrentFile(file);
@@ -295,7 +300,7 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::NavigateToFile(const Path& filePath)
 	{
-		SetDirectory(filePath.parent_path());
+		SetDirectory(filePath.parent_path(), true);
 		if (auto file = m_mainFile->GetWithPath(filePath))
 			AddFileSelected(file);
 	}
@@ -341,7 +346,20 @@ namespace GALAXY {
 			}
 			ImGui::SameLine();
 			std::string in = m_currentFile->m_info.GetRelativePath().string();
-			Wrapper::GUI::InputText("search", &in);
+			if (Wrapper::GUI::InputText("Search", &in, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				in = (Resource::ResourceManager::GetProjectPath() / in).generic_string();
+				if (std::filesystem::exists(in) && std::filesystem::is_directory(in))
+				{
+					Path absAssetPath = std::filesystem::absolute(Resource::ResourceManager::GetAssetPath());
+					Path absNewPath = std::filesystem::absolute(in);
+					const bool isSubdirectory = std::mismatch(absAssetPath.begin(), absAssetPath.end(), absNewPath.begin()).first == absAssetPath.end();
+					if (isSubdirectory)
+					{
+						SetDirectory(in, false);
+					}
+				}
+			}
 
 			ImGui::Separator();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0));

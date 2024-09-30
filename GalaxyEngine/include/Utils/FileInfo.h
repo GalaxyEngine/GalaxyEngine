@@ -53,7 +53,10 @@ namespace GALAXY
 			static Path ToRelativePath(Path path);
 			static Resource::ResourceType GetTypeFromExtension(const Path& ext);
 
-			inline const Path& GetFullPath() const { return m_fullPath; }
+			inline const Path& GetFullPath() const
+			{
+				return m_fullPath;
+			}
 			inline const Path& GetRelativePath() const { return m_relativePath; }
 			inline String GetFileName() const { return m_fullPath.filename().string(); }
 			inline String GetFileNameNoExtension() const { return m_fullPath.filename().stem().string(); }

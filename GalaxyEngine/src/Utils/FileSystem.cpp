@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Utils/FileSystem.h"
 
+#include "Utils/FileInfo.h"
+
 namespace GALAXY {
 	std::fstream Utils::FileSystem::OpenFile(const std::filesystem::path& path)
 	{
@@ -62,6 +64,17 @@ namespace GALAXY {
 		struct stat buffer;
 		return (stat(path.string().c_str(), &buffer) == 0);
 #endif
+	}
+
+	std::filesystem::path Utils::FileSystem::ToLower(const std::filesystem::path& path)
+	{
+		Path lowercase_path;
+		for (const auto& part : path) {
+			std::string part_str = part.string();
+			std::ranges::transform(part_str, part_str.begin(), ::tolower);
+			lowercase_path /= part_str;
+		}
+		return lowercase_path;
 	}
 
 	bool Utils::FileSystem::RemoveFile(const std::filesystem::path& path)
