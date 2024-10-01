@@ -86,6 +86,8 @@ namespace GALAXY
 
 			void Draw() override;
 
+			void DrawTopExplorer();
+
 			void DragAndDrop(Shared<File>& child);
 
 			void AddFileSelected(const Shared<File>& child);
