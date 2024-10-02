@@ -58,7 +58,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --yes
+      run: xmake config -v --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
