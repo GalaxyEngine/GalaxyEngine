@@ -68,34 +68,6 @@ jobs:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
-    # Cache assets downloading
-    - name: Restore cached assets
-      id: restore-assets
-      uses: actions/cache/restore@v4
-      with:
-        path: assets
-        key: assets-${{ hashFiles('assets/examples_version.txt', 'assets/unittests_version.txt') }}
-
     # Build
     - name: Build
-      run: xmake --yes
-
-    - name: Save downloaded assets
-      if: ${{ !steps.restore-assets.outputs.cache-hit }}
-      uses: actions/cache/save@v4
-      with:
-        path: assets
-        key: ${{ steps.restore-assets.outputs.cache-primary-key }}
-
-    - name: "Set PACKAGE_NAME variable"
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: echo "PACKAGE_NAME=windows_${{ matrix.arch }}_${{ matrix.mode }}_${{ matrix.kind }}.zip" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Archive result
-      uses: ihiroky/archive-action@v1
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      with:
-        root_dir: package
-        file_path: ${{ env.PACKAGE_NAME }}
-        verbose: true
+      run: xmake -v --yes
