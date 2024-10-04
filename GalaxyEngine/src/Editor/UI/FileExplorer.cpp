@@ -1079,7 +1079,6 @@ namespace GALAXY {
 		}
 
 		
-
 		ImFont* font = ImGui::GetIO().Fonts->Fonts[0];
 		//Content
 		//Resource Name
