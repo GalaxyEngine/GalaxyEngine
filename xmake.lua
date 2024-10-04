@@ -45,7 +45,7 @@ add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 -- Packages
 add_requires("galaxymath")
 add_requires("cpp_serializer")
-add_requires("galaxyscript v1.0")
+add_requires("galaxyscript v1.1-galaxyengine")
 add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
 add_requires("glad", {configs = {debug = isDebug }})
 add_requires("stb")
