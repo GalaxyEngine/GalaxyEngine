@@ -51,13 +51,17 @@ namespace GALAXY
         return Editor::ThumbnailCreator::GetThumbnailPath(this);
     }
 
+    typedef std::pair<std::string, CppSer::StringSerializer> StringPair;
+    typedef std::unordered_map<std::string, CppSer::StringSerializer> StringsMap;
+    typedef std::vector<StringsMap> StringMaps;
+
     template <typename Func>
-    void ProcessDepth(CppSer::Parser& parser, Func func)
+    void ProcessDepth(CppSer::Parser& parser, const StringMaps& maps,  Func func)
     {
         parser.PushDepth();
-        if (parser.GetCurrentDepth() < parser.GetValueMap().size())
+        if (parser.GetCurrentDepth() < maps.size())
         {
-            for (const auto& pair : parser.GetValueMap()[parser.GetCurrentDepth()])
+            for (const StringPair& pair : maps[parser.GetCurrentDepth()])
             {
                 func(pair);
             }
@@ -93,12 +97,13 @@ namespace GALAXY
         */
 
         parser.PushDepth();
-        ProcessDepth(parser, [this](const auto& pair) {SetBool(pair.first, pair.second.As<bool>()); });
-        ProcessDepth(parser, [this](const auto& pair) {SetInteger(pair.first, pair.second.As<int>()); });
-        ProcessDepth(parser, [this](const auto& pair) {SetFloat(pair.first, pair.second.As<float>()); });
-        ProcessDepth(parser, [this](const auto& pair) {SetColor(pair.first, pair.second.As<Vec4f>()); });
-        ProcessDepth(parser, [this](const auto& pair) {SetTexture(pair.first, ResourceManager::GetOrLoad<Texture>(pair.second.As<uint64_t>())); });
-        ProcessDepth(parser, [this](const auto& pair) {SetCubemap(pair.first, ResourceManager::GetOrLoad<Cubemap>(pair.second.As<uint64_t>())); });
+        StringMaps maps = parser.GetValueMap();
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetBool(pair.first, pair.second.As<bool>()); });
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetInteger(pair.first, pair.second.As<int>()); });
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetFloat(pair.first, pair.second.As<float>()); });
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetColor(pair.first, pair.second.As<Vec4f>()); });
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetTexture(pair.first, ResourceManager::GetOrLoad<Texture>(pair.second.As<uint64_t>())); });
+        ProcessDepth(parser, maps, [this](const StringPair& pair) {SetCubemap(pair.first, ResourceManager::GetOrLoad<Cubemap>(pair.second.As<uint64_t>())); });
 
         return true;
     }

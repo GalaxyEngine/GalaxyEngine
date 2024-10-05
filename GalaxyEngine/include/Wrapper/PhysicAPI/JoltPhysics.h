@@ -1,6 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Wrapper\PhysicsWrapper.h"
+#include "Wrapper/PhysicsWrapper.h"
 
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/TempAllocator.h>
