@@ -77,6 +77,8 @@ target("GalaxyEngine")
     
     if (is_plat("windows", "msvc")) then 
         add_cxflags("/permissive")
+    elseif (is_plat("linux")) then 
+        add_cflags("-fPIC")
     end
 
     add_headerfiles("GalaxyEngine/include/**.h");
