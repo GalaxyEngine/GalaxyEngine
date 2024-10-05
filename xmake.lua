@@ -79,6 +79,7 @@ target("GalaxyEngine")
         add_cxflags("/permissive")
     elseif (is_plat("linux")) then 
         add_cflags("-fPIC")
+        add_links("Jolt")  -- Link against the Jolt library
     end
 
     add_headerfiles("GalaxyEngine/include/**.h");
