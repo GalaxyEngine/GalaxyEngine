@@ -34,12 +34,12 @@ namespace GALAXY
 			void ShowInInspector() override;
 
 			void Serialize(CppSer::Serializer& serializer) override;
-			void Deserialize(CppSer::Parser& deserializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 			void AfterLoad() override;
 
 			bool IsVisible() const override;
 
-			inline Component::Transform* GetTransform() const override {
+			Transform* GetTransform() const override {
 				if (p_gameObject == nullptr)
 					return nullptr;
 				return p_gameObject->GetTransform();

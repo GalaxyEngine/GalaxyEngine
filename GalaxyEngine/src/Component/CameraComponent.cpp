@@ -109,6 +109,7 @@ namespace GALAXY
 		serializer << CppSer::Pair::Key << "Fov" << CppSer::Pair::Value << p_fov;
 		serializer << CppSer::Pair::Key << "Clear Color" << CppSer::Pair::Value << p_clearColor;
 		serializer << CppSer::Pair::Key << "Is Main Camera" << CppSer::Pair::Value << m_isMainCamera;
+		serializer << CppSer::Pair::Key << "View Mode" << CppSer::Pair::Value << static_cast<int>(p_viewMode);
 		Resource::IResource::SerializeResource(serializer, "PP Shader", p_framebuffer->GetPostProcessShader());
 	}
 
@@ -119,8 +120,8 @@ namespace GALAXY
 		p_fov = parser["Fov"].As<float>();
 		p_clearColor = parser["Clear Color"].As<Vec4f>();
 		m_isMainCamera = parser["Is Main Camera"].As<bool>();
-
 		m_postprocessID = parser["PP Shader"].As<uint64_t>();
+		p_viewMode = static_cast<Render::ViewMode>(parser["View Mode"].As<int>());
 	}
 
 	void Component::CameraComponent::AfterLoad()

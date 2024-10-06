@@ -51,9 +51,14 @@ namespace GALAXY
 		}
 		ImGui::PopItemWidth();
 		Weak<Resource::PostProcessShader> ppShader;
-		if (Resource::ResourceManager::GetInstance()->ResourcePopup("PostProcessPopup", ppShader))
+		if (Resource::ResourceManager::ResourcePopup("PostProcessPopup", ppShader))
 		{
 			p_framebuffer->SetPostProcessShader(ppShader);
+		}
+		int viewMode = static_cast<int>(p_viewMode);
+		if (ImGui::Combo("View mode", &viewMode, SerializeViewModeEnum()))
+		{
+			p_viewMode = static_cast<ViewMode>(viewMode);
 		}
 	}
 

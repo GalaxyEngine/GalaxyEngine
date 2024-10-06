@@ -15,10 +15,28 @@ namespace GALAXY
 		//out = out.CreateInverseMatrix();
 		return GetTransform()->GetModelMatrix().CreateInverseMatrix();
 	}
-
+	
 	inline Mat4 Render::Camera::GetProjectionMatrix() const
 	{
+		if (p_viewMode == ViewMode::Orthographic)
+			return GetOrthographicMatrix();
 		return Mat4::CreateProjectionMatrix(p_fov, p_aspectRatio, p_near, p_far);
+	}
+
+	inline Mat4 Render::Camera::GetOrthographicMatrix() const
+	{
+		const float width = static_cast<float>(p_framebufferSize.x) / 2.f;
+		const float height = static_cast<float>(p_framebufferSize.y) / 2.f;
+
+		Mat4 orthographicMatrix = Mat4();
+		orthographicMatrix[0][0] = 2.0f / (width - -width);
+		orthographicMatrix[1][1] = 2.0f / (height - -height);
+		orthographicMatrix[2][2] = -2.0f / (p_far - p_near);
+		orthographicMatrix[3][0] = -(width + -width) / (width - -width);
+		orthographicMatrix[3][1] = -(height + -height) / (height - -height);
+		orthographicMatrix[3][2] = -(p_far + p_near) / (p_far - p_near);
+		orthographicMatrix[3][3] = 1.0f;
+		return orthographicMatrix;
 	}
 
 	inline Mat4 Render::Camera::GetViewProjectionMatrix() const
@@ -28,7 +46,7 @@ namespace GALAXY
 
 	inline Vec2f Render::Camera::ToViewport(const Vec2f& pos) const
 	{
-		return { (2.0f * pos.x) / static_cast<float>(GetScreenResolution().x) - 1.0f, (float)1.0f - (2.0f * pos.y) / (float)GetScreenResolution().y };
+		return { (2.0f * pos.x) / static_cast<float>(GetScreenResolution().x) - 1.0f, 1.0f - (2.0f * pos.y) / static_cast<float>(GetScreenResolution().y) };
 	}
 
 	inline Vec3f Render::Camera::UnProject(const Vec3f& point) const

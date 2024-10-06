@@ -28,6 +28,17 @@ namespace GALAXY
     namespace Render
     {
         class Framebuffer;
+        
+		enum class ViewMode
+		{
+			Perspective,
+			Orthographic
+		};
+
+        static const char* SerializeViewModeEnum()
+        {
+            return "Perspective\0Orthographic\0";
+        }
 
         class Camera
         {
@@ -59,6 +70,7 @@ namespace GALAXY
 
             inline Mat4 GetViewMatrix() const;
             inline Mat4 GetProjectionMatrix() const;
+            inline Mat4 GetOrthographicMatrix() const;
             inline Mat4 GetViewProjectionMatrix() const;
             inline Vec4f GetClearColor() const { return p_clearColor; }
             Physic::Ray ScreenPointToRay(const Vec3f& point);
@@ -92,6 +104,9 @@ namespace GALAXY
 
             Physic::Frustum& GetFrustum() { return p_frustum; }
 
+            ViewMode GetViewMode() const { return p_viewMode; }
+            void SetViewMode(ViewMode mode) { p_viewMode = mode; }
+
         private:
             void RenderSkybox() const;
 
@@ -108,6 +123,8 @@ namespace GALAXY
             Shared<Framebuffer> p_framebuffer = nullptr;
 
             Physic::Frustum p_frustum;
+
+            ViewMode p_viewMode = ViewMode::Perspective;
         };
     }
 }
