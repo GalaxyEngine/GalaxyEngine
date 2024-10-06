@@ -96,8 +96,8 @@ namespace GALAXY::Debug
 #else
 			snprintf(message, sizeof(message), format, args...);
             snprintf(messageAndFile, sizeof(messageAndFile), "%s (l:%d): %s\n", file, line, message);
-			snprintf(result, sizeof(result), "[%02d:%02d:%02d] %s",
-				calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec);
+			snprintf(result, sizeof(result), "[%02d:%02d:%02d] %s", calendar_time.tm_hour, 
+            calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
 			switch (type)
 			{
 			case LogType::L_INFO:

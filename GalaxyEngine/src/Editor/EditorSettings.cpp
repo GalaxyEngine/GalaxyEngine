@@ -360,6 +360,7 @@ namespace GALAXY
 		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
 
+#ifdef _WIN32
     bool IsRiderInstalled()
     {
 		HKEY hKey;
@@ -375,6 +376,7 @@ namespace GALAXY
 			return false;
 		}
     }
+    #endif
 
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {

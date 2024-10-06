@@ -260,7 +260,11 @@ namespace GALAXY
 		std::array<char, 1024> buffer;
 		std::string result;
 		
-		std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
+#ifdef _WIN32
+    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
+#elif defined(__linux__)
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+#endif
 
 		if (!pipe) {
 			PrintError("popen() failed!");
