@@ -25,7 +25,7 @@ void Main(int argc, char** argv)
 	#ifdef _WIN32
 	std::filesystem::path projectPath = "D:/Code/Moteurs/Galaxy Projects/GalaxyGame/GalaxyGame.gProject";
 	if (!std::filesystem::exists(projectPath))
-		projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
+		projectPath = "C:/Users/romai/Documents/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
 	#elif defined(__linux__)
 	std::filesystem::path projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
 	#endif
