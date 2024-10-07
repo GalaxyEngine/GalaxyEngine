@@ -351,7 +351,7 @@ target("GalaxyEngine")
     add_packages("nativefiledialog-extended")
     add_packages("openfbx")
     add_packages("miniaudio")
-    add_packages("joltphysics")
+    add_packages("joltphysic")
     if (is_plat("mingw")) then 
         set_prefixname("")
     end 
