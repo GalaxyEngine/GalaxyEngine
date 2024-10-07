@@ -28,9 +28,6 @@ jobs:
     - name: Checkout repositoryz
       uses: actions/checkout@v4
 
-    - name: Install g++
-      run: sudo apt-get install g++
-
     # Install system dependencies
     - name: Install system dependencies
       run: |

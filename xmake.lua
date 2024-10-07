@@ -47,12 +47,12 @@ add_requires("galaxymath")
 add_requires("cpp_serializer")
 add_requires("galaxyscript v1.1-galaxyengine")
 add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
-add_requires("glad", {configs = { debug = isDebug, shared = false}})
+add_requires("glad", {configs = { debug = isDebug, extensions = "GL_KHR_debug"}})
 add_requires("stb")
 add_requires("nativefiledialog-extended")
 add_requires("openfbx")
 add_requires("miniaudio")
-add_requires("joltphysics", {configs = { debug = isDebug, shared = true}})
+add_requires("joltphysics", {configs = { debug = isDebug}})
 
 -- enable features 
 add_defines("ENABLE_MULTI_THREAD")
@@ -78,6 +78,7 @@ target("GalaxyEngine")
     if (is_plat("windows", "msvc")) then 
         add_cxflags("/permissive")
         add_links("Advapi32")
+        add_syslinks("opengl32")
     elseif (is_plat("linux")) then 
         add_cflags("-fPIC")
         print("Compile on Linux")
