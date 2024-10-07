@@ -52,7 +52,7 @@ add_requires("stb")
 add_requires("nativefiledialog-extended")
 add_requires("openfbx")
 add_requires("miniaudio")
-add_requires("joltphysics")
+add_requires("joltphysics", {configs = { debug = isDebug, shared = true}})
 
 -- enable features 
 add_defines("ENABLE_MULTI_THREAD")
