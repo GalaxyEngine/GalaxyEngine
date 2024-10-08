@@ -1,8 +1,10 @@
 #include "pch.h"
 #include "Editor/UI/MainBar.h"
+#include "Editor/UI/EditorUIManager.h"
+#include "Editor/EditorSettings.h"
+#include "Editor/PackageManager.h"
 
 #include "Component/BoxCollider.h"
-#include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
@@ -24,6 +26,7 @@ namespace GALAXY
 {
 	void Editor::UI::MainBar::Draw()
 	{
+		PackageManager& packageManager = EditorSettings::GetInstance().GetPackageManager();
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		const EditorUIManager* editorInstance = EditorUIManager::GetInstance();
 		EditorSettings& editorSettings = Core::Application::GetInstance().GetEditorSettings();
@@ -106,6 +109,29 @@ namespace GALAXY
 				ImGui::EndMenu();
 			}
 			UpdateModelPopup(openCreateWithModel);
+
+			bool openPackageManager = false;
+			if (ImGui::BeginMenu("Package"))
+			{
+				if (ImGui::MenuItem("Package Settings"))
+				{
+					openPackageManager = true;
+				}
+				ImGui::EndMenu();
+			}
+			if (openPackageManager)
+			{
+				packageManager.OpenSettings();
+			}
+			packageManager.DrawSettings();
+
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::MenuItem("Documentation"); // TODO
+				ImGui::MenuItem("About"); // TODO
+				ImGui::EndMenu();
+			}
+			
 			
 			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.48f;
 			ImGui::SetCursorPosX(cursorPosX);

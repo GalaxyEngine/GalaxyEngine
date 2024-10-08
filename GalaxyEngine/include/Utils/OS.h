@@ -15,6 +15,15 @@ namespace GALAXY
 	}
 	namespace Utils::OS
 	{
+		enum class Platform
+		{
+			Windows,
+			Linux,
+			MacOS,
+
+			Undefined
+		};
+		
 		struct Filter
 		{
 			Filter(std::string _name, std::string _spec) : name(std::move(_name)), spec(std::move(_spec)) {}
@@ -32,6 +41,8 @@ namespace GALAXY
 		std::string SaveDialog(const std::vector<Filter>& filters);
 
 		std::string OpenDialog(const std::vector<Filter>& filters);
+
+		std::string OpenFolderDialog();
 
 		// Show or Hide file with the path of the file
 		void ShowFile(const std::filesystem::path& filePath, bool showFile = true);
@@ -63,6 +74,8 @@ namespace GALAXY
 		void DisplayImageInPopup(Render::Framebuffer* framebuffer, int windowWidth = 400, int windowHeight = 400);
 		void DisplayImageInPopup(Resource::Texture* texture, int windowWidth = 400, int windowHeight = 400);
 		void DisplayImageInPopup(const Wrapper::Image& image, int windowWidth = 400, int windowHeight = 400);
+		
+		Platform GetPlatform();
 	}
 }
 #include "Utils/OS.inl" 
