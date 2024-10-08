@@ -4,7 +4,10 @@
 #include "Resource/ResourceManager.h"
 
 #include "Core/Application.h"
+
+#ifdef WITH_EDITOR
 #include "Editor/UI/EditorUIManager.h"
+#endif
 
 #include "Utils/OS.h"
 
