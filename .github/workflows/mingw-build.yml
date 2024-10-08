@@ -15,7 +15,7 @@ jobs:
         msystem: [mingw64]
         os: [windows-latest]
         arch: [x86_64]
-        mode: [debug, release]
+        mode: [debug, release, gamedbg, game]
         kind: [binary]
 
     runs-on: ${{ matrix.os }}
