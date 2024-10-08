@@ -57,30 +57,30 @@ namespace GALAXY
 
 			static Weak<Material> Create(const std::filesystem::path& path);
 
-			inline Shared<Shader> GetShader() const { return m_shader.lock(); }
-			inline Vec4f GetAmbient() const { return GetColor("ambient"); }
-			inline Vec4f GetDiffuse() const { return GetColor("diffuse"); }
-			inline Vec4f GetSpecular() const { return GetColor("specular"); }
-			inline Weak<Texture> GetAlbedo() const { return GetTexture("albedo"); }
-			inline Weak<Texture> GetNormalMap() const { return GetTexture("normalMap"); }
-			inline Weak<Texture> GetParallaxMap() const { return GetTexture("parallaxMap"); }
-			inline float GetHeightScale() const { return GetFloat("heightScale"); }
+			Shared<Shader> GetShader() const { return m_shader.lock(); }
+			Vec4f GetAmbient() const { return GetColor("ambient"); }
+			Vec4f GetDiffuse() const { return GetColor("diffuse"); }
+			Vec4f GetSpecular() const { return GetColor("specular"); }
+			Weak<Texture> GetAlbedo() const { return GetTexture("albedo"); }
+			Weak<Texture> GetNormalMap() const { return GetTexture("normalMap"); }
+			Weak<Texture> GetParallaxMap() const { return GetTexture("parallaxMap"); }
+			float GetHeightScale() const { return GetFloat("heightScale"); }
 
 			void SetShader(const Weak<Shader>& val);
 
 			bool IsShaderValid() const { return m_shader.lock() && m_shader.lock()->HasBeenSent(); }
 
-			inline void SetBool(const std::string& name, const bool val);
+			void SetBool(const std::string& name, const bool val);
 
-			inline void SetInteger(const std::string& name, const int val);
+			void SetInteger(const std::string& name, const int val);
 
-			inline void SetFloat(const std::string& name, const float val);
+			void SetFloat(const std::string& name, const float val);
 
-			inline void SetColor(const std::string& name, const Vec4f& val);
+			void SetColor(const std::string& name, const Vec4f& val);
 
-			inline void SetTexture(const std::string& name, const Weak<Texture>& val);
+			void SetTexture(const std::string& name, const Weak<Texture>& val);
 
-			inline void SetCubemap(const std::string& name, const Weak<Cubemap>& val);
+			void SetCubemap(const std::string& name, const Weak<Cubemap>& val);
 
 			bool GetBool(const std::string& name) const;
 			const UMap<std::string, bool>& GetBools() const;
