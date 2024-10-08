@@ -35,8 +35,10 @@ namespace GALAXY
 
     void Wrapper::PhysicAPI::JoltAPI::Update()
     {
+#ifdef WITH_EDITOR
         if (!Core::Application::IsPlayMode())
             return;
+#endif
 
         for (auto& body : m_dynamicBodies)
         {

@@ -59,8 +59,10 @@ namespace GALAXY
             void Begin() const;
 
             void End() const;
-
-            virtual void DisplayCameraSettings();
+            
+#ifdef WITH_EDITOR
+            EDITOR_ONLY virtual void DisplayCameraSettings();
+#endif
 
             inline virtual Component::Transform* GetTransform() const = 0;
 

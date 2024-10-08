@@ -46,10 +46,12 @@ namespace GALAXY
     {
     }
 
+#ifdef WITH_EDITOR
     Path Resource::Material::GetThumbnailPath() const
     {
         return Editor::ThumbnailCreator::GetThumbnailPath(this);
     }
+#endif
 
     typedef std::pair<std::string, CppSer::StringSerializer> StringPair;
     typedef std::unordered_map<std::string, CppSer::StringSerializer> StringsMap;
@@ -171,6 +173,7 @@ namespace GALAXY
 
     void Resource::Material::ShowInInspector()
     {
+#ifdef WITH_EDITOR
         if (ImGui::CollapsingHeader(GetName().c_str()))
         {
             if (Resource::ResourceManager::ResourceField(m_shader, "Shader"))
@@ -240,6 +243,7 @@ namespace GALAXY
                 Save();
             }
         }
+#endif
     }
 
     void Resource::Material::SendForDefault(Shared<Resource::Shader> shader) const
@@ -362,7 +366,6 @@ namespace GALAXY
         return material;
     }
 
-#ifdef WITH_EDITOR
     void Resource::Material::SetShader(const Weak<Shader>& val)
     {
         // ! Calling to much in a small amount of time can break the material, and set all there value to default 
@@ -646,6 +649,7 @@ namespace GALAXY
             return m_tempData.m_cubemaps;
     }
 
+#ifdef WITH_EDITOR
     void Resource::Material::CreateThumbnail()
     {
         Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
@@ -654,6 +658,6 @@ namespace GALAXY
 
         thumbnailCreator->AddToQueue(materialWeak);
     }
-
 #endif
+
 }

@@ -88,9 +88,10 @@ namespace GALAXY
 			}
 		}
 	}
-
+	
 	void Component::CameraComponent::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		DisplayCameraSettings();
 		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, Vec2f(0));
 		if (ImGui::Begin("##CameraPreview", 0, ImGuiWindowFlags_NoTitleBar))
@@ -100,6 +101,7 @@ namespace GALAXY
 		}
 		//ImGui::PopStyleVar();
 		ImGui::End();
+#endif
 	}
 
 	void Component::CameraComponent::Serialize(CppSer::Serializer& serializer)

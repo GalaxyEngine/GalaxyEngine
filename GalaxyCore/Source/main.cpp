@@ -14,6 +14,8 @@ void Main(int argc, char** argv)
 	//TODO : Fix shader loading and sending
 	//TODO : Handle update of materials for thumbnails
 	//TODO : Fix sub Meshes for fbx models
+	//TODO : Add packaging project
+	//TODO : Add Line renderer component
 
 	const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory

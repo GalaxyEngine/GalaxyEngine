@@ -28,7 +28,7 @@ namespace GALAXY {
 			List<Weak<Resource::Material>> GetMaterials() const { return m_materials; }
 			void ClearMaterials();
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 		private:
 			Weak<Resource::Mesh> m_mesh;
 			List<Weak<Resource::Material>> m_materials;

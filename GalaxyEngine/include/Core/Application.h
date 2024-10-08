@@ -8,6 +8,7 @@
 #include "Editor/EditorSettings.h"
 #include "Editor/Benchmark.h"
 #endif
+#include "Core/ThreadManager.h"
 
 #include "Core/ProjectSettings.h"
 

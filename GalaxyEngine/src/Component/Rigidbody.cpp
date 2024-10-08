@@ -7,7 +7,8 @@ namespace GALAXY
 {
     void Component::Rigidbody::ShowInInspector()
     {
-        
+#ifdef WITH_EDITOR
+#endif
     }
 
     void Component::Rigidbody::OnStart()

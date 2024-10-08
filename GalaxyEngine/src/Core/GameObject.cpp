@@ -121,10 +121,14 @@ namespace GALAXY
 		for (const auto& m_component : m_components)
 		{
 			if (m_component->IsEnable()) {
+#ifdef WITH_EDITOR
 				if (Core::Application::IsPlayMode())
 					m_component->OnUpdate();
 				else
 					m_component->OnEditorUpdate();
+#else
+				m_component->OnUpdate();
+#endif
 			}
 		}
 

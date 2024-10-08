@@ -30,7 +30,7 @@ namespace GALAXY
 
 			void OnEditorDraw() override;
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			void ComputeLocationName() override;
 

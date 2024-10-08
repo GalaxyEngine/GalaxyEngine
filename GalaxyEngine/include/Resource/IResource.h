@@ -111,14 +111,16 @@ namespace GALAXY::Resource {
 
 		virtual void Load() {}
 		virtual void Send() {}
-		virtual void ShowInInspector() {}
+		EDITOR_ONLY virtual void ShowInInspector() {}
 		// Called when the resource is removed from the resourceManager
 		virtual void Unload() {}
 		//Called when the resource is added to the resourceManager
 		virtual void OnAdd() {}
 
 		virtual const char* GetResourceName() const = 0;
-		virtual Path GetThumbnailPath() const {return "";}
+#ifdef WITH_EDITOR
+		EDITOR_ONLY virtual Path GetThumbnailPath() const {return "";}
+#endif
 		static ResourceType GetResourceType() { return ResourceType::None; }
 
 		inline bool ShouldBeLoaded() const { return p_shouldBeLoaded.load(); }

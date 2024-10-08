@@ -307,6 +307,7 @@ namespace GALAXY
 		return m_resourcesOfType;
 	}
 
+#ifdef WITH_EDITOR
 	template <typename T>
 	inline bool Resource::ResourceManager::ResourcePopup(const char* popupName, Weak<T>& outResource)
 	{
@@ -406,7 +407,7 @@ namespace GALAXY
 		uint32_t id = 0;
 		if (auto resource = outResource.lock())
 		{
-			const Resource::Texture* texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
+			const Texture* texture = GetOrLoad<Resource::Texture>(outResource.lock()->GetThumbnailPath()).lock().get();
 			if (texture && texture->HasBeenSent())
 				id = texture->GetID();
 		}
@@ -461,6 +462,7 @@ namespace GALAXY
 		ImGui::PopID();
 		return false;
 	}
+#endif
 
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitShader()
 	{

@@ -29,7 +29,7 @@ namespace GALAXY
 
 			void SendLightValues(Resource::Shader* shader) override;
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			void OnEditorDraw() override;
 

@@ -46,7 +46,7 @@ namespace GALAXY
 
 			virtual void OnEditorDraw() override;
 
-			virtual void ShowInInspector() override;
+			EDITOR_ONLY virtual void ShowInInspector() override;
 
 			virtual void Serialize(CppSer::Serializer& serializer) override;
 			virtual void Deserialize(CppSer::Parser& parser) override;

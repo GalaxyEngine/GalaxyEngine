@@ -135,8 +135,6 @@ namespace GALAXY {
 		m_editorUI->Initialize();
 
 		m_editorSettings.LoadThumbnail();
-#else
-		m_window->SetShouldDisplaySafeClose([]() {return false; });
 #endif
 
 		// Load dll scripting

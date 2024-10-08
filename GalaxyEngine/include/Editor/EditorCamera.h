@@ -17,7 +17,9 @@ namespace GALAXY
 
 			void Update();
 
-			void DisplayCameraSettings() override;
+#ifdef WITH_EDITOR
+			EDITOR_ONLY void DisplayCameraSettings() override;
+#endif
 
 			inline Component::Transform* GetTransform() const override {
 				return m_transform.get();

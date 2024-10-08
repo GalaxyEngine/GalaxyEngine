@@ -25,9 +25,11 @@ namespace GALAXY
 
 	void Component::DirectionalLight::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		Light::ShowInInspector();
 
 		ImGui::Text("%s", m_direction.value.ToString().c_str());
+#endif
 	}
 
 	void Component::DirectionalLight::OnEditorDraw()

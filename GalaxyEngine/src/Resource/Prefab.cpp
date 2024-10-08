@@ -67,7 +67,9 @@ namespace GALAXY
 
     void Resource::Prefab::ShowInInspector()
     {
+#ifdef WITH_EDITOR
         DisplayGameObject(m_root);
+#endif
     }
 
     void Resource::Prefab::InstantiateInternal(Weak<Core::GameObject> parent, Shared<Core::GameObject> gameObject)

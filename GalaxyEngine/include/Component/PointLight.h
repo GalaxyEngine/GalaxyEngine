@@ -31,7 +31,7 @@ namespace GALAXY
 
 			void SendLightValues(Resource::Shader* shader) override;
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			inline float GetConstant() const { return p_constant.value; }
 			inline void SetConstant(const float val) { p_constant.value = val; SetDirty(); }

@@ -87,6 +87,7 @@ void Resource::Texture::Deserialize(CppSer::Parser& parser)
 
 void Resource::Texture::ShowInInspector()
 {
+#ifdef WITH_EDITOR
 	if (m_isAThumbnail)
 	{
 		// Debug
@@ -112,6 +113,7 @@ void Resource::Texture::ShowInInspector()
 	{
 		Save();
 	}
+#endif
 }
 
 void Resource::Texture::Save()

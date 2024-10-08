@@ -28,6 +28,7 @@ namespace GALAXY {
 		p_fileInfo.m_resourceType = ResourceType::Mesh;
 	}
 
+#ifdef WITH_EDITOR
 	Path Resource::Mesh::GetThumbnailPath() const
 	{
 		return Editor::ThumbnailCreator::GetThumbnailPath(this);
@@ -38,6 +39,7 @@ namespace GALAXY {
 		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
 		thumbnailCreator->AddToQueue(shared_from_this());
 	}
+#endif
 
 	std::string Resource::Mesh::GetMeshName()
 {

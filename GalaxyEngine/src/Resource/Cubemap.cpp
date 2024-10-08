@@ -27,10 +27,12 @@ namespace GALAXY
 
     void Resource::CubemapTexture::ShowOnInspector()
     {
+#ifdef WITH_EDITOR
         if (Resource::ResourceManager::ResourceField(m_texture, "Texture"))
             UpdateCubemap();
+#endif
     }
-
+    
     void Resource::CubemapTexture::Load(CppSer::Parser& parser)
     {
         auto textureUUID = parser["Texture"].As<uint64_t>();
@@ -91,6 +93,7 @@ namespace GALAXY
         
     }
 
+#ifdef WITH_EDITOR
     void Resource::SixSidedTexture::ShowOnInspector()
     {
         ImGui::TextWrapped("Textures needs to be all the same resolution");
@@ -102,6 +105,7 @@ namespace GALAXY
             }
         }
     }
+#endif
 
     void Resource::SixSidedTexture::Load(CppSer::Parser& parser)
     {
@@ -175,11 +179,6 @@ namespace GALAXY
     Resource::Cubemap::~Cubemap()
     {
         Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
-    }
-
-    Path Resource::Cubemap::GetThumbnailPath() const
-    {
-        return {};
     }
 
     void Resource::Cubemap::Load()
@@ -271,6 +270,7 @@ namespace GALAXY
 
     void Resource::Cubemap::ShowInInspector()
     {
+#ifdef WITH_EDITOR
         if (p_shouldBeLoaded && !p_loaded)
             return;
         int currentType = (int)m_type;
@@ -284,6 +284,7 @@ namespace GALAXY
         {
             Save();
         }
+#endif
     }
 
     std::string Resource::Cubemap::GetDirectionFromIndex(uint32_t index)

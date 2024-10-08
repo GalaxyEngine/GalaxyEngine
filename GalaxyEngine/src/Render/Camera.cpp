@@ -30,6 +30,7 @@ namespace GALAXY
 		p_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
 	}
 
+#ifdef WITH_EDITOR
 	void Render::Camera::DisplayCameraSettings()
 	{
 		constexpr float contentWidth = 200.f;
@@ -61,6 +62,7 @@ namespace GALAXY
 			p_viewMode = static_cast<ViewMode>(viewMode);
 		}
 	}
+#endif
 
 	Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f& point)
 	{

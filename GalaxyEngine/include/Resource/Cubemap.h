@@ -24,9 +24,9 @@ namespace GALAXY
             CubemapTexture(const CubemapTexture&) = default;
             CubemapTexture(CubemapTexture&&) noexcept = default;
             ~CubemapTexture();
+
+            EDITOR_ONLY virtual void ShowOnInspector();
             
-            
-            virtual void ShowOnInspector();
             virtual void Load(CppSer::Parser& parser);
             virtual void Send(Resource::Cubemap* cubemap);
             virtual void Save(CppSer::Serializer& serializer) const;
@@ -51,7 +51,9 @@ namespace GALAXY
             SixSidedTexture(SixSidedTexture&&) noexcept = default;
             ~SixSidedTexture();
 
-            void ShowOnInspector() override;
+#ifdef WITH_EDITOR
+            EDITOR_ONLY void ShowOnInspector() override;
+#endif
 
             void Load(CppSer::Parser& parser) override;
             void Send(Resource::Cubemap* cubemap) override;
@@ -90,7 +92,9 @@ namespace GALAXY
             ~Cubemap() override;
 
             const char* GetResourceName() const override { return "Cubemap"; }
-            Path GetThumbnailPath() const override;
+#ifdef WITH_EDITOR
+            Path GetThumbnailPath() const override { return ""; }
+#endif
             static inline ResourceType GetResourceType() { return ResourceType::Cubemap; }
 
             void Load() override;
@@ -107,7 +111,7 @@ namespace GALAXY
 
             void SetType(CubemapType type);
 
-            void ShowInInspector() override;
+            EDITOR_ONLY void ShowInInspector() override;
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             

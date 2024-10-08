@@ -13,6 +13,7 @@ namespace GALAXY
 {
     void Component::Emitter::ShowInInspector()
     {
+#ifdef WITH_EDITOR
         Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
         if (ImGui::Button(m_sound.lock() ? m_sound.lock()->GetFileInfo().GetFileName().c_str() : "Empty", buttonSize))
         {
@@ -91,6 +92,7 @@ namespace GALAXY
         {
             SetDopplerFactor(m_dopplerFactor);
         }
+#endif
     }
 
     void Component::Emitter::OnTransformUpdate()

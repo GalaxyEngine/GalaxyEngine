@@ -111,8 +111,10 @@ namespace GALAXY {
 		m_materials.clear();
 	}
 
+	
 	void Component::MeshComponent::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
 		ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
@@ -221,6 +223,7 @@ namespace GALAXY {
 			ImGui::PopID();
 		}
 		*/
+#endif
 	}
 
 }

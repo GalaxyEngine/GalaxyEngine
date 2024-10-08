@@ -130,6 +130,7 @@ namespace GALAXY {
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		bool shouldClose = glfwWindowShouldClose(glfwWindow);
+#ifdef WITH_EDITOR
 		if (shouldClose && Editor::UI::EditorUIManager::ShouldDisplaySafeClose()) {
 			auto eventOnValidate = [this] { ForceClose(); };
 			Editor::UI::EditorUIManager::GetInstance()->SetOnValidatePopupEvent(eventOnValidate);
@@ -139,6 +140,9 @@ namespace GALAXY {
 		{
 			return shouldClose;
 		}
+#else
+		return shouldClose;
+#endif
 	}
 
 	void Wrapper::Window::SetSize(int width, int height) const

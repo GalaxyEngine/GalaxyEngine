@@ -93,11 +93,13 @@ namespace GALAXY {
 			void LoadNeededResources();
 			static bool IsDataFileUpToDate(const Path& resourcePath);
 
+#ifdef WITH_EDITOR
 			template <typename T>
-			static inline bool ResourcePopup(const char* popupName, Weak<T>& outResource);
+			EDITOR_ONLY static inline bool ResourcePopup(const char* popupName, Weak<T>& outResource);
 
 			template <typename T>
-			static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected = nullptr);
+			EDITOR_ONLY static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected = nullptr);
+#endif
 
 			static Path GetAssetPath() { return m_instance->m_assetPath; }
 			static Path GetProjectPath() { return m_instance->m_projectPath; }
@@ -114,11 +116,13 @@ namespace GALAXY {
 			static void RenameSingle(const Path& oldPath, const Path& newPath);
 			static bool DoesProjectExists() { return m_instance->m_projectExists; }
 		private:
-			static void ShowFileInInternExplorer(const Path& path);
+#ifdef WITH_EDITOR
+			EDITOR_ONLY static void ShowFileInInternExplorer(const Path& path);
 
-			static Path GetSelectedFileInInternExplorer();
+			EDITOR_ONLY static Path GetSelectedFileInInternExplorer();
 
-			static Weak<IResource> GetExplorerDraggedFile();
+			EDITOR_ONLY static Weak<IResource> GetExplorerDraggedFile();
+#endif
 		private:
 			friend Core::Application;
 			static Unique<Resource::ResourceManager> m_instance;

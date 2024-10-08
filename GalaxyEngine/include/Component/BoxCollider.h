@@ -17,7 +17,7 @@ namespace GALAXY
 
             const char* GetComponentName() const override { return "BoxCollider"; }
 
-            void ShowInInspector() override;
+            EDITOR_ONLY void ShowInInspector() override;
 
             void OnStart() override;
             void OnDestroy() override;

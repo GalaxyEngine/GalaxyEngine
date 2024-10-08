@@ -18,7 +18,7 @@ namespace GALAXY
 	}
 	namespace Editor::UI
 	{
-		class GALAXY_API Console : public EditorWindow
+		class Console : public EditorWindow
 		{
 		public:
 			~Console() override = default;
@@ -30,9 +30,6 @@ namespace GALAXY
 			void SetResources();
 
 			void AddText(Debug::LogType type, const std::string& text);
-
-			void AddToDisplay(Debug::LogText* logText);
-			void ComputeDisplayTexts();
 
 			void Clear();
 		private:

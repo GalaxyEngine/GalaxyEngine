@@ -18,7 +18,7 @@ namespace GALAXY
 			void Load() override;
 			void Unload() override;
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			const char* GetResourceName() const override { return "Script"; }
 

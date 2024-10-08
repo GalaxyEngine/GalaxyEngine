@@ -39,7 +39,10 @@ namespace GALAXY
 			void OnAdd() override;
 
 			const char* GetResourceName() const override { return "Material"; }
-			Path GetThumbnailPath() const override;
+			
+#ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override;
+#endif
 
 			bool LoadMatFile();
 
@@ -47,7 +50,7 @@ namespace GALAXY
 
 			void Save();
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			void SendForDefault(Shared<Resource::Shader> shader) const;
 
@@ -115,7 +118,7 @@ namespace GALAXY
 			void SetHeightScale(const float val) { SetFloat("heightScale", val); }
 
 #ifdef WITH_EDITOR
-			void CreateThumbnail();
+			EDITOR_ONLY void CreateThumbnail();
 #endif
 
 			static void OnShaderLoaded(const Weak<IResource>& material, const Weak<Shader>& shader);
