@@ -1,4 +1,4 @@
-﻿name: MSYS2 build (MinGW-w64)
+﻿name: Mingw build
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ jobs:
         os: [windows-latest]
         arch: [x86_64]
         mode: [debug, release]
-        kind: [shared, static]
+        kind: [binary]
 
     runs-on: ${{ matrix.os }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
@@ -43,8 +43,6 @@ jobs:
       # Force xmake to a specific folder (for cache)
       - name: Set xmake env
         run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
-
-      - run: xmake update -s github:SirLynix/xmake#msys2-debug && sleep 5
       
       # Update xmake repository (in order to have the file that will be cached)
       - name: Update xmake repository

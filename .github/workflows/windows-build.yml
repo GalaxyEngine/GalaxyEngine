@@ -28,11 +28,6 @@ jobs:
 
     - name: Checkout repository
       uses: actions/checkout@v4
-      
-    - name: webfactory/ssh-agent
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
   
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
