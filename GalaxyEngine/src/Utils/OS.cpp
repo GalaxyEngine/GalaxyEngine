@@ -548,6 +548,11 @@ namespace GALAXY
             hBitmap = NULL;
         }
     }
+#elif defined(__linux__)
+	
+    void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { PrintError("Not implemented yet"); }
+	
+#endif // _WIN32
 
     Utils::OS::Platform Utils::OS::GetPlatform()
     {
@@ -561,11 +566,6 @@ namespace GALAXY
 		return Platform::Undefined;
 #endif
     }
-#elif defined(__linux__)
-	
-	void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { PrintError("Not implemented yet"); }
-	
-#endif // _WIN32
 
     void Utils::OS::DisplayImageInPopup(const std::filesystem::path& imagePath, int windowWidth, int windowHeight)
     {
