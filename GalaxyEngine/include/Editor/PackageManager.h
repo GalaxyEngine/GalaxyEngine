@@ -1,6 +1,8 @@
 #pragma once
 #include "GalaxyAPI.h"
 
+#include <optional>
+#include <filesystem>
 
 namespace GALAXY 
 {

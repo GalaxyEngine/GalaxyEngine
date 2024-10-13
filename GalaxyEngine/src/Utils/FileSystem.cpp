@@ -121,4 +121,16 @@ namespace GALAXY {
 		return true;
 	}
 
+	void Utils::FileSystem::CopyFileTo(const std::filesystem::path& sourcePath,
+		const std::filesystem::path& destinationPath, std::filesystem::copy_options options)
+	{
+		try
+		{
+			std::filesystem::copy(sourcePath, destinationPath, options);
+		}
+		catch (const std::exception& e)
+		{
+			PrintError("Error while copying file %s to %s : %s", sourcePath.string().c_str(), destinationPath.string().c_str(), e.what());
+		}
+	}
 }

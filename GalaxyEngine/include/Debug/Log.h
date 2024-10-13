@@ -11,7 +11,7 @@
 #include <windows.h>
 #endif
 
-#define MAX_LOG_SIZE 1024
+#define MAX_LOG_SIZE UINT16_MAX
 #define LOG_PATH "Logs/"
 
 namespace GALAXY::Debug

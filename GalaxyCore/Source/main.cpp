@@ -24,14 +24,39 @@ void Main(int argc, char** argv)
 	Core::Application& application = Core::Application::GetInstance();
 	
 	//TODO : Remove this
-	#ifdef _WIN32
-	std::filesystem::path projectPath = "D:/Code/Moteurs/Galaxy Projects/GalaxyGame/GalaxyGame.gProject";
+	std::filesystem::path projectPath;
+#ifdef _WIN32
+	projectPath = "D:/Code/Moteurs/Galaxy Projects/GameTest/GameTest.gProject";
 	if (!std::filesystem::exists(projectPath))
 		projectPath = "C:/Users/romai/Documents/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
-	#elif defined(__linux__)
-	std::filesystem::path projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
-	#endif
+#elif defined(__linux__)
+	projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
+#endif
 	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
+#ifdef WITH_GAME
+	// find a dll in the current folder
+	for (const auto& entry : std::filesystem::directory_iterator("."))
+	{
+		std::filesystem::path filename = entry.path().filename();
+		bool isADll = false;
+#if defined(_WIN32)
+		isADll = filename.extension() == ".dll";
+#elif defined(__linux__)
+		isADll = filename.extension() == ".so";
+#elif defined(__APPLE__)
+		isADll = filename.extension() == ".dylib";
+#endif
+		if (isADll)
+		{
+			const bool isEngineDll = filename == "GalaxyGame.dll" || filename == "GalaxyGameDebug.dll" || filename == "GalaxyEditor.dll" || filename == "GalaxyEditorDebug.dll";
+			if (isEngineDll)
+				continue;
+			projectPath = entry.path();
+			projectPath = (projectPath.parent_path() / projectPath.filename().stem()).generic_string() + ".gProject";
+			break;
+		}
+	}
+#endif
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 

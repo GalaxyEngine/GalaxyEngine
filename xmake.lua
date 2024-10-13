@@ -45,7 +45,7 @@ add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 -- Packages
 add_requires("galaxymath")
 add_requires("cpp_serializer")
-add_requires("galaxyscript v1.1-galaxyengine")
+add_requires("galaxyscript v1.2-galaxyengine")
 add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
 add_requires("glad", {configs = { debug = isDebug, extensions = "GL_KHR_debug"}})
 add_requires("stb")
@@ -66,6 +66,19 @@ set_targetdir("GalaxyCore")
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
+local dllName = nil 
+if is_mode("debug") then
+    dllName = "GalaxyEditorDebug"
+elseif is_mode("release") then
+    dllName = "GalaxyEditor"
+elseif is_mode("gamedbg") then
+    dllName = "GalaxyGameDebug"
+elseif is_mode("game") then
+    dllName = "GalaxyGame"
+else
+    dllName = "GalaxyEditorDebug"
+end
+
 target("GalaxyEngine")
     set_symbols("debug")
     set_kind("shared")
@@ -81,7 +94,6 @@ target("GalaxyEngine")
         add_syslinks("opengl32")
     elseif (is_plat("linux")) then 
         add_cflags("-fPIC")
-        print("Compile on Linux")
     end
 
     add_headerfiles("GalaxyEngine/include/**.h");
@@ -110,7 +122,12 @@ target("GalaxyEngine")
     if (is_plat("mingw")) then 
         set_prefixname("")
     end 
+
+    -- set target name
+    set_basename(dllName)
 target_end()
+
+local binName = dllName .. "Core"
 
 target("GalaxyCore")
     set_default(true)
@@ -122,4 +139,7 @@ target("GalaxyCore")
     -- Packages
     add_packages("galaxymath")
     add_packages("imgui")
+
+    set_basename(binName)
+    
 target_end()

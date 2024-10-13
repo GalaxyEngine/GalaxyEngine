@@ -59,6 +59,7 @@ namespace GALAXY
 		void ShowInExplorer(const std::filesystem::path& folder, const std::vector<std::string>& filesName);
 
 		const char* GetDLLExtension();
+		const char* GetBinaryExtension();
 
 		void OpenWithVSCode(const std::filesystem::path& filePath);
 

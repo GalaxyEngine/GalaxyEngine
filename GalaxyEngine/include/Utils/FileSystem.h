@@ -10,6 +10,8 @@ namespace GALAXY::Utils::FileSystem {
 
 	bool CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath);
 
+	void CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath, std::filesystem::copy_options options);
+
 	bool FileExistNoExtension(const std::filesystem::path& path);
 
 	std::filesystem::path ToLower(const std::filesystem::path& path);

@@ -7,9 +7,11 @@ CMakeLists.txt
 # MacOS Cache
 .DS_Store
 
-GalaxyCore/GalaxyEngine.*
-GalaxyCore/GalaxyCore.*
-GalaxyCore/GalaxyCore
+GalaxyCore/*.exp
+GalaxyCore/*.lib
+GalaxyCore/*.pdb
+GalaxyCore/*.exe
+GalaxyCore/*.ilk
 GalaxyCore/Cache
 compile.*
 

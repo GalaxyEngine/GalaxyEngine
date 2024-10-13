@@ -268,6 +268,17 @@ namespace GALAXY
 #endif
     }
 
+    const char* Utils::OS::GetBinaryExtension()
+    {
+#if defined(_WIN32)
+        return ".exe";
+#elif defined(__linux__)
+        return "";
+#elif defined(__APPLE__)
+        return "";
+#endif
+    }
+
     void Utils::OS::OpenWithVSCode(const std::filesystem::path& filePath)
     {
         std::string command = "code ";
@@ -287,13 +298,13 @@ namespace GALAXY
     void Utils::OS::RunCommand(const std::string& command)
     {
         // Open a pipe to read the command's output
-        std::array<char, 1024> buffer;
+        std::array<char, MAX_LOG_SIZE> buffer;
         std::string result;
 
 #ifdef _WIN32
         std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(command.c_str(), "r"), _pclose);
 #elif defined(__linux__)
-    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
+        std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(command.c_str(), "r"), pclose);
 #endif
 
         if (!pipe)
@@ -308,8 +319,20 @@ namespace GALAXY
             result += buffer.data();
         }
 
+        // Build a new string with only allowed characters (alphanumeric, spaces, '/', and '\')
+        std::string cleanedResult;
+        for (char c : result)
+        {
+            if (std::isalnum(static_cast<unsigned char>(c)) || 
+                std::isspace(static_cast<unsigned char>(c)) || 
+                c == '/' || c == '\\')
+            {
+                cleanedResult += c;
+            }
+        }
+
         // Print the result
-        PrintLog(result.c_str());
+        PrintLog(cleanedResult.c_str());
     }
 
     void Utils::OS::RunCommandThread(const std::string& command)

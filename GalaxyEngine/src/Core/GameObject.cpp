@@ -352,7 +352,7 @@ namespace GALAXY
 			String componentNameString = parser["Name"];
 			const bool enable = parser["Enable"].As<bool>();
 			const char* componentName = componentNameString.c_str();
-			for (const Shared<BaseComponent>& componentInstance : Component::ComponentHolder::GetList())
+			for (const Shared<BaseComponent>& componentInstance : ComponentHolder::GetList())
 			{
 				const char* thisComponentName = componentInstance->GetComponentName();
 				if (!strcmp(thisComponentName, componentName))

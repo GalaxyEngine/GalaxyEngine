@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Editor/PackageManager.h"
 
+#include "Resource/ResourceManager.h"
 #include "Utils/OS.h"
 
 namespace GALAXY 
@@ -78,6 +79,57 @@ namespace GALAXY
         
     }
 
+    // static std::wstring s_xmakeContent = 
+
+#ifdef _DEBUG
+    #define DLL_NAME "GalaxyGameDebug"
+#else
+    #define DLL_NAME "GalaxyGame"
+#endif
+
+    static std::string s_xmakeContent = R"RAW(
+add_rules("mode.debug", "mode.release")
+
+if is_plat("windows") then
+    set_runtimes(is_mode("debug") and "MDd" or "MD")
+end
+
+set_languages("c++20")
+
+set_rundir("$(projectdir)")
+set_targetdir("$(projectdir)")
+
+-- Custom repo
+add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
+add_requires("galaxymath")
+
+add_defines("WITH_GAME")
+
+target("%s")
+    set_kind("shared")
+    set_languages("c++20")
+
+    add_includedirs("D:/Code/Moteurs/GalaxyEngine/GalaxyEngine/include")
+    add_includedirs("Generate/Headers")
+    
+    add_files("**.cpp")
+    add_headerfiles("**.h")
+
+    if is_mode("debug") then
+        add_links("GalaxyGameDebug")
+    elseif is_mode("release") then
+        add_links("GalaxyGame")
+    end
+    
+    add_packages("galaxymath")
+
+    set_basename("Assembly")
+    
+    set_prefixname("")
+target_end()
+)RAW";
+
+    
     void Editor::PackageManager::PackageProject(bool forceSetBuildPath)
     {
         if (!m_packagePath.has_value() || forceSetBuildPath)
@@ -94,8 +146,110 @@ namespace GALAXY
                 PrintLog("Cancel package project");
                 return;
             }
+            
+            if (!m_packagePath.has_value())
+                return;
+        }
+        std::filesystem::path packagePath = m_packagePath.value();
+        const std::filesystem::path assetPath = packagePath / ASSET_FOLDER_NAME;
+
+        // Clear the package path
+
+        //TODO : Copy only the assets used by the project ? (hard to tell if it's use in code)
+        // Copy assets
+        Utils::FileSystem::CopyFileTo(Resource::ResourceManager::GetAssetPath(), assetPath, std::filesystem::copy_options::recursive);
+        // Copy resource assets
+        Utils::FileSystem::CopyFileTo(ENGINE_RESOURCE_FOLDER_NAME, packagePath / ENGINE_RESOURCE_FOLDER_NAME, std::filesystem::copy_options::recursive);
+        // Copy Generated code
+        Path sourcePath = Resource::ResourceManager::GetProjectPath() / "Generate" / "Headers";
+        std::filesystem::create_directories(packagePath / ENGINE_GENERATE_HEADER_PATH);
+        Path destinationPath = packagePath / ENGINE_GENERATE_HEADER_PATH;
+        Utils::FileSystem::CopyFileTo(sourcePath, destinationPath, std::filesystem::copy_options::recursive);
+        
+        // copy the GalaxyGameDebug.exe into project name .exe
+        Path fromBinPath = std::string(DLL_NAME "Core") + Utils::OS::GetBinaryExtension();
+        Path toBinPath = (packagePath / Resource::ResourceManager::GetProjectPath().filename().stem()).generic_string() + Utils::OS::GetBinaryExtension();
+        Utils::FileSystem::CopyFileTo(fromBinPath, toBinPath, std::filesystem::copy_options::overwrite_existing);
+
+        //TODO Change the DLL name
+        // copy the galaxy engine dll
+        Path fromDLLPath = std::string(DLL_NAME) + Utils::OS::GetDLLExtension();
+        Path toDLLPath = (packagePath / DLL_NAME).string() + Utils::OS::GetDLLExtension();
+        Utils::FileSystem::CopyFileTo(fromDLLPath, toDLLPath, std::filesystem::copy_options::overwrite_existing);
+        
+        // copy the lib dll
+        Path fromLibPath = std::string(DLL_NAME) + ".lib";
+        Path toLibPath = (packagePath / DLL_NAME).string() + ".lib";
+        Utils::FileSystem::CopyFileTo(fromLibPath, toLibPath, std::filesystem::copy_options::overwrite_existing);
+
+        Path fromSettingsPath = Resource::ResourceManager::GetProjectPath() / "project.settings";
+        Path toSettingsPath = packagePath / "project.settings";
+        Utils::FileSystem::CopyFileTo(fromSettingsPath, toSettingsPath, std::filesystem::copy_options::overwrite_existing);
+
+        // Create xmake.lua
+        std::ofstream xmakeFile(packagePath / "xmake.lua");
+
+        // Get the filename without extension
+        std::string filename = Resource::ResourceManager::GetProjectPath().filename().stem().string();
+
+        // Prepare the buffer
+        char xmakeContent[8192];
+        std::strncpy(xmakeContent, s_xmakeContent.c_str(), sizeof(xmakeContent) - 1);
+        xmakeContent[sizeof(xmakeContent) - 1] = '\0';  // Ensure null-termination
+
+        // Get the project name
+        std::string projectName = Resource::ResourceManager::GetProjectPath().filename().string();
+
+        // Format the content
+        std::snprintf(xmakeContent, sizeof(xmakeContent), s_xmakeContent.c_str(), projectName.c_str());
+
+        // Write to file
+        xmakeFile << xmakeContent;
+        xmakeFile.close();
+
+        std::string command = "xmake f -p";
+
+        switch (m_platform) {
+        case PackagePlatform::Windows:
+            command += "windows -a x64";
+            break;
+        case PackagePlatform::Linux:
+            command += "linux";
+            break;
+        case PackagePlatform::MacOS:
+            command += "macos";
+            break;
+        case PackagePlatform::Undefined:
+            break;
         }
 
+        switch (m_compiler) {
+        case CompilerTool::MINGW:
+            command = "xmake f -p mingw -a x86_64";
+            break;
+        case CompilerTool::Undefined:
+            break;
+        }
+
+#ifdef _DEBUG
+        command += " -m debug";
+#else
+        command += " -m release";
+#endif
+
+        auto prevPath = std::filesystem::current_path();
+        std::filesystem::current_path(packagePath);
+        Utils::OS::RunCommand(command);
+        Utils::OS::RunCommand("xmake");
+        std::filesystem::current_path(prevPath);
+
+        std::remove((packagePath / "xmake.lua").generic_string().c_str());
+        std::filesystem::remove_all((packagePath / ".xmake").generic_string().c_str());
+        std::filesystem::remove_all((packagePath / "build").generic_string().c_str());
+        std::remove((packagePath / "Assembly.exp").generic_string().c_str());
+        std::remove((packagePath / "Assembly.ilk").generic_string().c_str());
+        std::remove((packagePath / "Assembly.pdb").generic_string().c_str());
+        std::remove((packagePath / "compile.Assembly.pdb").generic_string().c_str());
         // TODO: Package the project
     }
 
