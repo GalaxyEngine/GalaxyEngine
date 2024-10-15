@@ -11,6 +11,9 @@ namespace GALAXY
 	}
 	namespace Render { class Framebuffer; }
 	namespace Resource {
+		class Texture;
+		class Cubemap;
+
 		struct MaterialData
 		{
 			UMap<std::string, bool> m_bools;
@@ -22,7 +25,6 @@ namespace GALAXY
 			UMap<std::string, Weak<Cubemap>> m_cubemaps;
 		};
 		
-		class Texture;
 		class Material : public IResource
 		{
 		public:
