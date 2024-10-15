@@ -12,16 +12,16 @@ namespace GALAXY
 			Event& operator=(const Event& other) = default;
 			Event(const Event&) = default;
 			Event(Event&&) noexcept = default;
-			virtual ~Event() = default;
+			virtual ~Event() = default; 
 
 			using Callback = std::function<void(Args...)>;
 
-			inline virtual void Bind(Callback callback)
+			virtual void Bind(Callback callback)
 			{
 				m_callbacks.push_back(callback);
 			}
 
-			inline void Invoke(Args... args)
+			virtual void Invoke(Args... args)
 			{
 				for (auto& callback : m_callbacks)
 				{

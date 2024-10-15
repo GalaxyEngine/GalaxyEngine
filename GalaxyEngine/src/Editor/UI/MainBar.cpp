@@ -222,6 +222,7 @@ namespace GALAXY
 		}
 	}
 
+	static std::map<int, std::pair<Shared<Resource::Model>, Core::GameObject*>> s_waitingModels;
 	bool Editor::UI::MainBar::UpdateModelPopup(bool openModelPopup, Core::GameObject* parent)
 	{
 		if (openModelPopup)
@@ -229,24 +230,34 @@ namespace GALAXY
 			ImGui::OpenPopup("Create With Model");
 		}
 		Weak<Resource::Model> model;
-		if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
+		if (Resource::ResourceManager::ResourcePopup("Create With Model", model))
 		{
 			if (const Shared<Resource::Model> modelShared = model.lock())
 			{
-				auto bind = [modelShared, parent]
+				// do not add the variable inside the [] for smart ptr, it will cause a memory leak
+				int index = static_cast<int>(s_waitingModels.size());
+				s_waitingModels[index] = std::make_pair(model.lock(), parent);
+				std::function bind = [index]()
 				{
+					auto modelShared = s_waitingModels[index].first;
+					auto parent = s_waitingModels[index].second;
 					if (!modelShared)
+					{
+						s_waitingModels.erase(index);
 						return;
-					const auto object = modelShared->ToGameObject();
+					}
+					const Shared<Core::GameObject> object = modelShared->ToGameObject();
 					
 					Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-					auto parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
+					Core::GameObject* parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
 					
 					parentObject->GetScene()->AddObject(object);
 					parentObject->AddChild(object);
+
+					s_waitingModels.erase(index);
 				};
-				if (!modelShared->IsLoaded()) {
-					
+				if (!modelShared->IsLoaded())
+				{					
 					modelShared->EOnLoad.Bind(bind);
 				}
 				else

@@ -344,7 +344,7 @@ namespace GALAXY {
 			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
 			
 		}
-		else if (m_applicationMode == Editor::ApplicationMode::Editor && mode == Editor::ApplicationMode::Play)
+		else if (mode == Editor::ApplicationMode::Editor && m_applicationMode == Editor::ApplicationMode::Play)
 		{
 			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
 

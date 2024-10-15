@@ -31,6 +31,7 @@ namespace GALAXY
 			static bool UpdateModelPopup(bool openModelPopup, Core::GameObject* parent = nullptr);
 		private:
 			Weak<Resource::Model> m_waitingModel;
+
 		};
 	}
 }

@@ -28,6 +28,7 @@ namespace GALAXY
 			static ImGuiTextFilter filter;
 			filter.Draw();
 			ImGui::BeginChild("List", Vec2f(0), true);
+			static Shared<Resource::IResource> rightClickedResource;
 			for (auto& resource : *m_resources)
 			{
 				if (!filter.PassFilter(resource.first.string().c_str()))
@@ -55,7 +56,23 @@ namespace GALAXY
 					fileExplorer->ClearSelected();
 					fileExplorer->AddFileSelected({ file });
 				}
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					rightClickedResource = resource.second;
+				}
 
+			}
+			if (rightClickedResource)
+			{
+				ImGui::OpenPopup("ResourcePopup");
+			}
+			if (rightClickedResource && ImGui::BeginPopup("ResourcePopup"))
+			{
+				if (ImGui::MenuItem("Load"))
+				{
+					Resource::ResourceManager::GetOrLoad(rightClickedResource->GetFileInfo().GetFullPath());
+				}
+				ImGui::EndPopup();
 			}
 			ImGui::EndChild();
 		}
