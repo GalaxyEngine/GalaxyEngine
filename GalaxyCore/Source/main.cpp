@@ -20,16 +20,7 @@ void Main(int argc, char** argv)
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
-	
-	//TODO : Remove this
-	#ifdef _WIN32
-	std::filesystem::path projectPath = "D:/Code/Moteurs/Galaxy Projects/GalaxyGame/GalaxyGame.gProject";
-	if (!std::filesystem::exists(projectPath))
-		projectPath = "D:/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
-	#elif defined(__linux__)
-	std::filesystem::path projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
-	#endif
-	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
+	std::filesystem::path projectPath;
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 

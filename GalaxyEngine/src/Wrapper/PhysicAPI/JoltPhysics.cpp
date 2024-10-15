@@ -147,6 +147,18 @@ namespace GALAXY
         }
     }
 
+    void Wrapper::PhysicAPI::JoltAPI::CreateSphereCollider(Component::SphereCollider* collider)
+    {
+    }
+
+    void Wrapper::PhysicAPI::JoltAPI::DestroySphereCollider(Component::SphereCollider* collider)
+    {
+    }
+
+    void Wrapper::PhysicAPI::JoltAPI::SetDefaultGravity(const Vec3f& value)
+    {
+    }
+
     bool Wrapper::PhysicAPI::JoltAPI::InitializeAPI()
     {
         JPH::RegisterDefaultAllocator();

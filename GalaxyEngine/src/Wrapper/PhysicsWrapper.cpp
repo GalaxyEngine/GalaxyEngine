@@ -2,6 +2,7 @@
 #include "Wrapper/PhysicsWrapper.h"
 
 #include "Wrapper/PhysicAPI/JoltPhysics.h"
+#include "Wrapper/PhysicAPI/CustomPhysics.h"
 namespace GALAXY 
 {
     Wrapper::PhysicsWrapper* Wrapper::PhysicsWrapper::m_instance = nullptr;
@@ -14,11 +15,18 @@ namespace GALAXY
                 m_instance = new Wrapper::PhysicAPI::JoltAPI();
                 break;
             }
-        case PhysicAPIType::PhysX:
-            ASSERT(false || "PhysX not yet implemented");
-            break;
-        default:
-            break;
+            case PhysicAPIType::PhysX:
+            {
+                ASSERT(false || "PhysX not yet implemented");
+                break;
+            }
+            case PhysicAPIType::Custom:
+            {
+                m_instance = new Wrapper::PhysicAPI::CustomPhysicsAPI();
+                break;
+            }
+            default:
+                break;
         }
         m_instance->InitializeAPI();
     }

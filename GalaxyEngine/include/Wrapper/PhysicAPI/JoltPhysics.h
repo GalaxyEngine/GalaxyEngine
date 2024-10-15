@@ -166,6 +166,9 @@ namespace GALAXY
             void DestroyRigidbody(Component::Rigidbody* rigidbody) override;
             void CreateBoxCollider(Component::BoxCollider* collider) override;
             void DestroyBoxCollider(Component::BoxCollider* collider) override;
+            void CreateSphereCollider(Component::SphereCollider* collider) override;
+            void DestroySphereCollider(Component::SphereCollider* collider) override;
+            void SetDefaultGravity(const Vec3f& value) override;
 
         private:
             bool InitializeAPI() override;

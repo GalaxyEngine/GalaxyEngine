@@ -1,12 +1,12 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Component/IComponent.h"
+#include "Component/Collider.h"
 
 namespace GALAXY 
 {
     namespace Component
     {
-        class GALAXY_API BoxCollider : public IComponent<BoxCollider>
+        class GALAXY_API BoxCollider : public Collider
         {
         public:
             BoxCollider() = default;
@@ -14,6 +14,8 @@ namespace GALAXY
             BoxCollider(const BoxCollider&) = default;
             BoxCollider(BoxCollider&&) noexcept = default;
             ~BoxCollider() override = default;
+
+            ColliderType GetType() override { return ColliderType::Box; }
 
             const char* GetComponentName() const override { return "BoxCollider"; }
 

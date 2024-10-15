@@ -81,7 +81,7 @@ namespace GALAXY {
 #endif
 		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
-		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Jolt);
+		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Custom);
 		m_physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
 
 		m_audioSystem = Wrapper::Audio::GetInstance();

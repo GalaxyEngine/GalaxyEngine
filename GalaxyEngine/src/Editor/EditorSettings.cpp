@@ -150,6 +150,12 @@ namespace GALAXY
 		{
 			Core::Application::GetInstance().GetWindow()->SetVSync(m_useVSync);
 		}
+
+        std::string tmpPath = m_defaultProjectPath.string();
+        if (Wrapper::GUI::InputText("Default Project Path", &tmpPath))
+        {
+            m_defaultProjectPath = tmpPath;
+        }
 	}
 
     void Editor::EditorSettings::ChangeOtherScriptTool()
@@ -315,6 +321,7 @@ namespace GALAXY
 		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
 		if (m_otherScriptEditorToolPath.has_value())
 			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
+        serializer << CppSer::Pair::Key << "Default Project Path" << CppSer::Pair::Value << m_defaultProjectPath.string();
         for (auto input : m_editorInputsManager.EditorInputs)
         {
             serializer << CppSer::Pair::Key << "Key " + input.second.name << CppSer::Pair::Value << (int)input.second.key;
@@ -351,6 +358,12 @@ namespace GALAXY
             int key = parser["Key " + input.second.name].As<int>();
             if (key != 0)
                 input.second.key = static_cast<Key>(key);
+        }
+
+        auto defaultProjectPath = parser["Default Project Path"].As<std::string>();
+        if (!defaultProjectPath.empty())
+        {
+            m_defaultProjectPath = defaultProjectPath;
         }
 	}
 
