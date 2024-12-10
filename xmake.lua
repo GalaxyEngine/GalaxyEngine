@@ -65,20 +65,6 @@ set_rundir("GalaxyCore")
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
-local baseName = nil
-if isEditor then
-    baseName = "GalaxyEditor"
-else 
-    baseName = "GalaxyGame"
-end
-local modeName = nil
-if (isDebug) then
-    modeName = "Debug"
-else
-    modeName = ""
-end
-local dllName = baseName .. modeName
-
 target("GalaxyEngine")
     set_symbols("debug")
     set_kind("shared")
@@ -121,13 +107,8 @@ target("GalaxyEngine")
     add_packages("joltphysics")
     if (is_plat("mingw")) then 
         set_prefixname("")
-    end 
-
-    -- set target name
-    --set_basename(dllName)
+    end
 target_end()
-
-local binName = baseName .. "Core" .. modeName
 
 target("GalaxyCore")
     set_default(true)
@@ -139,6 +120,4 @@ target("GalaxyCore")
     -- Packages
     add_packages("galaxymath")
     add_packages("imgui")
-
-    --set_basename(binName)
 target_end()

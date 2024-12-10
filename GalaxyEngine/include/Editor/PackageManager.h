@@ -39,11 +39,15 @@ namespace GALAXY
         static const char* SerializeCompilerToolValue(CompilerTool tool);
         static const char* SerializeCompilerToolEnum();
 
-        enum class PackageType
+        enum class PackageMode
         {
             Debug,
-            Release
+            Release,
+            Undefined
         };
+        
+        static const char* SerializePackageModeValue(Editor::PackageMode package);
+        static const char* SerializePackageModeEnum();
 
         class PackageManager
         {
@@ -59,14 +63,14 @@ namespace GALAXY
 
             bool SetPackagePath(const std::filesystem::path& path);
 
-            static std::filesystem::path GetBinFolder(PackageType type = PackageType::Debug);
+            static std::filesystem::path GetBinFolder(PackageMode type = PackageMode::Debug);
 
         private:
             PackagePlatform GetUserPlatform();
         private:
             PackagePlatform m_platform = PackagePlatform::Windows;
             CompilerTool m_compiler = CompilerTool::MSVC;
-            PackageType m_packageType = PackageType::Debug;
+            PackageMode m_packageMode = PackageMode::Debug;
 
             std::optional<std::filesystem::path> m_packagePath;
         };

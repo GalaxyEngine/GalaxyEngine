@@ -75,6 +75,24 @@ namespace GALAXY
         return "MSVC\0GCC\0MINGW\0";
     }
 
+    const char* Editor::SerializePackageModeValue(Editor::PackageMode package)
+    {
+        switch (package)
+        {
+        case PackageMode::Debug:
+            return "Debug";
+        case PackageMode::Release:
+            return "Release";
+        default:
+            return "Undefined";
+        }
+    }
+
+    const char* Editor::SerializePackageModeEnum()
+    {
+        return "Debug\0Release\0";
+    }
+
     Editor::PackageManager::PackageManager()
     {
         
@@ -171,7 +189,7 @@ target_end()
         Path destinationPath = packagePath / ENGINE_GENERATE_HEADER_PATH;
         Utils::FileSystem::CopyFileTo(sourcePath, destinationPath, std::filesystem::copy_options::recursive);
 
-        std::filesystem::path exeFolder = GetBinFolder();
+        std::filesystem::path exeFolder = GetBinFolder(m_packageMode);
         // copy the GalaxyGameDebug.exe into project name .exe
         Path fromBinPath = exeFolder / (std::string(BIN_NAME) + Utils::OS::GetBinaryExtension());
         Path toBinPath = (packagePath / Resource::ResourceManager::GetProjectPath().filename().stem()).generic_string() + Utils::OS::GetBinaryExtension();
@@ -248,12 +266,12 @@ target_end()
             break;
         }
 
-        switch (m_packageType)
+        switch (m_packageMode)
         {
-        case PackageType::Debug:
+        case PackageMode::Debug:
             command += " -m debug";
             break;
-        case PackageType::Release:
+        case PackageMode::Release:
             command += " -m release";
             break;
         default: ;
@@ -313,6 +331,20 @@ target_end()
                 ImGui::SetTooltip("Compiler used to compile the project (only work with tool use to compile the engine).");
             }
 
+            if (ImGui::BeginCombo("Package Type", SerializePackageModeValue(m_packageMode)))
+            {
+                for (int i = 0; i < static_cast<int>(PackageMode::Undefined); i++)
+                {
+                    const bool is_selected = (m_packageMode == static_cast<PackageMode>(i));
+                    if (ImGui::Selectable(SerializePackageModeValue(static_cast<PackageMode>(i)), is_selected))
+                        m_packageMode = static_cast<PackageMode>(i);
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+                ImGui::SetTooltip("Package mode used to package the project.");
+            }
+
             // Bottom buttons
             float localY = ImGui::GetContentRegionMax().y - ImGui::GetFrameHeight() - ImGui::GetStyle().ItemSpacing.y * 2;
             ImGui::SetCursorPosY(localY);
@@ -354,7 +386,7 @@ target_end()
         return true;
     }
 
-    std::filesystem::path Editor::PackageManager::GetBinFolder(PackageType type)
+    std::filesystem::path Editor::PackageManager::GetBinFolder(PackageMode type)
     {
         std::string platform;
         std::string arch;
@@ -375,10 +407,10 @@ target_end()
 #endif
         switch (type)
         {
-        case PackageType::Debug:
+        case PackageMode::Debug:
             mode = "gamedbg";
             break;
-        case PackageType::Release:
+        case PackageMode::Release:
             mode = "game";
             break;
       break;      
