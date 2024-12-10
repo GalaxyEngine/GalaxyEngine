@@ -15,4 +15,5 @@ namespace GALAXY::Utils::FileSystem {
 	bool FileExistNoExtension(const std::filesystem::path& path);
 
 	std::filesystem::path ToLower(const std::filesystem::path& path);
+
 }

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Editor/PackageManager.h"
 
+#include "Core/Application.h"
 #include "Resource/ResourceManager.h"
 #include "Utils/OS.h"
 
@@ -81,11 +82,15 @@ namespace GALAXY
 
     // static std::wstring s_xmakeContent = 
 
+    /*
 #ifdef _DEBUG
     #define DLL_NAME "GalaxyGameDebug"
 #else
     #define DLL_NAME "GalaxyGame"
 #endif
+    */
+#define DLL_NAME "GalaxyEngine"
+#define BIN_NAME "GalaxyCore"
 
     static std::string s_xmakeContent = R"RAW(
 add_rules("mode.debug", "mode.release")
@@ -105,21 +110,21 @@ add_requires("galaxymath")
 
 add_defines("WITH_GAME")
 
+if is_plat("windows") then
+    add_defines("NOMINMAX")
+end
+
 target("%s")
     set_kind("shared")
     set_languages("c++20")
 
-    add_includedirs("D:/Code/Moteurs/GalaxyEngine/GalaxyEngine/include")
+    add_includedirs("%s")
     add_includedirs("Generate/Headers")
     
     add_files("**.cpp")
     add_headerfiles("**.h")
 
-    if is_mode("debug") then
-        add_links("GalaxyGameDebug")
-    elseif is_mode("release") then
-        add_links("GalaxyGame")
-    end
+    add_links("GalaxyEngine")
     
     add_packages("galaxymath")
 
@@ -165,20 +170,29 @@ target_end()
         std::filesystem::create_directories(packagePath / ENGINE_GENERATE_HEADER_PATH);
         Path destinationPath = packagePath / ENGINE_GENERATE_HEADER_PATH;
         Utils::FileSystem::CopyFileTo(sourcePath, destinationPath, std::filesystem::copy_options::recursive);
-        
+
+        std::filesystem::path exeFolder = GetBinFolder();
         // copy the GalaxyGameDebug.exe into project name .exe
-        Path fromBinPath = std::string(DLL_NAME "Core") + Utils::OS::GetBinaryExtension();
+        Path fromBinPath = exeFolder / (std::string(BIN_NAME) + Utils::OS::GetBinaryExtension());
         Path toBinPath = (packagePath / Resource::ResourceManager::GetProjectPath().filename().stem()).generic_string() + Utils::OS::GetBinaryExtension();
+
+        if (!std::filesystem::exists(fromBinPath))
+        {
+            PrintLog("Can't find the binary file need to compile in game mode");
+            // TODO : Implement compilation of game mode
+            return;
+        }
+            
         Utils::FileSystem::CopyFileTo(fromBinPath, toBinPath, std::filesystem::copy_options::overwrite_existing);
 
         //TODO Change the DLL name
         // copy the galaxy engine dll
-        Path fromDLLPath = std::string(DLL_NAME) + Utils::OS::GetDLLExtension();
+        Path fromDLLPath = exeFolder / (std::string(DLL_NAME) + Utils::OS::GetDLLExtension());
         Path toDLLPath = (packagePath / DLL_NAME).string() + Utils::OS::GetDLLExtension();
         Utils::FileSystem::CopyFileTo(fromDLLPath, toDLLPath, std::filesystem::copy_options::overwrite_existing);
         
         // copy the lib dll
-        Path fromLibPath = std::string(DLL_NAME) + ".lib";
+        Path fromLibPath = exeFolder / (DLL_NAME".lib");
         Path toLibPath = (packagePath / DLL_NAME).string() + ".lib";
         Utils::FileSystem::CopyFileTo(fromLibPath, toLibPath, std::filesystem::copy_options::overwrite_existing);
 
@@ -200,8 +214,11 @@ target_end()
         // Get the project name
         std::string projectName = Resource::ResourceManager::GetProjectPath().filename().string();
 
+        Path includePath = std::filesystem::current_path().parent_path() / "GalaxyEngine" / "include";
+        
         // Format the content
-        std::snprintf(xmakeContent, sizeof(xmakeContent), s_xmakeContent.c_str(), projectName.c_str());
+        std::snprintf(xmakeContent, sizeof(xmakeContent), s_xmakeContent.c_str(),
+            projectName.c_str(), includePath.generic_string().c_str());
 
         // Write to file
         xmakeFile << xmakeContent;
@@ -231,11 +248,16 @@ target_end()
             break;
         }
 
-#ifdef _DEBUG
-        command += " -m debug";
-#else
-        command += " -m release";
-#endif
+        switch (m_packageType)
+        {
+        case PackageType::Debug:
+            command += " -m debug";
+            break;
+        case PackageType::Release:
+            command += " -m release";
+            break;
+        default: ;
+        }
 
         auto prevPath = std::filesystem::current_path();
         std::filesystem::current_path(packagePath);
@@ -330,6 +352,38 @@ target_end()
             return false;
         }
         return true;
+    }
+
+    std::filesystem::path Editor::PackageManager::GetBinFolder(PackageType type)
+    {
+        std::string platform;
+        std::string arch;
+        std::string mode;
+#ifdef _WIN32
+        platform = "windows";
+#elif defined(__linux__)
+        platform = "linux";
+#endif
+#if defined(_WIN64) || defined(__x86_64__) || defined(__amd64__)
+        arch = "x64";
+#else
+        arch = "x86";
+#endif
+#ifdef  __MINGW32__
+        platform = "mingw";
+        arch = "x86_64";
+#endif
+        switch (type)
+        {
+        case PackageType::Debug:
+            mode = "gamedbg";
+            break;
+        case PackageType::Release:
+            mode = "game";
+            break;
+      break;      
+        }
+        return Path("../build") / platform / arch / mode;
     }
 
     Editor::PackagePlatform Editor::PackageManager::GetUserPlatform()

@@ -69,29 +69,34 @@ namespace GALAXY::Debug
             }
 
             char result[MAX_LOG_SIZE];
+            char header[MAX_LOG_SIZE];
             char message[MAX_LOG_SIZE];
             char messageAndFile[MAX_LOG_SIZE];
 #ifdef _WIN32
             const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
             sprintf_s(message, format, args...);
             sprintf_s(messageAndFile, "%s (l:%d): %s\n", file, line, message);
-            sprintf_s(result, "[%02d:%02d:%02d] %s", calendar_time.tm_hour,
-                calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
+            sprintf_s(header, "[%02d:%02d:%02d] ", calendar_time.tm_hour,
+                calendar_time.tm_min, calendar_time.tm_sec);
+            SetConsoleTextAttribute(hConsole, 10);
+            std::cout << header;
             switch (type)
             {
-            case Debug::LogType::L_INFO:
+            case LogType::L_INFO:
                 SetConsoleTextAttribute(hConsole, 15);
                 break;
-            case Debug::LogType::L_WARNING:
+            case LogType::L_WARNING:
                 SetConsoleTextAttribute(hConsole, 14);
                 break;
-            case Debug::LogType::L_ERROR:
+            case LogType::L_ERROR:
                 SetConsoleTextAttribute(hConsole, 4);
                 break;
             default:
                 break;
             }
-            std::cout << result;
+            std::cout << messageAndFile;
+            sprintf_s(result, "[%02d:%02d:%02d] %s", calendar_time.tm_hour,
+                calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
             SetConsoleTextAttribute(hConsole, 15);
 #else
 			snprintf(message, sizeof(message), format, args...);

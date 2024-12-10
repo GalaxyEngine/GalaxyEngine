@@ -1,10 +1,6 @@
 #pragma once
 #include <GalaxyAPI.h>
 
-#ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
-#endif
-
 struct GLFWwindow;
 
 #ifdef _WIN32

@@ -41,6 +41,7 @@
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
+	std::filesystem::path Core::Application::ExePath;
 #pragma endregion
 
 	void Core::Application::Initialize(std::filesystem::path projectPath)

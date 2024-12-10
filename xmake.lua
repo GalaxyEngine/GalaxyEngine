@@ -60,24 +60,24 @@ add_defines("ENABLE_MULTI_THREAD")
 set_languages("c++20")
 
 set_rundir("GalaxyCore")
-set_targetdir("GalaxyCore")
 
 -- diable warnings
 add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
 add_cxflags("-Wall")            -- Enable all commonly used warning flags
 
-local dllName = nil 
-if is_mode("debug") then
-    dllName = "GalaxyEditorDebug"
-elseif is_mode("release") then
-    dllName = "GalaxyEditor"
-elseif is_mode("gamedbg") then
-    dllName = "GalaxyGameDebug"
-elseif is_mode("game") then
-    dllName = "GalaxyGame"
-else
-    dllName = "GalaxyEditorDebug"
+local baseName = nil
+if isEditor then
+    baseName = "GalaxyEditor"
+else 
+    baseName = "GalaxyGame"
 end
+local modeName = nil
+if (isDebug) then
+    modeName = "Debug"
+else
+    modeName = ""
+end
+local dllName = baseName .. modeName
 
 target("GalaxyEngine")
     set_symbols("debug")
@@ -124,10 +124,10 @@ target("GalaxyEngine")
     end 
 
     -- set target name
-    set_basename(dllName)
+    --set_basename(dllName)
 target_end()
 
-local binName = dllName .. "Core"
+local binName = baseName .. "Core" .. modeName
 
 target("GalaxyCore")
     set_default(true)
@@ -140,6 +140,5 @@ target("GalaxyCore")
     add_packages("galaxymath")
     add_packages("imgui")
 
-    set_basename(binName)
-    
+    --set_basename(binName)
 target_end()

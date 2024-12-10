@@ -70,6 +70,8 @@ namespace GALAXY
 			inline ProjectSettings& GetProjectSettings();
 
 			void Exit() const;
+		public:
+			static std::filesystem::path ExePath;
 		private:
 			static Application m_instance;
 
