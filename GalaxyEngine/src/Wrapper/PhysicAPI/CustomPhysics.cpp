@@ -4,7 +4,7 @@
 #include "Component/BoxCollider.h"
 #include "Component/Transform.h"
 
-#include "Component/Rigidbody.h"
+#include "Component/RigidBody.h"
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
@@ -20,7 +20,7 @@ namespace GALAXY
 
 		for (auto& body : m_objectMap)
 		{
-			if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+			if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
 			{
 				Component::Transform* transform = rigidbody->GetTransform();
 				Vec3f position = transform->GetWorldPosition();
@@ -34,11 +34,12 @@ namespace GALAXY
 		{
 			body.second.m_velocity += body.second.m_gravityForce * dt;
 			body.second.m_position += body.second.m_velocity * dt;
+			body.second.m_rotation *= Quat::AngleAxis(body.second.m_omega.Length() * dt, body.second.m_omega);
 		}
 
 		for (auto& body : m_objectMap)
 		{
-			if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+			if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
 			{
 				Component::Transform* transform = rigidbody->GetTransform();
 				transform->SetWorldPosition(body.second.m_position);
@@ -47,7 +48,7 @@ namespace GALAXY
 		}
 	}
 
-	void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidbody(Component::Rigidbody* rigidbody)
+	void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidBody(Component::RigidBody* rigidbody)
 	{
 		Vec3f position = rigidbody->GetTransform()->GetWorldPosition();
 		Quat rotation = rigidbody->GetTransform()->GetWorldRotation();
@@ -60,7 +61,7 @@ namespace GALAXY
 		m_objectMap[rigidbody] = body;
 	}
 
-	void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidbody(Component::Rigidbody* rigidbody)
+	void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidBody(Component::RigidBody* rigidbody)
 	{
 		auto& object = m_objectMap.find(rigidbody);
 		if (object == m_objectMap.end())

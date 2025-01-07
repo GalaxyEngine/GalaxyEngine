@@ -11,6 +11,7 @@ GalaxyCore/GalaxyEngine.*
 GalaxyCore/GalaxyCore.*
 GalaxyCore/GalaxyCore
 GalaxyCore/Cache
+GalaxyCore/.vs
 compile.*
 
 *.dll

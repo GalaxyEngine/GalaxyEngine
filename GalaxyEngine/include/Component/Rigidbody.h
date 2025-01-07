@@ -6,16 +6,16 @@ namespace GALAXY
 {
     namespace Component
     {
-        class GALAXY_API Rigidbody : public IComponent<Rigidbody>
+        class GALAXY_API RigidBody : public IComponent<RigidBody>
         {
         public:
-            Rigidbody() = default;
-            Rigidbody& operator=(const Rigidbody& other) = default;
-            Rigidbody(const Rigidbody&) = default;
-            Rigidbody(Rigidbody&&) noexcept = default;
-            ~Rigidbody() override = default;
+            RigidBody() = default;
+            RigidBody& operator=(const RigidBody& other) = default;
+            RigidBody(const RigidBody&) = default;
+            RigidBody(RigidBody&&) noexcept = default;
+            ~RigidBody() override = default;
 
-            const char* GetComponentName() const override { return "Rigidbody"; }
+            const char* GetComponentName() const override { return "RigidBody"; }
 
             void ShowInInspector() override;
 

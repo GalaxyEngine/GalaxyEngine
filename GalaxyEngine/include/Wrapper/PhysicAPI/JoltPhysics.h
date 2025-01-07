@@ -162,8 +162,8 @@ namespace GALAXY
 
             void Update() override;
 
-            void CreateRigidbody(Component::Rigidbody* rigidbody) override;
-            void DestroyRigidbody(Component::Rigidbody* rigidbody) override;
+            void CreateRigidBody(Component::RigidBody* rigidbody) override;
+            void DestroyRigidBody(Component::RigidBody* rigidbody) override;
             void CreateBoxCollider(Component::BoxCollider* collider) override;
             void DestroyBoxCollider(Component::BoxCollider* collider) override;
             void CreateSphereCollider(Component::SphereCollider* collider) override;

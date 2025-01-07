@@ -93,6 +93,7 @@ namespace GALAXY
 
 		if (m_editorCamera->IsVisible()) {
 			static bool shouldClearOutline = false;
+			m_editorCamera->Update();
 			SetCurrentCamera(m_editorCamera);
 			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
 
@@ -123,8 +124,6 @@ namespace GALAXY
 			// Bind Default Framebuffer
 			currentCamera->Begin();
 			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
-
-			m_editorCamera->Update();
 
 			m_gizmo->Update();
 
