@@ -37,7 +37,7 @@ namespace GALAXY
         m_instance = nullptr;
     }
 
-    void Wrapper::PhysicsWrapper::AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body)
+    void Wrapper::PhysicsWrapper::AddDynamicBody(uint32_t id, Weak<Component::Rigidbody> body)
     {
         // ASSERT(p_dynamicBodies.find(id) == p_dynamicBodies.end());
         // p_dynamicBodies[id] = body;

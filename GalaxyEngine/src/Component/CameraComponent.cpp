@@ -44,14 +44,13 @@ namespace GALAXY
 
 	}
 
+#ifdef WITH_EDITOR
 	void Component::CameraComponent::OnEditorDraw()
 	{
 		const Core::GameObject* game_object = GetGameObject();
 
-#ifdef WITH_EDITOR
 		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
 		m_editorIcon.Render(game_object->GetSceneGraphID());
-#endif
 
 		if (game_object->IsSelected())
 		{
@@ -91,7 +90,6 @@ namespace GALAXY
 	
 	void Component::CameraComponent::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		DisplayCameraSettings();
 		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, Vec2f(0));
 		if (ImGui::Begin("##CameraPreview", 0, ImGuiWindowFlags_NoTitleBar))
@@ -101,8 +99,8 @@ namespace GALAXY
 		}
 		//ImGui::PopStyleVar();
 		ImGui::End();
-#endif
 	}
+#endif
 
 	void Component::CameraComponent::Serialize(CppSer::Serializer& serializer)
 	{

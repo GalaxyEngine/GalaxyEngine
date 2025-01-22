@@ -6,13 +6,6 @@
 
 namespace GALAXY 
 {
-#ifdef WITH_EDITOR
-    void Component::BoxCollider::ShowInInspector()
-    {
-        ImGui::DragFloat3("Size", &m_size.x, 0.1f);
-    }
-#endif
-
     void Component::BoxCollider::OnStart()
     {
         Wrapper::PhysicsWrapper::GetInstance()->CreateBoxCollider(this);
@@ -23,6 +16,7 @@ namespace GALAXY
         Wrapper::PhysicsWrapper::GetInstance()->DestroyBoxCollider(this);
     }
 
+#ifdef WITH_EDITOR
     void Component::BoxCollider::OnEditorDraw()
     {
         if (!p_gameObject->IsSelected())
@@ -31,4 +25,10 @@ namespace GALAXY
         auto scale = p_gameObject->GetTransform()->GetWorldScale();
         Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, Vec4f(0, 1, 0, 1), 10.f);
     }
+    
+    void Component::BoxCollider::ShowInInspector()
+    {
+        ImGui::DragFloat3("Size", &m_size.x, 0.1f);
+    }
+#endif
 }

@@ -208,11 +208,9 @@ void main()
 	{
 		return SHADER_ICON_PATH;
 	}
-#endif
-
+	
 	void Resource::Shader::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		// Vertex Shader
 		ImGui::TextUnformatted("Vertex Shader");
 		ImGui::SameLine();
@@ -265,8 +263,8 @@ void main()
 		{
 			Save();
 		}
-#endif
 	}
+#endif
 
 	void Resource::Shader::SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant /*= true*/)
 	{
@@ -435,9 +433,9 @@ void main()
 		*/
 	}
 	
+#ifdef WITH_EDITOR
 	void Resource::BaseShader::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		size_t i = 0;
 		for (auto& shader : p_shaders)
 		{
@@ -450,8 +448,8 @@ void main()
 		}
 		ImGui::SeparatorText("Content");
 		ImGui::TextWrapped(p_content.c_str());
-#endif
 	}
+#endif
 
 	// === Base Shader === //
 	void Resource::BaseShader::AddShader(const Weak<Shader>& shader)

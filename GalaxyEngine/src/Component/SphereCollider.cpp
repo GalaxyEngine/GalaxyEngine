@@ -6,10 +6,12 @@
 
 namespace GALAXY 
 {
+#ifdef WITH_EDITOR
     void Component::SphereCollider::ShowInInspector()
     {
         ImGui::DragFloat("Size", &m_size, 0.1f);
     }
+#endif
 
     void Component::SphereCollider::OnStart()
     {
@@ -21,6 +23,8 @@ namespace GALAXY
         Wrapper::PhysicsWrapper::GetInstance()->DestroySphereCollider(this);
     }
 
+
+#ifdef WITH_EDITOR
     void Component::SphereCollider::OnEditorDraw()
     {
         if (!p_gameObject->IsSelected())
@@ -32,4 +36,5 @@ namespace GALAXY
         Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Right(), s, 32, Vec4f(0, 1, 0, 1));
         Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Forward(), s, 32, Vec4f(0, 1, 0, 1));
     }
+#endif
 }

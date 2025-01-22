@@ -7,11 +7,11 @@ namespace GALAXY
 {
     namespace Wrapper::PhysicAPI
     {
-        class InternalRigidBody
+        class InternalRigidbody
         {
         public:
-            InternalRigidBody() = default;
-            ~InternalRigidBody() = default;
+            InternalRigidbody() = default;
+            ~InternalRigidbody() = default;
 
             Quat m_rotation;
             Vec3f m_position;
@@ -43,8 +43,8 @@ namespace GALAXY
 
             void Update() override;
 
-            void CreateRigidBody(Component::RigidBody* rigidbody) override;
-            void DestroyRigidBody(Component::RigidBody* rigidbody) override;
+            void CreateRigidbody(Component::Rigidbody* rigidbody) override;
+            void DestroyRigidbody(Component::Rigidbody* rigidbody) override;
             void CreateBoxCollider(Component::BoxCollider* collider) override;
             void DestroyBoxCollider(Component::BoxCollider* collider) override;
             void CreateSphereCollider(Component::SphereCollider* collider) override;
@@ -57,7 +57,7 @@ namespace GALAXY
             std::list<std::tuple<Component::BaseComponent*>> BroadPhase();
 
         private:
-            std::unordered_map<Component::BaseComponent*, InternalRigidBody> m_objectMap;
+            std::unordered_map<Component::BaseComponent*, InternalRigidbody> m_objectMap;
             std::unordered_map<Component::BaseComponent*, InternalCollider> m_colliderMap;
             Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
         };

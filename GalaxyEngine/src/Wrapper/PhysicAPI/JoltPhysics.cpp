@@ -10,7 +10,7 @@
 #include "Component/BoxCollider.h"
 #include "Component/Transform.h"
 
-#include "Component/RigidBody.h"
+#include "Component/Rigidbody.h"
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
@@ -42,7 +42,7 @@ namespace GALAXY
 
         for (auto& body : m_dynamicBodies)
         {
-            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
+            if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
             {
                 Component::Transform* transform = rigidbody->GetTransform();
                 Vec3f position = transform->GetWorldPosition();
@@ -58,7 +58,7 @@ namespace GALAXY
         
         for (auto& body : m_dynamicBodies)
         {
-            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
+            if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
             {
                 JPH::RMat44 transform = m_physicsSystem->GetBodyInterface().GetWorldTransform(body.second->GetID());
                 JPH::Vec3 position = transform.GetTranslation();
@@ -69,7 +69,7 @@ namespace GALAXY
         }
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::CreateRigidBody(Component::RigidBody* rigidbody)
+    void Wrapper::PhysicAPI::JoltAPI::CreateRigidbody(Component::Rigidbody* rigidbody)
     {
         Vec3f position = rigidbody->GetTransform()->GetWorldPosition();
         Quat rotation = rigidbody->GetTransform()->GetWorldRotation();
@@ -82,7 +82,7 @@ namespace GALAXY
         m_dynamicBodies[rigidbody] = &body;
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::DestroyRigidBody(Component::RigidBody* rigidbody)
+    void Wrapper::PhysicAPI::JoltAPI::DestroyRigidbody(Component::Rigidbody* rigidbody)
     {
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
@@ -104,7 +104,7 @@ namespace GALAXY
         JPH::RefConst<JPH::Shape> boxShape = new JPH::BoxShape(FromVec3(boxSize));
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
 
-        auto rigidbody = collider->GetGameObject()->GetComponent<Component::RigidBody>();
+        auto rigidbody = collider->GetGameObject()->GetComponent<Component::Rigidbody>();
         // if the rigidbody exists, set the shape of the body
         if (auto it = m_dynamicBodies.find(rigidbody.get()); it != m_dynamicBodies.end())
         {
@@ -115,12 +115,12 @@ namespace GALAXY
         // and if the gameobject has a rigidbody, set the body as dynamic
         else
         {
-            const bool hasRigidBody = rigidbody != nullptr;
-            JPH::BodyCreationSettings inSettings = JPH::BodyCreationSettings(boxShape, FromVec3(position), FromQuat(rotation), hasRigidBody  ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, Layers::MOVING);
+            const bool hasRigidbody = rigidbody != nullptr;
+            JPH::BodyCreationSettings inSettings = JPH::BodyCreationSettings(boxShape, FromVec3(position), FromQuat(rotation), hasRigidbody  ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, Layers::MOVING);
             JPH::Body& body = *bodyInterface.CreateBody(inSettings);
-            bodyInterface.AddBody(body.GetID(), hasRigidBody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+            bodyInterface.AddBody(body.GetID(), hasRigidbody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
-            if (hasRigidBody)
+            if (hasRigidbody)
             {
                 m_dynamicBodies[rigidbody.get()] = &body;
             }

@@ -1,23 +1,23 @@
 #include "pch.h"
-#include "Component/RigidBody.h"
+#include "Component/Rigidbody.h"
 
 #include "Wrapper/PhysicsWrapper.h"
 
 namespace GALAXY 
 {
-    void Component::RigidBody::ShowInInspector()
-    {
 #ifdef WITH_EDITOR
+    void Component::Rigidbody::ShowInInspector()
+    {
+    }
 #endif
+
+    void Component::Rigidbody::OnStart()
+    {
+        Wrapper::PhysicsWrapper::GetInstance()->CreateRigidbody(this);
     }
 
-    void Component::RigidBody::OnStart()
+    void Component::Rigidbody::OnDestroy()
     {
-        Wrapper::PhysicsWrapper::GetInstance()->CreateRigidBody(this);
-    }
-
-    void Component::RigidBody::OnDestroy()
-    {
-        Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(this);
+        Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidbody(this);
     }
 }

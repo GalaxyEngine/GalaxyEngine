@@ -35,7 +35,15 @@ namespace GALAXY {
 				return names;
 			}
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY virtual void ShowInInspector() {}
+
+			// Called on Editor Update
+			EDITOR_ONLY virtual void OnEditorUpdate() {}
+
+			// Called on Editor Draw
+			EDITOR_ONLY virtual void OnEditorDraw() {}
+#endif
 
 			// Called on Creation
 			virtual void OnCreate() {}
@@ -46,17 +54,11 @@ namespace GALAXY {
 			// Called on Game Update
 			virtual void OnUpdate() {}
 
-			// Called on Editor Update
-			virtual void OnEditorUpdate() {}
-
 			// Called every time
 			virtual void OnDraw() {}
 
 			// Called on Game Draw
 			virtual void OnGameDraw() {}
-
-			// Called on Editor Draw
-			virtual void OnEditorDraw() {}
 
 			// Called before being Destroyed
 			virtual void OnDestroy() {}

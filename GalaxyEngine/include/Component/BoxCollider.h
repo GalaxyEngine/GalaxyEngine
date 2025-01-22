@@ -21,11 +21,12 @@ namespace GALAXY
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
+            
+            EDITOR_ONLY void OnEditorDraw() override;
 #endif
+
             void OnStart() override;
             void OnDestroy() override;
-
-            void OnEditorDraw() override;
 
             void SetSize(const Vec3f& inSize) { m_size = inSize; }
 

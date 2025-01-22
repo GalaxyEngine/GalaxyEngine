@@ -29,6 +29,7 @@ namespace GALAXY
 		p_dirty = false;
 	}
 
+#ifdef WITH_EDITOR
 	void Component::SpotLight::OnEditorDraw()
 	{
 		Light::OnEditorDraw();
@@ -48,7 +49,6 @@ namespace GALAXY
 
 	void Component::SpotLight::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		PointLight::ShowInInspector();
 
 		ImGui::TextUnformatted("Parameters");
@@ -61,8 +61,8 @@ namespace GALAXY
 		ImGui::PopItemWidth();
 
 		ImGui::TreePop();
-#endif
 	}
+#endif
 
 	void Component::SpotLight::Serialize(CppSer::Serializer& serializer)
 	{

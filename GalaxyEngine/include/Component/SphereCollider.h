@@ -19,12 +19,16 @@ namespace GALAXY
 
             const char* GetComponentName() const override { return "SphereCollider"; }
 
-            void ShowInInspector() override;
+#ifdef WITH_EDITOR
+            EDITOR_ONLY void ShowInInspector() override;
+#endif
 
             void OnStart() override;
             void OnDestroy() override;
 
-            void OnEditorDraw() override;
+#ifdef WITH_EDITOR
+            EDITOR_ONLY void OnEditorDraw() override;
+#endif
 
             void SetSize(const float inSize) { m_size = inSize; }
 

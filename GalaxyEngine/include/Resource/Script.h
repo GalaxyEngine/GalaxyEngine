@@ -18,13 +18,13 @@ namespace GALAXY
 			void Load() override;
 			void Unload() override;
 
-			EDITOR_ONLY void ShowInInspector() override;
-
 			const char* GetResourceName() const override { return "Script"; }
 
 			static inline ResourceType GetResourceType() { return ResourceType::Script; }
 
 #ifdef WITH_EDITOR
+			EDITOR_ONLY void ShowInInspector() override;
+			
 			static Weak<Script> Create(const Path& path);
 			static void OpenScript(const Path& path);
 #endif

@@ -99,9 +99,9 @@ namespace GALAXY
 	}
 
 
+#ifdef WITH_EDITOR
 	void Component::Transform::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		Vec3f position = m_localPosition;
 		Vec3f rotation = m_localEulerRotation;
 		Vec3f scale = m_localScale;
@@ -192,8 +192,8 @@ namespace GALAXY
 			SetLocalRotation(rotation);
 			SetLocalScale(scale);
 		}
-#endif
 	}
+#endif
 
 	void Component::Transform::Serialize(CppSer::Serializer& serializer)
 	{

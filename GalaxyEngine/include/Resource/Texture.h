@@ -65,12 +65,12 @@ namespace GALAXY {
 
 			void Save();
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
 
-			const char* GetResourceName() const override { return "Texture"; }
-#ifdef WITH_EDITOR
 			EDITOR_ONLY inline Path GetThumbnailPath() const override { return p_fileInfo.GetFullPath(); }
 #endif
+			const char* GetResourceName() const override { return "Texture"; }
 
 			void Bind(uint32_t index = 0);
 			static void UnBind();

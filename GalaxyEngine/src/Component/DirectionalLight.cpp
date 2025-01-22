@@ -23,13 +23,12 @@ namespace GALAXY
 		p_dirty = false;
 	}
 
+#ifdef WITH_EDITOR
 	void Component::DirectionalLight::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		Light::ShowInInspector();
 
 		ImGui::Text("%s", m_direction.value.ToString().c_str());
-#endif
 	}
 
 	void Component::DirectionalLight::OnEditorDraw()
@@ -39,6 +38,7 @@ namespace GALAXY
 		Vec3f rayEndPosition = worldPosition + m_direction.value;
 		Wrapper::Renderer::GetInstance()->DrawLine(worldPosition, rayEndPosition, Vec4f(1, 1, 0, 1), 5.f);
 	}
+#endif
 
 	void Component::DirectionalLight::ComputeLocationName()
 	{

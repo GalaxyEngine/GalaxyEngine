@@ -60,17 +60,15 @@ END_FILE()
 		p_loaded = false;
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Script::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		IResource::ShowInInspector();
 
 		ImGui::SeparatorText("Content");
 		ImGui::TextWrapped(m_scriptContent.c_str());
-#endif
 	}
 
-#ifdef WITH_EDITOR
 	Weak<Resource::Script> Resource::Script::Create(const Path& path)
 	{
 		std::ofstream hFile(path.string() + ".h");

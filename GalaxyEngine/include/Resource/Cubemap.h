@@ -111,7 +111,9 @@ namespace GALAXY
 
             void SetType(CubemapType type);
 
+#ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
+#endif
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             

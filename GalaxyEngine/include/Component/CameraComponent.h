@@ -30,9 +30,12 @@ namespace GALAXY
 			void OnCreate() override;
 			void OnDestroy() override;
 			void OnDraw() override;
-			void OnEditorDraw() override;
-			EDITOR_ONLY void ShowInInspector() override;
+			
+#ifdef WITH_EDITOR
+			EDITOR_ONLY void OnEditorDraw() override;
 
+			EDITOR_ONLY void ShowInInspector() override;
+#endif
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;
 			void AfterLoad() override;

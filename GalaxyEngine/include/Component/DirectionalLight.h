@@ -29,10 +29,11 @@ namespace GALAXY
 
 			void SendLightValues(Resource::Shader* shader) override;
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
 
-			void OnEditorDraw() override;
-
+			EDITOR_ONLY void OnEditorDraw() override;
+#endif
 			void ComputeLocationName() override;
 
 			inline Type GetLightType() override { return Light::Type::Directional; }

@@ -6,7 +6,7 @@ namespace GALAXY
 {
     namespace Component
     {
-        class RigidBody;
+        class Rigidbody;
 
         enum ColliderType
         {
@@ -28,7 +28,7 @@ namespace GALAXY
 
             virtual ColliderType GetType();
         private:
-            Weak<RigidBody> m_attachedRigidBody;
+            Weak<Rigidbody> m_attachedRigidbody;
         };
     }
 }

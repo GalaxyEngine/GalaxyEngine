@@ -8,7 +8,7 @@ namespace GALAXY
         class SphereCollider;
         class CapsuleCollider;
         class WheelCollider;
-        class RigidBody;
+        class Rigidbody;
     }
     namespace Wrapper
     {
@@ -33,8 +33,8 @@ namespace GALAXY
 
             virtual void Update() = 0;
 
-            virtual void CreateRigidBody(Component::RigidBody* body) = 0;
-            virtual void DestroyRigidBody(Component::RigidBody* body) = 0;
+            virtual void CreateRigidbody(Component::Rigidbody* body) = 0;
+            virtual void DestroyRigidbody(Component::Rigidbody* body) = 0;
             virtual void CreateBoxCollider(Component::BoxCollider* collider) = 0;
             virtual void DestroyBoxCollider(Component::BoxCollider* collider) = 0;
             virtual void CreateSphereCollider(Component::SphereCollider* collider) = 0;
@@ -42,7 +42,7 @@ namespace GALAXY
 
             virtual void SetDefaultGravity(const Vec3f& value) = 0;
         protected:
-            void AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body);
+            void AddDynamicBody(uint32_t id, Weak<Component::Rigidbody> body);
             void RemoveDynamicBody(uint32_t id);
             
             virtual bool InitializeAPI() = 0;

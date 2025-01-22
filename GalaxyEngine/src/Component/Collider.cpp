@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Component/Collider.h"
-#include "Component/RigidBody.h"
+#include "Component/Rigidbody.h"
 
 namespace GALAXY 
 {

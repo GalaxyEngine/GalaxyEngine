@@ -206,15 +206,15 @@ namespace GALAXY {
 		}
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Model::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		if (ImGui::Button("Reload Thumbnail"))
 		{
 			CreateThumbnail();
 		}
-#endif
 	}
+#endif
 
 	void Resource::Model::OnMeshLoaded()
 	{

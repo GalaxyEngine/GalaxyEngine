@@ -28,10 +28,12 @@ namespace GALAXY
 				return std::make_shared<SpotLight>(*dynamic_cast<SpotLight*>(this));
 			}
 
-			void OnEditorDraw() override;
+#ifdef WITH_EDITOR
+			EDITOR_ONLY void OnEditorDraw() override;
 
 			EDITOR_ONLY void ShowInInspector() override;
-
+#endif
+			
 			void ComputeLocationName() override;
 
 			inline Type GetLightType() override { return Light::Type::Spot; };

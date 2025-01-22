@@ -25,9 +25,9 @@ namespace GALAXY
 		p_dirty = false;
 	}
 
+#ifdef WITH_EDITOR
 	void Component::PointLight::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		Light::ShowInInspector();
 
 		ImGui::TextUnformatted("Attenuation");
@@ -36,8 +36,8 @@ namespace GALAXY
 		p_dirty |= ImGui::DragFloat("Linear", &p_linear.value, 0.01f);
 		p_dirty |= ImGui::DragFloat("Quadratic", &p_quadratic.value, 0.01f);
 		ImGui::TreePop();
-#endif
 	}
+#endif
 
 	void Component::PointLight::ComputeLocationName()
 	{

@@ -145,9 +145,11 @@ namespace GALAXY
 			if (m_component->IsEnable()) {
 				switch (drawMode)
 				{
+#ifdef WITH_EDITOR
 				case DrawMode::Editor:
 					m_component->OnEditorDraw();
 					break;
+#endif
 				case DrawMode::Game:
 					m_component->OnGameDraw();
 					break;

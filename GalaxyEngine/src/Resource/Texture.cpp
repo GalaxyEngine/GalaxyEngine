@@ -85,9 +85,9 @@ void Resource::Texture::Deserialize(CppSer::Parser& parser)
 	m_wrapping = (TextureWrapping)parser["Wrapping"].As<int>();
 }
 
+#ifdef WITH_EDITOR
 void Resource::Texture::ShowInInspector()
 {
-#ifdef WITH_EDITOR
 	if (m_isAThumbnail)
 	{
 		// Debug
@@ -113,8 +113,8 @@ void Resource::Texture::ShowInInspector()
 	{
 		Save();
 	}
-#endif
 }
+#endif
 
 void Resource::Texture::Save()
 {

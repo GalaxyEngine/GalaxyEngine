@@ -32,7 +32,9 @@ namespace GALAXY
 
 			static inline ResourceType GetResourceType() { return ResourceType::Sound; }
 			
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
+#endif
 
 		private:
 			friend Wrapper::Audio;

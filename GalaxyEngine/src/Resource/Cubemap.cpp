@@ -268,9 +268,9 @@ namespace GALAXY
         }
     }
 
+#ifdef WITH_EDITOR
     void Resource::Cubemap::ShowInInspector()
     {
-#ifdef WITH_EDITOR
         if (p_shouldBeLoaded && !p_loaded)
             return;
         int currentType = (int)m_type;
@@ -284,8 +284,8 @@ namespace GALAXY
         {
             Save();
         }
-#endif
     }
+#endif
 
     std::string Resource::Cubemap::GetDirectionFromIndex(uint32_t index)
     {
