@@ -2,6 +2,7 @@
 
 #include "GalaxyAPI.h"
 #include "Wrapper/PhysicsWrapper.h"
+#include <list>
 
 namespace GALAXY
 {
@@ -54,7 +55,7 @@ namespace GALAXY
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
-            std::list<std::tuple<Component::BaseComponent*>> BroadPhase();
+            std::list<std::tuple<Component::BaseComponent*>> BroadPhase() { return {}; }
 
         private:
             std::unordered_map<Component::BaseComponent*, InternalRigidbody> m_objectMap;

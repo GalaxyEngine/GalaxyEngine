@@ -24,3 +24,4 @@ compile.*
 *.a
 GalaxyCore/GalaxyHeaderTool
 GalaxyCore/Editor.settings
+*.*~
