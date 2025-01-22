@@ -14,8 +14,10 @@ namespace GALAXY
 {
 	void Wrapper::PhysicAPI::CustomPhysicsAPI::Update()
 	{
+#ifdef WITH_EDITOR
 		if (!Core::Application::IsPlayMode())
 			return;
+#endif
 		float dt = Utils::Time::DeltaTime();
 
 		for (auto& body : m_objectMap)

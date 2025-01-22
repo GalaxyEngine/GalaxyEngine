@@ -25,9 +25,13 @@ namespace GALAXY
 
 	Scripting::ScriptEngine::ScriptEngine()
 	{
-		auto projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
+		Path projectPath = Resource::ResourceManager::GetProjectPath();
 		m_scriptEngine = GS::ScriptEngine::Get();
+#ifdef WITH_EDITOR
 		m_scriptEngine->SetCopyToFolder(std::filesystem::current_path() / "ProjectsDLL");
+#else
+		m_scriptEngine->SetCopyToFolder("");
+#endif
 		m_scriptEngine->SetHeaderGenFolder(projectPath / "Generate" / "Headers");
 	}
 
@@ -92,7 +96,11 @@ namespace GALAXY
 	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath)
 	{
 		m_dllPath = dllPath;
+#ifdef WITH_EDITOR
 		if (!m_scriptEngine->LoadDLL(dllPath))
+#else
+		if (!m_scriptEngine->LoadDLL(dllPath, false))
+#endif
 		{
 			// Can happen if the dll is not found, or the dll is not valid (compiled with another compiler)
 			PrintError("Failed to load DLL: %s", dllPath.string().c_str());

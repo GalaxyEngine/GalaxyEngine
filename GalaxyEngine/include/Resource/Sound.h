@@ -26,11 +26,13 @@ namespace GALAXY
 			void Stop();
 
 			const char* GetResourceName() const override { return "Sound"; }
-			Path GetThumbnailPath() const override {return "";}
+#ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override {return "";}
+#endif
 
 			static inline ResourceType GetResourceType() { return ResourceType::Sound; }
 			
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 		private:
 			friend Wrapper::Audio;

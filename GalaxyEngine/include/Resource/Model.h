@@ -46,16 +46,18 @@ namespace GALAXY {
 			void Unload() override;
 
 			const char* GetResourceName() const override { return "Default Resource"; }
-			Path GetThumbnailPath() const override;
+#ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override;
+#endif
 
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
 		
-			inline Resource::BoundingBox GetBoundingBox() const { return m_boundingBox; }
+			inline BoundingBox GetBoundingBox() const { return m_boundingBox; }
 
 			Shared<Core::GameObject> ToGameObject();
 
 #ifdef WITH_EDITOR
-			void CreateThumbnail();
+			EDITOR_ONLY void CreateThumbnail();
 #endif
 			
 			void DrawBoundingBox(const Component::Transform* transform) const;
@@ -72,7 +74,7 @@ namespace GALAXY {
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
 
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			void OnMeshLoaded();
 		private:

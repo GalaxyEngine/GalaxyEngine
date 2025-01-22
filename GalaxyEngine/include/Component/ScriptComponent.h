@@ -32,7 +32,7 @@ namespace GALAXY
 				return list;
 			}
 
-			virtual void ShowInInspector() override;
+			EDITOR_ONLY virtual void ShowInInspector() override;
 			/*
 
 			template<typename T>

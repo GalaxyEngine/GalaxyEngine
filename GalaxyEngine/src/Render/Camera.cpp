@@ -30,6 +30,7 @@ namespace GALAXY
 		p_framebuffer = std::make_shared<Framebuffer>(Core::Application::GetInstance().GetWindow()->GetSize());
 	}
 
+#ifdef WITH_EDITOR
 	void Render::Camera::DisplayCameraSettings()
 	{
 		constexpr float contentWidth = 200.f;
@@ -51,11 +52,17 @@ namespace GALAXY
 		}
 		ImGui::PopItemWidth();
 		Weak<Resource::PostProcessShader> ppShader;
-		if (Resource::ResourceManager::GetInstance()->ResourcePopup("PostProcessPopup", ppShader))
+		if (Resource::ResourceManager::ResourcePopup("PostProcessPopup", ppShader))
 		{
 			p_framebuffer->SetPostProcessShader(ppShader);
 		}
+		int viewMode = static_cast<int>(p_viewMode);
+		if (ImGui::Combo("View mode", &viewMode, SerializeViewModeEnum()))
+		{
+			p_viewMode = static_cast<ViewMode>(viewMode);
+		}
 	}
+#endif
 
 	Physic::Ray Render::Camera::ScreenPointToRay(const Vec3f& point)
 	{

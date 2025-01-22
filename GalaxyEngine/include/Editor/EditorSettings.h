@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "PackageManager.h"
 #include "Core/Input.h"
 #include "Utils/FileInfo.h"
 
@@ -139,6 +140,8 @@ namespace GALAXY
 
 			bool GetShouldUseVSync() const { return m_useVSync; }
 			[[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
+
+			PackageManager& GetPackageManager() { return m_packageManager; }
 		private:
 			void DisplayTab(EditorSettingsTab tab);
 
@@ -177,6 +180,8 @@ namespace GALAXY
 			EditorInputsManager m_editorInputsManager;
 			
 			Weak<Resource::Texture> m_projectThumbnail = {};
+
+			PackageManager m_packageManager;
 		};
 	}
 }

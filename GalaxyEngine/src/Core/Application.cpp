@@ -41,15 +41,18 @@
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
+	std::filesystem::path Core::Application::ExePath;
 #pragma endregion
 
 	void Core::Application::Initialize(std::filesystem::path projectPath)
 	{
 		Debug::Log::LogToFile = true;
 		
-		// Create folder that not exist 
+		// Create folder that not exist
+#ifdef WITH_EDITOR
 		if (!std::filesystem::exists(THUMBNAIL_PATH))
 			std::filesystem::create_directories(THUMBNAIL_PATH);
+#endif
 		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
 		if (!std::filesystem::exists(logPath))
 			std::filesystem::create_directories(logPath);
@@ -59,6 +62,15 @@ namespace GALAXY {
 		if (projectPath.empty())
 		{
 			projectPath = m_editorSettings.GetDefaultProjectPath();
+		}
+#else
+		if (projectPath.empty())
+		{
+			// ! Sould only happend in the ide running the engine
+			Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
+			CppSer::Parser parser(settingsPath);
+			auto defaultProjectPath = parser["Default Project Path"].As<std::string>();
+			projectPath = defaultProjectPath;
 		}
 #endif
 
@@ -72,14 +84,19 @@ namespace GALAXY {
 		Wrapper::WindowConfig windowConfig;
 		windowConfig.width = 1600;
 		windowConfig.height = 900;
+#ifdef WITH_EDITOR
 		windowConfig.name = "Galaxy Engine";
+#else
+		std::string projectName = projectPath.filename().stem().string();
+		windowConfig.name = projectName.c_str();
+#endif
 		m_window->Create(windowConfig);
 #ifdef WITH_EDITOR
 		m_window->SetVSync(m_editorSettings.GetShouldUseVSync());
+		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 #else
 		m_window->SetVSync(true);
 #endif
-		m_window->SetIcon(ENGINE_RESOURCE_FOLDER_NAME"/icons/logo_256.png");
 
 		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Custom);
 		m_physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
@@ -125,8 +142,12 @@ namespace GALAXY {
 		Render::Skybox::Initialize();
 		m_resourceManager->LoadNeededResources();
 		m_resourceManager->ReadCache();
-
 		m_projectSettings.LoadSettings();
+
+		// Initialize Components
+		Component::ComponentHolder::Initialize();
+		m_scriptEngine->RegisterScriptComponents();
+		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
@@ -136,7 +157,7 @@ namespace GALAXY {
 
 		m_editorSettings.LoadThumbnail();
 #else
-		m_window->SetShouldDisplaySafeClose([]() {return false; });
+		m_window->SetIcon(Resource::ResourceManager::GetProjectPath() / m_projectSettings.GetProjectIconPath());
 #endif
 
 		// Load dll scripting
@@ -145,10 +166,6 @@ namespace GALAXY {
 			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
 			m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
 		}
-
-		// Initialize Components
-		Component::ComponentHolder::Initialize();
-		m_scriptEngine->RegisterScriptComponents();
 	}
 
 	void Core::Application::UpdateResources()
@@ -357,9 +374,10 @@ namespace GALAXY {
 
 	void Core::Application::Destroy() const
 	{
-		m_resourceManager->CreateCache();
-		// Cleanup:
 #ifdef WITH_EDITOR
+		m_resourceManager->CreateCache();
+		
+		// Cleanup:
 		if (m_thumbnailCreator) {
 			m_thumbnailCreator->Release();
 			delete m_thumbnailCreator;

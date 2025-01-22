@@ -15,7 +15,7 @@ namespace GALAXY
 			size_t count = -1;
 		};
 
-		class Mesh : public IResource
+		class GALAXY_API Mesh : public IResource
 		{
 		public:
 			explicit Mesh(const Path& fullPath);
@@ -25,9 +25,11 @@ namespace GALAXY
 			~Mesh() override {}
 
 			const char* GetResourceName() const override { return "Mesh"; }
-			Path GetThumbnailPath() const override;
 
-			void CreateThumbnail();
+#ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override;
+			EDITOR_ONLY void CreateThumbnail();
+#endif
 
 			std::string GetMeshName();
 

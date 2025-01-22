@@ -6,10 +6,12 @@
 
 namespace GALAXY 
 {
+#ifdef WITH_EDITOR
     void Component::BoxCollider::ShowInInspector()
     {
         ImGui::DragFloat3("Size", &m_size.x, 0.1f);
     }
+#endif
 
     void Component::BoxCollider::OnStart()
     {

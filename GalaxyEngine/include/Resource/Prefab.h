@@ -37,7 +37,7 @@ namespace GALAXY
 
             static void CreateWith(const Path& fullPath, const std::shared_ptr<Core::GameObject>& gameObject);
             
-            void ShowInInspector() override;
+            EDITOR_ONLY void ShowInInspector() override;
         private:
             void InstantiateInternal(Weak<Core::GameObject> parent, Shared<Core::GameObject> gameObject);
             

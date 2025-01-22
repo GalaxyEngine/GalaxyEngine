@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Utils/FileSystem.h"
 
+#include "Utils/FileInfo.h"
+
 namespace GALAXY {
 	std::fstream Utils::FileSystem::OpenFile(const std::filesystem::path& path)
 	{
@@ -64,6 +66,17 @@ namespace GALAXY {
 #endif
 	}
 
+	std::filesystem::path Utils::FileSystem::ToLower(const std::filesystem::path& path)
+	{
+		Path lowercase_path;
+		for (const auto& part : path) {
+			std::string part_str = part.string();
+			std::ranges::transform(part_str, part_str.begin(), ::tolower);
+			lowercase_path /= part_str;
+		}
+		return lowercase_path;
+	}
+
 	bool Utils::FileSystem::RemoveFile(const std::filesystem::path& path)
 	{
 		if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path)) {
@@ -108,4 +121,16 @@ namespace GALAXY {
 		return true;
 	}
 
+	void Utils::FileSystem::CopyFileTo(const std::filesystem::path& sourcePath,
+		const std::filesystem::path& destinationPath, std::filesystem::copy_options options)
+	{
+		try
+		{
+			std::filesystem::copy(sourcePath, destinationPath, options);
+		}
+		catch (const std::exception& e)
+		{
+			PrintError("Error while copying file %s to %s : %s", sourcePath.string().c_str(), destinationPath.string().c_str(), e.what());
+		}
+	}
 }

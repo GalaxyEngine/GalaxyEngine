@@ -59,7 +59,7 @@ namespace GALAXY
         private:
             std::unordered_map<Component::BaseComponent*, InternalRigidBody> m_objectMap;
             std::unordered_map<Component::BaseComponent*, InternalCollider> m_colliderMap;
-            Vec3f defaultGravity = Vec3f(0,-9.81,0);
+            Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
         };
     }
 }

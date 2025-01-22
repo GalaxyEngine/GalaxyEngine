@@ -42,6 +42,7 @@ namespace GALAXY
 
 	void Resource::Sound::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		IResource::ShowInInspector();
 
 		
@@ -54,6 +55,7 @@ namespace GALAXY
 		{
 			Stop();
 		}
+#endif
 	}
 
 }

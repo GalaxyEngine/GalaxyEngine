@@ -203,13 +203,16 @@ void main()
 		serializer <<CppSer::Pair::EndMap << "Shader";
 	}
 
+#ifdef WITH_EDITOR
 	Path Resource::Shader::GetThumbnailPath() const
 	{
 		return SHADER_ICON_PATH;
 	}
+#endif
 
 	void Resource::Shader::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		// Vertex Shader
 		ImGui::TextUnformatted("Vertex Shader");
 		ImGui::SameLine();
@@ -262,6 +265,7 @@ void main()
 		{
 			Save();
 		}
+#endif
 	}
 
 	void Resource::Shader::SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant /*= true*/)
@@ -433,6 +437,7 @@ void main()
 	
 	void Resource::BaseShader::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		size_t i = 0;
 		for (auto& shader : p_shaders)
 		{
@@ -445,6 +450,7 @@ void main()
 		}
 		ImGui::SeparatorText("Content");
 		ImGui::TextWrapped(p_content.c_str());
+#endif
 	}
 
 	// === Base Shader === //

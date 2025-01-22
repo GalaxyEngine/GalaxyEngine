@@ -8,6 +8,7 @@
 #include "Editor/EditorSettings.h"
 #include "Editor/Benchmark.h"
 #endif
+#include "Core/ThreadManager.h"
 
 #include "Core/ProjectSettings.h"
 
@@ -69,6 +70,8 @@ namespace GALAXY
 			inline ProjectSettings& GetProjectSettings();
 
 			void Exit() const;
+		public:
+			static std::filesystem::path ExePath;
 		private:
 			static Application m_instance;
 

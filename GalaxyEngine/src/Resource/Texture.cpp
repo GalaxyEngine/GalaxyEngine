@@ -27,7 +27,8 @@ void Resource::Texture::Load()
 		m_isAThumbnail = true;
 	}
 
-	auto image = Wrapper::ImageLoader::Load(p_fileInfo.GetFullPath().string().c_str(), 4);
+	std::string fullPathStr = p_fileInfo.GetFullPath().generic_string();
+	auto image = Wrapper::ImageLoader::Load(fullPathStr.c_str(), 4);
 	if (m_bytes = std::move(image.data)) {
 		p_loaded.store(true);
 		m_size = image.size;
@@ -86,6 +87,7 @@ void Resource::Texture::Deserialize(CppSer::Parser& parser)
 
 void Resource::Texture::ShowInInspector()
 {
+#ifdef WITH_EDITOR
 	if (m_isAThumbnail)
 	{
 		// Debug
@@ -111,6 +113,7 @@ void Resource::Texture::ShowInInspector()
 	{
 		Save();
 	}
+#endif
 }
 
 void Resource::Texture::Save()

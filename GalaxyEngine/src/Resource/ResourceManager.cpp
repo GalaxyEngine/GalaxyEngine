@@ -521,6 +521,7 @@ namespace GALAXY
         m_instance->m_resources[resource->p_fileInfo.GetRelativePath()] = resource;
     }
 
+#ifdef WITH_EDITOR
     void Resource::ResourceManager::ShowFileInInternExplorer(const Path& path)
     {
         auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
@@ -544,6 +545,7 @@ namespace GALAXY
             return {};
         return draggedFiles[0]->GetResource<Resource::IResource>();
     }
+#endif
 
     void Resource::ResourceManager::Release()
     {

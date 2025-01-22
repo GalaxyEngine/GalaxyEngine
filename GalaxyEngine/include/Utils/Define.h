@@ -16,7 +16,6 @@
 #define SCRIPT_H_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME"/icons/script_h.png"
 #define SHADER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/shader.png"
 
-#define CACHE_PATH "Cache/"
 #define PLAYMODE_SCENE_PATH CACHE_PATH"playmode_scene.galaxy"
 #define THUMBNAIL_PATH CACHE_PATH"thumbnail/"
 #define PROJECT_THUMBNAIL_PATH CACHE_PATH"thumbnail/project.tmb"
@@ -33,6 +32,8 @@
 #define ASSET_FOLDER_NAME "Assets"
 #define ENGINE_RESOURCE_FOLDER_NAME "CoreResources"
 #define EDITOR_SETTINGS_NAME "Editor.settings"
+#define CACHE_PATH "Cache/"
+#define ENGINE_GENERATE_HEADER_PATH "Generate/Headers/"
 
 // -- Misc -- //
 #define NONE_RESOURCE "None"

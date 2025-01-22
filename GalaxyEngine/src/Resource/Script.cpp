@@ -62,10 +62,12 @@ END_FILE()
 
 	void Resource::Script::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		IResource::ShowInInspector();
 
 		ImGui::SeparatorText("Content");
 		ImGui::TextWrapped(m_scriptContent.c_str());
+#endif
 	}
 
 #ifdef WITH_EDITOR

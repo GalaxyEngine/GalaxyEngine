@@ -41,9 +41,11 @@ namespace GALAXY
 
 	void Component::Light::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		p_dirty |= ImGui::ColorEdit3("Ambient", p_ambient.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Diffuse", p_diffuse.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Specular", p_specular.value.Data());
+#endif
 	}
 
 	void Component::Light::Serialize(CppSer::Serializer& serializer)

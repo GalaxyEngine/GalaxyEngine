@@ -14,13 +14,25 @@ void Main(int argc, char** argv)
 	//TODO : Fix shader loading and sending
 	//TODO : Handle update of materials for thumbnails
 	//TODO : Fix sub Meshes for fbx models
+	//TODO : Add Line renderer component
 
-	const auto workDir = std::filesystem::path(argv[0]).parent_path();
+	std::filesystem::path exePath = std::filesystem::path(argv[0]);
+	// On development			   							exe/	 mode/        architecture/ platform/	  build/		GalaxyEngine/
+	std::filesystem::path workDir = std::filesystem::path(argv[0]).parent_path().parent_path().parent_path().parent_path().parent_path() / "GalaxyCore";
+
+	Core::Application::ExePath = exePath; // the default path
+	if (!std::filesystem::exists(workDir))
+	{
+		// on package
+		workDir = exePath.parent_path();
+	}
+	// const auto workDir = std::filesystem::path(argv[0]).parent_path();
 	// Change the working directory
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
 	std::filesystem::path projectPath;
+
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 

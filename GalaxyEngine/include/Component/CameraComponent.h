@@ -31,15 +31,15 @@ namespace GALAXY
 			void OnDestroy() override;
 			void OnDraw() override;
 			void OnEditorDraw() override;
-			void ShowInInspector() override;
+			EDITOR_ONLY void ShowInInspector() override;
 
 			void Serialize(CppSer::Serializer& serializer) override;
-			void Deserialize(CppSer::Parser& deserializer) override;
+			void Deserialize(CppSer::Parser& parser) override;
 			void AfterLoad() override;
 
 			bool IsVisible() const override;
 
-			inline Component::Transform* GetTransform() const override {
+			Transform* GetTransform() const override {
 				if (p_gameObject == nullptr)
 					return nullptr;
 				return p_gameObject->GetTransform();

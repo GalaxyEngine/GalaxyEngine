@@ -11,7 +11,9 @@ namespace GALAXY
 
 		AddObject(shared);
 
+#ifdef WITH_EDITOR
 		m_lastAdded.push_back(shared);
+#endif
 
 		return shared;
 	}

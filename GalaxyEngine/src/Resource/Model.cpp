@@ -140,10 +140,13 @@ namespace GALAXY {
 		}
 	}
 
+#ifdef WITH_EDITOR
 	Path Resource::Model::GetThumbnailPath() const
 	{
 		return Editor::ThumbnailCreator::GetThumbnailPath(this);
 	}
+#endif
+	
 
 	Shared<Core::GameObject> Resource::Model::ToGameObject()
 	{
@@ -205,10 +208,12 @@ namespace GALAXY {
 
 	void Resource::Model::ShowInInspector()
 	{
+#ifdef WITH_EDITOR
 		if (ImGui::Button("Reload Thumbnail"))
 		{
 			CreateThumbnail();
 		}
+#endif
 	}
 
 	void Resource::Model::OnMeshLoaded()
@@ -236,6 +241,7 @@ namespace GALAXY {
 
 		thumbnailCreator->AddToQueue(modelWeak);
 	}
+#endif
 
 	void Resource::Model::DrawBoundingBox(const Component::Transform* transform) const
 	{
@@ -269,7 +275,6 @@ namespace GALAXY {
 		}
 		return materials;
 	}
-#endif
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{

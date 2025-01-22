@@ -183,7 +183,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::File::DisplayOnExplorer() const
+	void Editor::UI::File::DisplayOnExplorer()
 	{
 		FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
 		if (m_info.isDirectory())
@@ -193,13 +193,31 @@ namespace GALAXY {
 				Wrapper::GUI::TextureImage(m_icon.lock().get(), Vec2f(16));
 				ImGui::SameLine();
 			}
-			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf))
+			bool clicked = false;
+			if (ImGui::TreeNodeEx(m_info.GetFileName().c_str(), (m_isAnyChildFolder ? ImGuiTreeNodeFlags_None : ImGuiTreeNodeFlags_Leaf) | ImGuiTreeNodeFlags_OpenOnArrow))
 			{
+				if (m_wasOpen)
+					clicked = ImGui::IsItemClicked();
 				for (const Shared<File>& children : m_children)
 				{
 					children->DisplayOnExplorer();
 				}
+				m_wasOpen = true;
 			}
+			else
+			{
+				m_wasOpen = false;
+				clicked = ImGui::IsItemClicked();
+			}
+
+			// When the tree node is clicked, set the directory of the file explorer to the folder
+			if (clicked)
+			{
+				Path directory = GetPath();
+				explorer->SetDirectory(directory);
+			}
+			
+			
 			ImGui::EndGroup();
 
 			if (ImGui::BeginDragDropTarget()) {
@@ -231,17 +249,16 @@ namespace GALAXY {
 		m_children.push_back(file);
 	}
 
-	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path) const
+	Shared<Editor::UI::File> Editor::UI::File::GetWithPath(const Path& path, bool matchCase) const
 	{
+		using namespace Utils::FileSystem;
 		for (const Shared<File>& child : m_children)
 		{
-			if (child->m_info.GetFullPath() == path)
+			Path fullPath = child->m_info.GetFullPath();
+			if (fullPath == path || !matchCase && ToLower(path) == ToLower(fullPath))
 				return child;
-			else {
-				Shared<File> result = child->GetWithPath(path);
-				if (result)
-					return result;
-			}
+			if (Shared<File> result = child->GetWithPath(path, matchCase))
+				return result;
 		}
 		return nullptr;
 	}
@@ -285,9 +302,15 @@ namespace GALAXY {
 		EditorUIManager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
 	}
 	
-	void Editor::UI::FileExplorer::SetDirectory(const Path& directory)
+	void Editor::UI::FileExplorer::SetDirectory(const Path& directory, bool matchCase)
 	{
-		auto file = m_mainFile->GetWithPath(directory);
+		Shared<File> file;
+		Path fullPath = m_mainFile->m_info.GetFullPath();
+		if (fullPath == directory || !matchCase && Utils::FileSystem::ToLower(directory) == Utils::FileSystem::ToLower(fullPath))
+			file =  m_mainFile;
+		if (Shared<File> result = m_mainFile->GetWithPath(directory, matchCase))
+			file = result;
+		
 		if (!file)
 			return;
 		SetCurrentFile(file);
@@ -295,7 +318,7 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::NavigateToFile(const Path& filePath)
 	{
-		SetDirectory(filePath.parent_path());
+		SetDirectory(filePath.parent_path(), true);
 		if (auto file = m_mainFile->GetWithPath(filePath))
 			AddFileSelected(file);
 	}
@@ -329,19 +352,8 @@ namespace GALAXY {
 			ImGui::SameLine();
 
 			ImGui::BeginChild("Content", Vec2f(ImGui::GetContentRegionAvail().x, -1));
-			if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
-			{
-				Shared<File> parent = m_currentFile->m_parent.lock();
-				SetCurrentFile(parent);
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Reload"))
-			{
-				ReloadContent();
-			}
-			ImGui::SameLine();
-			std::string in = m_currentFile->m_info.GetRelativePath().string();
-			Wrapper::GUI::InputText("search", &in);
+
+			DrawTopExplorer();
 
 			ImGui::Separator();
 			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0));
@@ -410,6 +422,140 @@ namespace GALAXY {
 
 		ImGui::End();
 
+	}
+
+	void Editor::UI::FileExplorer::DrawTopExplorer()
+	{
+		static bool wasSearching = false;
+		static bool isSearching = false;
+		static bool shouldFocus = false;
+		bool isSelected = false;
+		if (ImGui::Button("Back") && m_currentFile->m_parent.lock())
+		{
+			Shared<File> parent = m_currentFile->m_parent.lock();
+			SetCurrentFile(parent);
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reload"))
+		{
+			ReloadContent();
+		}
+		ImGui::SameLine();
+		Vec2f lastPos = ImGui::GetCursorPos();
+		std::string in = isSearching ? m_currentFile->m_info.GetRelativePath().string() : "";
+		if (!isSearching) {
+			ImGui::SetNextItemAllowOverlap();
+			ImGui::Button("##SearchButton", Vec2f(ImGui::CalcItemWidth(), 0));
+			bool isClicked = ImGui::IsItemClicked();
+			ImGui::SameLine();
+			ImGui::TextUnformatted("Folder path");
+			if (isClicked)
+			{
+				isSearching = true;
+				shouldFocus = true;
+			}
+		}
+		else if (isSearching)
+		{
+			if (shouldFocus)
+			{
+				ImGui::SetKeyboardFocusHere();
+				shouldFocus = false;
+			}
+			ImGui::SetNextItemAllowOverlap();
+			if (Wrapper::GUI::InputText("Folder path", &in, ImGuiInputTextFlags_EnterReturnsTrue)) {
+				in = (Resource::ResourceManager::GetProjectPath() / in).generic_string();
+				if (std::filesystem::exists(in) && std::filesystem::is_directory(in))
+				{
+					Path absAssetPath = std::filesystem::absolute(Resource::ResourceManager::GetAssetPath());
+					Path absNewPath = std::filesystem::absolute(in);
+					const bool isSubdirectory = std::mismatch(absAssetPath.begin(), absAssetPath.end(), absNewPath.begin()).first == absAssetPath.end();
+					if (isSubdirectory)
+					{
+						SetDirectory(in, false);
+					}
+				}
+			}
+			isSelected = ImGui::IsItemActive();
+			if (!wasSearching && isSearching)
+			{
+				isSearching = true;
+			}
+			else
+			{
+				isSearching = isSelected;
+			}
+			wasSearching = isSearching;
+		}
+		Vec2f afterPos = ImGui::GetCursorPos();
+		if (!isSelected)
+		{
+			ImGui::SetCursorPos(lastPos);
+			// Separate path into components
+			std::vector<std::pair<std::string /*real name*/, std::string /*display name*/>> components;
+			std::string path = m_currentFile->m_info.GetRelativePath().string();
+			std::stringstream ss(path);
+			std::string component;
+			const int maxWordLength = 15;
+			while (std::getline(ss, component, '\\')) {
+				components.push_back(std::make_pair(component, component.length() > maxWordLength ?
+					component.substr(0, maxWordLength - 3) + "..." : component));
+			}
+
+			float currentSize = 0;
+			float itemSpacingX = ImGui::GetStyle().ItemSpacing.x;
+			int cutAt = 0;
+			float diff;
+			for (int i = static_cast<uint32_t>(components.size() - 1); i >= 0; i--)
+			{
+				Vec2f textSize = ImGui::CalcTextSize(components[i].second.c_str());
+				float buttonSize = textSize.x + ImGui::GetStyle().FramePadding.x * 2.0f;
+				currentSize += buttonSize;
+				if (i != components.size() - 1 && currentSize > ImGui::GetContentRegionAvail().x)
+				{
+					cutAt = i;
+					currentSize -= buttonSize;
+					break;
+				}
+				currentSize += itemSpacingX + ImGui::GetFrameHeight() + itemSpacingX * 2.5f;
+
+				if (currentSize > ImGui::GetContentRegionAvail().x)
+				{
+					diff = currentSize - ImGui::GetContentRegionAvail().x;
+					cutAt = i;
+					break;
+				}
+			}
+
+			for (int i = cutAt; i < components.size(); i++)
+			{
+				if (i > 0)
+				{
+					const float spacingX = itemSpacingX;
+					if (i != cutAt) {
+
+						ImGui::SameLine();
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() - spacingX);
+					}
+					ImGui::ArrowButtonEx("##" + i, ImGuiDir_Right, Vec2f(ImGui::GetFrameHeight() + spacingX * 2.5f, ImGui::GetFrameHeight()));
+					ImGui::SameLine();
+					if (i != cutAt) {
+
+						ImGui::SetCursorPosX(ImGui::GetCursorPosX() - spacingX);
+					}
+				}
+				if (ImGui::Button(components[i].second.c_str()))
+				{
+					// add before components to the path
+					Path finalPath = Resource::ResourceManager::GetProjectPath();
+					for (int j = 0; j != i + 1; j++) {
+						finalPath /= components[j].first;
+					}
+					SetDirectory(finalPath);
+				}
+			}
+		}
+		ImGui::SetCursorPos(afterPos);
 	}
 
 	void Editor::UI::FileExplorer::AddFileSelected(const Shared<File>& child)
@@ -932,21 +1078,32 @@ namespace GALAXY {
 				drawList->AddImageRounded(textureID, thumbnailMin, thumbnailMax, Vec2f(0, 0), Vec2f(1, 1), IM_COL32_WHITE, cornerRounding, 48);
 		}
 
+		
+		ImFont* font = ImGui::GetIO().Fonts->Fonts[0];
 		//Content
 		//Resource Name
 		if (!file->m_rename)
 		{
 			std::string name = file->m_info.GetFileName();
-			const Vec2f textSize = ImGui::CalcTextSize(name.c_str());
-			const size_t length = name.length();
-			if (length > textLength + 3) {
-				name = name.substr(0, textLength);
-				name.append("...");
+			const Vec2f textSize = font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, name.c_str());
+			std::string tempName;
+			float maxX = contentRegionStart.x + (imageSize.x - 10.f) * thumbnailScale;
+			float minX = contentRegionStart.x;
+			const float maxWidth = maxX  - minX; 
+			for (int i = 0; i < name.length(); i++) {
+				tempName.push_back(name[i]);
+				if (font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, (tempName + "...").c_str()).x > maxWidth) {
+					tempName.pop_back();
+					name = tempName + "...";
+					break;
+				}
+				if (i == name.length() - 1)
+					name = tempName;
 			}
 			ImGui::PushID(779144781);
 			Vec2f minTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale);
-			Vec2f maxTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale) + ImGui::CalcTextSize(name.c_str()) * thumbnailScale;
-			drawList->AddText(ImGui::GetIO().Fonts->Fonts[0], 13 * thumbnailScale, minTitle, 0xFFFFFFFF, name.c_str());
+			Vec2f maxTitle = Vec2f(contentRegionStart.x + 5.f * thumbnailScale, lineMax.y + 5.f * thumbnailScale) + font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, name.c_str()) * thumbnailScale;
+			drawList->AddText(font, 13 * thumbnailScale, minTitle, 0xFFFFFFFF, name.c_str());
 			if (ImGui::IsMouseHoveringRect(minTitle, maxTitle) && ImGui::IsMouseClicked(0))
 				SetRenameFile(file);
 			ImGui::PopID();
@@ -961,7 +1118,7 @@ namespace GALAXY {
 		else
 			type = SerializeResourceTypeValue(file->m_info.GetResourceType());
 		Vec2f typePos = currentPos + Vec2f(15, 205.f) * thumbnailScale;
-		drawList->AddText(ImGui::GetIO().Fonts->Fonts[0], 13 * thumbnailScale, Vec2f(contentRegionStart.x + 5.f * thumbnailScale, bottomRectMax.y - 20.f * thumbnailScale), 0xFF808080, type.c_str());
+		drawList->AddText(font, 13 * thumbnailScale, Vec2f(contentRegionStart.x + 5.f * thumbnailScale, bottomRectMax.y - 20.f * thumbnailScale), 0xFF808080, type.c_str());
 		ImGui::PopStyleColor(1);
 		ImGui::PopID();
 

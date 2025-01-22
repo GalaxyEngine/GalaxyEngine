@@ -27,7 +27,7 @@ namespace GALAXY
 			void FindChildren();
 			void FindAllChildren();
 
-			void DisplayOnExplorer() const;
+			void DisplayOnExplorer();
 
 			void AddChild(Shared<File> file);
 
@@ -35,7 +35,7 @@ namespace GALAXY
 
 			List<Path> GetAllChildrenPath();
 
-			Shared<File> GetWithPath(const Path& path) const;
+			Shared<File> GetWithPath(const Path& path, bool matchCase = true) const;
 
 			static uint32_t ResourceTypeToColor(Resource::ResourceType type);
 
@@ -67,6 +67,8 @@ namespace GALAXY
 			bool m_selected = false;
 			bool m_rename = false;
 			bool m_isAnyChildFolder = false;
+
+			bool m_wasOpen = false; // boolean to check if the folder was open in "Display on explorer"
 		};
 
 		class FileExplorer : public EditorWindow
@@ -77,11 +79,14 @@ namespace GALAXY
 
 			void Initialize() override;
 
-			void SetDirectory(const Path& directory);
+			void SetDirectory(const Path& directory, bool matchCase = true);
 
+			// Find the file and select it
 			void NavigateToFile(const Path& filePath);
 
 			void Draw() override;
+
+			void DrawTopExplorer();
 
 			void DragAndDrop(Shared<File>& child);
 

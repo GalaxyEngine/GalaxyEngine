@@ -35,7 +35,7 @@ namespace GALAXY {
 				return names;
 			}
 
-			virtual void ShowInInspector() {}
+			EDITOR_ONLY virtual void ShowInInspector() {}
 
 			// Called on Creation
 			virtual void OnCreate() {}
@@ -124,12 +124,15 @@ namespace GALAXY {
 				*static_cast<Derived*>(this) = Derived();
 			}
 
-			inline virtual void ShowInInspector() override
+			
+#ifdef WITH_EDITOR
+			EDITOR_ONLY inline virtual void ShowInInspector() override
 			{
 #ifdef ENABLE_REFLECTION
 				Wrapper::Reflection::ShowInspectorClass(dynamic_cast<Derived*>(this));
 #endif
 			}
+#endif
 		private:
 
 			};

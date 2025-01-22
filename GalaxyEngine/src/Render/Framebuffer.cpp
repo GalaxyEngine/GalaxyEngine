@@ -87,10 +87,10 @@ namespace GALAXY {
 		renderer->UnbindRenderBuffer(postProcessFramebuffer);
 
 		renderer->ClearColorAndBuffer(clearColor);
-		renderer->ActiveDepth(false);
+		renderer->EnableDepth(false);
 
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
-		renderer->ActiveDepth(true);
+		renderer->EnableDepth(true);
 #endif
 	}
 

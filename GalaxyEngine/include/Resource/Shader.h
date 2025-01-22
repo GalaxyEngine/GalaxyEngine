@@ -57,12 +57,15 @@ namespace GALAXY {
 			void Save();
 
 			const char* GetResourceName() const override { return "Shader"; }
-			Path GetThumbnailPath() const override;
+			
+#ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override;
+#endif
 
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
 
-			virtual void ShowInInspector() override;
+			EDITOR_ONLY virtual void ShowInInspector() override;
 
 			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant = true);
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
@@ -126,7 +129,7 @@ namespace GALAXY {
 			virtual void OnAdd() override;
 			void AddShader(const Weak<Shader>& shader);
 
-			virtual void ShowInInspector() override;
+			EDITOR_ONLY virtual void ShowInInspector() override;
 
 			void Recompile();
 
