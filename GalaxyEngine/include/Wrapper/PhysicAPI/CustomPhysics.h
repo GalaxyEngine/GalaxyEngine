@@ -1,7 +1,7 @@
 #pragma once
 
 #include "GalaxyAPI.h"
-#include "Wrapper\PhysicsWrapper.h"
+#include "Wrapper/PhysicsWrapper.h"
 
 namespace GALAXY
 {
