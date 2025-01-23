@@ -65,13 +65,13 @@ namespace GALAXY
 
 	void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidbody(Component::Rigidbody* rigidbody)
 	{
-		auto& object = m_objectMap.find(rigidbody);
+		auto object = m_objectMap.find(rigidbody); // Use auto, no reference
 		if (object == m_objectMap.end())
 		{
 			PrintError("Could not find rigidbody associated with component 0x%x !", rigidbody);
 			return;
 		}
-		m_objectMap.erase(object);
+		m_objectMap.erase(object); // Erase using the iterator
 	}
 
 	void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateBoxCollider(Component::BoxCollider* collider)
