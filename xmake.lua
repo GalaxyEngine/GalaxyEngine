@@ -1,5 +1,6 @@
 add_rules("mode.release", "mode.debug", "mode.gamedbg", "mode.game")
 add_rules("plugin.vsxmake.autoupdate")
+add_rules("plugin.compile_commands.autoupdate", { outputdir = ".vscode" })
 
 -- Runtime mode
 if is_plat("windows") then

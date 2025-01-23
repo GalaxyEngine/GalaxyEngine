@@ -373,6 +373,7 @@ namespace GALAXY {
 
 				bool shouldBreak = false;
 				DrawThumbnail(child, i, m_iconSize, x, y, shouldBreak, openRightClick);
+				
 				if (shouldBreak)
 					break;
 				ImGui::PopID();
@@ -1203,6 +1204,10 @@ namespace GALAXY {
 				SetCurrentFile(file);
 				shouldBreak = true;
 			}
+			else if (ImGui::IsMouseDoubleClicked(0) && file->m_selected && !isFolder)
+			{
+				LaunchFile(file);
+			}
 			if (ImGui::IsMouseClicked(1))
 			{
 				m_rightClickedFiles = m_selectedFiles;
@@ -1211,4 +1216,18 @@ namespace GALAXY {
 		}
 	}
 
+	void Editor::UI::FileExplorer::LaunchFile(const Shared<File>& file)
+	{
+		Resource::ResourceType type = file->m_info.GetResourceType();
+		switch (type)
+		{
+		case Resource::ResourceType::Scene:
+			{
+				Core::SceneHolder::OpenScene(file->GetPath());
+				break;
+			}
+		default:
+			break;
+		}
+	}
 }

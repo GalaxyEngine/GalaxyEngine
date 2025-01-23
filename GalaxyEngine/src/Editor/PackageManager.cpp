@@ -12,13 +12,13 @@ namespace GALAXY
         switch (platform)
         {
         case Utils::OS::Platform::Windows:
-            return Editor::PackagePlatform::Windows;
+            return PackagePlatform::Windows;
         case Utils::OS::Platform::Linux:
-            return Editor::PackagePlatform::Linux;
+            return PackagePlatform::Linux;
         case Utils::OS::Platform::MacOS:
-            return Editor::PackagePlatform::MacOS;
+            return PackagePlatform::MacOS;
         default:
-            return Editor::PackagePlatform::Undefined;
+            return PackagePlatform::Undefined;
         }
     }
 
@@ -97,16 +97,6 @@ namespace GALAXY
     {
         
     }
-
-    // static std::wstring s_xmakeContent = 
-
-    /*
-#ifdef _DEBUG
-    #define DLL_NAME "GalaxyGameDebug"
-#else
-    #define DLL_NAME "GalaxyGame"
-#endif
-    */
 #define DLL_NAME "GalaxyEngine"
 #define BIN_NAME "GalaxyCore"
 
@@ -277,12 +267,14 @@ target_end()
         default: ;
         }
 
+        // Package the project
         auto prevPath = std::filesystem::current_path();
         std::filesystem::current_path(packagePath);
         Utils::OS::RunCommand(command);
         Utils::OS::RunCommand("xmake");
         std::filesystem::current_path(prevPath);
 
+        // Remove unnecessary files
         std::remove((packagePath / "xmake.lua").generic_string().c_str());
         std::filesystem::remove_all((packagePath / ".xmake").generic_string().c_str());
         std::filesystem::remove_all((packagePath / "build").generic_string().c_str());
@@ -290,7 +282,6 @@ target_end()
         std::remove((packagePath / "Assembly.ilk").generic_string().c_str());
         std::remove((packagePath / "Assembly.pdb").generic_string().c_str());
         std::remove((packagePath / "compile.Assembly.pdb").generic_string().c_str());
-        // TODO: Package the project
     }
 
     void Editor::PackageManager::DrawSettings()

@@ -100,7 +100,9 @@ namespace GALAXY
 			void HandleDropFile(int count, const char** paths) const;
 
 			void DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick);
-
+			
+			void LaunchFile(const Shared<File>& file);
+			
 			void ReloadContent();
 
 			const List<Shared<File>>& GetDraggedFiles() const { return m_draggedFiles; }
