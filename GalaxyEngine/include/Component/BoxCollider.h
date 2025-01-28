@@ -8,6 +8,7 @@ namespace GALAXY
     {
         class GALAXY_API BoxCollider : public Collider
         {
+			COMPONENT_SUBCLASS(BoxCollider, Collider)
         public:
             BoxCollider() = default;
             BoxCollider& operator=(const BoxCollider& other) = default;
@@ -17,20 +18,19 @@ namespace GALAXY
 
             ColliderType GetType() override { return ColliderType::Box; }
 
-            const char* GetComponentName() const override { return "BoxCollider"; }
-
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
             
             EDITOR_ONLY void OnEditorDraw() override;
 #endif
-
             void OnStart() override;
             void OnDestroy() override;
 
             void SetSize(const Vec3f& inSize) { m_size = inSize; }
 
             Vec3f GetSize() const { return m_size; }
+
+            AABBCollider GetAABB() override;
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
             

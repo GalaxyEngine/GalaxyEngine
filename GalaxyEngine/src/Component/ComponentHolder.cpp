@@ -8,8 +8,9 @@
 #include "Component/PointLight.h"
 #include "Component/SpotLight.h"
 #include "Component/Emitter.h"
-#include "Component/Rigidbody.h"
+#include "Component/RigidBody.h"
 #include "Component/BoxCollider.h"
+#include "Component/SphereCollider.h"
 
 std::vector<std::shared_ptr<Component::BaseComponent>> Component::ComponentHolder::m_componentList;
 
@@ -23,9 +24,9 @@ void ComponentHolder::Initialize()
 	RegisterComponent<CameraComponent>();
 	RegisterComponent<Emitter>();
 	RegisterComponent<Listener>();
-	RegisterComponent<Rigidbody>();
+	RegisterComponent<RigidBody>();
 	RegisterComponent<BoxCollider>();
-	
+	RegisterComponent<SphereCollider>();
 }
 
 void ComponentHolder::UnregisterComponentByName(const std::string& componentName)

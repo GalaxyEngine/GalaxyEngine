@@ -8,24 +8,13 @@ namespace GALAXY
 	{
 		class DirectionalLight : public Light
 		{
+			COMPONENT_SUBCLASS(DirectionalLight, Light)
 		public:
 			DirectionalLight() = default;
 			DirectionalLight& operator=(const DirectionalLight& other) = default;
 			DirectionalLight(const DirectionalLight&) = default;
 			DirectionalLight(DirectionalLight&&) noexcept = default;
 			~DirectionalLight() override = default;
-
-			inline const char* GetComponentName() const override { return "DirectionalLight"; }
-			inline virtual std::set<const char*> GetComponentNames() const override
-			{
-				std::set<const char*> list = Light::GetComponentNames();
-				list.insert(DirectionalLight::GetComponentName());
-				return list; 
-			}
-
-			inline virtual Shared<Component::BaseComponent> Clone() override {
-				return std::make_shared<DirectionalLight>(*dynamic_cast<DirectionalLight*>(this));
-			}
 
 			void SendLightValues(Resource::Shader* shader) override;
 

@@ -4,7 +4,7 @@
 #include "Component/BoxCollider.h"
 #include "Component/Transform.h"
 
-#include "Component/Rigidbody.h"
+#include "Component/RigidBody.h"
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
@@ -22,7 +22,7 @@ namespace GALAXY
 
 		for (auto& body : m_objectMap)
 		{
-			if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+			if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
 			{
 				Component::Transform* transform = rigidbody->GetTransform();
 				Vec3f position = transform->GetWorldPosition();
@@ -41,16 +41,18 @@ namespace GALAXY
 
 		for (auto& body : m_objectMap)
 		{
-			if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+			if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
 			{
 				Component::Transform* transform = rigidbody->GetTransform();
 				transform->SetWorldPosition(body.second.m_position);
 				transform->SetWorldRotation(body.second.m_rotation);
 			}
 		}
+
+		InternalUpdate();
 	}
 
-	void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidbody(Component::Rigidbody* rigidbody)
+	void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidBody(Component::RigidBody* rigidbody)
 	{
 		Vec3f position = rigidbody->GetTransform()->GetWorldPosition();
 		Quat rotation = rigidbody->GetTransform()->GetWorldRotation();
@@ -59,11 +61,10 @@ namespace GALAXY
 		body.m_rotation = rotation;
 		body.m_gravityForce = defaultGravity;
 		
-
 		m_objectMap[rigidbody] = body;
 	}
 
-	void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidbody(Component::Rigidbody* rigidbody)
+	void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidBody(Component::RigidBody* rigidbody)
 	{
 		auto object = m_objectMap.find(rigidbody); // Use auto, no reference
 		if (object == m_objectMap.end())
@@ -108,7 +109,28 @@ namespace GALAXY
 
 	}
 
-	void GALAXY::Wrapper::PhysicAPI::CustomPhysicsAPI::InternalUpdate()
+	void Wrapper::PhysicAPI::CustomPhysicsAPI::InternalUpdate()
 	{
+		auto objects = BroadPhase();
+	}
+
+	struct SAPAABB
+	{
+		float Min;
+		float Max;
+	};
+
+	std::list<std::tuple<Component::BaseComponent*>> Wrapper::PhysicAPI::CustomPhysicsAPI::BroadPhase()
+	{
+		auto colliders = m_colliderMap;
+		std::vector<SAPAABB> aabb;
+		for (auto& collider : colliders)
+		{
+			SAPAABB box;
+			// auto AABB = collider.second.GetAABB();
+			aabb.push_back(box);
+		}
+		std::list<std::tuple<Component::BaseComponent*>> result;
+		return result;
 	}
 }

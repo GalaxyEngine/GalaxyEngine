@@ -16,6 +16,13 @@ namespace GALAXY
         Wrapper::PhysicsWrapper::GetInstance()->DestroyBoxCollider(this);
     }
 
+    Component::AABBCollider Component::BoxCollider::GetAABB()
+    {
+        auto position = p_gameObject->GetTransform()->GetWorldPosition();
+        auto scale = p_gameObject->GetTransform()->GetWorldScale();
+        return Component::AABBCollider(position, m_size * scale);
+    }
+
 #ifdef WITH_EDITOR
     void Component::BoxCollider::OnEditorDraw()
     {

@@ -6,7 +6,7 @@ namespace GALAXY
 {
     namespace Component
     {
-        class Rigidbody;
+        class RigidBody;
 
         enum ColliderType
         {
@@ -15,6 +15,12 @@ namespace GALAXY
             Capsule,
 
             Count
+        };
+
+        struct GALAXY_API AABBCollider
+        {
+            Vec3f Min;
+            Vec3f Max;
         };
 
         class GALAXY_API Collider : public IComponent<Collider>
@@ -27,8 +33,10 @@ namespace GALAXY
             Vec3f m_offsetPos;
 
             virtual ColliderType GetType();
+
+            virtual AABBCollider GetAABB() { return AABBCollider(); }
         private:
-            Weak<Rigidbody> m_attachedRigidbody;
+            Weak<RigidBody> m_attachedRigidbody;
         };
     }
 }

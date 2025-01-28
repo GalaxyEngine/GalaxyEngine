@@ -44,8 +44,8 @@ namespace GALAXY
 
             void Update() override;
 
-            void CreateRigidbody(Component::Rigidbody* rigidbody) override;
-            void DestroyRigidbody(Component::Rigidbody* rigidbody) override;
+            void CreateRigidBody(Component::RigidBody* rigidbody) override;
+            void DestroyRigidBody(Component::RigidBody* rigidbody) override;
             void CreateBoxCollider(Component::BoxCollider* collider) override;
             void DestroyBoxCollider(Component::BoxCollider* collider) override;
             void CreateSphereCollider(Component::SphereCollider* collider) override;
@@ -55,7 +55,7 @@ namespace GALAXY
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
-            std::list<std::tuple<Component::BaseComponent*>> BroadPhase() { return {}; }
+            std::list<std::tuple<Component::BaseComponent*>> BroadPhase();
 
         private:
             std::unordered_map<Component::BaseComponent*, InternalRigidbody> m_objectMap;

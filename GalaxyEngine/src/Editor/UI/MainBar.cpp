@@ -4,8 +4,6 @@
 #include "Editor/EditorSettings.h"
 #include "Editor/PackageManager.h"
 
-#include "Component/BoxCollider.h"
-
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
 #include "Resource/Model.h"
@@ -19,6 +17,8 @@
 #include "Component/MeshComponent.h"
 #include "Component/PointLight.h"
 #include "Component/SpotLight.h"
+#include "Component/BoxCollider.h"
+#include "Component/SphereCollider.h"
 
 #include "Utils/OS.h"
 
@@ -59,7 +59,7 @@ namespace GALAXY
 					}
 					else
 					{
-						if (path = Utils::OS::SaveDialog(filters); !path.empty())
+						if (path = Utils::OS::SaveDialog(filters, Resource::ResourceManager::GetAssetPath()); !path.empty())
 						{
 							SaveScene(path);
 						}
@@ -215,6 +215,7 @@ namespace GALAXY
 				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
 				meshComp->SetMesh(sphereMesh);
 				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
+				object->AddComponent<Component::SphereCollider>();
 				object->SetName("Sphere");
 				parent->AddChild(object);
 			}

@@ -9,24 +9,13 @@ namespace GALAXY
 	{
 		class SpotLight : public PointLight
 		{
+			COMPONENT_SUBCLASS(SpotLight, PointLight)
 		public:
 			SpotLight() {}
 			SpotLight& operator=(const SpotLight& other) = default;
 			SpotLight(const SpotLight&) = default;
 			SpotLight(SpotLight&&) noexcept = default;
 			~SpotLight() override {}
-
-			inline const char* GetComponentName() const override { return "SpotLight"; }
-			inline virtual std::set<const char*> GetComponentNames() const override
-			{
-				std::set<const char*> list = Light::GetComponentNames();
-				list.insert(SpotLight::GetComponentName());
-				return list;
-			}
-
-			inline virtual Shared<Component::BaseComponent> Clone() override {
-				return std::make_shared<SpotLight>(*dynamic_cast<SpotLight*>(this));
-			}
 
 #ifdef WITH_EDITOR
 			EDITOR_ONLY void OnEditorDraw() override;

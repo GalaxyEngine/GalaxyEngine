@@ -8,6 +8,7 @@ namespace GALAXY
     {
         class GALAXY_API SphereCollider : public Collider
         {
+            COMPONENT_SUBCLASS(SphereCollider, Collider)
         public:
             SphereCollider() = default;
             SphereCollider& operator=(const SphereCollider& other) = default;
@@ -16,8 +17,6 @@ namespace GALAXY
             ~SphereCollider() override = default;
 
             ColliderType GetType() override { return ColliderType::Sphere; }
-
-            const char* GetComponentName() const override { return "SphereCollider"; }
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
