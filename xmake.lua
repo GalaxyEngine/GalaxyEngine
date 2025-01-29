@@ -57,17 +57,32 @@ add_requires("glad", { configs = { debug = isDebug, extensions = "GL_KHR_debug" 
 add_requires("stb", "nativefiledialog-extended", "openfbx", "miniaudio")
 
 -- Detect and configure physics API
-local physics_api = get_config("physics_api") or "custom"
+local use_physx = false
+local use_jolt = false
+local use_custom_physics = false
 
-if physics_api == "physx" then
-    add_requires("vcpkg::physx", { configs = { debug = isDebug }})
-elseif physics_api == "jolt" then
-    add_requires("joltphysics", { configs = { debug = isDebug }})
-elseif physics_api == "custom" then
-    add_defines("USE_CUSTOM_PHYSICS")
-else
-    raise("Invalid physics API: " .. physics_api .. ". Supported: physx, jolt, custom")
+-- Retrieve and process selected physics APIs
+local selected_apis = get_config("physics_api") or "custom"
+local apis = {}
+for api in selected_apis:gmatch("[^,]+") do
+    table.insert(apis, api:trim())
 end
+
+-- Handle the installation of the appropriate packages based on the selected APIs
+for _, api in ipairs(apis) do
+    if api == "physx" then
+        add_requires("physx")
+        use_physx = true
+    elseif api == "jolt" then
+        add_requires("joltphysics")
+        use_jolt = true
+    elseif api == "custom" then
+        use_custom_physics = true
+    else
+        print("Unknown Physics API: " .. api)
+    end
+end
+
 
 -- Enable features
 add_defines("ENABLE_MULTI_THREAD")
@@ -75,18 +90,9 @@ add_defines("ENABLE_MULTI_THREAD")
 set_languages("c++20")
 set_rundir("GalaxyCore")
 
--- Disable warnings
+-- Flags
 add_cxflags("/wd4251", { tools = "cl" }) -- Disable "class needs to have dll-interface" warning
 add_cxflags("-Wall") -- Enable all common warnings
-
--- Helper function for conditional file removal
-function safe_remove_files(...)
-    for _, file in ipairs({...}) do
-        if os.isfile(file) or os.isdir(file) then
-            remove_files(file)
-        end
-    end
-end
 
 -- Engine target
 target("GalaxyEngine")
@@ -108,34 +114,35 @@ target("GalaxyEngine")
     add_files("GalaxyEngine/src/**.cpp")
 
     if not isEditor then
-        safe_remove_files("GalaxyEngine/include/Editor/**.h", "GalaxyEngine/include/Editor/**.inl", "GalaxyEngine/src/Editor/**.cpp")
+        remove_files("GalaxyEngine/include/Editor/**.h", "GalaxyEngine/include/Editor/**.inl", "GalaxyEngine/src/Editor/**.cpp")
     end
 
     set_pcxxheader("GalaxyEngine/include/pch.h")
     add_packages("galaxymath", "galaxyscript", "cpp_serializer", "glfw", "imgui", "glad", "stb", "nativefiledialog-extended", "openfbx", "miniaudio")
 
     -- Physics API specific configurations
-    if physics_api == "physx" then
+    if use_physx then
         add_packages("physx")
         add_defines("USE_PHYSX")
     else
-        --safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/PhysXPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/PhysXPhysics.cpp")
+        --remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/PhysXPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/PhysXPhysics.cpp")
     end
-    if physics_api == "jolt" then
+    if use_jolt then
         add_packages("joltphysics")
         add_defines("USE_JOLT")
     else
-        safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/JoltPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/JoltPhysics.cpp")
+        remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/JoltPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/JoltPhysics.cpp")
     end
-    if physics_api == "custom" then
+    if use_custom_physics then
         add_defines("USE_CUSTOM_PHYSICS")
     else
-        safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/CustomPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/CustomPhysics.cpp")
+        remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/CustomPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/CustomPhysics.cpp")
     end
 
     -- Print selected physics API after build
     after_build(function (target)
-        print("Physics API selected: " .. (target:values("config.physics_api") or "custom"))
+        print("Physics API selected: ")
+        print(apis)
     end)
 target_end()
 
