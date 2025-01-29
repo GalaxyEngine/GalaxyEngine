@@ -71,7 +71,7 @@ end
 -- Handle the installation of the appropriate packages based on the selected APIs
 for _, api in ipairs(apis) do
     if api == "physx" then
-        add_requires("physx")
+        add_requires("vcpkg::physx")
         use_physx = true
     elseif api == "jolt" then
         add_requires("joltphysics")

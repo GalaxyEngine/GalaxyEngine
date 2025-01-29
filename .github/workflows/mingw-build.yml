@@ -15,7 +15,7 @@ jobs:
         msystem: [mingw64]
         os: [windows-latest]
         arch: [x86_64]
-        mode: [debug, release, gamedbg, game]
+        mode: [debug, release, gamedbg, game]    
         kind: [binary]
 
     runs-on: ${{ matrix.os }}
@@ -64,7 +64,7 @@ jobs:
       
       # Setup compilation mode and install project dependencies
       - name: Configure xmake and install dependencies
-        run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --yes
+        run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --physics_api=custom,jolt --ccache=n --yes
       
       # Save dependencies
       - name: Save cached xmake dependencies
