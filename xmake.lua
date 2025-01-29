@@ -1,7 +1,15 @@
 add_rules("mode.release", "mode.debug", "mode.gamedbg", "mode.game")
+add_rules("plugin.compile_commands.autoupdate", { outputdir = ".vscode" } )
 add_rules("plugin.vsxmake.autoupdate")
 
--- Runtime mode
+-- Define physics API selection
+option("physics_api")
+    set_default("custom") -- Default physics API
+    set_showmenu(true)
+    set_description("Select Physics API (physx, jolt, custom)")
+option_end()
+
+-- Runtime mode configuration
 if is_plat("windows") then
     set_runtimes((is_mode("debug") or is_mode("gamedbg")) and "MDd" or "MD")
 end
@@ -12,28 +20,28 @@ set_defaultmode("debug")
 local isEditor = is_mode("debug") or is_mode("release")
 local isDebug = is_mode("debug") or is_mode("gamedbg")
 
-if (isDebug) then
+if isDebug then
     add_defines("_DEBUG")
 end
 
-if (is_mode("gamedbg")) then
+if is_mode("gamedbg") then
     add_defines("GAME_DEBUG")
     set_symbols("debug")
-elseif (is_mode("game")) then
+elseif is_mode("game") then
     add_defines("GAME_RELEASE")
     set_optimize("fastest")
     set_symbols("none")
     set_strip("all")
 end
 
--- Modes
+-- Define additional modes
 rule("mode.gamedbg")
 rule_end()
 
 rule("mode.game")
 rule_end()
 
-if (isEditor) then
+if isEditor then
     add_defines("WITH_EDITOR")
 else
     add_defines("WITH_GAME")
@@ -42,82 +50,101 @@ end
 -- Custom repo
 add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 
--- Packages
-add_requires("galaxymath")
-add_requires("cpp_serializer")
-add_requires("galaxyscript v1.2-galaxyengine")
+-- Required Packages
+add_requires("galaxymath", "cpp_serializer", "galaxyscript v1.2-galaxyengine")
 add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
-add_requires("glad", {configs = { debug = isDebug, extensions = "GL_KHR_debug"}})
-add_requires("stb")
-add_requires("nativefiledialog-extended")
-add_requires("openfbx")
-add_requires("miniaudio")
-add_requires("joltphysics", {configs = { debug = isDebug}})
+add_requires("glad", { configs = { debug = isDebug, extensions = "GL_KHR_debug" }})
+add_requires("stb", "nativefiledialog-extended", "openfbx", "miniaudio")
 
--- enable features 
+-- Detect and configure physics API
+local physics_api = get_config("physics_api") or "custom"
+
+if physics_api == "physx" then
+    add_requires("vcpkg::physx", { configs = { debug = isDebug }})
+elseif physics_api == "jolt" then
+    add_requires("joltphysics", { configs = { debug = isDebug }})
+elseif physics_api == "custom" then
+    add_defines("USE_CUSTOM_PHYSICS")
+else
+    raise("Invalid physics API: " .. physics_api .. ". Supported: physx, jolt, custom")
+end
+
+-- Enable features
 add_defines("ENABLE_MULTI_THREAD")
 
 set_languages("c++20")
-
 set_rundir("GalaxyCore")
 
--- diable warnings
-add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class
-add_cxflags("-Wall")            -- Enable all commonly used warning flags
+-- Disable warnings
+add_cxflags("/wd4251", { tools = "cl" }) -- Disable "class needs to have dll-interface" warning
+add_cxflags("-Wall") -- Enable all common warnings
 
+-- Helper function for conditional file removal
+function safe_remove_files(...)
+    for _, file in ipairs({...}) do
+        if os.isfile(file) or os.isdir(file) then
+            remove_files(file)
+        end
+    end
+end
+
+-- Engine target
 target("GalaxyEngine")
     set_symbols("debug")
     set_kind("shared")
-
-    -- set include dirs
+    set_values("config.physics_api", physics_api)
     add_includedirs("GalaxyEngine/include")
-
     add_defines("GALAXY_EXPORTS")
-    
-    if (is_plat("windows", "msvc")) then 
+
+    if is_plat("windows", "msvc") then
         add_cxflags("/permissive")
         add_links("Advapi32")
         add_syslinks("opengl32")
-    elseif (is_plat("linux")) then 
+    elseif is_plat("linux") then
         add_cflags("-fPIC")
     end
 
-    add_headerfiles("GalaxyEngine/include/**.h");
-    add_headerfiles("GalaxyEngine/include/**.inl");
+    add_headerfiles("GalaxyEngine/include/**.h", "GalaxyEngine/include/**.inl")
     add_files("GalaxyEngine/src/**.cpp")
-    -- Includes --
-    if (not isEditor) then
-        remove_files("GalaxyEngine/include/Editor/**.h");
-        remove_files("GalaxyEngine/include/Editor/**.inl");
-        remove_files("GalaxyEngine/src/Editor/**.cpp")
+
+    if not isEditor then
+        safe_remove_files("GalaxyEngine/include/Editor/**.h", "GalaxyEngine/include/Editor/**.inl", "GalaxyEngine/src/Editor/**.cpp")
     end
+
     set_pcxxheader("GalaxyEngine/include/pch.h")
-    
-    -- Packages --
-    add_packages("galaxymath")
-    add_packages("galaxyscript")
-    add_packages("cpp_serializer")
-    add_packages("glfw")
-    add_packages("imgui")
-    add_packages("glad")
-    add_packages("stb")
-    add_packages("nativefiledialog-extended")
-    add_packages("openfbx")
-    add_packages("miniaudio")
-    add_packages("joltphysics")
-    if (is_plat("mingw")) then 
-        set_prefixname("")
+    add_packages("galaxymath", "galaxyscript", "cpp_serializer", "glfw", "imgui", "glad", "stb", "nativefiledialog-extended", "openfbx", "miniaudio")
+
+    -- Physics API specific configurations
+    if physics_api == "physx" then
+        add_packages("physx")
+        add_defines("USE_PHYSX")
+    else
+        --safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/PhysXPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/PhysXPhysics.cpp")
     end
+    if physics_api == "jolt" then
+        add_packages("joltphysics")
+        add_defines("USE_JOLT")
+    else
+        safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/JoltPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/JoltPhysics.cpp")
+    end
+    if physics_api == "custom" then
+        add_defines("USE_CUSTOM_PHYSICS")
+    else
+        safe_remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/CustomPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/CustomPhysics.cpp")
+    end
+
+    -- Print selected physics API after build
+    after_build(function (target)
+        print("Physics API selected: " .. (target:values("config.physics_api") or "custom"))
+    end)
 target_end()
 
+-- Core application target
 target("GalaxyCore")
     set_default(true)
     set_kind("binary")
     add_deps("GalaxyEngine")
     add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
-    
-    -- Packages
-    add_packages("galaxymath")
-    add_packages("imgui")
+    add_packages("galaxymath", "imgui")
 target_end()
