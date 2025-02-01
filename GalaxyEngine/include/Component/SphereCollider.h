@@ -6,7 +6,7 @@ namespace GALAXY
 {
     namespace Component
     {
-        class GALAXY_API SphereCollider : public Collider
+        class GALAXY_API SphereCollider : public Collider, public std::enable_shared_from_this<SphereCollider>
         {
             COMPONENT_SUBCLASS(SphereCollider, Collider)
         public:
@@ -20,18 +20,18 @@ namespace GALAXY
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
+            
+            EDITOR_ONLY void OnEditorDraw() override;
 #endif
 
             void OnStart() override;
             void OnDestroy() override;
 
-#ifdef WITH_EDITOR
-            EDITOR_ONLY void OnEditorDraw() override;
-#endif
-
             void SetSize(const float inSize) { m_size = inSize; }
-
             float GetSize() const { return m_size; }
+
+            Physic::AABB GetAABB() override;
+            Vec3f Support(const Vec3f& direction) override;
         private:
             float m_size = 1;
 

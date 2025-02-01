@@ -6,7 +6,7 @@ namespace GALAXY
 {
     namespace Component
     {
-        class GALAXY_API BoxCollider : public Collider
+        class GALAXY_API BoxCollider : public Collider, public std::enable_shared_from_this<BoxCollider>
         {
 			COMPONENT_SUBCLASS(BoxCollider, Collider)
         public:
@@ -30,7 +30,8 @@ namespace GALAXY
 
             Vec3f GetSize() const { return m_size; }
 
-            AABBCollider GetAABB() override;
+            Physic::AABB GetAABB() override;
+            Vec3f Support(const Vec3f& direction) override; 
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
             

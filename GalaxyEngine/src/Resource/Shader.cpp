@@ -459,9 +459,9 @@ void main()
 		const size_t size = p_shaders.size();
 		if (size > 0)
 		{
-			for (const auto& _shader : p_shaders)
+			for (const Weak<Shader>& _shader : p_shaders)
 			{
-				if (!_shader.lock())
+				if (_shader.expired())
 					continue;
 				if (_shader.lock() == shader.lock())
 					return;

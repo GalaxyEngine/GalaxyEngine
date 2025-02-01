@@ -13,11 +13,11 @@ namespace GALAXY
 
     void Component::RigidBody::OnStart()
     {
-        Wrapper::PhysicsWrapper::GetInstance()->CreateRigidBody(this);
+        Wrapper::PhysicsWrapper::GetInstance()->CreateRigidBody(weak_from_this());
     }
 
     void Component::RigidBody::OnDestroy()
     {
-        Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(this);
+        Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(weak_from_this());
     }
 }

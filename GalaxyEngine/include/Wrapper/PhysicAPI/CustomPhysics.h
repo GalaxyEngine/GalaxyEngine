@@ -36,6 +36,19 @@ namespace GALAXY
             bool m_static = false;
         };
 
+        template <typename T>
+        struct WeakPtrCompare {
+            bool operator()(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const {
+                return lhs.owner_before(rhs);
+            }
+        };
+
+        struct ColliderPair
+        {
+            Component::Collider* first;
+            Component::Collider* second;
+        };
+        
         class CustomPhysicsAPI : public Wrapper::PhysicsWrapper
         {
         public:
@@ -44,22 +57,23 @@ namespace GALAXY
 
             void Update() override;
 
-            void CreateRigidBody(Component::RigidBody* rigidbody) override;
-            void DestroyRigidBody(Component::RigidBody* rigidbody) override;
-            void CreateBoxCollider(Component::BoxCollider* collider) override;
-            void DestroyBoxCollider(Component::BoxCollider* collider) override;
-            void CreateSphereCollider(Component::SphereCollider* collider) override;
-            void DestroySphereCollider(Component::SphereCollider* collider) override;
+            void CreateRigidBody(Weak<Component::RigidBody> rigidbody) override;
+            void DestroyRigidBody(Weak<Component::RigidBody> rigidbody) override;
+            void CreateBoxCollider(Weak<Component::BoxCollider> collider) override;
+            void DestroyBoxCollider(Weak<Component::BoxCollider> collider) override;
+            void CreateSphereCollider(Weak<Component::SphereCollider> collider) override;
+            void DestroySphereCollider(Weak<Component::SphereCollider> collider) override;
             void SetDefaultGravity(const Vec3f& value) override;
 
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
-            std::list<std::tuple<Component::BaseComponent*>> BroadPhase();
+            std::vector<ColliderPair> BroadPhase();
+            static bool GJK(Component::Collider* a, Component::Collider* b);
 
         private:
-            std::unordered_map<Component::BaseComponent*, InternalRigidbody> m_objectMap;
-            std::unordered_map<Component::BaseComponent*, InternalCollider> m_colliderMap;
+            std::set<Weak<Component::RigidBody>, WeakPtrCompare<Component::RigidBody>> m_objectMap;
+            std::set<Weak<Component::Collider>, WeakPtrCompare<Component::Collider>> m_colliderMap;
             Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
         };
     }

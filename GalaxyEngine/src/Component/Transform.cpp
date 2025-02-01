@@ -39,7 +39,7 @@ namespace GALAXY
 	{
 		if (p_gameObject && p_gameObject->GetParent())
 		{
-			return GetModelMatrix().GetRotation();
+			return p_gameObject->GetParent()->GetTransform()->GetWorldRotation() * m_localRotation;
 		}
 		else
 		{
