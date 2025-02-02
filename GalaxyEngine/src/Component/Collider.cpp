@@ -10,6 +10,7 @@ namespace GALAXY
 		return Count;
 	}
 
+#ifdef WITH_EDITOR
 	void Component::Collider::ShowInInspector()
 	{
 		if (Core::Application::IsPlayMode())
@@ -27,6 +28,7 @@ namespace GALAXY
 			renderer->DrawWireCube(aabb.GetCenter(), aabb.GetExtents(), Vec4f(1, 1, 0, 1), 5.f);
 		}
 	}
+#endif
 
 	void Component::Collider::OnUpdate()
 	{

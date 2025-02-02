@@ -8,6 +8,7 @@
 
 namespace GALAXY 
 {
+#ifdef WITH_EDITOR
     void Component::MeshCollider::ShowInInspector()
     {
         Collider::ShowInInspector();
@@ -46,6 +47,7 @@ namespace GALAXY
         m_mesh.lock()->Render(p_gameObject->GetTransform()->GetModelMatrix(), { material }, p_gameObject->GetScene(), p_gameObject->GetSceneGraphID());
         renderer->EnableWireframe(false);
     }
+#endif
 
     void Component::MeshCollider::OnCreate()
     {

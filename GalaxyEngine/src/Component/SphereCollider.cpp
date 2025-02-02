@@ -12,20 +12,7 @@ namespace GALAXY
         Collider::ShowInInspector();
         ImGui::DragFloat("Size", &m_size, 0.1f);
     }
-#endif
-
-    void Component::SphereCollider::OnStart()
-    {
-        Wrapper::PhysicsWrapper::GetInstance()->CreateSphereCollider(weak_from_this());
-    }
-
-    void Component::SphereCollider::OnDestroy()
-    {
-        Wrapper::PhysicsWrapper::GetInstance()->DestroySphereCollider(weak_from_this());
-    }
-
-
-#ifdef WITH_EDITOR
+    
     void Component::SphereCollider::OnEditorDraw()
     {
         Collider::OnEditorDraw();
@@ -38,6 +25,17 @@ namespace GALAXY
         Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Up(), s, 32, color, 2.f);
         Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Right(), s, 32, color, 2.f);
         Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Forward(), s, 32, color, 2.f);
+    }
+#endif
+
+    void Component::SphereCollider::OnStart()
+    {
+        Wrapper::PhysicsWrapper::GetInstance()->CreateSphereCollider(weak_from_this());
+    }
+
+    void Component::SphereCollider::OnDestroy()
+    {
+        Wrapper::PhysicsWrapper::GetInstance()->DestroySphereCollider(weak_from_this());
     }
 
     Physic::AABB Component::SphereCollider::GetAABB()
@@ -60,5 +58,4 @@ namespace GALAXY
 
         return supportPoint;
     }
-#endif
 }

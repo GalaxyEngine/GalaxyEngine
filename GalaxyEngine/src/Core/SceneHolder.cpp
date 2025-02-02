@@ -88,7 +88,9 @@ void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
 void Core::SceneHolder::NewScene()
 {
 	m_instance->m_nextScene = std::make_shared<Resource::Scene>("Scene");
+#ifdef WITH_EDITOR
 	m_instance->m_nextScene->m_editorCamera = std::make_unique<Render::EditorCamera>();
+#endif
 	m_instance->m_nextScene->Initialize();
 	m_instance->m_nextScene->p_loaded = true;
 
