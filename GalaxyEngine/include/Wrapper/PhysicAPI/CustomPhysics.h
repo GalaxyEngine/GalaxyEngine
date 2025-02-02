@@ -4,6 +4,11 @@
 #include "Wrapper/PhysicsWrapper.h"
 #include <list>
 
+namespace GALAXY::Component
+{
+    class MeshCollider;
+}
+
 namespace GALAXY
 {
     namespace Wrapper::PhysicAPI
@@ -36,13 +41,6 @@ namespace GALAXY
             bool m_static = false;
         };
 
-        template <typename T>
-        struct WeakPtrCompare {
-            bool operator()(const std::weak_ptr<T>& lhs, const std::weak_ptr<T>& rhs) const {
-                return lhs.owner_before(rhs);
-            }
-        };
-
         struct ColliderPair
         {
             Component::Collider* first;
@@ -63,6 +61,8 @@ namespace GALAXY
             void DestroyBoxCollider(Weak<Component::BoxCollider> collider) override;
             void CreateSphereCollider(Weak<Component::SphereCollider> collider) override;
             void DestroySphereCollider(Weak<Component::SphereCollider> collider) override;
+            void CreateMeshCollider(Weak<Component::MeshCollider> collider) override;
+            void DestroyMeshCollider(Weak<Component::MeshCollider> collider) override;
             void SetDefaultGravity(const Vec3f& value) override;
 
         private:

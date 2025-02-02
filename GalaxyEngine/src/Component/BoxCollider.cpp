@@ -37,7 +37,8 @@ namespace GALAXY
         return {position, newHe, true};
     }
 
-    Vec3f Component::BoxCollider::Support(const Vec3f& direction) {
+    Vec3f Component::BoxCollider::Support(const Vec3f& direction)
+    {
         Vec3f worldPosition = p_gameObject->GetTransform()->GetWorldPosition();
 
         Quat rotation = p_gameObject->GetTransform()->GetWorldRotation();
@@ -55,7 +56,7 @@ namespace GALAXY
 
         Vec3f worldSupport = worldPosition + rotation * localSupport;
         
-        return worldSupport;
+        return m_prevSupport = worldSupport;
     }
 
 #ifdef WITH_EDITOR
@@ -68,6 +69,7 @@ namespace GALAXY
         Quat rotation = GetTransform()->GetWorldRotation();
         Vec3f scale = GetTransform()->GetWorldScale();
         Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, rotation, p_debugCollide ? Vec4f(1, 0, 0, 1) : Vec4f(0, 1, 0, 1), 10.f);
+        // Wrapper::Renderer::GetInstance()->DrawWireCube(m_prevSupport, Vec3f::One() * 0.1f, Vec4f(0, 0, 1, 1), 10.f);
     }
     
     void Component::BoxCollider::ShowInInspector()

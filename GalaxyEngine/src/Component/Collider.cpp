@@ -1,16 +1,19 @@
 #include "pch.h"
 #include "Component/Collider.h"
 #include "Component/RigidBody.h"
+#include "Core/Application.h"
 
 namespace GALAXY 
 {
-	Component::ColliderType Component::Collider::GetType()
+	Component::ColliderType Component::Collider::GetType() const
 	{
 		return Count;
 	}
 
 	void Component::Collider::ShowInInspector()
 	{
+		if (Core::Application::IsPlayMode())
+			ImGui::TextColored(p_debugCollide ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1), p_debugCollide ? "Collision Detected" : "No Collision Detected");
 		ImGui::Checkbox("Draw AABB", &p_drawAABB);
 	}
 

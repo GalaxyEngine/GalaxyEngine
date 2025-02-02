@@ -21,6 +21,8 @@ namespace GALAXY {
 			void Update();
 			
 			static void OpenScene(const std::filesystem::path& path);
+			
+			static void NewScene();
 
 			inline void SwitchScene(const Weak<Resource::Scene>& scene, bool copyData = false);
 

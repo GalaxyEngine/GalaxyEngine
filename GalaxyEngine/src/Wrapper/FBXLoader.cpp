@@ -316,6 +316,7 @@ namespace GALAXY
 
 			allPositions.push_back(positions);
 
+			mesh->m_positions = positions;
 			mesh->m_finalVertices = finalVertices;
 
 			mesh->p_shouldBeLoaded = true;

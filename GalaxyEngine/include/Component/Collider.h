@@ -14,6 +14,7 @@ namespace GALAXY
             Sphere = 0,
             Box,
             Capsule,
+            Mesh,
 
             Count
         };
@@ -27,9 +28,7 @@ namespace GALAXY
             Quat m_offsetRot;
             Vec3f m_offsetPos;
 
-            virtual ColliderType GetType();
-
-            
+            virtual ColliderType GetType() const;
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;

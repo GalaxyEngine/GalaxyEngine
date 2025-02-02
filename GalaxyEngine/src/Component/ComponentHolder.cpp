@@ -11,6 +11,7 @@
 #include "Component/RigidBody.h"
 #include "Component/BoxCollider.h"
 #include "Component/SphereCollider.h"
+#include "Component/MeshCollider.h"
 
 std::vector<std::shared_ptr<Component::BaseComponent>> Component::ComponentHolder::m_componentList;
 
@@ -27,6 +28,7 @@ void ComponentHolder::Initialize()
 	RegisterComponent<RigidBody>();
 	RegisterComponent<BoxCollider>();
 	RegisterComponent<SphereCollider>();
+	RegisterComponent<MeshCollider>();
 }
 
 void ComponentHolder::UnregisterComponentByName(const std::string& componentName)

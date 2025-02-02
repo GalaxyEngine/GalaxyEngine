@@ -35,6 +35,10 @@ namespace GALAXY
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::MenuItem("New Scene"))
+				{
+					Core::SceneHolder::NewScene();
+				}
 				if (ImGui::MenuItem("Open Scene"))
 				{
 					if (const std::string path = Utils::OS::OpenDialog(filters, Resource::ResourceManager::GetAssetPath()); !path.empty())

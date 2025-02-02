@@ -84,6 +84,17 @@ void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
 	m_instance->SwitchScene(sceneResource);
 #endif
 }
+
+void Core::SceneHolder::NewScene()
+{
+	m_instance->m_nextScene = std::make_shared<Resource::Scene>("Scene");
+	m_instance->m_nextScene->m_editorCamera = std::make_unique<Render::EditorCamera>();
+	m_instance->m_nextScene->Initialize();
+	m_instance->m_nextScene->p_loaded = true;
+
+	m_instance->SwitchScene(m_instance->m_nextScene, false);
+}
+
 Resource::Scene* Core::SceneHolder::GetCurrentScene()
 {
 	return GetInstance()->m_currentScene.get();

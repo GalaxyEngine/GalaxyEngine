@@ -33,9 +33,40 @@ namespace GALAXY {
 		m_instance->EnableDebugOutput();
 	}
 
+	void Wrapper::Renderer::RenderDebug()
+	{
+		for (auto& line : p_debugLines)
+		{
+			Internal_DrawLine(line.posA, line.posB, line.color, line.lineWidth);
+		}
+		p_debugLines.clear();
+	}
+
 	UMap<std::string, Resource::Uniform> Wrapper::Renderer::GetShaderUniforms(Resource::Shader* shader)
 	{
 		return {};
+	}
+
+	void Wrapper::Renderer::AddDebugLine(const DebugLine& line)
+	{
+		p_debugLines.push_back(line);
+	}
+
+	void Wrapper::Renderer::DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color, float lineWidth)
+	{
+		if (p_renderType == Render::RenderType::None)
+		{
+			DebugLine debugLine;
+			debugLine.posA = pos1;
+			debugLine.posB = pos2;
+			debugLine.color = color;
+			debugLine.lineWidth = lineWidth;
+			AddDebugLine(debugLine);
+		}
+		else
+		{
+			m_instance->Internal_DrawLine(pos1, pos2, color, lineWidth);
+		}
 	}
 
 	void Wrapper::Renderer::DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)

@@ -151,8 +151,8 @@ namespace GALAXY
             }
         };*/
 
-        using DynamicBodyMap = std::unordered_map<Component::BaseComponent*, JPH::Body*>;
-        using StaticBodyMap = std::unordered_map<Component::BaseComponent*, JPH::Body*>;
+        using DynamicBodyMap = std::unordered_map<Weak<Component::RigidBody>, JPH::Body*, WeakHash<Component::RigidBody>, WeakEqual<Component::RigidBody>>;
+        using StaticBodyMap = std::unordered_map<Weak<Component::Collider>, JPH::Body*, WeakHash<Component::Collider>, WeakEqual<Component::Collider>>;
 
         class JoltAPI : public Wrapper::PhysicsWrapper
         {
@@ -162,12 +162,14 @@ namespace GALAXY
 
             void Update() override;
 
-            void CreateRigidBody(Component::RigidBody* rigidbody) override;
-            void DestroyRigidBody(Component::RigidBody* rigidbody) override;
-            void CreateBoxCollider(Component::BoxCollider* collider) override;
-            void DestroyBoxCollider(Component::BoxCollider* collider) override;
-            void CreateSphereCollider(Component::SphereCollider* collider) override;
-            void DestroySphereCollider(Component::SphereCollider* collider) override;
+            void CreateRigidBody(Weak<Component::RigidBody> body) override;
+            void DestroyRigidBody(Weak<Component::RigidBody> body) override;
+            void CreateBoxCollider(Weak<Component::BoxCollider> _collider) override;
+            void DestroyBoxCollider(Weak<Component::BoxCollider> collider) override;
+            void CreateSphereCollider(Weak<Component::SphereCollider> collider) override;
+            void DestroySphereCollider(Weak<Component::SphereCollider> collider) override;
+            void CreateMeshCollider(Weak<Component::MeshCollider> collider) override {}
+            void DestroyMeshCollider(Weak<Component::MeshCollider> collider) override {}
             void SetDefaultGravity(const Vec3f& value) override;
 
         private:

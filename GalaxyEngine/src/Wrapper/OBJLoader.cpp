@@ -36,6 +36,7 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 		positionVertices[i] = model.m_meshes[i].positions;
 		mesh->m_indices = model.m_meshes[i].indices;
 		mesh->m_finalVertices = model.m_meshes[i].finalVertices;
+		mesh->m_positions = model.m_meshes[i].positions;
 		for (size_t j = 0; j < model.m_meshes[i].subMeshes.size(); j++) {
 			Resource::SubMesh subMesh;
 			subMesh.startIndex = model.m_meshes[i].subMeshes[j].startIndex;

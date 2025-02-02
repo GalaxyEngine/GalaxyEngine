@@ -16,7 +16,7 @@ namespace GALAXY
             BoxCollider(BoxCollider&&) noexcept = default;
             ~BoxCollider() override = default;
 
-            ColliderType GetType() override { return ColliderType::Box; }
+            ColliderType GetType() const override { return ColliderType::Box; }
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
@@ -34,6 +34,8 @@ namespace GALAXY
             Vec3f Support(const Vec3f& direction) override; 
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
+
+            Vec3f m_prevSupport;
             
         };
     }

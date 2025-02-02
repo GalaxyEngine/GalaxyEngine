@@ -17,6 +17,8 @@ namespace GALAXY::Wrapper::RendererAPI
 			void Initialize() override;
 			void EnableDebugOutput() override;
 
+			void EnableWireframe(bool active) override;
+
 			void Viewport(const Vec2i& pos, const Vec2i& size) override;
 			void ClearColorAndBuffer(const Vec4f& color) override;
 
@@ -100,9 +102,9 @@ namespace GALAXY::Wrapper::RendererAPI
 			void ReadPixels(Resource::Texture* texture, unsigned char*& data) override;
 			
 			int GetErrorCode() override;
-
+		protected:
 			// Debug
-			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;
+			void Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;
 		private:
 
 		};

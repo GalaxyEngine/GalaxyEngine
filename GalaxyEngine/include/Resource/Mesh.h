@@ -60,6 +60,8 @@ namespace GALAXY
 			uint32_t GetVertexArrayIndex() const { return m_vertexArrayIndex; }
 			uint32_t GetVertexBufferIndex() const { return m_vertexBufferIndex; }
 			uint32_t GetIndexBufferIndex() const { return m_indexBufferIndex; }
+			
+			const std::vector<Vec3f>& GetPositionVertices() const { return m_positions; }
 		private:
 			void ComputeBoundingBox(const std::vector<Vec3f>& positionVertices);
 
@@ -78,6 +80,7 @@ namespace GALAXY
 
 			std::vector<Vec3i> m_indices;
 			std::vector<float> m_finalVertices;
+			std::vector<Vec3f> m_positions;
 			std::vector<SubMesh> m_subMeshes;
 		};
 	}

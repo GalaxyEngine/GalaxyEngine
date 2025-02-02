@@ -16,7 +16,7 @@ namespace GALAXY
             SphereCollider(SphereCollider&&) noexcept = default;
             ~SphereCollider() override = default;
 
-            ColliderType GetType() override { return ColliderType::Sphere; }
+            ColliderType GetType() const override { return ColliderType::Sphere; }
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;

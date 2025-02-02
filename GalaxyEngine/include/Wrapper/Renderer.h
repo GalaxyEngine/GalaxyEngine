@@ -30,6 +30,7 @@ namespace GALAXY
 
 		enum class RenderType
 		{
+			None,
 			Default,
 			Picking,
 			Outline
@@ -49,7 +50,14 @@ namespace GALAXY
 			VULKAN,
 			DIRECTX
 		};
-		
+
+		struct DebugLine
+		{
+			Vec3f posA;
+			Vec3f posB;
+			Vec4f color = Vec4f(1);
+			float lineWidth = 1.f;
+		};
 
 		class GALAXY_API Renderer
 		{
@@ -66,6 +74,10 @@ namespace GALAXY
 			virtual void Initialize() {}
 			virtual void EnableDebugOutput() {}
 			inline bool IsInitalized() const { return p_initalized; }
+
+			virtual void EnableWireframe(bool active = true) {}
+
+			virtual void RenderDebug();
 
 			inline void SetRenderingType(const Render::RenderType value) { p_renderType = value; }
 			inline Render::RenderType GetRenderType() const { return p_renderType; }
@@ -151,18 +163,24 @@ namespace GALAXY
 			virtual void ReadPixels(const Vec2i& size, unsigned char*& data) { }
 			virtual void ReadPixels(Resource::Texture* texture, unsigned char*& data) { }
 
+			virtual void AddDebugLine(const DebugLine& line);
+
 			// Debug
-			virtual void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
-			virtual void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
-			virtual void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
-			virtual void DrawWireCube(Component::Transform* transform, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
-			virtual void DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
-			virtual void DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height = 25.f, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			void DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireCube(Component::Transform* transform, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height = 25.f, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 
 			virtual int GetErrorCode() {return 0;}
 		protected:
+			virtual void Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
+		protected:
 			bool p_initalized = false;
-			Render::RenderType p_renderType = Render::RenderType::Default;
+			Render::RenderType p_renderType = Render::RenderType::None;
+
+			std::vector<DebugLine> p_debugLines;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};
