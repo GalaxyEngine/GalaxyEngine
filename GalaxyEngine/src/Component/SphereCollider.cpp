@@ -20,11 +20,10 @@ namespace GALAXY
             return;
         auto position = p_gameObject->GetTransform()->GetWorldPosition();
         auto scale = p_gameObject->GetTransform()->GetWorldScale();
-        float s = fmaxf(fmaxf(scale.x, scale.y), scale.z);
+        float s = fmaxf(fmaxf(scale.x, scale.y), scale.z) * m_size;
         Vec4f color = p_debugCollide ? Vec4f(1, 0, 0, 1) : Vec4f(0, 1, 0, 1);
-        Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Up(), s, 32, color, 2.f);
-        Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Right(), s, 32, color, 2.f);
-        Wrapper::Renderer::GetInstance()->DrawWireCircle(position, Vec3f::Forward(), s, 32, color, 2.f);
+        Wrapper::Renderer::GetInstance()->DrawSimpleWireSphere(position, s, 32, color, 1.f);
+        // Wrapper::Renderer::GetInstance()->DrawWireSphere(position, s, 16, 8, color, 2.f);
     }
 #endif
 

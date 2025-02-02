@@ -176,6 +176,44 @@ namespace GALAXY {
 		DrawLine(previousPoint, startPoint, color, lineWidth);
 	}
 
+	void Wrapper::Renderer::DrawSimpleWireSphere(const Vec3f& pos, float radius, int numSegments, Vec4f color,float lineWidth)
+	{
+		DrawWireCircle(pos, Vec3f::Up(), radius, numSegments, color, 2.f);
+		DrawWireCircle(pos, Vec3f::Right(), radius, numSegments, color, 2.f);
+		DrawWireCircle(pos, Vec3f::Forward(), radius, numSegments, color, 2.f);
+	}
+
+	void Wrapper::Renderer::DrawWireSphere(const Vec3f& pos, float radius, int numSegments, int numRings, Vec4f color, float lineWidth)
+	{
+		const float degToRad = DegToRad;  
+		const float invNumRings = 1.0f / numRings;  
+		const Vec3f up = Vec3f::Up();  
+
+		// Draw longitudinal rings (vertical rings)
+		const float longStep = 360.f * invNumRings;  
+		for (int i = 0; i < numRings; ++i)
+		{
+			float angle = i * longStep;
+			Vec3f direction = Quat::AngleAxis(angle, up) * Vec3f::Forward();
+			DrawWireCircle(pos, direction, radius, numSegments, color, lineWidth);
+		}
+
+		// Draw latitude rings (horizontal rings)
+		const float latStep = 180.f * invNumRings;  
+		for (int i = 0; i <= numRings; ++i)
+		{
+			float theta = -90.f + (i * latStep);
+			float radTheta = theta * degToRad;
+
+			float circleRadius = radius * cos(radTheta);
+			float yOffset = radius * sin(radTheta);
+			Vec3f circleCenter = pos + Vec3f(0, yOffset, 0);
+
+			DrawWireCircle(circleCenter, up, circleRadius, numSegments, color, lineWidth);
+		}
+	}
+
+
 	void Wrapper::Renderer::DrawWireCone(const Vec3f& pos, const Quat& rotation, const float topRadius, float angle, float height /*= 25.f*/, const Vec4f& color /*= Vec4f(1)*/, const float lineWidth /*= 1.f*/)
 	{
 		const Vec3f forward = rotation * Math::Vec3f::Forward();

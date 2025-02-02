@@ -720,6 +720,7 @@ namespace GALAXY
 
 	void OpenGLRenderer::Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color, float lineWidth)
 	{
+		// Improve this to use instancing
 		static float minMaxWidth[2];
 
 		static bool initalized = false;

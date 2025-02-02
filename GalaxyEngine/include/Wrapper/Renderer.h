@@ -171,6 +171,8 @@ namespace GALAXY
 			void DrawWireCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 			void DrawWireCube(Component::Transform* transform, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 			void DrawWireCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
+			void DrawSimpleWireSphere(const Vec3f& pos, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
+			void DrawWireSphere(const Vec3f& pos, float radius, int numSegments = 16, int numRings = 8, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 			void DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height = 25.f, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
 
 			virtual int GetErrorCode() {return 0;}
