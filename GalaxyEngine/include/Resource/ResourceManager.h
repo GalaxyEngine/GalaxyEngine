@@ -22,7 +22,7 @@ namespace GALAXY {
 		public:
 			~ResourceManager();
 
-			static inline Resource::ResourceManager* GetInstance();
+			static inline ResourceManager* GetInstance();
 
 			static void Release();
 

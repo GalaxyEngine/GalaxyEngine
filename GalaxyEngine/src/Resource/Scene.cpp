@@ -282,8 +282,8 @@ namespace GALAXY
 	{
 		if (m_root)
 		{
-			m_root->SetScene(nullptr);
 			m_root->Destroy();
+			m_root->SetScene(nullptr);
 			m_root.reset();
 		}
 	}
