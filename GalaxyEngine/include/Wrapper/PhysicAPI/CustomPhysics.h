@@ -68,7 +68,7 @@ namespace GALAXY
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
-            std::vector<ColliderPair> BroadPhase();
+            std::vector<ColliderPair> BroadPhase() const;
             static bool GJK(Component::Collider* a, Component::Collider* b);
 
         private:

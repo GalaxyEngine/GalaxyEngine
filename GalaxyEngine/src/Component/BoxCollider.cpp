@@ -45,9 +45,7 @@ namespace GALAXY
 
         Vec3f scale = p_gameObject->GetTransform()->GetWorldScale() * m_size;
 
-        // Transform the direction vector into the local space of the cube
         Vec3f localDirection = rotation.GetInverse() * direction;
-
         // Find the farthest point in the local space
         Vec3f localSupport;
         localSupport.x = (localDirection.x > 0) ? scale.x : -scale.x;
@@ -56,7 +54,7 @@ namespace GALAXY
 
         Vec3f worldSupport = worldPosition + rotation * localSupport;
         
-        return m_prevSupport = worldSupport;
+        return worldSupport;
     }
 
 #ifdef WITH_EDITOR
@@ -69,7 +67,6 @@ namespace GALAXY
         Quat rotation = GetTransform()->GetWorldRotation();
         Vec3f scale = GetTransform()->GetWorldScale();
         Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, rotation, p_debugCollide ? Vec4f(1, 0, 0, 1) : Vec4f(0, 1, 0, 1), 10.f);
-        // Wrapper::Renderer::GetInstance()->DrawWireCube(m_prevSupport, Vec3f::One() * 0.1f, Vec4f(0, 0, 1, 1), 10.f);
     }
     
     void Component::BoxCollider::ShowInInspector()

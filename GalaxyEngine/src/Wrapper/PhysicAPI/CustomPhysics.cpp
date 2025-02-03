@@ -157,7 +157,7 @@ namespace GALAXY
         Vec3f Max;
     };
 
-    std::vector<Wrapper::PhysicAPI::ColliderPair> Wrapper::PhysicAPI::CustomPhysicsAPI::BroadPhase()
+    std::vector<Wrapper::PhysicAPI::ColliderPair> Wrapper::PhysicAPI::CustomPhysicsAPI::BroadPhase() const
     {
         auto colliders = m_colliderMap;
         std::vector<SAPAABB> aabbs;
@@ -355,7 +355,7 @@ namespace GALAXY
         if (direction.LengthSquared() == 0)
             direction = Vec3f(1, 1, 1); // Fallback direction if both centers coincide.
 
-        constexpr int maxIterations = 100;
+        constexpr int maxIterations = 50;
         constexpr float epsilon = 1e-6f;
 
         for (int i = 0; i < maxIterations; ++i)
@@ -368,7 +368,7 @@ namespace GALAXY
 
             simplex.push_back(newSupport);
             
-            Renderer::GetInstance()->DrawWireCube(newSupport, Vec3f(0.1f));
+            // Renderer::GetInstance()->DrawWireCube(newSupport, Vec3f(0.1f));
 
             if (SimplexContainsOrigin(simplex, direction))
                 return true;

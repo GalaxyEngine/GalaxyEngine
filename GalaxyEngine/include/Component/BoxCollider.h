@@ -34,8 +34,6 @@ namespace GALAXY
             Vec3f Support(const Vec3f& direction) override; 
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
-
-            Vec3f m_prevSupport;
             
         };
     }
