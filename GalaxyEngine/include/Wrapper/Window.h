@@ -110,7 +110,7 @@ namespace GALAXY
 			bool ShouldClose();
 			void Close() const;
 			void ForceClose();
-			void CancelClose();
+			void CancelClose() const;
 
 			[[nodiscard]] void* GetWindow() const { return m_window; }
 

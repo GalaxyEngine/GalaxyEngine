@@ -210,168 +210,140 @@ namespace GALAXY
 
         return result;
     }
+    
+    //Triangle case
+    void update_simplex3(Vec3f &a, Vec3f &b, Vec3f &c, Vec3f &d, int &simp_dim, Vec3f &search_dir){
+        /* Required winding order:
+        //  b
+        //  | \
+        //  |   \
+        //  |    a
+        //  |   /
+        //  | /
+        //  c
+        */
+        Vec3f n = (b-a).Cross(c - a); //triangle's normal
+        Vec3f AO = -a; //direction to origin
 
-    // Computes the Minkowski difference support point.
-    Vec3f Support(Component::Collider* a, Component::Collider* b, const Vec3f& direction)
-    {
-        return a->Support(direction) - b->Support(-direction);
-    }
+        //Determine which feature is closest to origin, make that the new simplex
 
-    // Updates the simplex and search direction.
-    // Returns true if the origin is contained in the simplex.
-    bool SimplexContainsOrigin(std::vector<Vec3f>& simplex, Vec3f& direction)
-    {
-        // Let A be the last added point (at the back).
-        const Vec3f A = simplex.back();
-        const Vec3f AO = -A;
-
-        // Handle simplex cases based on the number of points.
-        if (simplex.size() == 2)
-        {
-            // --- Line Segment case ---
-            // Simplex = {B, A} where A is the newest point.
-            const Vec3f B = simplex.front();
-            const Vec3f AB = B - A;
-
-            // If the origin is in the AB direction:
-            if (AB.Dot(AO) > 0)
-            {
-                // New direction is perpendicular to AB toward the origin.
-                // Using: direction = (AB x AO) x AB.
-                direction = AB.Cross(AO).Cross(AB).GetNormalize();
-            }
-            else
-            {
-                // Otherwise, the origin is in the direction of A.
-                simplex = { A };
-                direction = AO.GetNormalize();
-            }
-            return false;
+        simp_dim = 2;
+        if((b-a).Cross(n).Dot(AO)>0){ //Closest to edge AB
+            c = a;
+            //simp_dim = 2;
+            search_dir = (b-a).Cross(AO).Cross(b-a);
+            return;
         }
-        else if (simplex.size() == 3)
-        {
-            // --- Triangle case ---
-            // Let the simplex be: C, B, A (A is the newest)
-            const Vec3f C = simplex[0];
-            const Vec3f B = simplex[1];
-            // Edges from A:
-            const Vec3f AB = B - A;
-            const Vec3f AC = C - A;
-
-            // Compute the triangle's normal (which may not point toward the origin).
-            Vec3f ABC = AB.Cross(AC);
-
-            // Compute the perpendicular to AB in the plane of the triangle.
-            Vec3f ABPerp = ABC.Cross(AB);
-            if (ABPerp.Dot(AO) > 0)
-            {
-                // Remove C; new simplex is {B, A}
-                simplex.erase(simplex.begin());
-                direction = ABPerp.GetNormalize();
-                return false;
-            }
-
-            // Compute the perpendicular to AC in the plane.
-            Vec3f ACPerp = AC.Cross(ABC);
-            if (ACPerp.Dot(AO) > 0)
-            {
-                // Remove B; new simplex is {C, A}
-                simplex.erase(simplex.begin() + 1);
-                direction = ACPerp.GetNormalize();
-                return false;
-            }
-
-            // If neither region works, then the origin must be in the direction of the triangle's normal.
-            // Ensure the normal points toward the origin.
-            if (ABC.Dot(AO) > 0)
-                direction = ABC.GetNormalize();
-            else
-                direction = (-ABC).GetNormalize();
-            return false;
+        if(n.Cross(c-a).Dot(AO)>0){ //Closest to edge AC
+            b = a;
+            //simp_dim = 2;
+            search_dir = (c-a).Cross(AO).Cross(c-a);
+            return;
         }
-        else if (simplex.size() == 4)
-        {
-            // --- Tetrahedron case ---
-            // Let the simplex be: D, C, B, A (A is the newest)
-            const Vec3f D = simplex[0];
-            const Vec3f C = simplex[1];
-            const Vec3f B = simplex[2];
-            // A is simplex[3]
-            // Edges from A:
-            const Vec3f AB = B - A;
-            const Vec3f AC = C - A;
-            const Vec3f AD = D - A;
-
-            // Compute normals for each face of the tetrahedron that contains A.
-            Vec3f ABC = AB.Cross(AC);
-            if (ABC.Dot(AO) > 0)
-            {
-                // The origin is outside face ABC.
-                simplex = { C, B, A }; // Order: {A (newest), B, C}
-                direction = ABC.GetNormalize();
-                return false;
-            }
-
-            Vec3f ACD = AC.Cross(AD);
-            if (ACD.Dot(AO) > 0)
-            {
-                // The origin is outside face ACD.
-                simplex = { D, C, A }; // Order: {A, C, D}
-                direction = ACD.GetNormalize();
-                return false;
-            }
-
-            Vec3f ADB = AD.Cross(AB);
-            if (ADB.Dot(AO) > 0)
-            {
-                // The origin is outside face ADB.
-                simplex = { B, D, A }; // Order: {A, D, B}
-                direction = ADB.GetNormalize();
-                return false;
-            }
-
-            // If the origin is not outside any face, then it is inside the tetrahedron.
-            return true;
-        }
-
-        // Fallback (should never reach here)
-        return false;
-    }
-
-    bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* a, Component::Collider* b)
-    {
-        // Initialize the search direction from a's position to b's position.
-        Vec3f direction = b->GetTransform()->GetWorldPosition() - a->GetTransform()->GetWorldPosition();
-        if (direction.LengthSquared() == 0)
-            direction = Vec3f(1, 1, 1); // Fallback direction if both centers coincide.
-
-        // Start with the first support point.
-        std::vector<Vec3f> simplex;
-        simplex.push_back(Support(a, b, direction));
-
-        // New direction toward the origin.
-        direction = -simplex.back();
         
-        if (direction.LengthSquared() == 0)
-            direction = Vec3f(1, 1, 1); // Fallback direction if both centers coincide.
+        simp_dim = 3;
+        if(n.Dot(AO)>0){ //Above triangle
+            d = c;
+            c = b;
+            b = a;
+            //simp_dim = 3;
+            search_dir = n;
+            return;
+        }
+        //else //Below triangle
+        d = b;
+        b = a;
+        //simp_dim = 3;
+        search_dir = -n;
+    }
 
-        constexpr int maxIterations = 50;
-        constexpr float epsilon = 1e-6f;
+    //Tetrahedral case
+    bool update_simplex4(Vec3f &a, Vec3f &b, Vec3f &c, Vec3f &d, int &simp_dim, Vec3f &search_dir){
+        // a is peak/tip of pyramid, BCD is the base (counterclockwise winding order)
+	    //We know a priori that origin is above BCD and below a
 
-        for (int i = 0; i < maxIterations; ++i)
+        //Get normals of three new faces
+        Vec3f ABC = (b-a).Cross(c-a);
+        Vec3f ACD = (c-a).Cross(d-a);
+        Vec3f ADB = (d-a).Cross(b-a);
+
+        Vec3f AO = -a; //dir to origin
+        simp_dim = 3; //hoisting this just cause
+
+        //Plane-test origin with 3 faces
+        /*
+        // Note: Kind of primitive approach used here; If origin is in front of a face, just use it as the new simplex.
+        // We just go through the faces sequentially and exit at the first one which satisfies dot product. Not sure this 
+        // is optimal or if edges should be considered as possible simplices? Thinking this through in my head I feel like 
+        // this method is good enough. Makes no difference for AABBS, should test with more complex colliders.
+        */
+        if(ABC.Dot(AO)>0){ //In front of ABC
+    	    d = c;
+    	    c = b;
+    	    b = a;
+            search_dir = ABC;
+    	    return false;
+        }
+        if(ACD.Dot(AO)>0){ //In front of ACD
+    	    b = a;
+            search_dir = ACD;
+    	    return false;
+        }
+        if(ADB.Dot(AO)>0){ //In front of ADB
+    	    c = d;
+    	    d = b;
+    	    b = a;
+            search_dir = ADB;
+    	    return false;
+        }
+
+        //else inside tetrahedron; enclosed!
+        return true;
+    }
+
+    // Source : https://github.com/kevinmoran/GJK/blob/master
+    bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2)
+    {
+        Vec3f a,b,c,d;
+        Vec3f bWorldPos = coll1->GetTransform()->GetWorldPosition();
+        Vec3f aWorldPos = coll2->GetTransform()->GetWorldPosition();
+
+        Vec3f searchDir = bWorldPos - aWorldPos;
+
+        c = coll2->Support(searchDir) - coll1->Support(-searchDir);
+        searchDir = -c;
+
+        b = coll2->Support(searchDir) - coll1->Support(-searchDir);
+
+        if (b.Dot(searchDir) < 0)
+            return false;
+
+        searchDir = (c - b).Cross(-b).Cross(c - b);
+        if (searchDir == Vec3f::Zero())
         {
-            Vec3f newSupport = Support(a, b, direction);
+            searchDir = (c - b).Cross(Vec3f::Right());
+            if (searchDir == Vec3f::Zero())
+                searchDir = (c - b).Cross(Vec3f::Forward());
+        }
+        int simp_dim = 2; //simplex dimension
 
-            // If the new support point isn't past the origin in the direction, no collision.
-            if (newSupport.Dot(direction) < -epsilon)
-                return false;
-
-            simplex.push_back(newSupport);
-            
-            // Renderer::GetInstance()->DrawWireCube(newSupport, Vec3f(0.1f));
-
-            if (SimplexContainsOrigin(simplex, direction))
+        constexpr int GJK_MAX_NUM_ITERATIONS = 64;
+        for(int iterations=0; iterations<GJK_MAX_NUM_ITERATIONS; iterations++)
+        {
+            a = coll2->Support(searchDir) - coll1->Support(-searchDir);
+            if(a.Dot(searchDir)<0)
+                return false; //we didn't reach the origin, won't enclose it
+    
+            simp_dim++;
+            if(simp_dim==3){
+                update_simplex3(a,b,c,d,simp_dim,searchDir);
+            }
+            else if(update_simplex4(a,b,c,d,simp_dim,searchDir))
+            {
+                //TODO
+                // if(mtv) *mtv = EPA(a,b,c,d,coll1,coll2);
                 return true;
+            }
         }
         return false;
     }

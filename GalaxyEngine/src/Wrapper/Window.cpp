@@ -414,7 +414,7 @@ namespace GALAXY {
 		glfwSetWindowShouldClose(glfwWindow, true);
 	}
 
-	void Wrapper::Window::CancelClose()
+	void Wrapper::Window::CancelClose() const
 	{
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		glfwSetWindowShouldClose(glfwWindow, false);

@@ -115,6 +115,8 @@ namespace GALAXY {
 	{
 		if (m_instance->s_shouldDisplayClosePopup.has_value())
 			return m_instance->s_shouldDisplayClosePopup.value();
+		if (Core::Application::IsPlayMode())
+			return false;
 		
 		const auto currentScene = Core::SceneHolder::GetCurrentScene();
 

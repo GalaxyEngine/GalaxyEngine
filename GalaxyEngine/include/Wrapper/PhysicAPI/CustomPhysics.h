@@ -69,7 +69,7 @@ namespace GALAXY
             bool InitializeAPI() override;
             void InternalUpdate();
             std::vector<ColliderPair> BroadPhase() const;
-            static bool GJK(Component::Collider* a, Component::Collider* b);
+            static bool GJK(Component::Collider* coll1, Component::Collider* coll2);
 
         private:
             std::set<Weak<Component::RigidBody>, WeakPtrCompare<Component::RigidBody>> m_objectMap;
