@@ -10,6 +10,7 @@
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
+#include "Resource/Mesh.h"
 #include "Utils/Time.h"
 
 namespace GALAXY
@@ -122,6 +123,40 @@ namespace GALAXY
         defaultGravity = value;
     }
 
+    Weak<Resource::Mesh> Wrapper::PhysicAPI::CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
+    {
+        if (!mesh)
+            return {};
+        
+        auto it = m_convexMesh.find(mesh);
+        if (it != m_convexMesh.end())
+            return it->second;
+
+        ComputeConvexVertices(mesh);
+
+        return m_convexMesh[mesh];
+    }
+
+    void Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
+    {
+        if (!mesh || m_convexMesh.contains(mesh))
+            return;
+
+        auto positions = mesh->GetPositionVertices();
+        std::vector<Vec3f> convexVertices;
+        for (const Vec3f& vertex : positions)
+        {
+            //TODO: Implement convex hull algorithm
+            convexVertices.push_back(vertex);
+        }
+        // Create mesh
+        Shared<Resource::Mesh> convexMesh = Resource::Mesh::CreateMeshWithPositions(convexVertices);
+        convexMesh->Send();
+
+        Weak<Resource::Mesh> weakMesh = mesh;
+        m_convexMesh[weakMesh] = convexMesh;
+    }
+
     bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()
     {
         PrintLog("Custom Physics Initialized");
@@ -171,10 +206,9 @@ namespace GALAXY
                 SAPAABB box;
                 Physic::AABB aabb = collider->GetAABB();
 
-                // Assuming SAPAABB has min and max fields for the AABB bounds
                 box.Min = aabb.Min;
                 box.Max = aabb.Max;
-                box.collider = collider.get(); // Store the collider pointer for later reference
+                box.collider = collider.get();
 
                 aabbs.push_back(box);
             }

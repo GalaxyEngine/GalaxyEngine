@@ -4,6 +4,11 @@
 #include "Wrapper/PhysicsWrapper.h"
 #include <list>
 
+namespace GALAXY::Resource
+{
+    class Mesh;
+}
+
 namespace GALAXY::Component
 {
     class MeshCollider;
@@ -65,6 +70,8 @@ namespace GALAXY
             void DestroyMeshCollider(Weak<Component::MeshCollider> collider) override;
             void SetDefaultGravity(const Vec3f& value) override;
 
+            Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) override;
+            void ComputeConvexVertices(Shared<Resource::Mesh> mesh) override;
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
@@ -75,6 +82,9 @@ namespace GALAXY
             std::set<Weak<Component::RigidBody>, WeakPtrCompare<Component::RigidBody>> m_objectMap;
             std::set<Weak<Component::Collider>, WeakPtrCompare<Component::Collider>> m_colliderMap;
             Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
+
+            std::unordered_map<Weak<Resource::Mesh>, Shared<Resource::Mesh>,
+            WeakHash<Resource::Mesh>, WeakPtrCompare<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
         };
     }
 }

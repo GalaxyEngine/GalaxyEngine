@@ -35,9 +35,15 @@ namespace GALAXY
             Physic::AABB GetAABB() override;
             Vec3f Support(const Vec3f& direction) override;
 
-            void SetMesh(const Weak<Resource::Mesh>& mesh) { m_mesh = mesh; }
+            void SetMesh(const Weak<Resource::Mesh>& mesh);
+
+            void SetConvex(bool convex);
+            bool IsConvex() const { return m_isConvex; }
         private:
             Weak<Resource::Mesh> m_mesh;
+            Weak<Resource::Mesh> m_convexMesh;
+
+            bool m_isConvex = true;
         };
     }
 }

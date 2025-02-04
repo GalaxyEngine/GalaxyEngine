@@ -2,6 +2,11 @@
 #include "GalaxyAPI.h"
 namespace GALAXY 
 {
+    namespace Resource
+    {
+        class Mesh;
+    }
+
     namespace Component
     {
         class MeshCollider;
@@ -67,6 +72,8 @@ namespace GALAXY
             virtual void DestroyMeshCollider(Weak<Component::MeshCollider> collider) = 0;
 
             virtual void SetDefaultGravity(const Vec3f& value) = 0;
+            virtual Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) {return {};}
+            virtual void ComputeConvexVertices(Shared<Resource::Mesh> mesh) {}
         protected:
             void AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body);
             void RemoveDynamicBody(uint32_t id);

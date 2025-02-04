@@ -27,7 +27,7 @@ namespace GALAXY
             return;
 
         auto renderer = Wrapper::Renderer::GetInstance();
-        auto mesh = m_mesh.lock();
+        auto mesh = m_convexMesh.lock();
         if (!mesh)
             return;
         const Shared<Render::Camera>& currentCamera = p_gameObject->GetScene()->GetCurrentCamera();
@@ -44,7 +44,7 @@ namespace GALAXY
             return;
 	
         renderer->EnableWireframe(true);
-        m_mesh.lock()->Render(p_gameObject->GetTransform()->GetModelMatrix(), { material }, p_gameObject->GetScene(), p_gameObject->GetSceneGraphID());
+        mesh->Render(p_gameObject->GetTransform()->GetModelMatrix(), { material }, p_gameObject->GetScene(), p_gameObject->GetSceneGraphID());
         renderer->EnableWireframe(false);
     }
 #endif
@@ -142,7 +142,6 @@ namespace GALAXY
 
     Vec3f Component::MeshCollider::Support(const Vec3f& direction)
     {
-        // Lock the mesh resource.
         auto mesh = m_mesh.lock();
         if (!mesh)
             return Vec3f(0.f, 0.f, 0.f); // Return a default vector if mesh is not available.
@@ -175,5 +174,25 @@ namespace GALAXY
         }
 
         return bestVertex;
+    }
+
+    void Component::MeshCollider::SetMesh(const Weak<Resource::Mesh>& mesh)
+    {
+        m_mesh = mesh;
+
+        if (IsConvex())
+        {
+            m_convexMesh = Wrapper::PhysicsWrapper::GetInstance()->GetConvexMesh(mesh.lock());
+        }
+    }
+
+    void Component::MeshCollider::SetConvex(bool convex)
+    {
+        m_isConvex = convex;
+
+        if (IsConvex() && m_mesh.lock())
+        {
+            m_convexMesh = Wrapper::PhysicsWrapper::GetInstance()->GetConvexMesh(m_mesh.lock());
+        }
     }
 }

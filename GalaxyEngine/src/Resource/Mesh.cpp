@@ -39,6 +39,32 @@ namespace GALAXY {
 		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
 		thumbnailCreator->AddToQueue(shared_from_this());
 	}
+
+	Shared<Resource::Mesh> Resource::Mesh::CreateMeshWithPositions(const std::vector<Vec3f>& positions)
+	{
+		Shared<Mesh> mesh = std::make_shared<Mesh>("");
+		mesh->m_positions = positions;
+		mesh->p_loaded = true;
+		mesh->p_shouldBeLoaded = true;
+		for (int i = 0; i < positions.size(); i++)
+		{
+			mesh->m_finalVertices.push_back(positions[i].x);
+			mesh->m_finalVertices.push_back(positions[i].y);
+			mesh->m_finalVertices.push_back(positions[i].z);
+
+			mesh->m_finalVertices.push_back(0);
+			mesh->m_finalVertices.push_back(0);
+			
+			mesh->m_finalVertices.push_back(0);
+			mesh->m_finalVertices.push_back(0);
+			mesh->m_finalVertices.push_back(0);
+			
+			mesh->m_finalVertices.push_back(0);
+			mesh->m_finalVertices.push_back(0);
+			mesh->m_finalVertices.push_back(0);
+		}
+		return mesh;
+	}
 #endif
 
 	std::string Resource::Mesh::GetMeshName()
