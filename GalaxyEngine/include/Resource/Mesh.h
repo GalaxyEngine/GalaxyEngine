@@ -31,7 +31,7 @@ namespace GALAXY
 			EDITOR_ONLY void CreateThumbnail();
 #endif
 
-			static Shared<Mesh> CreateMeshWithPositions(const std::vector<Vec3f>& positions);
+			static Shared<Mesh> CreateMeshWithPositions(const std::vector<Vec3f>& positions, const std::filesystem::path& path = "Generated Mesh");
 
 			std::string GetMeshName();
 

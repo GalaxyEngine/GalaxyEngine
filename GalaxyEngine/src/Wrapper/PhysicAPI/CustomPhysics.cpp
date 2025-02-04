@@ -128,22 +128,23 @@ namespace GALAXY
         if (!mesh)
             return {};
         
-        auto it = m_convexMesh.find(mesh);
+        auto it = m_convexMesh.find(mesh->GetUUID());
         if (it != m_convexMesh.end())
             return it->second;
 
         ComputeConvexVertices(mesh);
 
-        return m_convexMesh[mesh];
+        return m_convexMesh[mesh->GetUUID()];
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
     {
-        if (!mesh || m_convexMesh.contains(mesh))
+        if (!mesh || m_convexMesh.contains(mesh->GetUUID()))
             return;
 
         auto positions = mesh->GetPositionVertices();
         std::vector<Vec3f> convexVertices;
+        convexVertices.reserve(positions.size());
         for (const Vec3f& vertex : positions)
         {
             //TODO: Implement convex hull algorithm
@@ -151,10 +152,8 @@ namespace GALAXY
         }
         // Create mesh
         Shared<Resource::Mesh> convexMesh = Resource::Mesh::CreateMeshWithPositions(convexVertices);
-        convexMesh->Send();
 
-        Weak<Resource::Mesh> weakMesh = mesh;
-        m_convexMesh[weakMesh] = convexMesh;
+        m_convexMesh[mesh->GetUUID()] = convexMesh;
     }
 
     bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()

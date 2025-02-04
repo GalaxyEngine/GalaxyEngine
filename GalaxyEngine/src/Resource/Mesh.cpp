@@ -40,9 +40,9 @@ namespace GALAXY {
 		thumbnailCreator->AddToQueue(shared_from_this());
 	}
 
-	Shared<Resource::Mesh> Resource::Mesh::CreateMeshWithPositions(const std::vector<Vec3f>& positions)
+	Shared<Resource::Mesh> Resource::Mesh::CreateMeshWithPositions(const std::vector<Vec3f>& positions, const std::filesystem::path& path)
 	{
-		Shared<Mesh> mesh = std::make_shared<Mesh>("");
+		Shared<Mesh> mesh = std::make_shared<Mesh>(path);
 		mesh->m_positions = positions;
 		mesh->p_loaded = true;
 		mesh->p_shouldBeLoaded = true;
@@ -63,12 +63,18 @@ namespace GALAXY {
 			mesh->m_finalVertices.push_back(0);
 			mesh->m_finalVertices.push_back(0);
 		}
+		SubMesh subMesh;
+		subMesh.startIndex = 0;
+		subMesh.count = positions.size() / 3;
+		mesh->m_subMeshes.push_back(subMesh);
+		mesh->ComputeBoundingBox(positions);
+        mesh->Send();
 		return mesh;
 	}
 #endif
 
 	std::string Resource::Mesh::GetMeshName()
-{
+	{
 		auto meshName = GetFileInfo().GetFileName();
 		meshName = meshName.substr(meshName.find(':') + 1);
 		return meshName;

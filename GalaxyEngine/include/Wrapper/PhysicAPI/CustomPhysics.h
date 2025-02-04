@@ -83,8 +83,7 @@ namespace GALAXY
             std::set<Weak<Component::Collider>, WeakPtrCompare<Component::Collider>> m_colliderMap;
             Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
 
-            std::unordered_map<Weak<Resource::Mesh>, Shared<Resource::Mesh>,
-            WeakHash<Resource::Mesh>, WeakPtrCompare<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
+            std::unordered_map<Core::UUID, Shared<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
         };
     }
 }
