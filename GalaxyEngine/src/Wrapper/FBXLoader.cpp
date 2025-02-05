@@ -51,7 +51,7 @@ namespace GALAXY
 
 	Vec3f ToVec3f(const ofbx::DVec3& v)
 	{
-		return Vec3f(v.x, v.y, v.z);
+		return Vec3d(v.x, v.y, v.z);
 	}
 
 	Vec2f ToVec2f(const ofbx::Vec2& v)

@@ -21,6 +21,9 @@ namespace GALAXY
             EDITOR_ONLY void ShowInInspector() override;
 #endif
 
+            void Serialize(CppSer::Serializer& serializer) override;
+            void Deserialize(CppSer::Parser& parser) override;
+
             float GetMass() const { return m_mass; }
             void SetMass(float mass) { m_mass = mass; }
             
@@ -41,6 +44,9 @@ namespace GALAXY
             
             void OnStart() override;
             void OnDestroy() override;
+
+            void AddForce(const Vec3f& force);
+
         private:
             
             float m_mass = 1.0f;

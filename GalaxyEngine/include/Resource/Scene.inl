@@ -27,7 +27,7 @@ namespace GALAXY
 		}
 		else
 		{
-			ASSERT(false);
+			ASSERT(false && "Object already exists in scene");
 		}
 
 		for (auto& child : gameObject->GetChildren())

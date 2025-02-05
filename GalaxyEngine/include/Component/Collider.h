@@ -48,7 +48,7 @@ namespace GALAXY
 
             bool p_debugCollide = false;
             Vec3f p_supportDirection = Vec3f(1, 0, 0);
-            Vec3f p_supportPosition;
+            std::optional<Vec3f> p_supportPosition;
 
             bool p_drawAABB = false;
         };

@@ -144,7 +144,7 @@ void main()
 			if (vertexUUID != UUID_NULL)
 			{
 				Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertexUUID);
-				ASSERT(vertexShader.lock());
+				ASSERT(vertexShader.lock() && "Vertex Shader not found");
 				if (vertexShader.lock()) {
 					SetVertex(vertexShader.lock(), thisShader);
 				}
@@ -159,7 +159,7 @@ void main()
 			if (fragmentUUID != UUID_NULL)
 			{
 				Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragmentUUID);
-				ASSERT(fragmentShader.lock());
+				ASSERT(fragmentShader.lock() && "Fragment Shader not found");
 				SetFragment(fragmentShader.lock(), thisShader);
 			}
 		}
@@ -193,7 +193,7 @@ void main()
 	void Resource::Shader::Save()
 	{
 		// Debug
-		ASSERT(GetVertex().lock() || GetFragment().lock());
+		ASSERT(GetVertex().lock() || GetFragment().lock() && "Shader not valid");
 
 		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
 		serializer <<CppSer::Pair::BeginMap << "Shader";
@@ -555,7 +555,7 @@ void main()
 
 	int Resource::Shader::GetLocation(const char* locationName)
 	{
-		ASSERT(HasBeenSent());
+		ASSERT(HasBeenSent() && "Shader not sent");
 		const auto it = p_uniforms.find(locationName);
 		if (it != p_uniforms.end())
 		{

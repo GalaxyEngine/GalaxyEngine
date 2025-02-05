@@ -84,7 +84,7 @@ namespace GALAXY {
 	{
 		if (p_shouldBeLoaded)
 			return;
-		ASSERT(HasModel());
+		ASSERT(HasModel() && "Model for mesh not found");
 		p_shouldBeLoaded = true;
 
 		const std::string fullPathString = GetFileInfo().GetFullPath().string();

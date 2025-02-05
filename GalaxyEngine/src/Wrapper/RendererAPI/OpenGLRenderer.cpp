@@ -561,7 +561,7 @@ namespace GALAXY
 	
 	void OpenGLRenderer::BindTexture(Resource::Texture* texture, const uint32_t id /*= 0*/)
 	{
-		ASSERT(texture->HasBeenSent());
+		ASSERT(texture->HasBeenSent() && "Texture has not been sent to the GPU");
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, texture->GetID());
 	}
@@ -600,7 +600,7 @@ namespace GALAXY
 
 	void OpenGLRenderer::BindCubemap(Resource::Cubemap* cubemap, uint32_t id)
 	{
-		ASSERT(cubemap->HasBeenSent());
+		ASSERT(cubemap->HasBeenSent() && "Cubemap has not been sent to the GPU");
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
 	}

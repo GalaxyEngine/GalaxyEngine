@@ -59,7 +59,6 @@ namespace GALAXY
 		const size_t startIndex = static_cast<size_t>(type) * MAX_LIGHT_NUMBER;
 		const size_t indexInArray = startIndex + lightShared->GetLightIndex();
 
-		ResetLightData(lightShared.get());
 		if (lightManager->m_lights[indexInArray].lock() == lightShared)
 		{
 			lightManager->m_lights[indexInArray].reset();
@@ -70,7 +69,7 @@ namespace GALAXY
 	void Render::LightManager::AddShader(const Weak<Resource::Shader>& shader)
 	{
 		const auto lockShader = shader.lock();
-		ASSERT(lockShader && lockShader->HasBeenSent());
+		ASSERT(lockShader && lockShader->HasBeenSent() && "Shader not valid or not sent");
 
 		if (lockShader->GetLocation("UseLights") == -1)
 			return;
@@ -129,7 +128,7 @@ namespace GALAXY
 		shader->SendVec3f("camera.viewPos", cameraPos);
 
 		std::string prefix;
-		for (int i = 0; i < m_lights.size(); i++)
+		for (size_t i = 0; i < m_lights.size(); i++)
 		{
 			if (i % MAX_LIGHT_NUMBER == 0)
 			{
@@ -164,5 +163,4 @@ namespace GALAXY
 			light->ResetLightValues(shader.lock().get());
 		}
 	}
-
 }

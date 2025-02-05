@@ -419,8 +419,7 @@ namespace GALAXY
                 mat->m_data.m_cubemaps[uniformPair.second.displayName] = {};
                 break;
             default:
-                PrintError("Not supported uniform type %d", uniformPair.second.type);
-                ASSERT(false);
+                ASSERT(false && "Not supported uniform type");
             }
         }
         if (mat->m_tempData.m_bools.empty() && mat->m_tempData.m_floats.empty() && mat->m_tempData.m_ints.empty() && mat->m_tempData.

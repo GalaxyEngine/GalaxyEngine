@@ -519,7 +519,7 @@ namespace GALAXY
     {
         auto relativeOld = Utils::FileInfo::ToRelativePath(oldPath);
         auto it = m_instance->m_resources.find(relativeOld);
-        ASSERT(it != m_instance->m_resources.end());
+        ASSERT(it != m_instance->m_resources.end() && "Resource not found");
 
         auto resource = it->second;
         resource->p_fileInfo = Utils::FileInfo(newPath);
@@ -598,8 +598,8 @@ namespace GALAXY
         case Resource::ResourceType::Data:
             return {};
         default:
-            ASSERT(false);
             PrintError("Resource %s not handled", fullPath.string().c_str());
+            ASSERT(false);
             return {};
         }
     }

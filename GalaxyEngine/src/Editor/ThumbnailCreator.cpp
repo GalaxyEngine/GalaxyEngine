@@ -99,7 +99,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto modelShared = model.lock();
-		ASSERT(modelShared != nullptr);
+		ASSERT(modelShared != nullptr && "Model is null");
 
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		bool canBeCreated = modelShared->HasBeenSent();
@@ -187,7 +187,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto meshShared = mesh.lock();
-		ASSERT(meshShared != nullptr);
+		ASSERT(meshShared != nullptr && "Mesh is null");
 
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		bool canBeCreated = meshShared->HasBeenSent();
@@ -256,7 +256,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto materialShared = material.lock();
-		ASSERT(materialShared != nullptr);
+		ASSERT(materialShared != nullptr && "Material is null");
 		constexpr Vec3f cameraPosition(0, 0, 2);
 		const Quat cameraAngleAxis = Quat::AngleAxis(180, Vec3f(0, 0, 1));
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();

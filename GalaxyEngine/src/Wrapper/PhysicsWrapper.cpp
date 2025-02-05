@@ -21,16 +21,16 @@ namespace GALAXY
 #ifdef USE_JOLT
                 m_instance = new Wrapper::PhysicAPI::JoltAPI();
 #else
-                ASSERT(false || "You need to enable Jolt Physics API when compiling using --physic_api=jolt");
+                ASSERT(false && "You need to enable Jolt Physics API when compiling using --physic_api=jolt");
 #endif
                 break;
             }
             case PhysicAPIType::PhysX:
             {
 #ifdef USE_PHYSX
-                ASSERT(false || "PhysX not yet implemented");
+                ASSERT(false && "PhysX not yet implemented");
 #else
-                ASSERT(false || "You need to enable PhysX API when compiling using --physic_api=physx");
+                ASSERT(false && "You need to enable PhysX API when compiling using --physic_api=physx");
 #endif
                 break;
             }

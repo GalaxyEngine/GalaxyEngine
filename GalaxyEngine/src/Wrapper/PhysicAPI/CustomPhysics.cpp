@@ -27,6 +27,36 @@ namespace std {
 
 namespace GALAXY
 {
+
+    bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()
+    {
+        PrintLog("Custom Physics Initialized");
+        return true;
+    }
+
+    Wrapper::PhysicAPI::CustomPhysicsAPI::~CustomPhysicsAPI()
+    {
+    }
+
+    void Wrapper::PhysicAPI::CustomPhysicsAPI::InternalUpdate() const
+    {
+        std::vector<ColliderPair> objects = BroadPhase();
+
+        for (ColliderPair& pair : objects)
+        {
+            Vec3f mtv = Vec3f::Zero();
+            // PrintLog("Testing pair %ull - %ull", pair.first->GetGameObject()->GetUUID(), pair.second->GetGameObject()->GetUUID());
+            if (GJK(pair.first, pair.second, mtv))
+            {
+                pair.first->SetDebugCollide(true);
+                pair.second->SetDebugCollide(true);
+                // PrintLog("%s collide with %s",
+                // pair.first->GetGameObject()->GetName().c_str(),
+                // pair.second->GetGameObject()->GetName().c_str());
+            }
+        }
+    }
+
     void Wrapper::PhysicAPI::CustomPhysicsAPI::Update()
     {
 #ifdef WITH_EDITOR
@@ -34,6 +64,10 @@ namespace GALAXY
             return;
 #endif
         float dt = Utils::Time::DeltaTime();
+
+        // Remove expired objects
+        std::erase_if(m_objectSet, [](const Weak<Component::RigidBody>& body) { return body.expired(); });
+        std::erase_if(m_colliderSet, [](const Weak<Component::Collider>& collider) { return collider.expired(); });
 
         /*
         for (auto& body : m_objectMap)
@@ -49,7 +83,7 @@ namespace GALAXY
         }
         */
 
-        for (const Weak<Component::RigidBody>& _body : m_objectMap)
+        for (const Weak<Component::RigidBody>& _body : m_objectSet)
         {
             Shared<Component::RigidBody> body = _body.lock();
             Component::Transform* transform = body->GetTransform();
@@ -80,54 +114,54 @@ namespace GALAXY
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidBody(Weak<Component::RigidBody> rigidbody)
     {
-        m_objectMap.insert(rigidbody);
+        m_objectSet.insert(rigidbody);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidBody(Weak<Component::RigidBody> rigidbody)
     {
-        auto object = m_objectMap.find(rigidbody); // Use auto, no reference
-        if (object == m_objectMap.end())
+        auto object = m_objectSet.find(rigidbody); // Use auto, no reference
+        if (object == m_objectSet.end())
         {
             PrintError("Could not find rigidbody associated with component 0x%x !", rigidbody);
             return;
         }
-        m_objectMap.erase(object); // Erase using the iterator
+        m_objectSet.erase(object); // Erase using the iterator
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateBoxCollider(Weak<Component::BoxCollider> collider)
     {
-        m_colliderMap.insert(collider);
+        m_colliderSet.insert(collider);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyBoxCollider(Weak<Component::BoxCollider> collider)
     {
-        auto object = m_colliderMap.find(collider); // Use auto, no reference
-        if (object == m_colliderMap.end())
+        auto object = m_colliderSet.find(collider); // Use auto, no reference
+        if (object == m_colliderSet.end())
         {
             PrintError("Could not find collider associated with component 0x%x !", collider);
             return;
         }
-        m_colliderMap.erase(object); // Erase using the iterator
+        m_colliderSet.erase(object); // Erase using the iterator
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateMeshCollider(Weak<Component::MeshCollider> collider)
     {
-        m_colliderMap.insert(collider);
+        m_colliderSet.insert(collider);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyMeshCollider(Weak<Component::MeshCollider> collider)
     {
-        m_colliderMap.erase(collider);
+        m_colliderSet.erase(collider);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateSphereCollider(Weak<Component::SphereCollider> collider)
     {
-        m_colliderMap.insert(collider);
+        m_colliderSet.insert(collider);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroySphereCollider(Weak<Component::SphereCollider> collider)
     {
-        m_colliderMap.erase(collider);
+        m_colliderSet.erase(collider);
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::SetDefaultGravity(const Vec3f& value)
@@ -135,6 +169,21 @@ namespace GALAXY
         defaultGravity = value;
     }
 
+    void Wrapper::PhysicAPI::CustomPhysicsAPI::AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force)
+    {
+        auto object = m_objectSet.find(rigidbody); // Use auto, no reference
+        if (object == m_objectSet.end())
+        {
+            PrintError("Could not find rigidbody associated with component 0x%x !", rigidbody);
+            return;
+        }
+        Component::RigidBody* rigidbodyComponent = object->lock().get();
+        float mass = rigidbodyComponent->GetMass();
+        Vec3f velocity = rigidbodyComponent->GetVelocity();
+        rigidbodyComponent->SetVelocity(velocity + force / mass);
+    }
+
+#pragma region GJK
     Weak<Resource::Mesh> Wrapper::PhysicAPI::CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
     {
         if (!mesh)
@@ -319,34 +368,7 @@ namespace GALAXY
         convexMesh->SetMeshPosition(convexVertices);
         PrintLog("Convex mesh created for %s", mesh->GetMeshName().c_str());
     }
-
-    bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()
-    {
-        PrintLog("Custom Physics Initialized");
-        return true;
-    }
-
-    Wrapper::PhysicAPI::CustomPhysicsAPI::~CustomPhysicsAPI()
-    {
-    }
-
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::InternalUpdate()
-    {
-        std::vector<ColliderPair> objects = BroadPhase();
-
-        for (ColliderPair& pair : objects)
-        {
-            // PrintLog("Testing pair %ull - %ull", pair.first->GetGameObject()->GetUUID(), pair.second->GetGameObject()->GetUUID());
-            if (GJK(pair.first, pair.second))
-            {
-                pair.first->SetDebugCollide(true);
-                pair.second->SetDebugCollide(true);
-                // PrintLog("%s collide with %s",
-                // pair.first->GetGameObject()->GetName().c_str(),
-                // pair.second->GetGameObject()->GetName().c_str());
-            }
-        }
-    }
+#pragma endregion 
 
     struct SAPAABB
     {
@@ -357,7 +379,7 @@ namespace GALAXY
 
     std::vector<Wrapper::PhysicAPI::ColliderPair> Wrapper::PhysicAPI::CustomPhysicsAPI::BroadPhase() const
     {
-        auto colliders = m_colliderMap;
+        auto colliders = m_colliderSet;
         std::vector<SAPAABB> aabbs;
 
         // First, gather all AABBs from the colliders
@@ -499,7 +521,7 @@ namespace GALAXY
     }
 
     // Source : https://github.com/kevinmoran/GJK/blob/master
-    bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2)
+    bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, Vec3f& mtv)
     {
         Vec3f a,b,c,d;
         Vec3f bWorldPos = coll1->GetTransform()->GetWorldPosition();
@@ -538,7 +560,7 @@ namespace GALAXY
             else if(update_simplex4(a,b,c,d,simp_dim,searchDir))
             {
                 //TODO
-                // if(mtv) *mtv = EPA(a,b,c,d,coll1,coll2);
+                // mtv = EPA(a,b,c,d,coll1,coll2);
                 return true;
             }
         }

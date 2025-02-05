@@ -14,7 +14,7 @@
 namespace GALAXY {
 	Resource::IResource::IResource(const Path& fullPath) : p_fileInfo(fullPath)
 	{
-		ASSERT(!fullPath.empty());
+		ASSERT(!fullPath.empty() && "Path is empty");
 		p_shouldBeLoaded = false;
 		p_loaded = false;
 		p_hasBeenSent = false;
@@ -68,9 +68,9 @@ namespace GALAXY {
 	{
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
-		ASSERT(p_shouldBeLoaded);
+		ASSERT(p_shouldBeLoaded && "Resource should be loaded value need to be true");
 		auto editorUiManager = Editor::UI::EditorUIManager::GetInstance();
-		ASSERT(editorUiManager);
+		ASSERT(editorUiManager && "Editor UI Manager is null");
 		editorUiManager->AddResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
 #endif
@@ -80,7 +80,7 @@ namespace GALAXY {
 	{
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
-		ASSERT(p_loaded);
+		ASSERT(p_loaded && "Resource should be loaded");
 		Editor::UI::EditorUIManager::GetInstance()->RemoveResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
 #endif

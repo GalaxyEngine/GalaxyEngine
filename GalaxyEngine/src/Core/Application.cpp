@@ -226,7 +226,7 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			if (Input::IsKeyPressed(Key::F5))
 			{
-				m_resourceManager->GetUnlitShader().lock()->Recompile();
+				Resource::ResourceManager::GetUnlitShader().lock()->Recompile();
 			}
 			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C))
 			{
