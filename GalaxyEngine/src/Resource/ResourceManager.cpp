@@ -158,9 +158,14 @@ namespace GALAXY
                 break;
             case ResourceType::Model:
 #ifdef WITH_EDITOR
-                if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()) || !IsDataFileUpToDate(
-                    resource.second->GetFileInfo().GetFullPath()))
-                    GetOrLoad<Model>(resource.second->p_uuid);
+                {
+                    bool isTmbUpToDate = Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get());
+                    bool isDataUpToDate = IsDataFileUpToDate(resource.second->GetFileInfo().GetFullPath());
+                    if (!isTmbUpToDate || !isDataUpToDate)
+                    {
+                        GetOrLoad<Model>(resource.second->p_uuid);
+                    }
+                }
 #endif
                 break;
             case ResourceType::Mesh:
@@ -168,7 +173,9 @@ namespace GALAXY
             case ResourceType::Material:
 #ifdef WITH_EDITOR
                 if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
+                {
                     GetOrLoad<Material>(resource.second->p_uuid);
+                }
 #endif
                 break;
             case ResourceType::Materials:

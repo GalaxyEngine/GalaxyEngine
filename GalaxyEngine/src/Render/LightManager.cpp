@@ -128,11 +128,31 @@ namespace GALAXY
 
 		shader->SendVec3f("camera.viewPos", cameraPos);
 
-		for (const Weak<Component::Light>& light : m_lights)
+		std::string prefix;
+		for (int i = 0; i < m_lights.size(); i++)
 		{
-			if (!light.lock())
+			if (i % MAX_LIGHT_NUMBER == 0)
+			{
+				if (i < MAX_LIGHT_NUMBER)
+				{
+					prefix = "directionals[";
+				}
+				else if (i < MAX_LIGHT_NUMBER * 2)
+				{
+					prefix = "points[";
+				}
+				else if (i < MAX_LIGHT_NUMBER * 3)
+				{
+					prefix = "spots[";
+				}
+			}
+			if (!m_lights[i].lock())
+			{
+				std::string key = prefix + std::to_string(i % MAX_LIGHT_NUMBER) + "].enable";
+				shader->SendInt(key.c_str(), false);
 				continue;
-			light.lock()->SendLightValues(shader);
+			}
+			m_lights[i].lock()->SendLightValues(shader);
 		}
 	}
 

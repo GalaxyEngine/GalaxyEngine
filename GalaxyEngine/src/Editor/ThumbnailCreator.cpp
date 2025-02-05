@@ -159,13 +159,15 @@ namespace GALAXY
 		m_camera->SetSize(m_thumbnailSize);
 		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
+		
+		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
-
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
 
 		modelObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
+		renderer->SetRenderingType(Render::RenderType::None);
 
 		// Reset previous data
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());

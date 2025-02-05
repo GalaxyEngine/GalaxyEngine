@@ -49,6 +49,11 @@ namespace GALAXY
 		return { v.x, v.y, v.z };
 	}
 
+	Vec3f ToVec3f(const ofbx::DVec3& v)
+	{
+		return Vec3f(v.x, v.y, v.z);
+	}
+
 	Vec2f ToVec2f(const ofbx::Vec2& v)
 	{
 		return { v.x, v.y };
@@ -254,28 +259,41 @@ namespace GALAXY
 			std::vector<float> finalVertices;
 			std::vector<Vec3f> positions;
 
-			auto fbxPositions = fbxMesh->getGeometryData().getPositions();
-			auto fbxTextureUVs = fbxMesh->getGeometryData().getUVs();
-			auto fbxNormals = fbxMesh->getGeometryData().getNormals();
+			ofbx::Vec3Attributes fbxPositions = fbxMesh->getGeometryData().getPositions();
+			ofbx::Vec2Attributes fbxTextureUVs = fbxMesh->getGeometryData().getUVs();
+			ofbx::Vec3Attributes fbxNormals = fbxMesh->getGeometryData().getNormals();
+			ofbx::Vec3Attributes fbxTangents = fbxMesh->getGeometryData().getTangents();
 
+			ofbx::DVec3 rotation = fbxMesh->getLocalRotation();
+			ofbx::DVec3 translation = fbxMesh->getLocalTranslation();
+
+			Quat rotationQuat = Quat::FromEuler(ToVec3f(rotation));
+			
 			const auto pushToVector = [&](int index) {
-				positions.push_back(ToVec3f(fbxPositions.get(index)));
+				Vec3f position = ToVec3f(fbxPositions.get(index));
+				position = rotationQuat * position;
+				position += ToVec3f(translation);
+				Vec3f normal = ToVec3f(fbxNormals.get(index));
+				normal = rotationQuat * normal;
+				Vec2f textureUV = ToVec2f(fbxTextureUVs.get(index));
+				
+				positions.push_back(position);
 
-				finalVertices.push_back(fbxPositions.get(index).x);
-				finalVertices.push_back(fbxPositions.get(index).y);
-				finalVertices.push_back(fbxPositions.get(index).z);
+				finalVertices.push_back(position.x);
+				finalVertices.push_back(position.y);
+				finalVertices.push_back(position.z);
 
-				finalVertices.push_back(fbxTextureUVs.get(index).x);
-				finalVertices.push_back(fbxTextureUVs.get(index).y);
+				finalVertices.push_back(textureUV.x);
+				finalVertices.push_back(textureUV.y);
 
-				finalVertices.push_back(fbxNormals.get(index).x);
-				finalVertices.push_back(fbxNormals.get(index).y);
-				finalVertices.push_back(fbxNormals.get(index).z);
+				finalVertices.push_back(normal.x);
+				finalVertices.push_back(normal.y);
+				finalVertices.push_back(normal.z);
 
 				finalVertices.push_back(0);
 				finalVertices.push_back(0);
 				finalVertices.push_back(0);
-				};
+			};
 
 			//TODO : Handle tangents
 			//TODO : Fix loading with mix of triangles and quads

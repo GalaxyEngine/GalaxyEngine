@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
+#include "Resource/Model.h"
 
 using namespace Editor::UI;
 namespace GALAXY
@@ -15,6 +16,8 @@ namespace GALAXY
 
 	void ResourceWindow::Draw()
 	{
+		if (m_selectedModel && m_debugThumbnail)
+			m_selectedModel->CreateThumbnail();
 		if (!p_open)
 			return;
 		if (ImGui::Begin("Resources", &p_open))
@@ -28,7 +31,6 @@ namespace GALAXY
 			static ImGuiTextFilter filter;
 			filter.Draw();
 			ImGui::BeginChild("List", Vec2f(0), true);
-			static Shared<Resource::IResource> rightClickedResource;
 			for (auto& resource : *m_resources)
 			{
 				if (!filter.PassFilter(resource.first.string().c_str()))
@@ -58,25 +60,38 @@ namespace GALAXY
 				}
 				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
 				{
-					rightClickedResource = resource.second;
+					m_rightClickedResource = resource.second;
+					m_shouldOpenPopup = true;
 				}
 
 			}
-			if (rightClickedResource)
+			if (m_shouldOpenPopup)
 			{
+				m_shouldOpenPopup = false;
 				ImGui::OpenPopup("ResourcePopup");
 			}
-			if (rightClickedResource && ImGui::BeginPopup("ResourcePopup"))
+			if (m_rightClickedResource && ImGui::BeginPopup("ResourcePopup"))
 			{
+				bool shouldClosePopup = false;
 				if (ImGui::MenuItem("Load"))
 				{
-					Resource::ResourceManager::GetOrLoad(rightClickedResource->GetFileInfo().GetFullPath());
-					rightClickedResource.reset();
+					Resource::ResourceManager::GetOrLoad(m_rightClickedResource->GetFileInfo().GetFullPath());
+
+					shouldClosePopup = true;
 				}
-				if (ImGui::MenuItem("Close"))
+				Resource::ResourceType resourceType = m_rightClickedResource->GetFileInfo().GetResourceType();
+				if (resourceType == Resource::ResourceType::Model
+					&& ImGui::MenuItem(m_debugThumbnail ? "Stop Debug Thumbnail" : "Debug Thumbnail"))
+				{
+					m_debugThumbnail = !m_debugThumbnail;
+					m_selectedModel = std::dynamic_pointer_cast<Resource::Model>(m_rightClickedResource);
+
+					shouldClosePopup = true;
+				}
+				if (shouldClosePopup)
 				{
 					ImGui::CloseCurrentPopup();
-					rightClickedResource.reset();
+					m_rightClickedResource.reset();
 				}
 				ImGui::EndPopup();
 			}
