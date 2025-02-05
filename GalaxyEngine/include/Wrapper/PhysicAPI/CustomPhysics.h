@@ -71,6 +71,7 @@ namespace GALAXY
             void SetDefaultGravity(const Vec3f& value) override;
 
             Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) override;
+            static std::vector<Vec3f> ComputeConvexHull(const std::vector<Vec3f>& positions);
             void ComputeConvexVertices(Shared<Resource::Mesh> mesh) override;
         private:
             bool InitializeAPI() override;

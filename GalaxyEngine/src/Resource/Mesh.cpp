@@ -39,39 +39,39 @@ namespace GALAXY {
 		Editor::ThumbnailCreator* thumbnailCreator = Core::Application::GetInstance().GetThumbnailCreator();
 		thumbnailCreator->AddToQueue(shared_from_this());
 	}
-
-	Shared<Resource::Mesh> Resource::Mesh::CreateMeshWithPositions(const std::vector<Vec3f>& positions, const std::filesystem::path& path)
+#endif
+	
+	void Resource::Mesh::SetMeshPosition(const std::vector<Vec3f>& positions)
 	{
-		Shared<Mesh> mesh = std::make_shared<Mesh>(path);
-		mesh->m_positions = positions;
-		mesh->p_loaded = true;
-		mesh->p_shouldBeLoaded = true;
+		if (p_loaded || p_hasBeenSent)
+			return;
+		m_positions = positions;
+		p_loaded = true;
+		p_shouldBeLoaded = true;
 		for (int i = 0; i < positions.size(); i++)
 		{
-			mesh->m_finalVertices.push_back(positions[i].x);
-			mesh->m_finalVertices.push_back(positions[i].y);
-			mesh->m_finalVertices.push_back(positions[i].z);
+			m_finalVertices.push_back(positions[i].x);
+			m_finalVertices.push_back(positions[i].y);
+			m_finalVertices.push_back(positions[i].z);
 
-			mesh->m_finalVertices.push_back(0);
-			mesh->m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
 			
-			mesh->m_finalVertices.push_back(0);
-			mesh->m_finalVertices.push_back(0);
-			mesh->m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
 			
-			mesh->m_finalVertices.push_back(0);
-			mesh->m_finalVertices.push_back(0);
-			mesh->m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
 		}
 		SubMesh subMesh;
 		subMesh.startIndex = 0;
-		subMesh.count = positions.size() / 3;
-		mesh->m_subMeshes.push_back(subMesh);
-		mesh->ComputeBoundingBox(positions);
-        mesh->Send();
-		return mesh;
+		subMesh.count = positions.size();
+		m_subMeshes.push_back(subMesh);
+		ComputeBoundingBox(positions);
+		Send();
 	}
-#endif
 
 	std::string Resource::Mesh::GetMeshName()
 	{
@@ -122,7 +122,7 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
 
-		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
+		PrintLog("Sent resource %s", GetFileInfo().GetFullPath().string().c_str());
 
 		OnLoad.Invoke();
 

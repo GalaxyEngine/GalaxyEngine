@@ -71,6 +71,12 @@ namespace GALAXY
 				if (ImGui::MenuItem("Load"))
 				{
 					Resource::ResourceManager::GetOrLoad(rightClickedResource->GetFileInfo().GetFullPath());
+					rightClickedResource.reset();
+				}
+				if (ImGui::MenuItem("Close"))
+				{
+					ImGui::CloseCurrentPopup();
+					rightClickedResource.reset();
 				}
 				ImGui::EndPopup();
 			}

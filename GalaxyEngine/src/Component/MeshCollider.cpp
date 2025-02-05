@@ -13,6 +13,9 @@ namespace GALAXY
     {
         Collider::ShowInInspector();
 
+        if (ImGui::Checkbox("Convex", &m_isConvex))
+            SetConvex(m_isConvex);
+
         if (Resource::ResourceManager::ResourceField<Resource::Mesh>(m_mesh, "Mesh"))
         {
             
@@ -27,7 +30,7 @@ namespace GALAXY
             return;
 
         auto renderer = Wrapper::Renderer::GetInstance();
-        auto mesh = m_convexMesh.lock();
+        auto mesh = m_isConvex ? m_convexMesh.lock() : m_mesh.lock();
         if (!mesh)
             return;
         const Shared<Render::Camera>& currentCamera = p_gameObject->GetScene()->GetCurrentCamera();
@@ -100,7 +103,7 @@ namespace GALAXY
 
     Physic::AABB Component::MeshCollider::GetAABB()
     {
-        auto mesh = m_mesh.lock();
+        auto mesh = m_isConvex ? m_convexMesh.lock() : m_mesh.lock();
         if (!mesh) 
             return {};
 
@@ -142,11 +145,10 @@ namespace GALAXY
 
     Vec3f Component::MeshCollider::Support(const Vec3f& direction)
     {
-        auto mesh = m_mesh.lock();
+        auto mesh = m_isConvex ? m_convexMesh.lock() : m_mesh.lock();
         if (!mesh)
-            return Vec3f(0.f, 0.f, 0.f); // Return a default vector if mesh is not available.
+            return {0.f, 0.f, 0.f};
 
-        // Retrieve the transform data.
         Vec3f worldPosition = p_gameObject->GetTransform()->GetWorldPosition();
         Quat  worldRotation = p_gameObject->GetTransform()->GetWorldRotation();
         Vec3f worldScale    = p_gameObject->GetTransform()->GetWorldScale();
@@ -162,7 +164,6 @@ namespace GALAXY
             // The transformation is: scale -> rotate -> translate.
             Vec3f transformedVertex = worldPosition + worldRotation * (vertex * worldScale);
 
-            // Compute the dot product with the given direction.
             float currentDot = transformedVertex.Dot(direction);
 
             // Update if this vertex is farther along the direction.

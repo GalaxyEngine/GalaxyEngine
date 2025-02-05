@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Wrapper/PhysicAPI/CustomPhysics.h"
 
+#include <unordered_set>
+
 #include "Component/BoxCollider.h"
 #include "Component/SphereCollider.h"
 #include "Component/MeshCollider.h"
@@ -12,6 +14,16 @@
 #include "Core/GameObject.h"
 #include "Resource/Mesh.h"
 #include "Utils/Time.h"
+    
+// Define custom hash function for Vec3f
+namespace std {
+    template <>
+    struct hash<Vec3f> {
+        size_t operator()(const Vec3f& v) const {
+            return hash<float>()(v.x) ^ (hash<float>()(v.y) << 1) ^ (hash<float>()(v.z) << 2);
+        }
+    };
+}
 
 namespace GALAXY
 {
@@ -132,28 +144,180 @@ namespace GALAXY
         if (it != m_convexMesh.end())
             return it->second;
 
-        ComputeConvexVertices(mesh);
+        Shared<Resource::Mesh> convexMesh = std::make_shared<Resource::Mesh>("Convex_" + mesh->GetMeshName());
+        m_convexMesh[mesh->GetUUID()] = convexMesh;
 
-        return m_convexMesh[mesh->GetUUID()];
+        if (mesh->HasBeenSent())
+            ComputeConvexVertices(mesh);
+        else
+            mesh->OnLoad.Bind([this, mesh] { ComputeConvexVertices(mesh); });
+
+        return convexMesh;
+    }   
+
+    std::vector<Vec3f> Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& positions)
+    {
+        std::vector<Vec3f> convexVertices;
+        struct Face {
+            Vec3f a, b, c;
+            Vec3f normal;
+            float distance;
+            std::vector<Vec3f> outsidePoints;
+
+            Face(const Vec3f& a, const Vec3f& b, const Vec3f& c) : a(a), b(b), c(c) {
+                Vec3f ab = b - a;
+                Vec3f ac = c - a;
+                normal = ab.Cross(ac).GetNormalize();
+                distance = normal.Dot(a);
+            }
+
+            float distanceTo(const Vec3f& p) const {
+                return normal.Dot(p) - distance;
+            }
+        };
+
+        // Find initial tetrahedron vertices
+        Vec3f A = positions[0];
+        for (const Vec3f& p : positions)
+            if (p.x > A.x) A = p;
+
+        Vec3f B = A;
+        float maxDistSq = 0.0f;
+        for (const Vec3f& p : positions) {
+            float distSq = (p - A).LengthSquared();
+            if (distSq > maxDistSq) {
+                maxDistSq = distSq;
+                B = p;
+            }
+        }
+
+        Vec3f C;
+        float maxLineDistSq = 0.0f;
+        Vec3f AB = B - A;
+        for (const Vec3f& p : positions) {
+            Vec3f AP = p - A;
+            float t = AP.Dot(AB) / AB.LengthSquared();
+            t = std::max(0.0f, std::min(1.0f, t));
+            Vec3f proj = A + AB * t;
+            float distSq = (p - proj).LengthSquared();
+            if (distSq > maxLineDistSq) {
+                maxLineDistSq = distSq;
+                C = p;
+            }
+        }
+
+        Vec3f normal = (B - A).Cross(C - A).GetNormalize();
+        float planeDist = normal.Dot(A);
+        Vec3f D;
+        float maxPlaneDist = 0.0f;
+        for (const Vec3f& p : positions) {
+            float dist = std::abs(normal.Dot(p) - planeDist);
+            if (dist > maxPlaneDist) {
+                maxPlaneDist = dist;
+                D = p;
+            }
+        }
+
+        if (normal.Dot(D) < planeDist)
+            normal = -normal;
+
+        std::vector<Face> faces;
+        faces.emplace_back(A, B, C);
+        faces.emplace_back(A, C, D);
+        faces.emplace_back(A, D, B);
+        faces.emplace_back(B, D, C);
+
+        std::vector<Vec3f> remainingPoints;
+        for (const Vec3f& p : positions) {
+            if (p != A && p != B && p != C && p != D)
+                remainingPoints.push_back(p);
+        }
+
+        // Assign outside points to initial faces
+        for (Face& face : faces) {
+            for (auto it = remainingPoints.begin(); it != remainingPoints.end();) {
+                if (face.distanceTo(*it) > 1e-6f) {
+                    face.outsidePoints.push_back(*it);
+                    it = remainingPoints.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        }
+
+        std::vector<Face> activeFaces = faces;
+        while (!activeFaces.empty()) {
+            Face face = activeFaces.back();
+            activeFaces.pop_back();
+
+            if (face.outsidePoints.empty())
+                continue;
+
+            // Find the furthest point from the face
+            Vec3f p = face.outsidePoints[0];
+            float maxDist = face.distanceTo(p);
+            for (const Vec3f& q : face.outsidePoints) {
+                float dist = face.distanceTo(q);
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    p = q;
+                }
+            }
+
+            // Create new faces (triangles) with the furthest point
+            std::vector<Face> newFaces;
+            newFaces.emplace_back(face.a, face.b, p);
+            newFaces.emplace_back(face.b, face.c, p);
+            newFaces.emplace_back(face.c, face.a, p);
+
+            for (Face& newFace : newFaces) {
+                for (auto it = face.outsidePoints.begin(); it != face.outsidePoints.end();) {
+                    if (*it == p) {
+                        ++it;
+                        continue;
+                    }
+                    if (newFace.distanceTo(*it) > 1e-6f) {
+                        newFace.outsidePoints.push_back(*it);
+                        it = face.outsidePoints.erase(it);
+                    } else {
+                        ++it;
+                    }
+                }
+                activeFaces.push_back(newFace);
+                faces.push_back(newFace);
+            }
+        }
+
+        // Instead of gathering unique vertices, we now output triangle vertices in the proper order.
+        // Each face (triangle) is added as three consecutive vertices.
+        std::vector<Vec3f> sortedVertices;
+        for (const Face& face : faces) {
+            sortedVertices.push_back(face.a);
+            sortedVertices.push_back(face.b);
+            sortedVertices.push_back(face.c);
+        }
+
+        return sortedVertices;
     }
 
     void Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
     {
-        if (!mesh || m_convexMesh.contains(mesh->GetUUID()))
+        Shared<Resource::Mesh> convexMesh = m_convexMesh[mesh->GetUUID()];
+        if (!mesh || (convexMesh && convexMesh->HasBeenSent()))
             return;
 
-        auto positions = mesh->GetPositionVertices();
+        std::vector<Vec3f> positions = mesh->GetPositionVertices();
         std::vector<Vec3f> convexVertices;
-        convexVertices.reserve(positions.size());
-        for (const Vec3f& vertex : positions)
-        {
-            //TODO: Implement convex hull algorithm
-            convexVertices.push_back(vertex);
-        }
-        // Create mesh
-        Shared<Resource::Mesh> convexMesh = Resource::Mesh::CreateMeshWithPositions(convexVertices);
 
-        m_convexMesh[mesh->GetUUID()] = convexMesh;
+        if (positions.empty()) {
+            convexMesh->SetMeshPosition(convexVertices);
+            return;
+        }
+        
+        convexVertices = ComputeConvexHull(positions);
+
+        convexMesh->SetMeshPosition(convexVertices);
+        PrintLog("Convex mesh created for %s", mesh->GetMeshName().c_str());
     }
 
     bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()
