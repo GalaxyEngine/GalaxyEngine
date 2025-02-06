@@ -196,8 +196,10 @@ namespace GALAXY
 		const Path prevPath = std::filesystem::current_path();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 
+		ASSERT(projectPath.empty() == false && "Project path is empty");
+
 		// Execute your build commands
-		auto threadMethod = [&]()
+		auto threadMethod = [projectPath, prevPath]()
 		{
 			std::filesystem::current_path(projectPath);
 #ifdef _MSC_VER
