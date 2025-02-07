@@ -373,6 +373,19 @@ namespace GALAXY
 		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
 
+    void Editor::EditorSettings::SaveEngineLocation()
+    {
+        Path path = Resource::ResourceManager::GetProjectPath() / ENGINE_LOCATION_PATH;
+        std::ofstream file = Utils::FileSystem::GenerateFile(path);
+        if (!file.is_open())
+        {
+            PrintError("Can't open %s", ENGINE_LOCATION_PATH);
+            return;
+        }
+        file << std::filesystem::current_path().parent_path().generic_string(); // Folder GalaxyEngine
+        file.close();
+    }
+
 #ifdef _WIN32
     bool IsRiderInstalled()
     {
@@ -389,7 +402,7 @@ namespace GALAXY
 			return false;
 		}
     }
-    #endif
+#endif
 
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {

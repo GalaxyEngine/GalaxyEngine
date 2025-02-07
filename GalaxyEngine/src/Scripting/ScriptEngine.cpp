@@ -217,16 +217,17 @@ namespace GALAXY
 	{
 		const Path prevPath = std::filesystem::current_path();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
-		std::filesystem::current_path(projectPath);
 		switch (tool)
 		{
 #ifdef _WIN32
 		case Editor::ScriptEditorTool::Rider:
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-				auto threadMethod = [&](){
+				auto threadMethod = [projectPath, prevPath](){
+					std::filesystem::current_path(projectPath);
 					Utils::OS::RunCommand("xmake f -p windows -a x64 -m debug");
 					Utils::OS::RunCommand("xmake project -k vsxmake");
+					std::filesystem::current_path(prevPath);
 				};
 				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 			break;
@@ -234,21 +235,16 @@ namespace GALAXY
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
-				auto threadMethod = [&]()
+				auto threadMethod = [projectPath, prevPath]()
 				{
+					std::filesystem::current_path(projectPath);
 					Utils::OS::RunCommand("xmake project -k compile_commands .vscode");
 					std::ofstream file(".vscode/c_cpp_properties.json");
 					if (file.is_open()) {
-						file << std::string(R"(
-{
-   "configurations": [
-       {
-           "compileCommands": ".vscode/compile_commands.json"
-       }
-   ],
-   "version": 4
-})");
+						file << std::string("{\n\t\"configurations\": [\n\t\t {\n\t\t\t\"compileCommands\":\
+							 \".vscode/compile_commands.json\"\n\t\t }\n\t],\n\t\"version\": 4\n})");
 					}
+					std::filesystem::current_path(prevPath);
 				};
 				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 			break;
@@ -257,7 +253,6 @@ namespace GALAXY
 			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolValue(tool));
 			break;
 		}
-		std::filesystem::current_path(prevPath);
 	}
 
 	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorTool tool)

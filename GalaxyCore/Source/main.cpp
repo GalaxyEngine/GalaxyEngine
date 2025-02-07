@@ -11,10 +11,14 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	//TODO : Fix shader loading and sending
-	//TODO : Handle update of materials for thumbnails
-	//TODO : Fix sub Meshes for fbx models
-	//TODO : Add Line renderer component
+	/*
+	 * TODO : Fix shader loading and sending
+	 * TODO : Handle update of materials for thumbnails
+	 * TODO : Fix sub Meshes for fbx models
+	 * TODO : Add Line renderer component
+	 * TODO : Fix Forward not correct
+	 * TODO : Fix rotation Gizmo
+	 */
 
 	std::filesystem::path exePath = std::filesystem::path(argv[0]);
 	// On development			   							exe/	 mode/        architecture/ platform/	  build/		GalaxyEngine/

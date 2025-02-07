@@ -32,6 +32,7 @@
 #define ASSET_FOLDER_NAME "Assets"
 #define ENGINE_RESOURCE_FOLDER_NAME "CoreResources"
 #define EDITOR_SETTINGS_NAME "Editor.settings"
+#define ENGINE_LOCATION_PATH CACHE_PATH"EngineLocation.txt"
 #define CACHE_PATH "Cache/"
 #define ENGINE_GENERATE_HEADER_PATH "Generate/Headers/"
 

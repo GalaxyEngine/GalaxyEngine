@@ -4,7 +4,7 @@ namespace GALAXY
 {
 	namespace Utils {
 
-		class Time
+		class GALAXY_API Time
 		{
 		public:
 			Time(const uint64_t time = 0) : m_time(time) {}

@@ -459,7 +459,7 @@ void main()
 		const size_t size = p_shaders.size();
 		if (size > 0)
 		{
-			for (const Weak<Shader>& _shader : p_shaders)
+			for (Weak _shader : p_shaders)
 			{
 				if (_shader.expired())
 					continue;

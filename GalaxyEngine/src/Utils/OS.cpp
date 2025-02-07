@@ -12,6 +12,7 @@
 #include <array>
 #include <cstdio>
 #include <memory>
+#include <regex>
 
 #include "Render/Framebuffer.h"
 #include "Wrapper/ImageLoader.h"
@@ -295,6 +296,12 @@ namespace GALAXY
         std::system(command.c_str());
     }
 
+    static std::string RemoveColorCodes(const std::string& input) {
+        // Regular expression to match ANSI color codes (like \x1b[32;1m)
+        std::regex colorRegex("\x1b\\[[0-9;]*m");
+        return std::regex_replace(input, colorRegex, "");
+    }
+
     void Utils::OS::RunCommand(const std::string& command)
     {
         // Open a pipe to read the command's output
@@ -318,21 +325,10 @@ namespace GALAXY
         {
             result += buffer.data();
         }
-
-        // Build a new string with only allowed characters (alphanumeric, spaces, '/', and '\')
-        std::string cleanedResult;
-        for (char c : result)
-        {
-            if (std::isalnum(static_cast<unsigned char>(c)) || 
-                std::isspace(static_cast<unsigned char>(c)) || 
-                c == '/' || c == '\\')
-            {
-                cleanedResult += c;
-            }
-        }
+        result = RemoveColorCodes(result);
 
         // Print the result
-        PrintLog(cleanedResult.c_str());
+        PrintLog(result.c_str());
     }
 
     void Utils::OS::RunCommandThread(const std::string& command)
@@ -398,6 +394,7 @@ namespace GALAXY
 
     void Utils::OS::OpenWithRider(const std::filesystem::path& filePath)
     {
+        //TODO : Fix this, rider isn't recognized as a command
         auto prevPath = std::filesystem::current_path();
         std::string riderPath = "rider";
         const std::string slnPath = (Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln");

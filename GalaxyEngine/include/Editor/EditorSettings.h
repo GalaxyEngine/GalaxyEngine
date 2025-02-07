@@ -132,6 +132,9 @@ namespace GALAXY
 			void LoadSettings();
 			void LoadThumbnail();
 
+			// Save the engine location for xmake to work, by parsing it on load
+			static void SaveEngineLocation();
+
 			void InitializeScriptEditorTools();
 
 			[[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }

@@ -48,16 +48,14 @@ namespace GALAXY {
 	{
 		Debug::Log::LogToFile = true;
 		
-		// Create folder that not exist
-#ifdef WITH_EDITOR
-		if (!std::filesystem::exists(THUMBNAIL_PATH))
-			std::filesystem::create_directories(THUMBNAIL_PATH);
-#endif
 		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
 		if (!std::filesystem::exists(logPath))
 			std::filesystem::create_directories(logPath);
 		
 #ifdef WITH_EDITOR
+		if (!std::filesystem::exists(THUMBNAIL_PATH)) 
+			std::filesystem::create_directories(THUMBNAIL_PATH);// Create also cache folder 
+		
 		m_editorSettings.LoadSettings();
 		if (projectPath.empty())
 		{
@@ -90,6 +88,7 @@ namespace GALAXY {
 		std::string projectName = projectPath.filename().stem().string();
 		windowConfig.name = projectName.c_str();
 #endif
+		
 		m_window->Create(windowConfig);
 #ifdef WITH_EDITOR
 		m_window->SetVSync(m_editorSettings.GetShouldUseVSync());
@@ -146,12 +145,13 @@ namespace GALAXY {
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
-		m_scriptEngine->RegisterScriptComponents();
 		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
 #ifdef WITH_EDITOR
+		Editor::EditorSettings::SaveEngineLocation(); // Use project path
+		
 		// Initialize Editor::UI
 		m_editorUI->Initialize();
 
@@ -166,6 +166,7 @@ namespace GALAXY {
 			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
 			m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
 		}
+		m_scriptEngine->RegisterScriptComponents();
 	}
 
 	void Core::Application::UpdateResources()

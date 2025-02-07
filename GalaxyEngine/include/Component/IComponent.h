@@ -8,7 +8,7 @@ namespace CppSer { class Serializer; class Parser; }
 namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
-
+		class Transform;
 		struct GALAXY_API ComponentID
 		{
 			Core::UUID gameObjectID;
@@ -85,7 +85,7 @@ namespace GALAXY {
 
 			inline Core::GameObject* GetGameObject() const { return p_gameObject; }
 
-			class Transform* GetTransform() const;
+			virtual Transform* GetTransform() const;
 
 			inline uint32_t GetIndex() const { return p_id; }
 
