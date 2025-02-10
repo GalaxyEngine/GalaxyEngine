@@ -24,17 +24,25 @@ namespace GALAXY
 
         Vec3f he = m_size * scale; // Original half-extents
 
-        // Convert quaternion to rotation matrix
-        Mat4 rotMatrix = rotation.ToRotationMatrix();
+        Vec3f result = Vec3f();
 
-        // Calculate new half-extents after rotation
-        Vec3f newHe(
-            he.x * std::abs(rotMatrix[0][0]) + he.y * std::abs(rotMatrix[0][1]) + he.z * std::abs(rotMatrix[0][2]),
-            he.x * std::abs(rotMatrix[1][0]) + he.y * std::abs(rotMatrix[1][1]) + he.z * std::abs(rotMatrix[1][2]),
-            he.x * std::abs(rotMatrix[2][0]) + he.y * std::abs(rotMatrix[2][1]) + he.z * std::abs(rotMatrix[2][2])
-        );
+        for (int i = 0; i < 8; i++)
+        {
+            Vec3f e;
+            e.x = (i & 0x1) ? 1.0f : -1.0f;
+            e.y = (i & 0x2) ? 1.0f : -1.0f;
+            e.z = (i & 0x4) ? 1.0f : -1.0f;
 
-        return {position, newHe, true};
+            e *= he;
+            e = rotation * e;
+
+            for (int j = 0; j < 3; j++)
+            {
+                result[j] = fmaxf(fabsf(e[j]), result[j]);
+            }
+        }
+
+        return {position, result, true};
     }
 
     Vec3f Component::BoxCollider::Support(const Vec3f& direction)
