@@ -36,8 +36,8 @@ namespace GALAXY
 
 		constexpr Vec4f clearColor(0);
 
-		Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
-		auto path = projectPath / THUMBNAIL_PATH;
+		Path projectPath = Resource::ResourceManager::GetProjectPath();
+		Path path = projectPath / THUMBNAIL_PATH;
 		std::filesystem::create_directories(path);
 
 		m_scene = std::make_shared<Resource::Scene>("Temp");
@@ -77,6 +77,8 @@ namespace GALAXY
 		m_cameraObject.reset();
 		m_camera.reset();
 		m_scene.reset();
+		m_thumbnailQueue.clear();
+		m_thumbnailQueue.shrink_to_fit();
 
 		m_initialized = false;
 	}

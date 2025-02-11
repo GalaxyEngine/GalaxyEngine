@@ -244,6 +244,12 @@ namespace GALAXY {
 
 				}
 			}
+
+			if (m_moveOnFrame)
+			{
+				m_moveOnFrame = false;
+				SetApplicationMode(Editor::ApplicationMode::Pause);
+			}
 #endif
 
 			UpdateResources();
@@ -370,6 +376,11 @@ namespace GALAXY {
 			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
 		}
 		m_applicationMode = mode;
+	}
+
+	void Core::Application::MoveOneFrame()
+	{
+		m_moveOnFrame = true;
 	}
 #endif
 

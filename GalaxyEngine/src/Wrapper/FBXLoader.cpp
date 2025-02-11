@@ -69,18 +69,18 @@ namespace GALAXY
 		PROFILE_SCOPE_LOG("FBXLoader::Load(%s)", fullPath.generic_string().c_str());
 		uint32_t size;
 		bool sucess;
-		auto data = (ofbx::u8*)ReadFile(fullPath.generic_string().c_str(), size, sucess);
+		ofbx::u8* data = (ofbx::u8*)ReadFile(fullPath.generic_string().c_str(), size, sucess);
 		if (!sucess) {
 			delete[] data;
 			data = nullptr;
 			return;
 		}
-		ofbx::IScene* Scene = ofbx::load(data, size, (ofbx::u16)ofbx::LoadFlags::NONE);
-		if (Scene)
+		ofbx::IScene* scene = ofbx::load(data, size, static_cast<ofbx::u16>(ofbx::LoadFlags::NONE));
+		if (scene)
 		{
-			LoadTextures(Scene, fullPath);
-			LoadModel(Scene, fullPath, outputModel);
-			Scene->destroy();
+			LoadTextures(scene, fullPath);
+			LoadModel(scene, fullPath, outputModel);
+			scene->destroy();
 		}
 		delete[] data;
 		data = nullptr;
@@ -207,6 +207,7 @@ namespace GALAXY
 	void Wrapper::FBXLoader::LoadModel(ofbx::IScene* fbxScene, const std::filesystem::path& fullPath, Resource::Model* outputModel)
 	{
 		std::vector<std::vector<Vec3f>> allPositions;
+		outputModel->m_meshes.resize(fbxScene->getMeshCount());
 		for (int i = 0; i < fbxScene->getMeshCount(); i++) {
 			const ofbx::Mesh* fbxMesh = fbxScene->getMesh(i);
 
@@ -222,7 +223,7 @@ namespace GALAXY
 					material = Resource::ResourceManager::GetResource<Resource::Material>(materialFullPath).lock();
 
 				//TODO : Add Export settings, so this is only call when exporting
-				if (!material /* && exporting*/)
+				if (!material)
 				{
 					material = Resource::ResourceManager::AddResource<Resource::Material>(materialFullPath).lock();
 					material->SetShader(Resource::ResourceManager::GetInstance()->GetDefaultShader());
@@ -231,10 +232,10 @@ namespace GALAXY
 					material->SetSpecular(ToVec4f(fbxMaterial->getSpecularColor()));
 					material->SetHeightScale(static_cast<float>(fbxMaterial->getBumpFactor()));
 
-					auto albedo = material->GetAlbedo();
+					Weak<Resource::Texture> albedo = material->GetAlbedo();
 					SetMaterialTexture(&albedo, fbxMaterial, fullPath, ofbx::Texture::TextureType::DIFFUSE);
 					material->SetAlbedo(albedo);
-					auto normalMap = material->GetNormalMap();
+					Weak<Resource::Texture> normalMap = material->GetNormalMap();
 					SetMaterialTexture(&normalMap, fbxMaterial, fullPath, ofbx::Texture::TextureType::NORMAL);
 					material->SetNormalMap(normalMap);
 
@@ -245,7 +246,6 @@ namespace GALAXY
 				}
 				outputModel->m_materials.push_back(material);
 			}
-
 			const char* name = fbxMesh->name;
 			const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, name);
 			Shared<Resource::Mesh> mesh = Resource::ResourceManager::GetResource<Resource::Mesh>(meshFullPath).lock();
@@ -255,7 +255,6 @@ namespace GALAXY
 				mesh = Resource::ResourceManager::AddResource<Resource::Mesh>(meshFullPath).lock();
 			}
 			
-
 			std::vector<float> finalVertices;
 			std::vector<Vec3f> positions;
 
@@ -340,7 +339,7 @@ namespace GALAXY
 			mesh->p_shouldBeLoaded = true;
 			mesh->p_loaded = true;
 
-			outputModel->m_meshes.push_back(mesh);
+			outputModel->m_meshes[i] = mesh;
 
 			mesh->m_model = outputModel;
 
@@ -351,6 +350,5 @@ namespace GALAXY
 		}
 		outputModel->ComputeBoundingBox(allPositions);
 		outputModel->p_hasBeenSent = true;
-
 	}
 }
