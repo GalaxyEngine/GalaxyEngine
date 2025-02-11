@@ -60,6 +60,10 @@ namespace GALAXY {
 		if (projectPath.empty())
 		{
 			projectPath = m_editorSettings.GetDefaultProjectPath();
+			if (std::filesystem::is_directory(projectPath))
+			{
+				projectPath = Utils::FileSystem::FindFileWithExtension(projectPath, ".gProject");
+			}
 		}
 #else
 		if (projectPath.empty())
@@ -72,7 +76,6 @@ namespace GALAXY {
 		}
 #endif
 
-		std::cout << projectPath << '\n';
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");

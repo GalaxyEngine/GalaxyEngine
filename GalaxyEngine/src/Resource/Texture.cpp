@@ -93,7 +93,7 @@ void Resource::Texture::ShowInInspector()
 		// Debug
 		std::string uuidString = p_fileInfo.GetFileNameNoExtension();
 		uint64_t uuid = std::strtoull(uuidString.c_str(), nullptr, 10);
-		Weak<IResource> resource = Resource::ResourceManager::GetResource<Resource::IResource>(uuid);
+		Weak<IResource> resource = ResourceManager::GetResource<Resource::IResource>(uuid);
 		std::string resourcePath = resource.lock()->GetFileInfo().GetRelativePath().string();
 		ImGui::TextUnformatted(resourcePath.c_str());
 	}
@@ -116,7 +116,7 @@ void Resource::Texture::ShowInInspector()
 }
 #endif
 
-void Resource::Texture::Save()
+void Resource::Texture::Save() const
 {
 	if (!p_loaded)
 		return;

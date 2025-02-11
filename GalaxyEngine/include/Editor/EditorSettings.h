@@ -145,6 +145,7 @@ namespace GALAXY
 			[[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
 
 			PackageManager& GetPackageManager() { return m_packageManager; }
+			
 		private:
 			void DisplayTab(EditorSettingsTab tab);
 

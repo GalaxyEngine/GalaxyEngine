@@ -18,6 +18,9 @@ void Main(int argc, char** argv)
 	 * TODO : Add Line renderer component
 	 * TODO : Fix Forward not correct
 	 * TODO : Fix rotation Gizmo
+	 * TODO : Fix lighting
+	 * TODO : Fix Material Thumbnail creation
+	 * TODO : Implement Shadow Mapping
 	 */
 
 	std::filesystem::path exePath = std::filesystem::path(argv[0]);

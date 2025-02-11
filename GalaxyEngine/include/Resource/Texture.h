@@ -63,7 +63,7 @@ namespace GALAXY {
 			void Load() override;
 			void Send() override;
 
-			void Save();
+			void Save() const;
 
 #ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;

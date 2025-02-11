@@ -39,14 +39,17 @@ namespace GALAXY {
 			return;
 
 		auto dataPath = GetDataFilePath();
+		// Un-Hide the file because file cannot be written if it is hidden
+		Utils::OS::ShowFile(dataPath, true);
 		{
-			CppSer::Serializer serializer(dataPath);
-
+			CppSer::Serializer serializer(dataPath.generic_string());
+			
 			serializer << CppSer::Pair::BeginMap << "Data";
 			Serialize(serializer);
 			serializer << CppSer::Pair::EndMap << "Data";
 		}
 
+		// Hide the file
 		Utils::OS::ShowFile(dataPath, false);
 	}
 
