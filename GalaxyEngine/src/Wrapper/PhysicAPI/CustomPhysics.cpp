@@ -430,8 +430,9 @@ namespace GALAXY
         return result;
     }
     
-    //Triangle case
-    void update_simplex3(Vec3f &a, Vec3f &b, Vec3f &c, Vec3f &d, int &simp_dim, Vec3f &search_dir){
+    // Triangle case
+    void UpdateSimplex3(const Vec3f& a, Vec3f& b, Vec3f& c, Vec3f& d, int& simpDim, Vec3f& searchDir)
+    {
         /* Required winding order:
         //  b
         //  | \
@@ -441,84 +442,229 @@ namespace GALAXY
         //  | /
         //  c
         */
-        Vec3f n = (b-a).Cross(c - a); //triangle's normal
-        Vec3f AO = -a; //direction to origin
+        Vec3f n = (b - a).Cross(c - a); // Triangle's normal
+        Vec3f AO = -a; // Direction to origin
 
-        //Determine which feature is closest to origin, make that the new simplex
+        // Determine which feature is closest to origin, make that the new simplex
 
-        simp_dim = 2;
-        if((b-a).Cross(n).Dot(AO)>0){ //Closest to edge AB
+        simpDim = 2;
+        if ((b - a).Cross(n).Dot(AO) > 0) // Closest to edge AB
+        {
             c = a;
             //simp_dim = 2;
-            search_dir = (b-a).Cross(AO).Cross(b-a);
+            searchDir = (b-a).Cross(AO).Cross(b-a);
             return;
         }
-        if(n.Cross(c-a).Dot(AO)>0){ //Closest to edge AC
+        if (n.Cross(c - a).Dot(AO) > 0) // Closest to edge AC
+        {
             b = a;
             //simp_dim = 2;
-            search_dir = (c-a).Cross(AO).Cross(c-a);
+            searchDir = (c - a).Cross(AO).Cross(c - a);
             return;
         }
         
-        simp_dim = 3;
-        if(n.Dot(AO)>0){ //Above triangle
+        simpDim = 3;
+        if (n.Dot(AO) > 0) // Above triangle
+        {
             d = c;
             c = b;
             b = a;
             //simp_dim = 3;
-            search_dir = n;
+            searchDir = n;
             return;
         }
-        //else //Below triangle
+        // else below triangle
         d = b;
         b = a;
         //simp_dim = 3;
-        search_dir = -n;
+        searchDir = -n;
     }
 
-    //Tetrahedral case
-    bool update_simplex4(Vec3f &a, Vec3f &b, Vec3f &c, Vec3f &d, int &simp_dim, Vec3f &search_dir){
+    // Tetrahedral case
+    bool UpdateSimplex4(const Vec3f& a, Vec3f& b, Vec3f& c, Vec3f& d, int& simpDim, Vec3f& searchDir)
+    {
         // a is peak/tip of pyramid, BCD is the base (counterclockwise winding order)
-	    //We know a priori that origin is above BCD and below a
+	    // We know a priori that origin is above BCD and below a
 
-        //Get normals of three new faces
-        Vec3f ABC = (b-a).Cross(c-a);
-        Vec3f ACD = (c-a).Cross(d-a);
-        Vec3f ADB = (d-a).Cross(b-a);
+        // Get normals of three new faces
+        Vec3f ABC = (b - a).Cross(c - a);
+        Vec3f ACD = (c - a).Cross(d - a);
+        Vec3f ADB = (d - a).Cross(b - a);
 
-        Vec3f AO = -a; //dir to origin
-        simp_dim = 3; //hoisting this just cause
+        Vec3f AO = -a; // dir to origin
+        simpDim = 3;
 
-        //Plane-test origin with 3 faces
+        // Plane-test origin with 3 faces
         /*
         // Note: Kind of primitive approach used here; If origin is in front of a face, just use it as the new simplex.
         // We just go through the faces sequentially and exit at the first one which satisfies dot product. Not sure this 
         // is optimal or if edges should be considered as possible simplices? Thinking this through in my head I feel like 
         // this method is good enough. Makes no difference for AABBS, should test with more complex colliders.
         */
-        if(ABC.Dot(AO)>0){ //In front of ABC
+        if (ABC.Dot(AO) > 0) // In front of ABC
+        {
     	    d = c;
     	    c = b;
     	    b = a;
-            search_dir = ABC;
+            searchDir = ABC;
     	    return false;
         }
-        if(ACD.Dot(AO)>0){ //In front of ACD
+        if (ACD.Dot(AO) > 0) // In front of ACD
+        {
     	    b = a;
-            search_dir = ACD;
+            searchDir = ACD;
     	    return false;
         }
-        if(ADB.Dot(AO)>0){ //In front of ADB
+        if (ADB.Dot(AO) > 0) // In front of ADB
+        {
     	    c = d;
     	    d = b;
     	    b = a;
-            search_dir = ADB;
+            searchDir = ADB;
     	    return false;
         }
 
-        //else inside tetrahedron; enclosed!
+        // else inside tetrahedron; enclosed!
         return true;
     }
+
+
+#define EPA_TOLERANCE 0.0001
+#define EPA_MAX_NUM_FACES 64
+#define EPA_MAX_NUM_LOOSE_EDGES 32
+#define EPA_MAX_NUM_ITERATIONS 64
+
+    // Expanding Polytope Algorithm
+    // Find minimum translation vector to resolve collision
+Vec3f EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, Component::Collider* coll1, Component::Collider* coll2)
+{
+    Vec3f faces[4 * EPA_MAX_NUM_FACES]; // Array of faces, each with 3 verts and a normal
+    
+    //Init with final simplex from GJK
+    faces[0]  = a;
+    faces[1]  = b;
+    faces[2]  = c;
+    faces[3]  = (b-a).Cross(c-a).GetNormalize(); //ABC
+    faces[4]  = a;
+    faces[5]  = c;
+    faces[6]  = d;
+    faces[7]  = (c-a).Cross(d-a).GetNormalize(); //ACD
+    faces[8]  = a;
+    faces[9]  = d;
+    faces[10] = b;
+    faces[11] = (d-a).Cross(b-a).GetNormalize(); //ADB
+    faces[12] = b;
+    faces[13] = d;
+    faces[14] = c;
+    faces[15] = (d-b).Cross(c-b).GetNormalize(); //BDC
+
+    int num_faces = 4;
+    int closest_face;
+
+    for (int iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
+    {
+        // Find face that's closest to origin
+        float min_dist = faces[0].Dot(faces[3]);
+        closest_face = 0;
+        for (int i=1; i<num_faces; i++)
+        {
+            float dist = faces[i * 4].Dot(faces[i * 4 + 3]);
+            if (dist < min_dist)
+            {
+                min_dist = dist;
+                closest_face = i;
+            }
+        }
+
+        // Search normal to face that's closest to origin
+        Vec3f search_dir = faces[closest_face * 4 + 3]; 
+        Vec3f p = coll2->Support(search_dir) - coll1->Support(-search_dir);
+
+        if (p.Dot(search_dir) - min_dist < EPA_TOLERANCE)
+        {
+            // Convergence (new point is not significantly further from origin)
+            return faces[closest_face * 4 + 3] * p.Dot(search_dir); // dot vertex with normal to resolve collision along normal!
+        }
+
+        Vec3f loose_edges[4 * EPA_MAX_NUM_LOOSE_EDGES + 2]; //keep track of edges we need to fix after removing faces
+        int num_loose_edges = 0;
+
+        //Find all triangles that are facing p
+        for (int i = 0; i < num_faces; i++)
+        {
+            if (faces[i * 4 + 3].Dot(p - faces[i * 4]) > 0) // triangle i faces p, remove it
+            {
+                // Add removed triangle's edges to loose edge list.
+                // If it's already there, remove it (both triangles it belonged to are gone)
+                for (int j = 0; j < 3; j++) // Three edges per face
+                {
+                    Vec3f current_edge[2] = { faces[i * 4 + j], faces[i * 4 + (j + 1) % 3] };
+                    bool found_edge = false;
+                    for (int k = 0; k < num_loose_edges; k++) // Check if current edge is already in list
+                    {
+                        if (loose_edges[k * 4 + 1] == current_edge[0] && loose_edges[k * 4] == current_edge[1])
+                        {
+                            // Edge is already in the list, remove it
+                            // THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
+                            // THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which 
+                            // should be true provided every triangle is wound CCW)
+                            loose_edges[k * 4]     = loose_edges[(num_loose_edges-1) * 4]; // Overwrite current edge
+                            loose_edges[k * 4 + 1] = loose_edges[(num_loose_edges-1) * 4 + 1]; // with last edge in list
+                            num_loose_edges--;
+                            found_edge = true;
+                            k = num_loose_edges; // exit loop because edge can only be shared once
+                        }
+                    }
+
+                    if (!found_edge) // add current edge to list
+                    {
+                        // assert(num_loose_edges < EPA_MAX_NUM_LOOSE_EDGES);
+                        if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES)
+                            break;
+
+                        loose_edges[num_loose_edges * 4]     = current_edge[0];
+                        loose_edges[num_loose_edges * 4 + 1] = current_edge[1];
+                        num_loose_edges++;
+                    }
+                }
+
+                // Remove triangle i from list
+                faces[i * 4]     = faces[(num_faces-1) * 4];
+                faces[i * 4 + 1] = faces[(num_faces-1) * 4 + 1];
+                faces[i * 4 + 2] = faces[(num_faces-1) * 4 + 2];
+                faces[i * 4 + 3] = faces[(num_faces-1) * 4 + 3];
+                num_faces--;
+                i--;
+            }
+        }
+        
+        //Reconstruct polytope with p added
+        for (int i = 0; i < num_loose_edges; i++)
+        {
+            // assert(num_faces<EPA_MAX_NUM_FACES);
+            if (num_faces >= EPA_MAX_NUM_FACES)
+                break;
+            faces[num_faces * 4] = loose_edges[i * 4];
+            faces[num_faces * 4 + 1] = loose_edges[i * 4 + 1];
+            faces[num_faces * 4 + 2] = p;
+            faces[num_faces * 4 + 3] = (loose_edges[i * 4]-loose_edges[i * 4 + 1]).Cross(loose_edges[i * 4] - p).GetNormalize();
+
+            // Check for wrong normal to maintain CCW winding
+            float bias = 0.000001f; //in case dot result is only slightly < 0 (because origin is on face)
+            if (faces[num_faces * 4].Dot(faces[num_faces * 4 + 3]) + bias < 0)
+            {
+                Vec3f temp = faces[num_faces * 4];
+                faces[num_faces * 4]     = faces[num_faces * 4 + 1];
+                faces[num_faces * 4 + 1] = temp;
+                faces[num_faces * 4 + 3] = -faces[num_faces * 4 + 3];
+            }
+            num_faces++;
+        }
+    }
+    PrintLog("EPA did not converge");
+    //Return most recent closest point
+    return faces[closest_face * 4 + 3] * faces[closest_face * 4].Dot(faces[closest_face * 4 + 3]);
+}
 
     // Source : https://github.com/kevinmoran/GJK/blob/master
     bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, Vec3f& mtv)
@@ -555,12 +701,11 @@ namespace GALAXY
     
             simp_dim++;
             if(simp_dim==3){
-                update_simplex3(a,b,c,d,simp_dim,searchDir);
+                UpdateSimplex3(a,b,c,d,simp_dim,searchDir);
             }
-            else if(update_simplex4(a,b,c,d,simp_dim,searchDir))
+            else if(UpdateSimplex4(a,b,c,d,simp_dim,searchDir))
             {
-                //TODO
-                // mtv = EPA(a,b,c,d,coll1,coll2);
+                mtv = EPA(a,b,c,d,coll1,coll2);
                 return true;
             }
         }
