@@ -27,7 +27,7 @@ namespace GALAXY
 
 				Resource::ResourceMap* m_resources;
 				bool m_debugThumbnail = false;
-				Shared<Resource::Model> m_selectedModel = nullptr;
+				Shared<Resource::IResource> m_selectedResource = nullptr;
 				Shared<Resource::IResource> m_rightClickedResource = nullptr;
 
 				bool m_shouldOpenPopup = false;

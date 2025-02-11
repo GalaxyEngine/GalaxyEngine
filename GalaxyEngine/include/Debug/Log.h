@@ -16,6 +16,18 @@
 
 namespace GALAXY::Debug
 {
+    // Helper function to format a string using printf-style syntax
+    template <typename... Args>
+    static std::string FormatString(const char* format, Args... args)
+    {
+        int size = std::snprintf(nullptr, 0, format, args...);
+        if (size < 0) return "";
+        std::string buffer(size + 1, '\0');
+        std::snprintf(&buffer[0], buffer.size(), format, args...);
+        buffer.resize(size); // Remove null terminator
+        return buffer;
+    }
+    
     enum class LogType
     {
         L_INFO,
@@ -46,91 +58,80 @@ namespace GALAXY::Debug
 
         static void OpenFile(const std::tm& calendar_time);
 
-        static void WriteToFile(LogType type, const std::tm& calendar_time, char* messageAndFile);
+        static void WriteToFile(LogType type, const std::tm& calendar_time, const char* messageAndFile);
 
         static void CloseFile();
 
         template <typename... Args>
         static void Print(const char* file, int line, LogType type, const char* format, Args... args)
         {
-            std::time_t now = std::time(nullptr); // get the current time point
+            std::time_t now = std::time(nullptr);
             std::tm calendar_time;
 
-            
-#ifdef _WIN32
+        #ifdef _WIN32
             localtime_s(&calendar_time, &now);
-#elif defined(__linux__)
+        #elif defined(__linux__)
             localtime_r(&now, &calendar_time);
-#endif
+        #endif
 
             if (LogToFile && !m_isFileOpen)
             {
                 OpenFile(calendar_time);
             }
 
-            char result[MAX_LOG_SIZE];
-            char header[MAX_LOG_SIZE];
-            char fileLine[MAX_LOG_SIZE];
-            char message[MAX_LOG_SIZE];
-            char messageAndFile[MAX_LOG_SIZE];
-#ifdef _WIN32
+            std::string message = FormatString(format, args...);
+            std::string fileLine = FormatString("%s (l:%d): ", file, line);
+            std::string messageAndFile = fileLine + message + "\n";
+            std::string header = FormatString("[%02d:%02d:%02d] ", calendar_time.tm_hour, calendar_time.tm_min, calendar_time.tm_sec);
+            std::string result = header + messageAndFile;
+
+        #ifdef _WIN32
             const HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-            sprintf_s(message, format, args...);
-            sprintf_s(fileLine, "%s (l:%d): ", file, line);
-            sprintf_s(messageAndFile, "%s (l:%d): %s\n", file, line, message);
-            sprintf_s(header, "[%02d:%02d:%02d] ", calendar_time.tm_hour,
-                calendar_time.tm_min, calendar_time.tm_sec);
-            SetConsoleTextAttribute(hConsole, 10);
+            SetConsoleTextAttribute(hConsole, 10); // Green for header
             std::cout << header;
-            SetConsoleTextAttribute(hConsole, 14);
+            SetConsoleTextAttribute(hConsole, 14); // Yellow for fileLine
             std::cout << fileLine;
-            switch (type)
-            {
-            case LogType::L_INFO:
-                SetConsoleTextAttribute(hConsole, 15);
-                break;
-            case LogType::L_WARNING:
-                SetConsoleTextAttribute(hConsole, 14);
-                break;
-            case LogType::L_ERROR:
-                SetConsoleTextAttribute(hConsole, 4);
-                break;
-            default:
-                break;
+            switch (type) {
+                case LogType::L_INFO:
+                    SetConsoleTextAttribute(hConsole, 15); // White
+                    break;
+                case LogType::L_WARNING:
+                    SetConsoleTextAttribute(hConsole, 14); // Yellow
+                    break;
+                case LogType::L_ERROR:
+                    SetConsoleTextAttribute(hConsole, 4); // Red
+                    break;
+                default:
+                    break;
             }
             std::cout << message << "\n";
-            sprintf_s(result, "[%02d:%02d:%02d] %s", calendar_time.tm_hour,
-                calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
-            SetConsoleTextAttribute(hConsole, 15);
-#else
-			snprintf(message, sizeof(message), format, args...);
-            snprintf(messageAndFile, sizeof(messageAndFile), "%s (l:%d): %s\n", file, line, message);
-			snprintf(result, sizeof(result), "[%02d:%02d:%02d] %s", calendar_time.tm_hour, 
-            calendar_time.tm_min, calendar_time.tm_sec, messageAndFile);
-			switch (type)
-			{
-			case LogType::L_INFO:
-				std::cout << "\033[37m"; // Set console text color to white
-				break;
-			case LogType::L_WARNING:
-				std::cout << "\033[33m"; // Set console text color to yellow
-				break;
-			case LogType::L_ERROR:
-				std::cout << "\033[31m"; // Set console text color to red
-				break;
-			default:
-				break;
-			}
+            SetConsoleTextAttribute(hConsole, 15); // Reset to default
+        #else
+            switch (type)
+            {
+                case LogType::L_INFO:
+                    std::cout << "\033[37m"; // White
+                    break;
+                case LogType::L_WARNING:
+                    std::cout << "\033[33m"; // Yellow
+                    break;
+                case LogType::L_ERROR:
+                    std::cout << "\033[31m"; // Red
+                    break;
+                default:
+                    break;
+            }
+            std::cout << result;
+            std::cout << "\033[0m"; // Reset color
+        #endif
 
-			std::cout << result;
-			std::cout << "\033[0m"; // Reset console text color
-#endif
-#ifdef WITH_EDITOR
-            AddTextToConsole(type, result);
-#endif
+        #ifdef WITH_EDITOR
+            AddTextToConsole(type, result.c_str());
+        #endif
+
             if (LogToFile && m_isFileOpen)
             {
-                WriteToFile(type, calendar_time, messageAndFile);
+                WriteToFile(type, calendar_time, messageAndFile.c_str());
             }
         }
 

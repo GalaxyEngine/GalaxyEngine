@@ -16,8 +16,13 @@ namespace GALAXY
 
 	void ResourceWindow::Draw()
 	{
-		if (m_selectedModel && m_debugThumbnail)
-			m_selectedModel->CreateThumbnail();
+		if (m_selectedResource && m_debugThumbnail)
+		{
+			if (auto selectedModel = std::dynamic_pointer_cast<Resource::Model>(m_selectedResource); selectedModel)
+				selectedModel->CreateThumbnail();
+			else if (auto selectedMaterial = std::dynamic_pointer_cast<Resource::Material>(m_selectedResource); selectedMaterial)
+				selectedMaterial->CreateThumbnail();
+		}
 		if (!p_open)
 			return;
 		if (ImGui::Begin("Resources", &p_open))
@@ -63,7 +68,6 @@ namespace GALAXY
 					m_rightClickedResource = resource.second;
 					m_shouldOpenPopup = true;
 				}
-
 			}
 			if (m_shouldOpenPopup)
 			{
@@ -80,11 +84,11 @@ namespace GALAXY
 					shouldClosePopup = true;
 				}
 				Resource::ResourceType resourceType = m_rightClickedResource->GetFileInfo().GetResourceType();
-				if (resourceType == Resource::ResourceType::Model
+				if (resourceType == Resource::ResourceType::Model || resourceType == Resource::ResourceType::Material
 					&& ImGui::MenuItem(m_debugThumbnail ? "Stop Debug Thumbnail" : "Debug Thumbnail"))
 				{
 					m_debugThumbnail = !m_debugThumbnail;
-					m_selectedModel = std::dynamic_pointer_cast<Resource::Model>(m_rightClickedResource);
+					m_selectedResource = m_rightClickedResource;
 
 					shouldClosePopup = true;
 				}
