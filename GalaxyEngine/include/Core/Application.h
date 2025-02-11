@@ -66,6 +66,7 @@ namespace GALAXY
 			static bool IsPauseMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Pause; }
 
 			void SetApplicationMode(Editor::ApplicationMode mode);
+			void MoveOneFrame();
 #endif
 			inline ProjectSettings& GetProjectSettings();
 
@@ -92,6 +93,7 @@ namespace GALAXY
 			bool m_drawGrid = true;
 
 			Editor::ApplicationMode m_applicationMode = Editor::ApplicationMode::Editor;
+			bool m_moveOnFrame = false;
 #endif
 
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;

@@ -24,13 +24,15 @@
 
 namespace GALAXY
 {
+	WaitingModelMap Editor::UI::MainBar::m_waitingModels;
 	void Editor::UI::MainBar::Draw()
 	{
 		PackageManager& packageManager = EditorSettings::GetInstance().GetPackageManager();
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		const EditorUIManager* editorInstance = EditorUIManager::GetInstance();
-		EditorSettings& editorSettings = Core::Application::GetInstance().GetEditorSettings();
-		Core::ProjectSettings& projectSettings = Core::Application::GetInstance().GetProjectSettings();
+		Core::Application& application = Core::Application::GetInstance();
+		EditorSettings& editorSettings = application.GetEditorSettings();
+		Core::ProjectSettings& projectSettings = application.GetProjectSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
@@ -71,7 +73,7 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Exit"))
 				{
-					Core::Application::GetInstance().Exit();
+					application.Exit();
 				}
 				ImGui::EndMenu();
 			}
@@ -141,7 +143,7 @@ namespace GALAXY
 			ImGui::SetCursorPosX(cursorPosX);
 			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[  ]" : "|>"))
 			{
-				auto& appInstance = Core::Application::GetInstance();
+				auto& appInstance = application;
 				appInstance.SetApplicationMode(Core::Application::IsPlayMode() ? ApplicationMode::Editor : ApplicationMode::Play);
 			}
 			bool isPauseMode = Core::Application::IsPauseMode();
@@ -150,10 +152,17 @@ namespace GALAXY
 			if (ImGui::MenuItem("||"))
 			{
 				if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
-					Core::Application::GetInstance().SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
+					application.SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
 			}
 			if (isPauseMode)
+			{
 				ImGui::PopStyleColor();
+				if (ImGui::MenuItem(">>"))
+				{
+					application.SetApplicationMode(ApplicationMode::Play);
+					application.MoveOneFrame();
+				}
+			}
 			
 			ImGui::EndMainMenuBar();
 		}
@@ -166,16 +175,6 @@ namespace GALAXY
 
 		const Resource::Scene* scene = Core::SceneHolder::GetCurrentScene();
 		scene->Save(path);
-	}
-
-	void Editor::UI::MainBar::AddModelToScene() const
-	{
-		if (!m_waitingModel.lock())
-			return;
-		const auto object = m_waitingModel.lock()->ToGameObject();
-		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-		currentScene->AddObject(object);
-		currentScene->GetRootGameObject().lock()->AddChild(object);
 	}
 
 	void Editor::UI::MainBar::DisplayCreateGameObject(bool& openModelPopup, Core::GameObject* parent)
@@ -253,7 +252,6 @@ namespace GALAXY
 		}
 	}
 
-	static std::map<int, std::pair<Shared<Resource::Model>, Core::GameObject*>> s_waitingModels;
 	bool Editor::UI::MainBar::UpdateModelPopup(bool openModelPopup, Core::GameObject* parent)
 	{
 		if (openModelPopup)
@@ -266,15 +264,15 @@ namespace GALAXY
 			if (const Shared<Resource::Model> modelShared = model.lock())
 			{
 				// do not add the variable inside the [] for smart ptr, it will cause a memory leak
-				int index = static_cast<int>(s_waitingModels.size());
-				s_waitingModels[index] = std::make_pair(model.lock(), parent);
+				int index = static_cast<int>(m_waitingModels.size());
+				m_waitingModels[index] = std::make_pair(model.lock(), parent);
 				std::function bind = [index]()
 				{
-					auto modelShared = s_waitingModels[index].first;
-					auto parent = s_waitingModels[index].second;
+					Shared<Resource::Model> modelShared = m_waitingModels[index].first;
+					Core::GameObject* parent = m_waitingModels[index].second;
 					if (!modelShared)
 					{
-						s_waitingModels.erase(index);
+						m_waitingModels.erase(index);
 						return;
 					}
 					const Shared<Core::GameObject> object = modelShared->ToGameObject();
@@ -285,7 +283,7 @@ namespace GALAXY
 					parentObject->GetScene()->AddObject(object);
 					parentObject->AddChild(object);
 
-					s_waitingModels.erase(index);
+					m_waitingModels.erase(index);
 				};
 				if (!modelShared->IsLoaded())
 				{					
@@ -296,7 +294,7 @@ namespace GALAXY
 					bind();
 				}
 			}
-				return  true;
+			return true; 
 		}
 		return false;
 	}

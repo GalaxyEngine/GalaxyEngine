@@ -23,7 +23,7 @@ namespace GALAXY
             CubemapTexture& operator=(const CubemapTexture& other) = default;
             CubemapTexture(const CubemapTexture&) = default;
             CubemapTexture(CubemapTexture&&) noexcept = default;
-            ~CubemapTexture();
+            virtual ~CubemapTexture();
 
             EDITOR_ONLY virtual void ShowOnInspector();
             
@@ -49,7 +49,7 @@ namespace GALAXY
             SixSidedTexture& operator=(const SixSidedTexture& other) = default;
             SixSidedTexture(const SixSidedTexture&) = default;
             SixSidedTexture(SixSidedTexture&&) noexcept = default;
-            ~SixSidedTexture();
+            ~SixSidedTexture() override;
 
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowOnInspector() override;

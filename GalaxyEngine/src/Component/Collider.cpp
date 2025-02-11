@@ -13,8 +13,10 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 	void Component::Collider::ShowInInspector()
 	{
-		if (Core::Application::IsPlayMode())
+		if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
+		{
 			ImGui::TextColored(p_debugCollide ? ImVec4(0, 1, 0, 1) : ImVec4(1, 0, 0, 1), p_debugCollide ? "Collision Detected" : "No Collision Detected");
+		}
 		ImGui::Checkbox("Draw AABB", &p_drawAABB);
 
 		ImGui::InputFloat3("Support Direction", &p_supportDirection.x);
