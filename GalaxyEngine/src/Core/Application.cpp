@@ -169,11 +169,13 @@ namespace GALAXY {
 			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
 			bool loaded = m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
 
+#ifdef WITH_EDITOR
 			if (!loaded)
 			{
 				m_scriptEngine->ResetLastWriteTime();
 				Scripting::ScriptEngine::CompileCode();
 			}
+#endif
 		}
 		m_scriptEngine->RegisterScriptComponents();
 	}
