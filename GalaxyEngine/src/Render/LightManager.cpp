@@ -102,10 +102,6 @@ namespace GALAXY
 			return;
 		const Vec3f viewPos = currentCamera->GetTransform()->GetLocalPosition();
 
-		if (m_lights.empty())
-		{
-			return;
-		}
 		for (const Weak<Resource::Shader>& shader : m_shaders)
 		{
 			Shared<Resource::Shader> lockShader = shader.lock();
@@ -161,6 +157,14 @@ namespace GALAXY
 		{
 			shader.lock()->Use();
 			light->ResetLightValues(shader.lock().get());
+		}
+	}
+
+	void Render::LightManager::SetDirty() const
+	{
+		for (auto& light : m_lights)
+		{
+			light.lock()->SetDirty();
 		}
 	}
 }

@@ -26,7 +26,7 @@ namespace GALAXY
 
 			void FreeDLL();
 
-			void LoadDLL(const std::filesystem::path& dllPath);
+			bool LoadDLL(const std::filesystem::path& dllPath);
 
 			void ReloadDLL();
 
@@ -56,6 +56,8 @@ namespace GALAXY
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
 
 			static ScriptEngine* GetInstance();
+
+			void ResetLastWriteTime();
 		private:
 			static std::unique_ptr<ScriptEngine> s_instance;
 

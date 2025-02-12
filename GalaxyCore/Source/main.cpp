@@ -17,9 +17,7 @@ void Main(int argc, char** argv)
 	 * TODO : Fix sub Meshes for fbx models
 	 * TODO : Add Line renderer component
 	 * TODO : Fix Forward not correct
-	 * TODO : Fix rotation Gizmo
-	 * TODO : Fix lighting
-	 * TODO : Fix Material Thumbnail creation
+	 * TODO : Fix rotation Gizmo (To test)
 	 * TODO : Implement Shadow Mapping
 	 */
 

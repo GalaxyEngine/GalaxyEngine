@@ -64,7 +64,9 @@ namespace GALAXY
 
 	void Component::Light::SendLightValues(Resource::Shader* shader)
 	{
-		// Always send boolean is enable
+		p_dirty = true; // Force dirty (Reason: when creating thumbnail, the values are updated,
+		// but no recompute after, i need to do a LightManagerHolder, that will set dirty every other lights 
+		// Always send boolean "is enable"
 		shader->SendInt(p_enableString.c_str(), IsEnable());
 
 		if (!p_dirty)
