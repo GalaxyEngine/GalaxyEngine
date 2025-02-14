@@ -11,8 +11,8 @@ namespace GALAXY
 	}
 	namespace Render { class Framebuffer; }
 	namespace Resource {
-		class Cubemap;
 		class Texture;
+		class Cubemap;
 		struct MaterialData
 		{
 			UMap<std::string, bool> m_bools;
@@ -24,7 +24,6 @@ namespace GALAXY
 			UMap<std::string, Weak<Cubemap>> m_cubemaps;
 		};
 		
-		class Texture;
 		class Material : public IResource
 		{
 		public:
@@ -50,7 +49,9 @@ namespace GALAXY
 
 			void Save();
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
+#endif
 
 			void SendForDefault(Shared<Resource::Shader> shader) const;
 

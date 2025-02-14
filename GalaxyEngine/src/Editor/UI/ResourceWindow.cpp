@@ -3,6 +3,7 @@
 #include "Editor/UI/EditorUIManager.h"
 
 #include "Resource/ResourceManager.h"
+#include "Resource/Model.h"
 
 using namespace Editor::UI;
 namespace GALAXY
@@ -15,6 +16,13 @@ namespace GALAXY
 
 	void ResourceWindow::Draw()
 	{
+		if (m_selectedResource && m_debugThumbnail)
+		{
+			if (auto selectedModel = std::dynamic_pointer_cast<Resource::Model>(m_selectedResource); selectedModel)
+				selectedModel->CreateThumbnail();
+			else if (auto selectedMaterial = std::dynamic_pointer_cast<Resource::Material>(m_selectedResource); selectedMaterial)
+				selectedMaterial->CreateThumbnail();
+		}
 		if (!p_open)
 			return;
 		if (ImGui::Begin("Resources", &p_open))
@@ -55,7 +63,41 @@ namespace GALAXY
 					fileExplorer->ClearSelected();
 					fileExplorer->AddFileSelected({ file });
 				}
+				if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+				{
+					m_rightClickedResource = resource.second;
+					m_shouldOpenPopup = true;
+				}
+			}
+			if (m_shouldOpenPopup)
+			{
+				m_shouldOpenPopup = false;
+				ImGui::OpenPopup("ResourcePopup");
+			}
+			if (m_rightClickedResource && ImGui::BeginPopup("ResourcePopup"))
+			{
+				bool shouldClosePopup = false;
+				if (ImGui::MenuItem("Load"))
+				{
+					Resource::ResourceManager::GetOrLoad(m_rightClickedResource->GetFileInfo().GetFullPath());
 
+					shouldClosePopup = true;
+				}
+				Resource::ResourceType resourceType = m_rightClickedResource->GetFileInfo().GetResourceType();
+				if (resourceType == Resource::ResourceType::Model || resourceType == Resource::ResourceType::Material
+					&& ImGui::MenuItem(m_debugThumbnail ? "Stop Debug Thumbnail" : "Debug Thumbnail"))
+				{
+					m_debugThumbnail = !m_debugThumbnail;
+					m_selectedResource = m_rightClickedResource;
+
+					shouldClosePopup = true;
+				}
+				if (shouldClosePopup)
+				{
+					ImGui::CloseCurrentPopup();
+					m_rightClickedResource.reset();
+				}
+				ImGui::EndPopup();
 			}
 			ImGui::EndChild();
 		}

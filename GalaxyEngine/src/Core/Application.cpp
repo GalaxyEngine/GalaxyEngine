@@ -48,24 +48,34 @@ namespace GALAXY {
 	{
 		Debug::Log::LogToFile = true;
 		
-		// Create folder that not exist
-#ifdef WITH_EDITOR
-		if (!std::filesystem::exists(THUMBNAIL_PATH))
-			std::filesystem::create_directories(THUMBNAIL_PATH);
-#endif
 		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
 		if (!std::filesystem::exists(logPath))
 			std::filesystem::create_directories(logPath);
 		
 #ifdef WITH_EDITOR
+		if (!std::filesystem::exists(THUMBNAIL_PATH)) 
+			std::filesystem::create_directories(THUMBNAIL_PATH);// Create also cache folder 
+		
 		m_editorSettings.LoadSettings();
 		if (projectPath.empty())
 		{
 			projectPath = m_editorSettings.GetDefaultProjectPath();
+			if (std::filesystem::is_directory(projectPath))
+			{
+				projectPath = Utils::FileSystem::FindFileWithExtension(projectPath, ".gProject");
+			}
+		}
+#else
+		if (projectPath.empty())
+		{
+			// ! Sould only happend in the ide running the engine
+			Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
+			CppSer::Parser parser(settingsPath);
+			auto defaultProjectPath = parser["Default Project Path"].As<std::string>();
+			projectPath = defaultProjectPath;
 		}
 #endif
 
-		std::cout << projectPath << '\n';
 		// Initialize Window Lib
 		if (!Wrapper::Window::Initialize())
 			PrintError("Failed to initialize window API");
@@ -81,6 +91,7 @@ namespace GALAXY {
 		std::string projectName = projectPath.filename().stem().string();
 		windowConfig.name = projectName.c_str();
 #endif
+		
 		m_window->Create(windowConfig);
 #ifdef WITH_EDITOR
 		m_window->SetVSync(m_editorSettings.GetShouldUseVSync());
@@ -89,7 +100,7 @@ namespace GALAXY {
 		m_window->SetVSync(true);
 #endif
 
-		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Jolt);
+		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Custom);
 		m_physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
 
 		m_audioSystem = Wrapper::Audio::GetInstance();
@@ -137,12 +148,13 @@ namespace GALAXY {
 
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
-		m_scriptEngine->RegisterScriptComponents();
 		
 		// Initialize Scene
 		m_sceneHolder = Core::SceneHolder::GetInstance();
 		
 #ifdef WITH_EDITOR
+		Editor::EditorSettings::SaveEngineLocation(); // Use project path
+		
 		// Initialize Editor::UI
 		m_editorUI->Initialize();
 
@@ -155,8 +167,17 @@ namespace GALAXY {
 		if (m_resourceManager->m_projectExists)
 		{
 			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
-			m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
+			bool loaded = m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
+
+#ifdef WITH_EDITOR
+			if (!loaded)
+			{
+				m_scriptEngine->ResetLastWriteTime();
+				Scripting::ScriptEngine::CompileCode();
+			}
+#endif
 		}
+		m_scriptEngine->RegisterScriptComponents();
 	}
 
 	void Core::Application::UpdateResources()
@@ -217,7 +238,7 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			if (Input::IsKeyPressed(Key::F5))
 			{
-				m_resourceManager->GetUnlitShader().lock()->Recompile();
+				Resource::ResourceManager::GetUnlitShader().lock()->Recompile();
 			}
 			if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_C))
 			{
@@ -233,6 +254,12 @@ namespace GALAXY {
 				{
 
 				}
+			}
+
+			if (m_moveOnFrame)
+			{
+				m_moveOnFrame = false;
+				SetApplicationMode(Editor::ApplicationMode::Pause);
 			}
 #endif
 
@@ -352,7 +379,7 @@ namespace GALAXY {
 			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
 			
 		}
-		else if (m_applicationMode == Editor::ApplicationMode::Editor && mode == Editor::ApplicationMode::Play)
+		else if (mode == Editor::ApplicationMode::Editor && m_applicationMode == Editor::ApplicationMode::Play)
 		{
 			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
 
@@ -360,6 +387,11 @@ namespace GALAXY {
 			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
 		}
 		m_applicationMode = mode;
+	}
+
+	void Core::Application::MoveOneFrame()
+	{
+		m_moveOnFrame = true;
 	}
 #endif
 

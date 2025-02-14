@@ -44,9 +44,9 @@ namespace GALAXY
 		if (renderer->GetRenderType() == Render::RenderType::Outline)
 			return;
 
-		ASSERT(m_plane.lock());
-		ASSERT(m_material);
-		ASSERT(m_material->GetShader());
+		ASSERT(m_plane.lock() && "Plane mesh is not loaded");
+		ASSERT(m_material && "Material is not loaded");
+		ASSERT(m_material->GetShader() && "Shader is not loaded");
 
 		m_plane.lock()->Render(m_translationMatrix, { m_material }, id);
 	}

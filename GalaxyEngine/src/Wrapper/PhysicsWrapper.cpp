@@ -1,7 +1,14 @@
 #include "pch.h"
 #include "Wrapper/PhysicsWrapper.h"
 
+#ifdef USE_JOLT
 #include "Wrapper/PhysicAPI/JoltPhysics.h"
+#endif
+#ifdef USE_PHYSX
+#endif
+#ifdef USE_CUSTOM_PHYSICS
+#include "Wrapper/PhysicAPI/CustomPhysics.h"
+#endif
 namespace GALAXY 
 {
     Wrapper::PhysicsWrapper* Wrapper::PhysicsWrapper::m_instance = nullptr;
@@ -11,14 +18,33 @@ namespace GALAXY
         {
             case PhysicAPIType::Jolt:
             {
+#ifdef USE_JOLT
                 m_instance = new Wrapper::PhysicAPI::JoltAPI();
+#else
+                ASSERT(false && "You need to enable Jolt Physics API when compiling using --physic_api=jolt");
+#endif
                 break;
             }
-        case PhysicAPIType::PhysX:
-            ASSERT(false || "PhysX not yet implemented");
-            break;
-        default:
-            break;
+            case PhysicAPIType::PhysX:
+            {
+#ifdef USE_PHYSX
+                ASSERT(false && "PhysX not yet implemented");
+#else
+                ASSERT(false && "You need to enable PhysX API when compiling using --physic_api=physx");
+#endif
+                break;
+            }
+            case PhysicAPIType::Custom:
+            {
+#ifdef USE_CUSTOM_PHYSICS
+                m_instance = new Wrapper::PhysicAPI::CustomPhysicsAPI();
+#else
+                ASSERT(false || "You need to enable Custom Physics API when compiling using --physic_api=custom");
+#endif
+                break;
+            }
+            default:
+                break;
         }
         m_instance->InitializeAPI();
     }
@@ -29,7 +55,7 @@ namespace GALAXY
         m_instance = nullptr;
     }
 
-    void Wrapper::PhysicsWrapper::AddDynamicBody(uint32_t id, Weak<Component::Rigidbody> body)
+    void Wrapper::PhysicsWrapper::AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body)
     {
         // ASSERT(p_dynamicBodies.find(id) == p_dynamicBodies.end());
         // p_dynamicBodies[id] = body;

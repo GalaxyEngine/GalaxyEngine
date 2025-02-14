@@ -35,7 +35,6 @@ namespace GALAXY
 	void Render::EditorCamera::Update()
 	{
 		auto& inputManager = Core::Application::GetInstance().GetEditorSettings().GetEditorInputsManager();
-		GetTransform()->OnUpdate();
 		if (IsLooking() && Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
 		{
 			StopLooking();
@@ -113,6 +112,7 @@ namespace GALAXY
 			m_multiplierSpeed += fastMode ? axis * 0.5f : axis * 0.1f;
 			m_multiplierSpeed = std::clamp(m_multiplierSpeed, 0.1f, 10.f);
 		}
+		GetTransform()->OnUpdate();
 	}
 
 	void Render::EditorCamera::DisplayCameraSettings()

@@ -84,6 +84,11 @@ namespace GALAXY
 		return s_instance.get();
 	}
 
+	void Scripting::ScriptEngine::ResetLastWriteTime()
+	{
+		m_lastWriteTime.reset();
+	}
+
 	void Scripting::ScriptEngine::FreeDLL()
 	{
 		if (!m_scriptEngine)
@@ -93,7 +98,7 @@ namespace GALAXY
 
 	}
 
-	void Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath)
+	bool Scripting::ScriptEngine::LoadDLL(const std::filesystem::path& dllPath)
 	{
 		m_dllPath = dllPath;
 #ifdef WITH_EDITOR
@@ -105,9 +110,10 @@ namespace GALAXY
 			// Can happen if the dll is not found, or the dll is not valid (compiled with another compiler)
 			PrintError("Failed to load DLL: %s", dllPath.string().c_str());
 			m_lastWriteTime = std::filesystem::file_time_type::max(); // max value to not spam the reloadDll method
-			return;
+			return false;
 		}
 		m_lastWriteTime = std::filesystem::last_write_time(m_dllPath.string() + Utils::OS::GetDLLExtension());
+		return true;
 	}
 
 
@@ -193,59 +199,49 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 	void Scripting::ScriptEngine::CompileCode()
 	{
-		const Path prevPath = std::filesystem::current_path();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 
-		// Execute your build commands
-		auto threadMethod = [&]()
-		{
-			std::filesystem::current_path(projectPath);
+		ASSERT(projectPath.empty() == false && "Project path is empty");
+
+		std::string platformSpecific;
 #ifdef _MSC_VER
-			Utils::OS::RunCommand("xmake f -p windows -a x64 -m debug");
+		platformSpecific = "xmake f -p windows -a x64 -m debug";
 #elif defined(__linux__)
-			Utils::OS::RunCommand("xmake f -p linux -a x64 -m debug");
+		platformSpecific = "xmake f -p linux -a x64 -m debug";
 #endif
-			Utils::OS::RunCommand("xmake");
-			std::filesystem::current_path(prevPath);
-		};
-		Core::ThreadManager::GetInstance()->AddTask(threadMethod);
+		std::string command = "cd " + projectPath.generic_string()
+		+ " && " + platformSpecific
+		+ " && xmake";
+		Utils::OS::RunCommandThread(command);
 	}
 
 	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorTool tool)
 	{
-		const Path prevPath = std::filesystem::current_path();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
-		std::filesystem::current_path(projectPath);
 		switch (tool)
 		{
 #ifdef _WIN32
 		case Editor::ScriptEditorTool::Rider:
 		case Editor::ScriptEditorTool::VisualStudio:
 		{
-				auto threadMethod = [&](){
-					Utils::OS::RunCommand("xmake f -p windows -a x64 -m debug");
-					Utils::OS::RunCommand("xmake project -k vsxmake");
-				};
-				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
+				std::string command = "cd " + projectPath.generic_string()
+					+ " && xmake f -p windows -a x64 -m debug"
+					+ " && xmake project -k vsxmake";
+				Utils::OS::RunCommandThread(command);
 			break;
 		}
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
 		{
-				auto threadMethod = [&]()
+				auto threadMethod = [projectPath]()
 				{
-					Utils::OS::RunCommand("xmake project -k compile_commands .vscode");
-					std::ofstream file(".vscode/c_cpp_properties.json");
+					std::string command = "cd " + projectPath.generic_string()
+						+ " && xmake project -k compile_commands .vscode";
+					Utils::OS::RunCommand(command);
+					std::ofstream file(projectPath / ".vscode/c_cpp_properties.json");
 					if (file.is_open()) {
-						file << std::string(R"(
-{
-   "configurations": [
-       {
-           "compileCommands": ".vscode/compile_commands.json"
-       }
-   ],
-   "version": 4
-})");
+						file << std::string("{\n\t\"configurations\": [\n\t\t {\n\t\t\t\"compileCommands\":\
+							 \".vscode/compile_commands.json\"\n\t\t }\n\t],\n\t\"version\": 4\n})");
 					}
 				};
 				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
@@ -255,7 +251,6 @@ namespace GALAXY
 			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolValue(tool));
 			break;
 		}
-		std::filesystem::current_path(prevPath);
 	}
 
 	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorTool tool)

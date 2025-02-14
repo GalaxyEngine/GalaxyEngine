@@ -1,9 +1,9 @@
 #version 450 core
 
+// Maximum number of each light type
 const int LightNumber = 8;
 
-struct Material
-{
+struct Material {
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
@@ -52,8 +52,7 @@ struct SpotLight {
     float outerCutOff;
 };
 
-struct Camera
-{
+struct Camera {
     vec3 viewPos;
 };
 
@@ -64,63 +63,76 @@ in vec2 uv;
 in vec3 normal;
 in vec3 tangent;
 
+// Uniforms
 uniform Material material;
 uniform DirectionalLight directionals[LightNumber];
 uniform PointLight points[LightNumber];
 uniform SpotLight spots[LightNumber];
 uniform Camera camera;
 
+// Dummy uniform to ensure it's not optimized away.
 uniform bool UseLights;
 
+// Global variables to be computed in main.
 vec3 finalNormal;
+vec2 modUV; // modified texture coordinate (after parallax mapping)
 
-// ----------------------- Normal --------------------------------------
-vec3 CalculateNormal()
+//
+//  ParallaxMapping: a simple version that offsets the texture coordinates
+//  based on the view direction (in tangent space)
+//
+vec2 ParallaxMapping(vec2 texCoords, vec3 viewDirTangent)
 {
-    if (!material.hasNormalMap)
-        return normal;
-
-    vec3 norm = normalize(normal);
-    vec3 tang = normalize(tangent);
-    // Re-orthogonalize tangent.
-    tang = normalize(tang - dot(tang, norm) * norm);
-    vec3 Bitangent = cross(tang, norm);
-    vec3 BumpMapNormal = texture(material.normalMap, uv).xyz;
-    BumpMapNormal = 2.0 * BumpMapNormal - vec3(1.0, 1.0, 1.0);
-    vec3 NewNormal;
-    mat3 TBN = mat3(tang, Bitangent, norm);
-    NewNormal = TBN * BumpMapNormal;
-    NewNormal = normalize(NewNormal);
-    return NewNormal;
+    // Sample the height from the parallax map (using the red channel)
+    float height = texture(material.parallaxMap, texCoords).r;
+    // Compute a simple offset (this is a basic approximation)
+    vec2 offset = viewDirTangent.xy * (height * material.heightScale);
+    return texCoords - offset;
 }
 
-// ----------------------- Lights --------------------------------------
+//
+//  CalculateNormal: uses the normal map (if available) to return a perturbed normal.
+//  The function receives the precomputed TBN matrix so that it works with the
+//  parallax-adjusted UV coordinates.
+//
+vec3 CalculateNormal(mat3 TBN)
+{
+    if (!material.hasNormalMap)
+        return normalize(normal);
+    
+    // Sample the normal from the normal map using modUV.
+    vec3 bumpNormal = texture(material.normalMap, modUV).xyz;
+    // Remap from [0,1] to [-1,1]
+    bumpNormal = 2.0 * bumpNormal - vec3(1.0);
+    return normalize(TBN * bumpNormal);
+}
+
+//
+//  Lighting functions – texture lookups now use modUV
+//
 vec4 CalculateDirectionalLight(DirectionalLight directional)
 {
     vec3 lightDir = normalize(-directional.direction);
     vec3 viewDir = normalize(camera.viewPos - pos);
 
-    // Lambertian reflection (diffuse)
+    // Diffuse (Lambertian)
     float diff = max(dot(finalNormal, lightDir), 0.0);
     vec4 diffuseColor;
-
     if (material.hasAlbedo) {
-        vec4 textureColor = texture(material.albedo, uv);
-        diffuseColor = textureColor * vec4(directional.diffuse, 1) * diff;
-    } 
-    else {
-        diffuseColor = material.diffuse * vec4(directional.diffuse, 1) * diff;
+        vec4 textureColor = texture(material.albedo, modUV);
+        diffuseColor = textureColor * vec4(directional.diffuse, 1.0) * diff;
+    } else {
+        diffuseColor = material.diffuse * vec4(directional.diffuse, 1.0) * diff;
     }
 
-    // Specular reflection
+    // Specular
     vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec4 specularColor = material.specular * vec4(directional.specular, 1) * spec;
+    vec4 specularColor = material.specular * vec4(directional.specular, 1.0) * spec;
 
-    // Ambient light
-    vec4 ambientColor = material.ambient * vec4(directional.ambient, 1);
+    // Ambient
+    vec4 ambientColor = material.ambient * vec4(directional.ambient, 1.0);
 
-    // Final color
     return ambientColor + diffuseColor + specularColor;
 }
 
@@ -134,105 +146,131 @@ vec4 CalculatePointLight(PointLight point)
 
     float diff = max(dot(finalNormal, lightDir), 0.0);
     vec4 diffuseColor;
-
     if (material.hasAlbedo) {
-        vec4 textureColor = texture(material.albedo, uv);
-        diffuseColor = textureColor * vec4(point.diffuse, 1) * diff * attenuation;
-    } 
-    else {
-        diffuseColor = material.diffuse * vec4(point.diffuse, 1) * diff * attenuation;
+        vec4 textureColor = texture(material.albedo, modUV);
+        diffuseColor = textureColor * vec4(point.diffuse, 1.0) * diff * attenuation;
+    } else {
+        diffuseColor = material.diffuse * vec4(point.diffuse, 1.0) * diff * attenuation;
     }
 
     vec3 reflectDir = reflect(-lightDir, finalNormal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
-    vec4 specularColor = material.specular * vec4(point.specular, 1) * spec * attenuation;
+    vec4 specularColor = material.specular * vec4(point.specular, 1.0) * spec * attenuation;
 
-    vec4 ambientColor = material.ambient * vec4(point.ambient, 1) * attenuation;
+    vec4 ambientColor = material.ambient * vec4(point.ambient, 1.0) * attenuation;
 
     return ambientColor + diffuseColor + specularColor;
 }
 
 vec4 CalculateSpotLight(SpotLight spot)
 {
-    vec4 diffuseColor;
+    vec4 albedoColor;
     if (material.hasAlbedo) {
-        diffuseColor = texture(material.albedo, uv);
-    } 
-    else {
-        diffuseColor = material.diffuse;
+        albedoColor = texture(material.albedo, modUV);
+    } else {
+        albedoColor = material.diffuse;
     }
-
-    // ambient
-    vec4 ambient = vec4(spot.ambient, 1) * diffuseColor;
     
-    // diffuse 
-    vec3 norm = normalize(finalNormal);
-    vec3 lightDir = normalize(spot.position - pos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec4 diffuse = vec4(spot.diffuse, 1) * diff * diffuseColor;  
+    // Ambient component
+    vec4 ambient = vec4(spot.ambient, 1.0) * albedoColor;
     
-    // specular
+    // Diffuse component
+    float diff = max(dot(finalNormal, normalize(spot.position - pos)), 0.0);
+    vec4 diffuse = vec4(spot.diffuse, 1.0) * diff * albedoColor;  
+    
+    // Specular component
     vec3 viewDir = normalize(camera.viewPos - pos);
-    vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec4 specular = vec4(spot.specular, 1) * spec * material.specular;  
+    vec3 reflectDir = reflect(-normalize(spot.position - pos), finalNormal);  
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    vec4 specular = vec4(spot.specular, 1.0) * spec * material.specular;  
     
-    // spotlight (soft edges)
+    // Spotlight (soft edges)
+    vec3 lightDir = normalize(spot.position - pos);
     float theta = dot(lightDir, normalize(-spot.direction)); 
-    float epsilon = (spot.cutOff - spot.outerCutOff);
+    float epsilon = spot.cutOff - spot.outerCutOff;
     float intensity = clamp((theta - spot.outerCutOff) / epsilon, 0.0, 1.0);
     diffuse  *= intensity;
     specular *= intensity;
     
-    // attenuation
-    float distance    = length(spot.position - pos);
+    // Attenuation
+    float distance = length(spot.position - pos);
     float attenuation = 1.0 / (spot.constant + spot.linear * distance + spot.quadratic * (distance * distance));    
     ambient  *= attenuation; 
-    diffuse   *= attenuation;
+    diffuse  *= attenuation;
     specular *= attenuation;   
         
-    vec4 result = ambient + diffuse + specular;
-    return result;
+    return ambient + diffuse + specular;
 }
 
-// ----------------------- Main --------------------------------------
+//
+// Main
+//
 void main()
 {
-    // if UseLights is never used it will not be detected.
-    // this is why we do this :
-    if (UseLights)
-        discard;
+    // Reference UseLights so it is not optimized away.
+    if (UseLights) { }  
 
-    finalNormal = CalculateNormal();
+    // Compute the TBN matrix from the interpolated normal and tangent.
+    vec3 N = normalize(normal);
+    vec3 T = normalize(tangent);
+    // Re-orthogonalize tangent:
+    T = normalize(T - dot(T, N) * N);
+    vec3 B = cross(N, T);
+    mat3 TBN = mat3(T, B, N);
 
-    if (material.hasAlbedo && texture(material.albedo, uv).a == 0.f)
+    // Compute the view direction and transform it into tangent space.
+    vec3 viewDir = normalize(camera.viewPos - pos);
+    vec3 viewDirTangent = TBN * viewDir;
+
+    // Adjust texture coordinates using parallax mapping if available.
+    if (material.hasParallaxMap)
+        modUV = ParallaxMapping(uv, viewDirTangent);
+    else
+        modUV = uv;
+
+    // Compute the per-fragment normal (using the normal map if available)
+    finalNormal = CalculateNormal(TBN);
+
+    // Alpha test: if an albedo is present and its alpha is 0, discard.
+    if (material.hasAlbedo && texture(material.albedo, modUV).a == 0.0)
         discard;
     
-    vec4 globalLight = vec4(0.f, 0.f, 0.f, 1.f);
-    for (int i = 0; i < LightNumber; i++)
-    {
+    // Check if any light is enabled. If not, output an unlit color.
+    bool anyLight = false;
+    for (int i = 0; i < LightNumber; i++) {
+        if (directionals[i].enable || points[i].enable || spots[i].enable) {
+            anyLight = true;
+            break;
+        }
+    }
+    if (!anyLight) {
+        vec4 unlitColor;
+        if (material.hasAlbedo)
+            unlitColor = texture(material.albedo, modUV);
+        else
+            unlitColor = material.diffuse;
+        FragColor = unlitColor;
+        return;
+    }
+    
+    // Accumulate contributions from each light type.
+    vec4 globalLight = vec4(0.0);
+    for (int i = 0; i < LightNumber; i++) {
         if (directionals[i].enable)
-        {
             globalLight += CalculateDirectionalLight(directionals[i]);
-        }
     }
-    for (int i = 0; i < LightNumber; i++)
-    {
+    for (int i = 0; i < LightNumber; i++) {
         if (points[i].enable)
-        {
             globalLight += CalculatePointLight(points[i]);
-        }
     }
-    for (int i = 0; i < LightNumber; i++)
-    {
+    for (int i = 0; i < LightNumber; i++) {
         if (spots[i].enable)
-        {
             globalLight += CalculateSpotLight(spots[i]);
-        }
     }
 
     FragColor = globalLight;
 
-    if (FragColor.a <= 0.0f)
+    // Final alpha test.
+    if (FragColor.a <= 0.0)
         discard;
 }

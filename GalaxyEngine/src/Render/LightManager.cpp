@@ -59,7 +59,6 @@ namespace GALAXY
 		const size_t startIndex = static_cast<size_t>(type) * MAX_LIGHT_NUMBER;
 		const size_t indexInArray = startIndex + lightShared->GetLightIndex();
 
-		ResetLightData(lightShared.get());
 		if (lightManager->m_lights[indexInArray].lock() == lightShared)
 		{
 			lightManager->m_lights[indexInArray].reset();
@@ -70,7 +69,7 @@ namespace GALAXY
 	void Render::LightManager::AddShader(const Weak<Resource::Shader>& shader)
 	{
 		const auto lockShader = shader.lock();
-		ASSERT(lockShader && lockShader->HasBeenSent());
+		ASSERT(lockShader && lockShader->HasBeenSent() && "Shader not valid or not sent");
 
 		if (lockShader->GetLocation("UseLights") == -1)
 			return;
@@ -103,10 +102,6 @@ namespace GALAXY
 			return;
 		const Vec3f viewPos = currentCamera->GetTransform()->GetLocalPosition();
 
-		if (m_lights.empty())
-		{
-			return;
-		}
 		for (const Weak<Resource::Shader>& shader : m_shaders)
 		{
 			Shared<Resource::Shader> lockShader = shader.lock();
@@ -128,11 +123,31 @@ namespace GALAXY
 
 		shader->SendVec3f("camera.viewPos", cameraPos);
 
-		for (const Weak<Component::Light>& light : m_lights)
+		std::string prefix;
+		for (size_t i = 0; i < m_lights.size(); i++)
 		{
-			if (!light.lock())
+			if (i % MAX_LIGHT_NUMBER == 0)
+			{
+				if (i < MAX_LIGHT_NUMBER)
+				{
+					prefix = "directionals[";
+				}
+				else if (i < MAX_LIGHT_NUMBER * 2)
+				{
+					prefix = "points[";
+				}
+				else if (i < MAX_LIGHT_NUMBER * 3)
+				{
+					prefix = "spots[";
+				}
+			}
+			if (!m_lights[i].lock())
+			{
+				std::string key = prefix + std::to_string(i % MAX_LIGHT_NUMBER) + "].enable";
+				shader->SendInt(key.c_str(), false);
 				continue;
-			light.lock()->SendLightValues(shader);
+			}
+			m_lights[i].lock()->SendLightValues(shader);
 		}
 	}
 
@@ -145,4 +160,11 @@ namespace GALAXY
 		}
 	}
 
+	void Render::LightManager::SetDirty() const
+	{
+		for (auto& light : m_lights)
+		{
+			light.lock()->SetDirty();
+		}
+	}
 }

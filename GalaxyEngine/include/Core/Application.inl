@@ -7,8 +7,15 @@ namespace GALAXY
 		if (fullPath.empty())
 			return;
 		Core::ThreadManager::Lock();
-		if (std::ranges::find(m_resourceToSend, fullPath) == m_resourceToSend.end())
-			m_resourceToSend.push_back(fullPath);
+		for (const std::filesystem::path& path : m_resourceToSend)
+		{
+			if (path == fullPath)
+			{
+				Core::ThreadManager::Unlock();
+				return;
+			}
+		}
+		m_resourceToSend.push_back(fullPath);
 		Core::ThreadManager::Unlock();
 	}
 

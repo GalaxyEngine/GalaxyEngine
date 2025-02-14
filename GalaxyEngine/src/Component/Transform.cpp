@@ -29,22 +29,34 @@ namespace GALAXY
 		{
 			return p_gameObject->GetParent()->GetTransform()->GetModelMatrix() * Vec4f(m_localPosition, 1.0f);
 		}
-		else
-		{
-			return m_localPosition;
-		}
+		return m_localPosition;
 	}
 
 	Quat Component::Transform::GetWorldRotation() const
 	{
 		if (p_gameObject && p_gameObject->GetParent())
 		{
-			return GetModelMatrix().GetRotation();
+			return p_gameObject->GetParent()->GetTransform()->GetWorldRotation() * m_localRotation;
 		}
-		else
+		return m_localRotation;
+	}
+
+	Vec3f Component::Transform::GetWorldScale() const
+	{
+		if (p_gameObject && p_gameObject->GetParent())
 		{
-			return m_localRotation;
+			return GetModelMatrix().GetScale();
 		}
+		return m_localScale;
+	}
+
+	Vec3f Component::Transform::GetWorldEulerRotation() const
+	{
+		if (p_gameObject && p_gameObject->GetParent())
+		{
+			return GetModelMatrix().GetRotation().ToEuler();
+		}
+		return m_localEulerRotation;
 	}
 
 	void Component::Transform::OnUpdate()
@@ -74,34 +86,10 @@ namespace GALAXY
 		}
 	}
 
-	Vec3f Component::Transform::GetWorldScale() const
-	{
-		if (p_gameObject && p_gameObject->GetParent())
-		{
-			return GetModelMatrix().GetScale();
-		}
-		else
-		{
-			return m_localScale;
-		}
-	}
 
-	Vec3f Component::Transform::GetWorldEulerRotation() const
-	{
-		if (p_gameObject && p_gameObject->GetParent())
-		{
-			return GetModelMatrix().GetRotation().ToEuler();
-		}
-		else
-		{
-			return m_localEulerRotation;
-		}
-	}
-
-
+#ifdef WITH_EDITOR
 	void Component::Transform::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		Vec3f position = m_localPosition;
 		Vec3f rotation = m_localEulerRotation;
 		Vec3f scale = m_localScale;
@@ -186,14 +174,33 @@ namespace GALAXY
 				Core::SceneHolder::GetCurrentScene()->GetActionManager()->AddAction(action);
 			}
 		}
-
+		
 		if (position != m_localPosition || rotation != m_localEulerRotation || scale != m_localScale) {
 			SetLocalPosition(position);
 			SetLocalRotation(rotation);
 			SetLocalScale(scale);
 		}
-#endif
+
+		ImGui::SeparatorText("Debug");
+		
+		Vec3f worldPosition = GetWorldPosition();
+		Vec3f worldRotation = GetWorldRotation().ToEuler();
+		Vec3f worldScale = GetWorldScale();
+
+		if (ImGui::DragFloat3("World Position", &worldPosition.x))
+		{
+			SetWorldPosition(worldPosition);
+		}
+		if (ImGui::DragFloat3("World Rotation", &worldRotation.x))
+		{
+			SetWorldRotation(worldRotation);
+		}
+		if (ImGui::DragFloat3("World Scale", &worldScale.x))
+		{
+			SetWorldScale(worldScale);
+		}
 	}
+#endif
 
 	void Component::Transform::Serialize(CppSer::Serializer& serializer)
 	{
@@ -208,28 +215,75 @@ namespace GALAXY
 		SetLocalRotation(parser["Rotation"].As<Quat>());
 		SetLocalScale(parser["Scale"].As<Vec3f>());
 	}
-
+		
 	void Component::Transform::SetWorldPosition(const Vec3f& worldPosition)
 	{
-		//TODO :
-		SetLocalPosition(worldPosition);
+	    if (p_gameObject && p_gameObject->GetParent())
+	    {
+	        // Get parent's model matrix and invert it.
+	        auto* parentTransform = p_gameObject->GetParent()->GetTransform();
+	        Mat4 parentModelMatrix = parentTransform->GetModelMatrix();
+	        Mat4 parentInverse = parentModelMatrix.CreateInverseMatrix();
+	        
+	        // Transform the world position into the parent's local space.
+	        Vec4f localPos4 = parentInverse * Vec4f(worldPosition, 1.0f);
+	        Vec3f localPos(localPos4.x, localPos4.y, localPos4.z);
+	        
+	        SetLocalPosition(localPos);
+	    }
+	    else
+	    {
+	        SetLocalPosition(worldPosition);
+	    }
 	}
 
 	void Component::Transform::SetWorldRotation(const Quat& worldRotation)
 	{
-		//TODO :
-		SetLocalRotation(worldRotation);
+	    if (p_gameObject && p_gameObject->GetParent())
+	    {
+	        auto* parentTransform = p_gameObject->GetParent()->GetTransform();
+	        // Retrieve the parent's world rotation.
+	        Quat parentWorldRotation = parentTransform->GetWorldRotation();
+	        
+	        // Compute the local rotation by "undoing" the parent's rotation.
+	        Quat localRotation = parentWorldRotation.GetInverse() * worldRotation;
+	        
+	        SetLocalRotation(localRotation);
+	    }
+	    else
+	    {
+	        SetLocalRotation(worldRotation);
+	    }
 	}
 
-	void Component::Transform::SetWorldRotation(const Vec3f& worldRotation)
+	void Component::Transform::SetWorldRotation(const Vec3f& worldEulerRotation)
 	{
-		//TODO :
-		SetLocalRotation(worldRotation);
+	    // Convert the Euler angles to a quaternion.
+	    // Adjust the conversion if your engine uses a different convention or rotation order.
+	    Quat worldQuat = Quat::FromEuler(worldEulerRotation);
+	    SetWorldRotation(worldQuat);
 	}
 
 	void Component::Transform::SetWorldScale(const Vec3f& worldScale)
 	{
-		//TODO :
-		SetLocalScale(worldScale);
+	    if (p_gameObject && p_gameObject->GetParent())
+	    {
+	        auto* parentTransform = p_gameObject->GetParent()->GetTransform();
+	        Vec3f parentWorldScale = parentTransform->GetWorldScale();
+	        
+	        // Compute the local scale by dividing the world scale by the parent's world scale.
+	        // Make sure to handle division-by-zero if that’s a possibility.
+	        Vec3f localScale = Vec3f(
+	            parentWorldScale.x != 0.0f ? worldScale.x / parentWorldScale.x : worldScale.x,
+	            parentWorldScale.y != 0.0f ? worldScale.y / parentWorldScale.y : worldScale.y,
+	            parentWorldScale.z != 0.0f ? worldScale.z / parentWorldScale.z : worldScale.z
+	        );
+	        
+	        SetLocalScale(localScale);
+	    }
+	    else
+	    {
+	        SetLocalScale(worldScale);
+	    }
 	}
 }

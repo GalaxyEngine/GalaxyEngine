@@ -150,6 +150,12 @@ namespace GALAXY
 		{
 			Core::Application::GetInstance().GetWindow()->SetVSync(m_useVSync);
 		}
+
+        std::string tmpPath = m_defaultProjectPath.string();
+        if (Wrapper::GUI::InputText("Default Project Path", &tmpPath))
+        {
+            m_defaultProjectPath = tmpPath;
+        }
 	}
 
     void Editor::EditorSettings::ChangeOtherScriptTool()
@@ -315,6 +321,7 @@ namespace GALAXY
 		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
 		if (m_otherScriptEditorToolPath.has_value())
 			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
+        serializer << CppSer::Pair::Key << "Default Project Path" << CppSer::Pair::Value << m_defaultProjectPath.string();
         for (auto input : m_editorInputsManager.EditorInputs)
         {
             serializer << CppSer::Pair::Key << "Key " + input.second.name << CppSer::Pair::Value << (int)input.second.key;
@@ -352,6 +359,12 @@ namespace GALAXY
             if (key != 0)
                 input.second.key = static_cast<Key>(key);
         }
+
+        auto defaultProjectPath = parser["Default Project Path"].As<std::string>();
+        if (!defaultProjectPath.empty())
+        {
+            m_defaultProjectPath = defaultProjectPath;
+        }
 	}
 
 	void Editor::EditorSettings::LoadThumbnail()
@@ -359,6 +372,19 @@ namespace GALAXY
 		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
 		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
 	}
+
+    void Editor::EditorSettings::SaveEngineLocation()
+    {
+        Path path = Resource::ResourceManager::GetProjectPath() / ENGINE_LOCATION_PATH;
+        std::ofstream file = Utils::FileSystem::GenerateFile(path);
+        if (!file.is_open())
+        {
+            PrintError("Can't open %s", ENGINE_LOCATION_PATH);
+            return;
+        }
+        file << std::filesystem::current_path().parent_path().generic_string(); // Folder GalaxyEngine
+        file.close();
+    }
 
 #ifdef _WIN32
     bool IsRiderInstalled()
@@ -376,7 +402,7 @@ namespace GALAXY
 			return false;
 		}
     }
-    #endif
+#endif
 
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {

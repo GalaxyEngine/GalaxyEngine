@@ -158,9 +158,14 @@ namespace GALAXY
                 break;
             case ResourceType::Model:
 #ifdef WITH_EDITOR
-                if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()) || !IsDataFileUpToDate(
-                    resource.second->GetFileInfo().GetFullPath()))
-                    GetOrLoad<Model>(resource.second->p_uuid);
+                {
+                    bool isTmbUpToDate = Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get());
+                    bool isDataUpToDate = IsDataFileUpToDate(resource.second->GetFileInfo().GetFullPath());
+                    if (!isTmbUpToDate || !isDataUpToDate)
+                    {
+                        GetOrLoad<Model>(resource.second->p_uuid);
+                    }
+                }
 #endif
                 break;
             case ResourceType::Mesh:
@@ -168,7 +173,9 @@ namespace GALAXY
             case ResourceType::Material:
 #ifdef WITH_EDITOR
                 if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(resource.second.get()))
+                {
                     GetOrLoad<Material>(resource.second->p_uuid);
+                }
 #endif
                 break;
             case ResourceType::Materials:
@@ -512,7 +519,7 @@ namespace GALAXY
     {
         auto relativeOld = Utils::FileInfo::ToRelativePath(oldPath);
         auto it = m_instance->m_resources.find(relativeOld);
-        ASSERT(it != m_instance->m_resources.end());
+        ASSERT(it != m_instance->m_resources.end() && "Resource not found");
 
         auto resource = it->second;
         resource->p_fileInfo = Utils::FileInfo(newPath);
@@ -591,8 +598,8 @@ namespace GALAXY
         case Resource::ResourceType::Data:
             return {};
         default:
-            ASSERT(false);
             PrintError("Resource %s not handled", fullPath.string().c_str());
+            ASSERT(false);
             return {};
         }
     }

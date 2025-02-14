@@ -144,7 +144,7 @@ void main()
 			if (vertexUUID != UUID_NULL)
 			{
 				Weak<VertexShader> vertexShader = ResourceManager::GetOrLoad<Resource::VertexShader>(vertexUUID);
-				ASSERT(vertexShader.lock());
+				ASSERT(vertexShader.lock() && "Vertex Shader not found");
 				if (vertexShader.lock()) {
 					SetVertex(vertexShader.lock(), thisShader);
 				}
@@ -159,7 +159,7 @@ void main()
 			if (fragmentUUID != UUID_NULL)
 			{
 				Weak<FragmentShader> fragmentShader = ResourceManager::GetOrLoad<Resource::FragmentShader>(fragmentUUID);
-				ASSERT(fragmentShader.lock());
+				ASSERT(fragmentShader.lock() && "Fragment Shader not found");
 				SetFragment(fragmentShader.lock(), thisShader);
 			}
 		}
@@ -193,7 +193,7 @@ void main()
 	void Resource::Shader::Save()
 	{
 		// Debug
-		ASSERT(GetVertex().lock() || GetFragment().lock());
+		ASSERT(GetVertex().lock() || GetFragment().lock() && "Shader not valid");
 
 		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
 		serializer <<CppSer::Pair::BeginMap << "Shader";
@@ -208,11 +208,9 @@ void main()
 	{
 		return SHADER_ICON_PATH;
 	}
-#endif
-
+	
 	void Resource::Shader::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		// Vertex Shader
 		ImGui::TextUnformatted("Vertex Shader");
 		ImGui::SameLine();
@@ -265,8 +263,8 @@ void main()
 		{
 			Save();
 		}
-#endif
 	}
+#endif
 
 	void Resource::Shader::SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant /*= true*/)
 	{
@@ -435,9 +433,9 @@ void main()
 		*/
 	}
 	
+#ifdef WITH_EDITOR
 	void Resource::BaseShader::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		size_t i = 0;
 		for (auto& shader : p_shaders)
 		{
@@ -450,8 +448,8 @@ void main()
 		}
 		ImGui::SeparatorText("Content");
 		ImGui::TextWrapped(p_content.c_str());
-#endif
 	}
+#endif
 
 	// === Base Shader === //
 	void Resource::BaseShader::AddShader(const Weak<Shader>& shader)
@@ -461,9 +459,9 @@ void main()
 		const size_t size = p_shaders.size();
 		if (size > 0)
 		{
-			for (const auto& _shader : p_shaders)
+			for (Weak _shader : p_shaders)
 			{
-				if (!_shader.lock())
+				if (_shader.expired())
 					continue;
 				if (_shader.lock() == shader.lock())
 					return;
@@ -557,7 +555,7 @@ void main()
 
 	int Resource::Shader::GetLocation(const char* locationName)
 	{
-		ASSERT(HasBeenSent());
+		ASSERT(HasBeenSent() && "Shader not sent");
 		const auto it = p_uniforms.find(locationName);
 		if (it != p_uniforms.end())
 		{

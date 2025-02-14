@@ -10,7 +10,7 @@
 #include "Component/BoxCollider.h"
 #include "Component/Transform.h"
 
-#include "Component/Rigidbody.h"
+#include "Component/RigidBody.h"
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
@@ -42,7 +42,7 @@ namespace GALAXY
 
         for (auto& body : m_dynamicBodies)
         {
-            if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first.lock().get()))
             {
                 Component::Transform* transform = rigidbody->GetTransform();
                 Vec3f position = transform->GetWorldPosition();
@@ -58,7 +58,7 @@ namespace GALAXY
         
         for (auto& body : m_dynamicBodies)
         {
-            if (auto rigidbody = dynamic_cast<Component::Rigidbody*>(body.first))
+            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first.lock().get()))
             {
                 JPH::RMat44 transform = m_physicsSystem->GetBodyInterface().GetWorldTransform(body.second->GetID());
                 JPH::Vec3 position = transform.GetTranslation();
@@ -69,23 +69,23 @@ namespace GALAXY
         }
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::CreateRigidbody(Component::Rigidbody* rigidbody)
+    void Wrapper::PhysicAPI::JoltAPI::CreateRigidBody(Weak<Component::RigidBody> rigidBody)
     {
-        Vec3f position = rigidbody->GetTransform()->GetWorldPosition();
-        Quat rotation = rigidbody->GetTransform()->GetWorldRotation();
+        Vec3f position = rigidBody.lock()->GetTransform()->GetWorldPosition();
+        Quat rotation = rigidBody.lock()->GetTransform()->GetWorldRotation();
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
         JPH::RefConst<JPH::Shape> boxShape = new JPH::BoxShape(FromVec3(Vec3f::One()));
         JPH::BodyCreationSettings inSettings = JPH::BodyCreationSettings(boxShape, FromVec3(position), FromQuat(rotation), JPH::EMotionType::Dynamic, Layers::MOVING);
         JPH::Body& body = *bodyInterface.CreateBody(inSettings);
         bodyInterface.AddBody(body.GetID(), JPH::EActivation::Activate);
-
-        m_dynamicBodies[rigidbody] = &body;
+        
+        m_dynamicBodies[rigidBody] = &body;
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::DestroyRigidbody(Component::Rigidbody* rigidbody)
+    void Wrapper::PhysicAPI::JoltAPI::DestroyRigidBody(Weak<Component::RigidBody> rigidbody)
     {
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-
+        
         auto staticBody = m_dynamicBodies.find(rigidbody);
         if (staticBody != m_dynamicBodies.end())
         {
@@ -95,18 +95,19 @@ namespace GALAXY
         }
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::CreateBoxCollider(Component::BoxCollider* collider)
+    void Wrapper::PhysicAPI::JoltAPI::CreateBoxCollider(Weak<Component::BoxCollider> _collider)
     {
+        Shared<Component::BoxCollider> collider = _collider.lock();
         Vec3f position = collider->GetTransform()->GetWorldPosition();
         Quat rotation = collider->GetTransform()->GetWorldRotation();
         Vec3f scale = collider->GetTransform()->GetWorldScale();
         Vec3f boxSize = scale * collider->GetSize();
         JPH::RefConst<JPH::Shape> boxShape = new JPH::BoxShape(FromVec3(boxSize));
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-
-        auto rigidbody = collider->GetGameObject()->GetComponent<Component::Rigidbody>();
+        
+        Shared<Component::RigidBody> rigidbody = collider->GetGameObject()->GetComponent<Component::RigidBody>();
         // if the rigidbody exists, set the shape of the body
-        if (auto it = m_dynamicBodies.find(rigidbody.get()); it != m_dynamicBodies.end())
+        if (auto it = m_dynamicBodies.find(rigidbody); it != m_dynamicBodies.end())
         {
             JPH::BodyID inBodyId = it->second->GetID();
             bodyInterface.SetShape(inBodyId, boxShape, true, JPH::EActivation::Activate);
@@ -119,10 +120,10 @@ namespace GALAXY
             JPH::BodyCreationSettings inSettings = JPH::BodyCreationSettings(boxShape, FromVec3(position), FromQuat(rotation), hasRigidbody  ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, Layers::MOVING);
             JPH::Body& body = *bodyInterface.CreateBody(inSettings);
             bodyInterface.AddBody(body.GetID(), hasRigidbody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
-
+        
             if (hasRigidbody)
             {
-                m_dynamicBodies[rigidbody.get()] = &body;
+                m_dynamicBodies[rigidbody] = &body;
             }
             else
             {
@@ -131,10 +132,10 @@ namespace GALAXY
         }
     }
 
-    void Wrapper::PhysicAPI::JoltAPI::DestroyBoxCollider(Component::BoxCollider* collider)
+    void Wrapper::PhysicAPI::JoltAPI::DestroyBoxCollider(Weak<Component::BoxCollider> collider)
     {
         JPH::BodyInterface& bodyInterface = m_physicsSystem->GetBodyInterface();
-
+        
         auto staticBody = m_staticBodies.find(collider);
         if (staticBody != m_staticBodies.end())
         {
@@ -142,11 +143,23 @@ namespace GALAXY
             bodyInterface.DestroyBody(staticBody->second->GetID());
             m_staticBodies.erase(staticBody);
         }
-        auto dynamicBody = m_dynamicBodies.find(collider);
-        if (dynamicBody != m_dynamicBodies.end())
-        {
-            dynamicBody->second->GetShape()->Release();
-        }
+        // auto dynamicBody = m_dynamicBodies.find(collider);
+        // if (dynamicBody != m_dynamicBodies.end())
+        // {
+            // dynamicBody->second->GetShape()->Release();
+        // }
+    }
+
+    void Wrapper::PhysicAPI::JoltAPI::CreateSphereCollider(Weak<Component::SphereCollider> collider)
+    {
+    }
+
+    void Wrapper::PhysicAPI::JoltAPI::DestroySphereCollider(Weak<Component::SphereCollider> collider)
+    {
+    }
+
+    void Wrapper::PhysicAPI::JoltAPI::SetDefaultGravity(const Vec3f& value)
+    {
     }
 
     bool Wrapper::PhysicAPI::JoltAPI::InitializeAPI()

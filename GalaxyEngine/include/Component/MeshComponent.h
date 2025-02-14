@@ -14,7 +14,12 @@ namespace GALAXY {
 
 			inline const char* GetComponentName() const override { return "MeshComponent"; }
 
-			void OnEditorDraw() override;
+#ifdef WITH_EDITOR
+			EDITOR_ONLY void OnEditorDraw() override;
+			
+			EDITOR_ONLY void ShowInInspector() override;
+#endif
+			
 			void OnDraw() override;
 
 			inline void SetMesh(Weak<Resource::Mesh> mesh) { if (mesh.lock()) { m_mesh = mesh; } }
@@ -28,7 +33,6 @@ namespace GALAXY {
 			List<Weak<Resource::Material>> GetMaterials() const { return m_materials; }
 			void ClearMaterials();
 
-			EDITOR_ONLY void ShowInInspector() override;
 		private:
 			Weak<Resource::Mesh> m_mesh;
 			List<Weak<Resource::Material>> m_materials;

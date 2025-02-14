@@ -24,7 +24,7 @@ void Debug::Log::OpenFile(const std::tm& calendar_time)
 	m_isFileOpen = true; // Set to true to not spam the Open File
 }
 
-void Debug::Log::WriteToFile(LogType type, const std::tm& calendar_time, char* messageAndFile)
+void Debug::Log::WriteToFile(LogType type, const std::tm& calendar_time, const char* messageAndFile)
 {
 	char result[MAX_LOG_SIZE];
 	const char* logTypeString = SerializeLogTypeValue(type);

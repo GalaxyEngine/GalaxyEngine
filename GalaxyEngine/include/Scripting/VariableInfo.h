@@ -159,6 +159,8 @@ namespace GALAXY
 			{
 				if (!BeginDeserialize(parser, name))
 					return;
+				if (!value)
+					return;
 				if (isAList)
 				{
 					std::vector<T>* vectorValue = (std::vector<T>*)value;

@@ -31,22 +31,20 @@ namespace GALAXY
 		Render::LightManager::RemoveLight(weak_this);
 	}
 
+#ifdef WITH_EDITOR
 	void Component::Light::OnEditorDraw()
 	{
-#ifdef WITH_EDITOR
 		m_editorIcon.SetPosition(GetTransform()->GetModelMatrix().GetTranslation());
 		m_editorIcon.Render(GetGameObject()->GetSceneGraphID());
-#endif
 	}
 
 	void Component::Light::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		p_dirty |= ImGui::ColorEdit3("Ambient", p_ambient.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Diffuse", p_diffuse.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Specular", p_specular.value.Data());
-#endif
 	}
+#endif
 
 	void Component::Light::Serialize(CppSer::Serializer& serializer)
 	{
@@ -66,7 +64,9 @@ namespace GALAXY
 
 	void Component::Light::SendLightValues(Resource::Shader* shader)
 	{
-		// Always send boolean is enable
+		p_dirty = true; // Force dirty (Reason: when creating thumbnail, the values are updated,
+		// but no recompute after, i need to do a LightManagerHolder, that will set dirty every other lights 
+		// Always send boolean "is enable"
 		shader->SendInt(p_enableString.c_str(), IsEnable());
 
 		if (!p_dirty)

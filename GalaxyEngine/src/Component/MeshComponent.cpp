@@ -16,6 +16,7 @@
 #endif
 
 namespace GALAXY {
+#ifdef WITH_EDITOR
 	void Component::MeshComponent::OnEditorDraw()
 	{
 		const auto gameObject = GetGameObject();
@@ -30,91 +31,9 @@ namespace GALAXY {
 		if (m_drawModelBoundingBox)
 			mesh->GetModel()->DrawBoundingBox(gameObject->GetTransform());
 	}
-
-	void Component::MeshComponent::OnDraw()
-	{
-		const auto gameObject = GetGameObject();
-		
-		auto mesh = m_mesh.lock();
-		if (!mesh)
-			return;
-		
-		const Shared<Render::Camera>& currentCamera = gameObject->GetScene()->GetCurrentCamera();
-		if (currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
-			return;
-		
-		m_mesh.lock()->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
-	}
-
-	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)
-	{
-		if (m_mesh.lock())
-			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << m_mesh.lock()->GetModel()->GetUUID();
-		else
-			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << UUID_NULL;
-
-		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetMeshName() : NONE_RESOURCE);
-		serializer << CppSer::Pair::Key << "Material Count" << CppSer::Pair::Value << m_materials.size();
-
-		serializer << CppSer::Pair::BeginTab;
-		for (size_t i = 0; i < m_materials.size(); i++)
-		{
-			Resource::IResource::SerializeResource(serializer, ("Material " + std::to_string(i)).c_str(), m_materials[i]);
-		}
-		serializer << CppSer::Pair::EndTab;
-	}
-
-	void Component::MeshComponent::Deserialize(CppSer::Parser& parser)
-	{
-		const uint64_t modelUUID = parser["Model"].As<uint64_t>();
-		const std::string meshName = parser["Mesh Name"];
-		const auto model = Resource::ResourceManager::GetOrLoad<Resource::Model>(modelUUID);
-
-		if (model.lock())
-		{
-			auto meshPath = Resource::Mesh::CreateMeshPath(model.lock()->GetFileInfo().GetFullPath(), meshName);
-			m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshPath);
-		}
-		else
-		{
-			PrintError("Model with uuid %llu not found", modelUUID);
-		}
-
-		const size_t materialCount = parser["Material Count"].As<int>();
-		for (size_t i = 0; i < materialCount; i++)
-		{
-			const uint64_t materialUUID = parser["Material " + std::to_string(i)].As<uint64_t>();
-			Weak<Resource::Material> material = Resource::ResourceManager::GetOrLoad<Resource::Material>(materialUUID);
-			m_materials.push_back(material);
-		}
-	}
-
-	void Component::MeshComponent::AddMaterial(const Weak<Resource::Material>& material)
-	{
-		m_materials.push_back(material);
-	}
-
-	void Component::MeshComponent::RemoveMaterial(size_t index)
-	{
-		if (m_materials.size() > index)
-		{
-			m_materials.erase(m_materials.begin() + index);
-		}
-		else
-		{
-			PrintError("Material index out of range");
-		}
-	}
-
-	void Component::MeshComponent::ClearMaterials()
-	{
-		m_materials.clear();
-	}
-
 	
 	void Component::MeshComponent::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		Vec2f buttonSize = { ImGui::GetContentRegionAvail().x, 0 };
 		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
 		ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
@@ -200,30 +119,87 @@ namespace GALAXY {
 			object->SetName("New Object");
 			p_gameObject->AddChild(object);
 		}
+	}
+#endif
+
+	void Component::MeshComponent::OnDraw()
+	{
+		const auto gameObject = GetGameObject();
 		
-		/*
+		auto mesh = m_mesh.lock();
+		if (!mesh)
+			return;
+		
+		const Shared<Render::Camera>& currentCamera = gameObject->GetScene()->GetCurrentCamera();
+		if (currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
+			return;
+		
+		m_mesh.lock()->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
+	}
+
+	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)
+	{
 		if (m_mesh.lock())
-		{
-			if (ImGui::Button("Print Material of Mesh"))
-			{
-				for (auto material : m_mesh.lock()->GetMaterials())
-				{
-					PrintLog(material.lock()->GetName().c_str());
-				}
-			}
-		}
-		
-		
+			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << m_mesh.lock()->GetModel()->GetUUID();
+		else
+			serializer << CppSer::Pair::Key << "Model" << CppSer::Pair::Value << UUID_NULL;
+
+		serializer << CppSer::Pair::Key << "Mesh Name" << CppSer::Pair::Value << (m_mesh.lock() ? m_mesh.lock()->GetMeshName() : NONE_RESOURCE);
+		serializer << CppSer::Pair::Key << "Material Count" << CppSer::Pair::Value << m_materials.size();
+
+		serializer << CppSer::Pair::BeginTab;
 		for (size_t i = 0; i < m_materials.size(); i++)
 		{
-			if (!m_materials[i].lock())
-				continue;
-			ImGui::PushID(static_cast<int>(i));
-			m_materials[i].lock()->ShowInInspector();
-			ImGui::PopID();
+			Resource::IResource::SerializeResource(serializer, ("Material " + std::to_string(i)).c_str(), m_materials[i]);
 		}
-		*/
-#endif
+		serializer << CppSer::Pair::EndTab;
+	}
+
+	void Component::MeshComponent::Deserialize(CppSer::Parser& parser)
+	{
+		const uint64_t modelUUID = parser["Model"].As<uint64_t>();
+		const std::string meshName = parser["Mesh Name"];
+		const auto model = Resource::ResourceManager::GetOrLoad<Resource::Model>(modelUUID);
+
+		if (model.lock())
+		{
+			auto meshPath = Resource::Mesh::CreateMeshPath(model.lock()->GetFileInfo().GetFullPath(), meshName);
+			m_mesh = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(meshPath);
+		}
+		else
+		{
+			PrintError("Model with uuid %llu not found", modelUUID);
+		}
+
+		const size_t materialCount = parser["Material Count"].As<int>();
+		for (size_t i = 0; i < materialCount; i++)
+		{
+			const uint64_t materialUUID = parser["Material " + std::to_string(i)].As<uint64_t>();
+			Weak<Resource::Material> material = Resource::ResourceManager::GetOrLoad<Resource::Material>(materialUUID);
+			m_materials.push_back(material);
+		}
+	}
+
+	void Component::MeshComponent::AddMaterial(const Weak<Resource::Material>& material)
+	{
+		m_materials.push_back(material);
+	}
+
+	void Component::MeshComponent::RemoveMaterial(size_t index)
+	{
+		if (m_materials.size() > index)
+		{
+			m_materials.erase(m_materials.begin() + index);
+		}
+		else
+		{
+			PrintError("Material index out of range");
+		}
+	}
+
+	void Component::MeshComponent::ClearMaterials()
+	{
+		m_materials.clear();
 	}
 
 }

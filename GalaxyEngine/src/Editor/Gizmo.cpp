@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "pch.h"
 
 #include "Editor/Gizmo.h"
@@ -337,19 +339,24 @@ namespace GALAXY
 		case GizmoType::Scale:
 		{
 			Quat rotation = m_transform->GetWorldRotation();
+			size_t startIndex = m_gizmoClicked ? static_cast<int>(m_axis) : 0;
+			size_t endIndex = m_gizmoClicked ? static_cast<int>(m_axis) + 1 : 3;
 			Vec3f cubeScale = Vec3f(m_gizmoLength) * 0.1f;
-			for (size_t i = 0; i < 3; i++)
+			for (size_t i = startIndex; i < endIndex; i++)
 			{
 				Vec4f color(0, 0, 0, 1);
 				color[i] = 1;
-				m_renderer->DrawWireCube(m_translateRays[i].origin + m_translateRays[i].direction * m_gizmoLength, cubeScale, rotation, color, 3.f);
-				m_renderer->DrawLine(m_translateRays[i].origin, m_translateRays[i].origin + m_translateRays[i].direction * m_gizmoLength, color, 3.f);
+				Vec3f endLocation = m_translateRays[i].origin + m_translateRays[i].direction * (m_gizmoLength - cubeScale.x);
+				m_renderer->DrawWireCube(endLocation, cubeScale, rotation, color, 3.f);
+				m_renderer->DrawLine(m_translateRays[i].origin, endLocation, color, 3.f);
 			}
 			break;
 		}
 		case GizmoType::Translation:
 		{
-			for (size_t i = 0; i < 3; i++)
+			size_t startIndex = m_gizmoClicked ? static_cast<int>(m_axis) : 0;
+			size_t endIndex = m_gizmoClicked ? static_cast<int>(m_axis) + 1 : 3;
+			for (size_t i = startIndex; i < endIndex; i++)
 			{
 				Vec4f color(0, 0, 0, 1);
 				color[i] = 1;
@@ -359,7 +366,9 @@ namespace GALAXY
 		}
 		case GizmoType::Rotation:
 		{
-			for (size_t i = 0; i < 3; i++)
+			size_t startIndex = m_gizmoClicked ? static_cast<int>(m_axis) : 0;
+			size_t endIndex = m_gizmoClicked ? static_cast<int>(m_axis) + 1 : 3;
+			for (size_t i = startIndex; i < endIndex; i++)
 			{
 				Vec4f color(0, 0, 0, 1);
 				color[i] = 1;
@@ -373,6 +382,8 @@ namespace GALAXY
 			}
 			break;
 		}
+		case GizmoType::None:
+			break;
 		default:
 			break;
 		}
@@ -389,7 +400,7 @@ namespace GALAXY
 
 	void Editor::Gizmo::SetGameObject(Weak<Core::GameObject> object)
 	{
-		m_object = object;
+		m_object = std::move(object);
 		if (m_object.lock())
 			m_transform = m_object.lock()->GetTransform();
 	}
@@ -397,21 +408,23 @@ namespace GALAXY
 	void Editor::Gizmo::HandleAxis(Physic::Ray& mouseRay)
 	{
 		float distance = FLT_MAX;
-		float tmpDistance;
 
 		for (int i = 0; i < 3; i++)
 		{
-			tmpDistance = ClosestDistanceBetweenLines(mouseRay, m_translateRays[i]);
+			float tmpDistance = ClosestDistanceBetweenLines(mouseRay, m_translateRays[i]);
 
 			if (tmpDistance < distance)
 			{
 				distance = tmpDistance;
-				m_axis = (GizmoAxis)i;
+				m_axis = static_cast<GizmoAxis>(i);
 				m_startPosition = m_translateRays[i].origin + m_translateRays[i].direction * m_translateRays[i].scale;
 			}
 		}
 
-		if (m_startPosition.Distance(m_object.lock()->GetTransform()->GetWorldPosition()) > m_gizmoLength || distance > 0.25f)
+		Vec3f worldPosition = m_object.lock()->GetTransform()->GetWorldPosition();
+		// Shift at the middle of the ray, so we can do a sphere check
+		Vec3f pos = worldPosition + m_translateRays[static_cast<int>(m_axis)].direction * m_gizmoLength * 0.5f;
+		if (m_startPosition.Distance(pos) > m_gizmoLength * 0.5f || distance > 0.25f)
 		{
 			m_axis = GizmoAxis::None;
 			m_gizmoClicked = false;
@@ -425,18 +438,17 @@ namespace GALAXY
 	void Editor::Gizmo::HandleRotation(Physic::Ray& mouseRay, const Vec3f& position)
 	{
 		float distance = FLT_MAX;
-		float tmpDistance;
 		Vec3f tempPoint;
 
 		for (int i = 0; i < 3; i++)
 		{
-			tmpDistance = ClosestDistanceLineCircle(mouseRay, m_rotateCircle[i], tempPoint);
+			float tmpDistance = ClosestDistanceLineCircle(mouseRay, m_rotateCircle[i], tempPoint);
 
 			if (tmpDistance < distance)
 			{
 				m_startPosition = tempPoint;
 				distance = tmpDistance;
-				m_axis = (GizmoAxis)i;
+				m_axis = static_cast<GizmoAxis>(i);
 			}
 		}
 

@@ -77,6 +77,17 @@ namespace GALAXY {
 		return lowercase_path;
 	}
 
+	std::filesystem::path Utils::FileSystem::FindFileWithExtension(const std::filesystem::path& path,
+		const std::string& extension)
+	{
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			if (entry.is_regular_file() && entry.path().extension() == extension) {
+				return entry.path();
+			}
+		}
+		return std::filesystem::path();
+	}
+
 	bool Utils::FileSystem::RemoveFile(const std::filesystem::path& path)
 	{
 		if (std::filesystem::exists(path) && std::filesystem::is_regular_file(path)) {

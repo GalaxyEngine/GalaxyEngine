@@ -46,9 +46,6 @@ namespace GALAXY {
 			void Unload() override;
 
 			const char* GetResourceName() const override { return "Default Resource"; }
-#ifdef WITH_EDITOR
-			EDITOR_ONLY Path GetThumbnailPath() const override;
-#endif
 
 			static inline ResourceType GetResourceType() { return ResourceType::Model; }
 		
@@ -57,6 +54,8 @@ namespace GALAXY {
 			Shared<Core::GameObject> ToGameObject();
 
 #ifdef WITH_EDITOR
+			EDITOR_ONLY Path GetThumbnailPath() const override;
+			
 			EDITOR_ONLY void CreateThumbnail();
 #endif
 			
@@ -74,7 +73,9 @@ namespace GALAXY {
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
+#endif
 
 			void OnMeshLoaded();
 		private:

@@ -40,9 +40,41 @@ namespace GALAXY {
 		thumbnailCreator->AddToQueue(shared_from_this());
 	}
 #endif
+	
+	void Resource::Mesh::SetMeshPosition(const std::vector<Vec3f>& positions)
+	{
+		if (p_loaded || p_hasBeenSent)
+			return;
+		m_positions = positions;
+		p_loaded = true;
+		p_shouldBeLoaded = true;
+		for (int i = 0; i < positions.size(); i++)
+		{
+			m_finalVertices.push_back(positions[i].x);
+			m_finalVertices.push_back(positions[i].y);
+			m_finalVertices.push_back(positions[i].z);
+
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+			m_finalVertices.push_back(0);
+		}
+		SubMesh subMesh;
+		subMesh.startIndex = 0;
+		subMesh.count = positions.size();
+		m_subMeshes.push_back(subMesh);
+		ComputeBoundingBox(positions);
+		Send();
+	}
 
 	std::string Resource::Mesh::GetMeshName()
-{
+	{
 		auto meshName = GetFileInfo().GetFileName();
 		meshName = meshName.substr(meshName.find(':') + 1);
 		return meshName;
@@ -52,7 +84,7 @@ namespace GALAXY {
 	{
 		if (p_shouldBeLoaded)
 			return;
-		ASSERT(HasModel());
+		ASSERT(HasModel() && "Model for mesh not found");
 		p_shouldBeLoaded = true;
 
 		const std::string fullPathString = GetFileInfo().GetFullPath().string();
@@ -90,7 +122,7 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
 
-		PrintLog("Sended resource %s", GetFileInfo().GetFullPath().string().c_str());
+		PrintLog("Sent resource %s", GetFileInfo().GetFullPath().string().c_str());
 
 		OnLoad.Invoke();
 

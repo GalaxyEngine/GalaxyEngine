@@ -14,7 +14,7 @@
 namespace GALAXY {
 	Resource::IResource::IResource(const Path& fullPath) : p_fileInfo(fullPath)
 	{
-		ASSERT(!fullPath.empty());
+		ASSERT(!fullPath.empty() && "Path is empty");
 		p_shouldBeLoaded = false;
 		p_loaded = false;
 		p_hasBeenSent = false;
@@ -39,14 +39,17 @@ namespace GALAXY {
 			return;
 
 		auto dataPath = GetDataFilePath();
+		// Un-Hide the file because file cannot be written if it is hidden
+		Utils::OS::ShowFile(dataPath, true);
 		{
-			CppSer::Serializer serializer(dataPath);
-
+			CppSer::Serializer serializer(dataPath.generic_string());
+			
 			serializer << CppSer::Pair::BeginMap << "Data";
 			Serialize(serializer);
 			serializer << CppSer::Pair::EndMap << "Data";
 		}
 
+		// Hide the file
 		Utils::OS::ShowFile(dataPath, false);
 	}
 
@@ -68,9 +71,9 @@ namespace GALAXY {
 	{
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
-		ASSERT(p_shouldBeLoaded);
+		ASSERT(p_shouldBeLoaded && "Resource should be loaded value need to be true");
 		auto editorUiManager = Editor::UI::EditorUIManager::GetInstance();
-		ASSERT(editorUiManager);
+		ASSERT(editorUiManager && "Editor UI Manager is null");
 		editorUiManager->AddResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
 #endif
@@ -80,7 +83,7 @@ namespace GALAXY {
 	{
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
-		ASSERT(p_loaded);
+		ASSERT(p_loaded && "Resource should be loaded");
 		Editor::UI::EditorUIManager::GetInstance()->RemoveResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
 #endif

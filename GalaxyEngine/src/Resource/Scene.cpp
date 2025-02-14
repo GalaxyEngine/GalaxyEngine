@@ -70,6 +70,7 @@ namespace GALAXY
 	void Scene::Update()
 	{
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+		renderer->SetRenderingType(Render::RenderType::None);
 		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 #ifdef WITH_EDITOR
 		Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
@@ -91,8 +92,10 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 		m_actionManager->Update();
 
+		renderer->SetRenderingType(Render::RenderType::Default);
 		if (m_editorCamera->IsVisible()) {
 			static bool shouldClearOutline = false;
+			m_editorCamera->Update();
 			SetCurrentCamera(m_editorCamera);
 			std::shared_ptr<Render::Camera> currentCamera = m_currentCamera.lock();
 
@@ -123,8 +126,6 @@ namespace GALAXY
 			// Bind Default Framebuffer
 			currentCamera->Begin();
 			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
-
-			m_editorCamera->Update();
 
 			m_gizmo->Update();
 
@@ -171,6 +172,7 @@ namespace GALAXY
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
+			renderer->RenderDebug();
 			m_root->DrawSelfAndChild(DrawMode::Editor);
 			m_gizmo->Draw();
 
@@ -203,6 +205,8 @@ namespace GALAXY
 
 			currentCamera->End();
 		}
+		
+		renderer->SetRenderingType(Render::RenderType::None);
 	}
 
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
@@ -278,8 +282,8 @@ namespace GALAXY
 	{
 		if (m_root)
 		{
-			m_root->SetScene(nullptr);
 			m_root->Destroy();
+			m_root->SetScene(nullptr);
 			m_root.reset();
 		}
 	}

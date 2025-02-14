@@ -25,9 +25,13 @@ namespace GALAXY
 		SetName(name);
 	}
 
-	GameObject::~GameObject()
+	GameObject::~GameObject() = default;
+
+	void GameObject::Destroy()
 	{
-		for (size_t i = 0; m_components.size(); i++)
+		RemoveFromParent();
+		
+		for (size_t i = 0; i < m_components.size(); i++)
 		{
 			m_components[i]->RemoveFromGameObject();
 			i--;
@@ -39,11 +43,6 @@ namespace GALAXY
 			if (previousSize != m_children.size())
 				i--;
 		}
-	}
-
-	void GameObject::Destroy()
-	{
-		RemoveFromParent();
 
 		if (m_scene)
 			m_scene->RemoveObject(this);
@@ -145,9 +144,11 @@ namespace GALAXY
 			if (m_component->IsEnable()) {
 				switch (drawMode)
 				{
+#ifdef WITH_EDITOR
 				case DrawMode::Editor:
 					m_component->OnEditorDraw();
 					break;
+#endif
 				case DrawMode::Game:
 					m_component->OnGameDraw();
 					break;

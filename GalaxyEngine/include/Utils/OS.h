@@ -38,9 +38,9 @@ namespace GALAXY
 		GALAXY_API std::filesystem::path GetEngineDataFolder();
 		GALAXY_API int Snprintf(char* buffer, size_t size, const char* format, ...);
 		
-		std::string SaveDialog(const std::vector<Filter>& filters);
+		std::string SaveDialog(const std::vector<Filter>& filters, const std::filesystem::path& defaultOpenPath = "");
 
-		std::string OpenDialog(const std::vector<Filter>& filters);
+		std::string OpenDialog(const std::vector<Filter>& filters, const std::filesystem::path& defaultOpenPath = "");
 
 		std::string OpenFolderDialog();
 

@@ -30,7 +30,9 @@ namespace GALAXY {
 
 			inline const char* GetComponentName() const override { return "Transform"; }
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
+#endif
 
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;

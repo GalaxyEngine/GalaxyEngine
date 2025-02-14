@@ -28,3 +28,19 @@ using namespace GALAXY;
 #elif defined(__linux__)
 	#define GALAXY_API __attribute__((visibility("default")))
 #endif
+
+#define COMPONENT_SUBCLASS(T, B) \
+public: \
+	using Super = B;\
+	inline const char* GetComponentName() const override { return #T; }\
+	inline virtual std::set<const char*> GetComponentNames() const override\
+	{\
+		std::set<const char*> list = B::GetComponentNames();\
+		list.insert(T::GetComponentName());\
+		return list;\
+	}\
+	inline virtual Shared<Component::BaseComponent> Clone() override {\
+		return std::make_shared<T>(*dynamic_cast<T*>(this));\
+	}
+		
+	

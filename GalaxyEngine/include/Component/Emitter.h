@@ -32,7 +32,10 @@ namespace GALAXY
             
             const char* GetComponentName() const override { return "Emitter"; }
 
+#ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
+#endif
+            
             void OnTransformUpdate();
 
             void OnCreate() override;

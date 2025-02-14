@@ -49,6 +49,11 @@ namespace GALAXY
 		return { v.x, v.y, v.z };
 	}
 
+	Vec3f ToVec3f(const ofbx::DVec3& v)
+	{
+		return Vec3d(v.x, v.y, v.z);
+	}
+
 	Vec2f ToVec2f(const ofbx::Vec2& v)
 	{
 		return { v.x, v.y };
@@ -64,18 +69,18 @@ namespace GALAXY
 		PROFILE_SCOPE_LOG("FBXLoader::Load(%s)", fullPath.generic_string().c_str());
 		uint32_t size;
 		bool sucess;
-		auto data = (ofbx::u8*)ReadFile(fullPath.generic_string().c_str(), size, sucess);
+		ofbx::u8* data = (ofbx::u8*)ReadFile(fullPath.generic_string().c_str(), size, sucess);
 		if (!sucess) {
 			delete[] data;
 			data = nullptr;
 			return;
 		}
-		ofbx::IScene* Scene = ofbx::load(data, size, (ofbx::u16)ofbx::LoadFlags::NONE);
-		if (Scene)
+		ofbx::IScene* scene = ofbx::load(data, size, static_cast<ofbx::u16>(ofbx::LoadFlags::NONE));
+		if (scene)
 		{
-			LoadTextures(Scene, fullPath);
-			LoadModel(Scene, fullPath, outputModel);
-			Scene->destroy();
+			LoadTextures(scene, fullPath);
+			LoadModel(scene, fullPath, outputModel);
+			scene->destroy();
 		}
 		delete[] data;
 		data = nullptr;
@@ -202,6 +207,7 @@ namespace GALAXY
 	void Wrapper::FBXLoader::LoadModel(ofbx::IScene* fbxScene, const std::filesystem::path& fullPath, Resource::Model* outputModel)
 	{
 		std::vector<std::vector<Vec3f>> allPositions;
+		outputModel->m_meshes.resize(fbxScene->getMeshCount());
 		for (int i = 0; i < fbxScene->getMeshCount(); i++) {
 			const ofbx::Mesh* fbxMesh = fbxScene->getMesh(i);
 
@@ -217,7 +223,7 @@ namespace GALAXY
 					material = Resource::ResourceManager::GetResource<Resource::Material>(materialFullPath).lock();
 
 				//TODO : Add Export settings, so this is only call when exporting
-				if (!material /* && exporting*/)
+				if (!material)
 				{
 					material = Resource::ResourceManager::AddResource<Resource::Material>(materialFullPath).lock();
 					material->SetShader(Resource::ResourceManager::GetInstance()->GetDefaultShader());
@@ -226,10 +232,10 @@ namespace GALAXY
 					material->SetSpecular(ToVec4f(fbxMaterial->getSpecularColor()));
 					material->SetHeightScale(static_cast<float>(fbxMaterial->getBumpFactor()));
 
-					auto albedo = material->GetAlbedo();
+					Weak<Resource::Texture> albedo = material->GetAlbedo();
 					SetMaterialTexture(&albedo, fbxMaterial, fullPath, ofbx::Texture::TextureType::DIFFUSE);
 					material->SetAlbedo(albedo);
-					auto normalMap = material->GetNormalMap();
+					Weak<Resource::Texture> normalMap = material->GetNormalMap();
 					SetMaterialTexture(&normalMap, fbxMaterial, fullPath, ofbx::Texture::TextureType::NORMAL);
 					material->SetNormalMap(normalMap);
 
@@ -240,7 +246,6 @@ namespace GALAXY
 				}
 				outputModel->m_materials.push_back(material);
 			}
-
 			const char* name = fbxMesh->name;
 			const std::filesystem::path& meshFullPath = Resource::Mesh::CreateMeshPath(fullPath, name);
 			Shared<Resource::Mesh> mesh = Resource::ResourceManager::GetResource<Resource::Mesh>(meshFullPath).lock();
@@ -250,32 +255,44 @@ namespace GALAXY
 				mesh = Resource::ResourceManager::AddResource<Resource::Mesh>(meshFullPath).lock();
 			}
 			
-
 			std::vector<float> finalVertices;
 			std::vector<Vec3f> positions;
 
-			auto fbxPositions = fbxMesh->getGeometryData().getPositions();
-			auto fbxTextureUVs = fbxMesh->getGeometryData().getUVs();
-			auto fbxNormals = fbxMesh->getGeometryData().getNormals();
+			ofbx::Vec3Attributes fbxPositions = fbxMesh->getGeometryData().getPositions();
+			ofbx::Vec2Attributes fbxTextureUVs = fbxMesh->getGeometryData().getUVs();
+			ofbx::Vec3Attributes fbxNormals = fbxMesh->getGeometryData().getNormals();
+			ofbx::Vec3Attributes fbxTangents = fbxMesh->getGeometryData().getTangents();
 
+			ofbx::DVec3 rotation = fbxMesh->getLocalRotation();
+			ofbx::DVec3 translation = fbxMesh->getLocalTranslation();
+
+			Quat rotationQuat = Quat::FromEuler(ToVec3f(rotation));
+			
 			const auto pushToVector = [&](int index) {
-				positions.push_back(ToVec3f(fbxPositions.get(index)));
+				Vec3f position = ToVec3f(fbxPositions.get(index));
+				position = rotationQuat * position;
+				position += ToVec3f(translation);
+				Vec3f normal = ToVec3f(fbxNormals.get(index));
+				normal = rotationQuat * normal;
+				Vec2f textureUV = ToVec2f(fbxTextureUVs.get(index));
+				
+				positions.push_back(position);
 
-				finalVertices.push_back(fbxPositions.get(index).x);
-				finalVertices.push_back(fbxPositions.get(index).y);
-				finalVertices.push_back(fbxPositions.get(index).z);
+				finalVertices.push_back(position.x);
+				finalVertices.push_back(position.y);
+				finalVertices.push_back(position.z);
 
-				finalVertices.push_back(fbxTextureUVs.get(index).x);
-				finalVertices.push_back(fbxTextureUVs.get(index).y);
+				finalVertices.push_back(textureUV.x);
+				finalVertices.push_back(textureUV.y);
 
-				finalVertices.push_back(fbxNormals.get(index).x);
-				finalVertices.push_back(fbxNormals.get(index).y);
-				finalVertices.push_back(fbxNormals.get(index).z);
+				finalVertices.push_back(normal.x);
+				finalVertices.push_back(normal.y);
+				finalVertices.push_back(normal.z);
 
 				finalVertices.push_back(0);
 				finalVertices.push_back(0);
 				finalVertices.push_back(0);
-				};
+			};
 
 			//TODO : Handle tangents
 			//TODO : Fix loading with mix of triangles and quads
@@ -316,12 +333,13 @@ namespace GALAXY
 
 			allPositions.push_back(positions);
 
+			mesh->m_positions = positions;
 			mesh->m_finalVertices = finalVertices;
 
 			mesh->p_shouldBeLoaded = true;
 			mesh->p_loaded = true;
 
-			outputModel->m_meshes.push_back(mesh);
+			outputModel->m_meshes[i] = mesh;
 
 			mesh->m_model = outputModel;
 
@@ -332,6 +350,5 @@ namespace GALAXY
 		}
 		outputModel->ComputeBoundingBox(allPositions);
 		outputModel->p_hasBeenSent = true;
-
 	}
 }

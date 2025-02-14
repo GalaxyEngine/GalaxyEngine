@@ -44,10 +44,12 @@ namespace GALAXY
 
 			virtual void OnDestroy() override;
 
-			virtual void OnEditorDraw() override;
+#ifdef WITH_EDITOR
+			EDITOR_ONLY virtual void OnEditorDraw() override;
 
 			EDITOR_ONLY virtual void ShowInInspector() override;
-
+#endif
+			
 			virtual void Serialize(CppSer::Serializer& serializer) override;
 			virtual void Deserialize(CppSer::Parser& parser) override;
 

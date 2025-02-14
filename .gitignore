@@ -3,6 +3,7 @@
 build/
 vsxmake*/
 CMakeLists.txt
+/.vscode
 
 # MacOS Cache
 .DS_Store
@@ -13,6 +14,7 @@ GalaxyCore/*.pdb
 GalaxyCore/*.exe
 GalaxyCore/*.ilk
 GalaxyCore/Cache
+GalaxyCore/.vs
 compile.*
 
 *.dll
@@ -23,3 +25,4 @@ compile.*
 *.a
 GalaxyCore/GalaxyHeaderTool
 GalaxyCore/Editor.settings
+*.*~

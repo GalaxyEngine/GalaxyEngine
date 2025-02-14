@@ -22,7 +22,7 @@ namespace GALAXY {
 		public:
 			~ResourceManager();
 
-			static inline Resource::ResourceManager* GetInstance();
+			static inline ResourceManager* GetInstance();
 
 			static void Release();
 
@@ -49,7 +49,7 @@ namespace GALAXY {
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
 
-			static inline Weak<IResource> GetOrLoad(const Path& fullPath, bool async = true);
+			static Weak<IResource> GetOrLoad(const Path& fullPath, bool async = true);
 
 			template <typename T>
 			static inline Weak<T> ReloadResource(const Path& fullPath, bool async = true);

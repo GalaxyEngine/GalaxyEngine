@@ -40,9 +40,9 @@ namespace GALAXY
 		audioInstance->Stop_Sound();
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Sound::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		IResource::ShowInInspector();
 
 		
@@ -55,7 +55,7 @@ namespace GALAXY
 		{
 			Stop();
 		}
-#endif
 	}
+#endif
 
 }

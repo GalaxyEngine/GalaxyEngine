@@ -36,8 +36,8 @@ namespace GALAXY
 
 		constexpr Vec4f clearColor(0);
 
-		Path projectPath = Resource::ResourceManager::GetInstance()->GetProjectPath();
-		auto path = projectPath / THUMBNAIL_PATH;
+		Path projectPath = Resource::ResourceManager::GetProjectPath();
+		Path path = projectPath / THUMBNAIL_PATH;
 		std::filesystem::create_directories(path);
 
 		m_scene = std::make_shared<Resource::Scene>("Temp");
@@ -77,6 +77,8 @@ namespace GALAXY
 		m_cameraObject.reset();
 		m_camera.reset();
 		m_scene.reset();
+		m_thumbnailQueue.clear();
+		m_thumbnailQueue.shrink_to_fit();
 
 		m_initialized = false;
 	}
@@ -99,7 +101,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto modelShared = model.lock();
-		ASSERT(modelShared != nullptr);
+		ASSERT(modelShared != nullptr && "Model is null");
 
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		bool canBeCreated = modelShared->HasBeenSent();
@@ -159,13 +161,15 @@ namespace GALAXY
 		m_camera->SetSize(m_thumbnailSize);
 		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
+		
+		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
-
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
 
 		modelObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
+		renderer->SetRenderingType(Render::RenderType::None);
 
 		// Reset previous data
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
@@ -185,7 +189,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto meshShared = mesh.lock();
-		ASSERT(meshShared != nullptr);
+		ASSERT(meshShared != nullptr && "Mesh is null");
 
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 		bool canBeCreated = meshShared->HasBeenSent();
@@ -230,6 +234,7 @@ namespace GALAXY
 		m_camera->SetSize(m_thumbnailSize);
 		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
+		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
 
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
@@ -237,6 +242,7 @@ namespace GALAXY
 		meshObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
+		renderer->SetRenderingType(Render::RenderType::None);
 
 		// Reset previous data
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());
@@ -254,7 +260,7 @@ namespace GALAXY
 		if (!m_initialized)
 			return;
 		auto materialShared = material.lock();
-		ASSERT(materialShared != nullptr);
+		ASSERT(materialShared != nullptr && "Material is null");
 		constexpr Vec3f cameraPosition(0, 0, 2);
 		const Quat cameraAngleAxis = Quat::AngleAxis(180, Vec3f(0, 0, 1));
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
@@ -284,6 +290,7 @@ namespace GALAXY
 		m_camera->SetSize(m_thumbnailSize);
 		m_scene->SetCurrentCamera(m_camera);
 		renderer->SetViewport(m_thumbnailSize);
+		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
 
 		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), cameraPosition);
@@ -291,6 +298,7 @@ namespace GALAXY
 		m_sphereMaterialObject->DrawSelfAndChild(DrawMode::Game);
 
 		m_camera->End();
+		renderer->SetRenderingType(Render::RenderType::None);
 
 		// Reset previous data
 		renderer->SetViewport(Core::Application::GetInstance().GetWindow()->GetSize());

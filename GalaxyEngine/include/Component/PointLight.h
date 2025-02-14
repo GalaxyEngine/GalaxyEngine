@@ -8,31 +8,22 @@ namespace GALAXY
 	{
 		class PointLight : public Light
 		{
+			COMPONENT_SUBCLASS(PointLight, Light)
 		public:
 			PointLight() {}
 			PointLight& operator=(const PointLight& other) = default;
 			PointLight(const PointLight&) = default;
 			PointLight(PointLight&&) noexcept = default;
 			~PointLight() override {}
-
-			inline const char* GetComponentName() const override { return "PointLight"; }
-			inline virtual std::set<const char*> GetComponentNames() const override
-			{
-				std::set<const char*> list = Light::GetComponentNames();
-				list.insert(PointLight::GetComponentName());
-				return list;
-			}
-
-			inline virtual Shared<Component::BaseComponent> Clone() override {
-				return std::make_shared<PointLight>(*dynamic_cast<PointLight*>(this));
-			}
 			
 			inline Type GetLightType() override { return Light::Type::Point; };
 
 			void SendLightValues(Resource::Shader* shader) override;
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
-
+#endif
+			
 			inline float GetConstant() const { return p_constant.value; }
 			inline void SetConstant(const float val) { p_constant.value = val; SetDirty(); }
 

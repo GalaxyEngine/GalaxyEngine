@@ -65,7 +65,9 @@ namespace GALAXY {
 			// Get the enum with the class
 			static ResourceType GetResourceType() { return ResourceType::Shader; }
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY virtual void ShowInInspector() override;
+#endif
 
 			void SetVertex(const Shared<VertexShader>& vertexShader, const Weak<Shader>& weak_this, bool createVariant = true);
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
@@ -129,8 +131,9 @@ namespace GALAXY {
 			virtual void OnAdd() override;
 			void AddShader(const Weak<Shader>& shader);
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY virtual void ShowInInspector() override;
-
+#endif
 			void Recompile();
 
 			void RemoveShader(Shader* shader);

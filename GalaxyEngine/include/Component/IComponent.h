@@ -8,7 +8,7 @@ namespace CppSer { class Serializer; class Parser; }
 namespace GALAXY {
 	namespace Core { class GameObject; }
 	namespace Component {
-
+		class Transform;
 		struct GALAXY_API ComponentID
 		{
 			Core::UUID gameObjectID;
@@ -35,7 +35,15 @@ namespace GALAXY {
 				return names;
 			}
 
+#ifdef WITH_EDITOR
 			EDITOR_ONLY virtual void ShowInInspector() {}
+
+			// Called on Editor Update
+			EDITOR_ONLY virtual void OnEditorUpdate() {}
+
+			// Called on Editor Draw
+			EDITOR_ONLY virtual void OnEditorDraw() {}
+#endif
 
 			// Called on Creation
 			virtual void OnCreate() {}
@@ -46,17 +54,11 @@ namespace GALAXY {
 			// Called on Game Update
 			virtual void OnUpdate() {}
 
-			// Called on Editor Update
-			virtual void OnEditorUpdate() {}
-
 			// Called every time
 			virtual void OnDraw() {}
 
 			// Called on Game Draw
 			virtual void OnGameDraw() {}
-
-			// Called on Editor Draw
-			virtual void OnEditorDraw() {}
 
 			// Called before being Destroyed
 			virtual void OnDestroy() {}
@@ -83,7 +85,7 @@ namespace GALAXY {
 
 			inline Core::GameObject* GetGameObject() const { return p_gameObject; }
 
-			class Transform* GetTransform() const;
+			virtual Transform* GetTransform() const;
 
 			inline uint32_t GetIndex() const { return p_id; }
 

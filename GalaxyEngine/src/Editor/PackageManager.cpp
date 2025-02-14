@@ -180,20 +180,17 @@ target_end()
         Utils::FileSystem::CopyFileTo(sourcePath, destinationPath, std::filesystem::copy_options::recursive);
 
         std::filesystem::path exeFolder = GetBinFolder(m_packageMode);
-        // copy the GalaxyGameDebug.exe into project name .exe
         Path fromBinPath = exeFolder / (std::string(BIN_NAME) + Utils::OS::GetBinaryExtension());
         Path toBinPath = (packagePath / Resource::ResourceManager::GetProjectPath().filename().stem()).generic_string() + Utils::OS::GetBinaryExtension();
 
         if (!std::filesystem::exists(fromBinPath))
         {
-            PrintLog("Can't find the binary file need to compile in game mode");
-            // TODO : Implement compilation of game mode
+            PrintError("Can't find the binary file need to compile in game mode");
             return;
         }
             
         Utils::FileSystem::CopyFileTo(fromBinPath, toBinPath, std::filesystem::copy_options::overwrite_existing);
 
-        //TODO Change the DLL name
         // copy the galaxy engine dll
         Path fromDLLPath = exeFolder / (std::string(DLL_NAME) + Utils::OS::GetDLLExtension());
         Path toDLLPath = (packagePath / DLL_NAME).string() + Utils::OS::GetDLLExtension();
@@ -216,8 +213,9 @@ target_end()
 
         // Prepare the buffer
         char xmakeContent[8192];
-        std::strncpy(xmakeContent, s_xmakeContent.c_str(), sizeof(xmakeContent) - 1);
-        xmakeContent[sizeof(xmakeContent) - 1] = '\0';  // Ensure null-termination
+        std::size_t lengthToCopy = std::min(s_xmakeContent.size(), sizeof(xmakeContent) - 1);
+        std::copy_n(s_xmakeContent.begin(), lengthToCopy, xmakeContent);
+        xmakeContent[lengthToCopy] = '\0'; // Ensure null-termination
 
         // Get the project name
         std::string projectName = Resource::ResourceManager::GetProjectPath().filename().string();

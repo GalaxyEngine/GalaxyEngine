@@ -39,7 +39,8 @@ namespace GALAXY
         m_texture = ResourceManager::GetResource<Texture>(textureUUID);
         if (m_texture.lock())
         {
-            m_image = new Image(ImageLoader::Load(m_texture.lock()->GetFileInfo().GetFullPath()));
+            Image image = ImageLoader::Load(m_texture.lock()->GetFileInfo().GetFullPath());
+            m_image = new Image(image);
         }
     }
     
@@ -48,7 +49,7 @@ namespace GALAXY
     {
         if (m_image)
         {
-            auto textures = ImageLoader::CubemapTextureToSixSided(*m_image);
+            std::array<Wrapper::Image, 6> textures = ImageLoader::CubemapTextureToSixSided(*m_image);
 
             ImageLoader::ImageFree(*m_image);
             delete m_image;
@@ -90,7 +91,6 @@ namespace GALAXY
 
     Resource::SixSidedTexture::~SixSidedTexture()
     {
-        
     }
 
 #ifdef WITH_EDITOR
@@ -111,7 +111,7 @@ namespace GALAXY
     {
         for (uint32_t i = 0; i < 6; i++)
         {
-            auto textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
+            Core::UUID textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
             m_textures[i] = ResourceManager::GetOrLoad<Texture>(textureUUID);
         }
     }
@@ -125,9 +125,9 @@ namespace GALAXY
                 return;
             if (auto texture = m_textures[i].lock())
             {
-                Wrapper::Image image = Wrapper::ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(), 4);
-                Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), image);
-                Wrapper::ImageLoader::ImageFree(image);
+                Image image = ImageLoader::Load(texture->GetFileInfo().GetFullPath().string().c_str(), 4);
+                Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), image);
+                ImageLoader::ImageFree(image.data);
             }
             else
             {
@@ -268,9 +268,9 @@ namespace GALAXY
         }
     }
 
+#ifdef WITH_EDITOR
     void Resource::Cubemap::ShowInInspector()
     {
-#ifdef WITH_EDITOR
         if (p_shouldBeLoaded && !p_loaded)
             return;
         int currentType = (int)m_type;
@@ -284,8 +284,8 @@ namespace GALAXY
         {
             Save();
         }
-#endif
     }
+#endif
 
     std::string Resource::Cubemap::GetDirectionFromIndex(uint32_t index)
     {

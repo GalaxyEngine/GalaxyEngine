@@ -24,7 +24,7 @@ namespace GALAXY
 					for (const auto& resourceUUID : loadingResources)
 					{
 						auto resource = Resource::ResourceManager::GetResource(resourceUUID);
-						ASSERT(resource.lock());
+						ASSERT(resource.lock() && "Resource not found");
 						ImGui::Text("%s", resource.lock()->GetFileInfo().GetRelativePath().string().c_str());
 					}
 				}

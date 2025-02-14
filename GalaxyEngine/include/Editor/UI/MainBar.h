@@ -14,6 +14,7 @@ namespace GALAXY
 	{
 		class Model;
 	}
+	using WaitingModelMap = std::map<int, std::pair<Shared<Resource::Model>, Core::GameObject*>>;
 	namespace Editor::UI
 	{
 		class MainBar
@@ -25,12 +26,10 @@ namespace GALAXY
 
 			static void SaveScene(std::string path);
 
-			void AddModelToScene() const;
-
 			static void DisplayCreateGameObject(bool& openModelPopup, Core::GameObject* parent = nullptr);
 			static bool UpdateModelPopup(bool openModelPopup, Core::GameObject* parent = nullptr);
 		private:
-			Weak<Resource::Model> m_waitingModel;
+			static WaitingModelMap m_waitingModels;
 		};
 	}
 }

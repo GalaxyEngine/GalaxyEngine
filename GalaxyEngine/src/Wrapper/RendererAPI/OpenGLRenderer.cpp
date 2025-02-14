@@ -96,6 +96,11 @@ namespace GALAXY
 		glCullFace(GL_BACK);
 	}
 
+	void OpenGLRenderer::EnableWireframe(bool active)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, active ? GL_LINE : GL_FILL);
+	}
+
 	void OpenGLRenderer::UseShader(Resource::Shader* shader)
 	{
 		glUseProgram(shader->p_id);
@@ -553,74 +558,10 @@ namespace GALAXY
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
-
-	void OpenGLRenderer::DrawLine(const Vec3f pos1, const Vec3f pos2, const Vec4f color /*= Vec4f(1)*/, float lineWidth /*= 1.f*/)
-	{
-		static float minMaxWidth[2];
-
-		static bool initalized = false;
-		static std::weak_ptr<Resource::Shader> unlitShader;
-		static uint32_t VAO;
-		static uint32_t VBO;
-		if (!initalized)
-		{
-			unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
-			glBindVertexArray(VAO);
-
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) + 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
-			glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
-
-			// position attribute
-			glVertexAttribPointer(0U, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(0));
-			glEnableVertexAttribArray(0U);
-			initalized = true;
-
-			// Query the maximum supported line width range
-			glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, minMaxWidth);
-		}
-		if (!unlitShader.lock() || !unlitShader.lock()->HasBeenSent())
-		{
-			unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
-			return;
-		}
-
-		if (lineWidth < minMaxWidth[0] || lineWidth > minMaxWidth[1])
-			lineWidth = 1.f;
-
-		// Bind Position
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
-		glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
-
-		//glDepthRange(0, 0.01);
-		float defaultWidth;
-		glGetFloatv(GL_LINE_WIDTH, &defaultWidth);
-		glLineWidth(lineWidth);
-		const Shared<Resource::Shader> shader = unlitShader.lock();
-
-		shader->Use();
-
-		const auto& VP = Core::SceneHolder::GetCurrentScene()->GetVP();
-
-		shader->SendMat4("MVP", VP);
-		shader->SendVec4f("material.diffuse", color);
-		shader->SendInt("material.hasAlbedo", false);
-
-		// Draw vertices
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINES, 0, 6);
-		glBindVertexArray(0);
-
-		glLineWidth(defaultWidth);
-	}
-
+	
 	void OpenGLRenderer::BindTexture(Resource::Texture* texture, const uint32_t id /*= 0*/)
 	{
-		ASSERT(texture->HasBeenSent());
+		ASSERT(texture->HasBeenSent() && "Texture has not been sent to the GPU");
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_2D, texture->GetID());
 	}
@@ -659,7 +600,7 @@ namespace GALAXY
 
 	void OpenGLRenderer::BindCubemap(Resource::Cubemap* cubemap, uint32_t id)
 	{
-		ASSERT(cubemap->HasBeenSent());
+		ASSERT(cubemap->HasBeenSent() && "Cubemap has not been sent to the GPU");
 		glActiveTexture(GL_TEXTURE0 + id);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->m_id);
 	}
@@ -775,5 +716,70 @@ namespace GALAXY
 	int OpenGLRenderer::GetErrorCode()
 	{
 		return glGetError();
+	}
+
+	void OpenGLRenderer::Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color, float lineWidth)
+	{
+		// Improve this to use instancing
+		static float minMaxWidth[2];
+
+		static bool initalized = false;
+		static std::weak_ptr<Resource::Shader> unlitShader;
+		static uint32_t VAO;
+		static uint32_t VBO;
+		if (!initalized)
+		{
+			unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glBindVertexArray(VAO);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) + 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
+			glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
+
+			// position attribute
+			glVertexAttribPointer(0U, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void*>(0));
+			glEnableVertexAttribArray(0U);
+			initalized = true;
+
+			// Query the maximum supported line width range
+			glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, minMaxWidth);
+		}
+		if (!unlitShader.lock() || !unlitShader.lock()->HasBeenSent())
+		{
+			unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader();
+			return;
+		}
+
+		if (lineWidth < minMaxWidth[0] || lineWidth > minMaxWidth[1])
+			lineWidth = 1.f;
+
+		// Bind Position
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float), &pos1);
+		glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float), 3 * sizeof(float), &pos2);
+
+		//glDepthRange(0, 0.01);
+		float defaultWidth;
+		glGetFloatv(GL_LINE_WIDTH, &defaultWidth);
+		glLineWidth(lineWidth);
+		const Shared<Resource::Shader> shader = unlitShader.lock();
+
+		shader->Use();
+
+		const auto& VP = Core::SceneHolder::GetCurrentScene()->GetVP();
+
+		shader->SendMat4("MVP", VP);
+		shader->SendVec4f("material.diffuse", color);
+		shader->SendInt("material.hasAlbedo", false);
+
+		// Draw vertices
+		glBindVertexArray(VAO);
+		glDrawArrays(GL_LINES, 0, 6);
+		glBindVertexArray(0);
+
+		glLineWidth(defaultWidth);
 	}
 }

@@ -11,13 +11,15 @@ using namespace GALAXY;
 // Main code
 void Main(int argc, char** argv)
 {
-	//TODO : Fix shader loading and sending
-	//TODO : Handle update of materials for thumbnails
-	//TODO : Fix sub Meshes for fbx models
-	//TODO : Add packaging project
-	//TODO : Add Line renderer component
-
-	// Probleme trouver le moteur avec le mode game
+	/*
+	 * TODO : Fix shader loading and sending
+	 * TODO : Handle update of materials for thumbnails
+	 * TODO : Fix sub Meshes for fbx models
+	 * TODO : Add Line renderer component
+	 * TODO : Fix Forward not correct
+	 * TODO : Fix rotation Gizmo (To test)
+	 * TODO : Implement Shadow Mapping
+	 */
 
 	std::filesystem::path exePath = std::filesystem::path(argv[0]);
 	// On development			   							exe/	 mode/        architecture/ platform/	  build/		GalaxyEngine/
@@ -34,41 +36,8 @@ void Main(int argc, char** argv)
 	std::filesystem::current_path(workDir);
 
 	Core::Application& application = Core::Application::GetInstance();
-	
-	//TODO : Remove this
 	std::filesystem::path projectPath;
-#ifdef _WIN32
-	projectPath = "D:/Code/Moteurs/Galaxy Projects/GameTest/GameTest.gProject";
-	if (!std::filesystem::exists(projectPath))
-		projectPath = "C:/Users/romai/Documents/Code/Projects Galaxy/ProjectA/ProjectA.gProject";
-#elif defined(__linux__)
-	projectPath = "/home/uwu/Documents/GalaxyProject/GalaxyProject.gProject";
-#endif
-	//std::filesystem::path projectPath = "D:/Code/Test Projects/Project/Project.gProject";
-#ifdef WITH_GAME
-	// find a dll in the current folder
-	for (const auto& entry : std::filesystem::directory_iterator("."))
-	{
-		std::filesystem::path filename = entry.path().filename();
-		bool isADll = false;
-#if defined(_WIN32)
-		isADll = filename.extension() == ".dll";
-#elif defined(__linux__)
-		isADll = filename.extension() == ".so";
-#elif defined(__APPLE__)
-		isADll = filename.extension() == ".dylib";
-#endif
-		if (isADll)
-		{
-			const bool isEngineDll = filename == "GalaxyGame.dll" || filename == "GalaxyGameDebug.dll" || filename == "GalaxyEditor.dll" || filename == "GalaxyEditorDebug.dll";
-			if (isEngineDll)
-				continue;
-			projectPath = entry.path();
-			projectPath = (projectPath.parent_path() / projectPath.filename().stem()).generic_string() + ".gProject";
-			break;
-		}
-	}
-#endif
+
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 
@@ -86,7 +55,7 @@ int main(int argc, char** argv)
 	//  TODO: Remove Comments To Break on leaks
 	// |
 	// V
-	//_CrtSetBreakAlloc(863);
+	// _CrtSetBreakAlloc(29402);
 #endif
 	Main(argc, argv);
 	return 0;

@@ -155,9 +155,9 @@ namespace GALAXY {
 		for (auto& mesh : m_meshes)
 		{
 			Shared<Core::GameObject> meshGO = std::make_shared<Core::GameObject>(mesh.lock()->GetMeshName());
-			auto meshComponent = meshGO->AddComponent<Component::MeshComponent>();
+			Weak<Component::MeshComponent> meshComponent = meshGO->AddComponent<Component::MeshComponent>();
 			meshComponent.lock()->SetMesh(mesh);
-			for (auto& subMesh : mesh.lock()->m_subMeshes) {
+			for ([[maybe_unused]] auto& subMesh : mesh.lock()->m_subMeshes) {
 				if (materialIndex < m_materials.size())
 					meshComponent.lock()->AddMaterial(m_materials[materialIndex++]);
 				else
@@ -206,15 +206,15 @@ namespace GALAXY {
 		}
 	}
 
+#ifdef WITH_EDITOR
 	void Resource::Model::ShowInInspector()
 	{
-#ifdef WITH_EDITOR
 		if (ImGui::Button("Reload Thumbnail"))
 		{
 			CreateThumbnail();
 		}
-#endif
 	}
+#endif
 
 	void Resource::Model::OnMeshLoaded()
 	{
@@ -278,6 +278,8 @@ namespace GALAXY {
 
 	void Resource::Model::ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices)
 	{
+		if (positionVertices.empty())
+			return;
 		for (size_t i = 0; auto & weakMesh : m_meshes)
 		{
 			const Shared<Mesh> mesh = weakMesh.lock();

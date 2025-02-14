@@ -20,9 +20,9 @@ void Component::ScriptComponent::SetupVariables()
 	}
 }
 
+#ifdef WITH_EDITOR
 void Component::ScriptComponent::ShowInInspector()
 {
-#ifdef WITH_EDITOR
 	for (const auto& variable : m_variablesInfo) {
 		if (variable.second->displayValue)
 		{
@@ -32,8 +32,8 @@ void Component::ScriptComponent::ShowInInspector()
 			variable.second->displayValue(variable.first, variableValue);
 		}
 	}
-#endif
 }
+#endif
 
 void Component::ScriptComponent::OnCreate()
 {

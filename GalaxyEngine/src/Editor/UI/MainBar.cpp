@@ -4,8 +4,6 @@
 #include "Editor/EditorSettings.h"
 #include "Editor/PackageManager.h"
 
-#include "Component/BoxCollider.h"
-
 #include "Resource/ResourceManager.h"
 #include "Resource/Scene.h"
 #include "Resource/Model.h"
@@ -19,25 +17,33 @@
 #include "Component/MeshComponent.h"
 #include "Component/PointLight.h"
 #include "Component/SpotLight.h"
+#include "Component/BoxCollider.h"
+#include "Component/SphereCollider.h"
 
 #include "Utils/OS.h"
 
 namespace GALAXY
 {
+	WaitingModelMap Editor::UI::MainBar::m_waitingModels;
 	void Editor::UI::MainBar::Draw()
 	{
 		PackageManager& packageManager = EditorSettings::GetInstance().GetPackageManager();
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
 		const EditorUIManager* editorInstance = EditorUIManager::GetInstance();
-		EditorSettings& editorSettings = Core::Application::GetInstance().GetEditorSettings();
-		Core::ProjectSettings& projectSettings = Core::Application::GetInstance().GetProjectSettings();
+		Core::Application& application = Core::Application::GetInstance();
+		EditorSettings& editorSettings = application.GetEditorSettings();
+		Core::ProjectSettings& projectSettings = application.GetProjectSettings();
 		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
+				if (ImGui::MenuItem("New Scene"))
+				{
+					Core::SceneHolder::NewScene();
+				}
 				if (ImGui::MenuItem("Open Scene"))
 				{
-					if (const std::string path = Utils::OS::OpenDialog(filters); !path.empty())
+					if (const std::string path = Utils::OS::OpenDialog(filters, Resource::ResourceManager::GetAssetPath()); !path.empty())
 					{
 						if (std::filesystem::path(path).extension() != ".galaxy")
 							return;
@@ -46,7 +52,7 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Save Scene As"))
 				{
-					if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
+					if (const std::string path = Utils::OS::SaveDialog(filters, Resource::ResourceManager::GetAssetPath()); !path.empty())
 					{
 						SaveScene(path);
 					}
@@ -59,7 +65,7 @@ namespace GALAXY
 					}
 					else
 					{
-						if (path = Utils::OS::SaveDialog(filters); !path.empty())
+						if (path = Utils::OS::SaveDialog(filters, Resource::ResourceManager::GetAssetPath()); !path.empty())
 						{
 							SaveScene(path);
 						}
@@ -67,7 +73,7 @@ namespace GALAXY
 				}
 				if (ImGui::MenuItem("Exit"))
 				{
-					Core::Application::GetInstance().Exit();
+					application.Exit();
 				}
 				ImGui::EndMenu();
 			}
@@ -137,7 +143,7 @@ namespace GALAXY
 			ImGui::SetCursorPosX(cursorPosX);
 			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[  ]" : "|>"))
 			{
-				auto& appInstance = Core::Application::GetInstance();
+				auto& appInstance = application;
 				appInstance.SetApplicationMode(Core::Application::IsPlayMode() ? ApplicationMode::Editor : ApplicationMode::Play);
 			}
 			bool isPauseMode = Core::Application::IsPauseMode();
@@ -146,10 +152,17 @@ namespace GALAXY
 			if (ImGui::MenuItem("||"))
 			{
 				if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
-					Core::Application::GetInstance().SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
+					application.SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
 			}
 			if (isPauseMode)
+			{
 				ImGui::PopStyleColor();
+				if (ImGui::MenuItem(">>"))
+				{
+					application.SetApplicationMode(ApplicationMode::Play);
+					application.MoveOneFrame();
+				}
+			}
 			
 			ImGui::EndMainMenuBar();
 		}
@@ -162,16 +175,6 @@ namespace GALAXY
 
 		const Resource::Scene* scene = Core::SceneHolder::GetCurrentScene();
 		scene->Save(path);
-	}
-
-	void Editor::UI::MainBar::AddModelToScene() const
-	{
-		if (!m_waitingModel.lock())
-			return;
-		const auto object = m_waitingModel.lock()->ToGameObject();
-		Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-		currentScene->AddObject(object);
-		currentScene->GetRootGameObject().lock()->AddChild(object);
 	}
 
 	void Editor::UI::MainBar::DisplayCreateGameObject(bool& openModelPopup, Core::GameObject* parent)
@@ -215,6 +218,7 @@ namespace GALAXY
 				auto meshComp = object->AddComponent<Component::MeshComponent>().lock();
 				meshComp->SetMesh(sphereMesh);
 				meshComp->AddMaterial(Resource::ResourceManager::GetDefaultMaterial());
+				object->AddComponent<Component::SphereCollider>();
 				object->SetName("Sphere");
 				parent->AddChild(object);
 			}
@@ -255,24 +259,34 @@ namespace GALAXY
 			ImGui::OpenPopup("Create With Model");
 		}
 		Weak<Resource::Model> model;
-		if (Resource::ResourceManager::GetInstance()->ResourcePopup("Create With Model", model))
+		if (Resource::ResourceManager::ResourcePopup("Create With Model", model))
 		{
 			if (const Shared<Resource::Model> modelShared = model.lock())
 			{
-				auto bind = [modelShared, parent]
+				// do not add the variable inside the [] for smart ptr, it will cause a memory leak
+				int index = static_cast<int>(m_waitingModels.size());
+				m_waitingModels[index] = std::make_pair(model.lock(), parent);
+				std::function bind = [index]()
 				{
+					Shared<Resource::Model> modelShared = m_waitingModels[index].first;
+					Core::GameObject* parent = m_waitingModels[index].second;
 					if (!modelShared)
+					{
+						m_waitingModels.erase(index);
 						return;
-					const auto object = modelShared->ToGameObject();
+					}
+					const Shared<Core::GameObject> object = modelShared->ToGameObject();
 					
 					Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-					auto parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
+					Core::GameObject* parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
 					
 					parentObject->GetScene()->AddObject(object);
 					parentObject->AddChild(object);
+
+					m_waitingModels.erase(index);
 				};
-				if (!modelShared->IsLoaded()) {
-					
+				if (!modelShared->IsLoaded())
+				{					
 					modelShared->EOnLoad.Bind(bind);
 				}
 				else
@@ -280,7 +294,7 @@ namespace GALAXY
 					bind();
 				}
 			}
-				return  true;
+			return true; 
 		}
 		return false;
 	}

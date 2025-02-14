@@ -1,13 +1,14 @@
 #pragma once
 #include "GalaxyAPI.h"
-#include "Component/IComponent.h"
+#include "Component/Collider.h"
 
 namespace GALAXY 
 {
     namespace Component
     {
-        class GALAXY_API BoxCollider : public IComponent<BoxCollider>
+        class GALAXY_API BoxCollider : public Collider, public std::enable_shared_from_this<BoxCollider>
         {
+			COMPONENT_SUBCLASS(BoxCollider, Collider)
         public:
             BoxCollider() = default;
             BoxCollider& operator=(const BoxCollider& other) = default;
@@ -15,18 +16,22 @@ namespace GALAXY
             BoxCollider(BoxCollider&&) noexcept = default;
             ~BoxCollider() override = default;
 
-            const char* GetComponentName() const override { return "BoxCollider"; }
+            ColliderType GetType() const override { return ColliderType::Box; }
 
+#ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
-
+            
+            EDITOR_ONLY void OnEditorDraw() override;
+#endif
             void OnStart() override;
             void OnDestroy() override;
-
-            void OnEditorDraw() override;
 
             void SetSize(const Vec3f& inSize) { m_size = inSize; }
 
             Vec3f GetSize() const { return m_size; }
+
+            Physic::AABB GetAABB() override;
+            Vec3f Support(const Vec3f& direction) override; 
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
             
