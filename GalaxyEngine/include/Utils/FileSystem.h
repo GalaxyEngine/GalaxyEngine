@@ -17,4 +17,6 @@ namespace GALAXY::Utils::FileSystem {
 	std::filesystem::path ToLower(const std::filesystem::path& path);
 
 	std::filesystem::path FindFileWithExtension(const std::filesystem::path& path, const std::string& extension);
+
+	std::filesystem::path FindFileWithNameInFolder(const std::filesystem::path& folderPath, const std::string& filename, bool extensionIncluded = false, bool searchInSubFolder = true);
 }

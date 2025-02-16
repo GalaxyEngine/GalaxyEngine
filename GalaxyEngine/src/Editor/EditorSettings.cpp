@@ -152,9 +152,14 @@ namespace GALAXY
 		}
 
         std::string tmpPath = m_defaultProjectPath.string();
-        if (Wrapper::GUI::InputText("Default Project Path", &tmpPath))
+        if (Wrapper::GUI::InputText("Default project path", &tmpPath))
         {
             m_defaultProjectPath = tmpPath;
+        }
+
+        if (ImGui::Checkbox("Focus game window on play", &m_focusGameWindowOnPlay))
+        {
+            
         }
 	}
 
@@ -318,6 +323,7 @@ namespace GALAXY
 		CppSer::Serializer serializer(Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME);
 		serializer << CppSer::Pair::BeginMap << "Editor Settings";
 		serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
+        serializer << CppSer::Pair::Key << "Focus Game Window On Play" << CppSer::Pair::Value << m_focusGameWindowOnPlay;
 		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
 		if (m_otherScriptEditorToolPath.has_value())
 			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
@@ -342,7 +348,11 @@ namespace GALAXY
 			return;
 		}
 		m_useVSync = parser["Use VSync"].As<bool>();
-		auto scriptEditorTool = static_cast<Editor::ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+        if (parser.HasKey("Focus Game Window On Play"))
+        {
+            m_focusGameWindowOnPlay = parser["Focus Game Window On Play"].As<bool>();
+        }
+		auto scriptEditorTool = static_cast<ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
 		
 		if (m_scriptEditorToolsString.contains(scriptEditorTool))
 			SetScriptEditorTool(scriptEditorTool);

@@ -33,6 +33,11 @@ namespace GALAXY {
 			m_visible = false;
 			return;
 		}
+		if (m_shouldFocus)
+		{
+			ImGui::SetNextWindowFocus();
+			m_shouldFocus = false;
+		}
 		if ((m_visible = ImGui::Begin("Scene", &p_open)))
 		{
 			m_isFocused = ImGui::IsWindowFocused();
@@ -178,7 +183,7 @@ namespace GALAXY {
 		auto scene = Core::SceneHolder::GetCurrentScene();
 		scene->GetRootGameObject().lock()->AddChild(m_dragModelObject);
 	}
-
+	
 	void Editor::UI::SceneWindow::DrawImage()
 	{
 		const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();

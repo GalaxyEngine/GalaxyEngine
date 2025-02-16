@@ -9,183 +9,192 @@
 #include "Utils/FileInfo.h"
 
 
-namespace GALAXY 
+namespace GALAXY
 {
-	namespace Core
-	{
-		class Application;
-	}
-	namespace Resource
-	{
-		class Texture;
-	}
-	namespace Editor
-	{
-		enum class ApplicationMode
-		{
-			Play = 0,
-			Pause,
-			Editor,
-		};
-		
-		enum class EditorSettingsTab
-		{
-			General = 0,
-			ExternalTool,
-			Appearance,
-			Benchmark,
-			EditorInputs,
-		};
+    namespace Core
+    {
+        class Application;
+    }
 
-		inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
-		{
-			switch (tab)
-			{
-			case EditorSettingsTab::General: return "General";
-			case EditorSettingsTab::ExternalTool: return "External Tool";
-			case EditorSettingsTab::Appearance:	return "Appearance";
-			case EditorSettingsTab::Benchmark:	return "Benchmark";
-			case EditorSettingsTab::EditorInputs:	return "Editor Inputs";
-			default: return "Invalid";
-			}
-		}
+    namespace Resource
+    {
+        class Texture;
+    }
 
-		enum class ScriptEditorTool
-		{
-			None = 0,
-			VisualStudioCode = 1,
+    namespace Editor
+    {
+        enum class ApplicationMode
+        {
+            Play = 0,
+            Pause,
+            Editor,
+        };
+
+        enum class EditorSettingsTab
+        {
+            General = 0,
+            ExternalTool,
+            Appearance,
+            Benchmark,
+            EditorInputs,
+        };
+
+        inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
+        {
+            switch (tab)
+            {
+            case EditorSettingsTab::General: return "General";
+            case EditorSettingsTab::ExternalTool: return "External Tool";
+            case EditorSettingsTab::Appearance: return "Appearance";
+            case EditorSettingsTab::Benchmark: return "Benchmark";
+            case EditorSettingsTab::EditorInputs: return "Editor Inputs";
+            default: return "Invalid";
+            }
+        }
+
+        enum class ScriptEditorTool
+        {
+            None = 0,
+            VisualStudioCode = 1,
 #ifdef _WIN32
-			VisualStudio = 2,
-			Rider = 3,
+            VisualStudio = 2,
+            Rider = 3,
 #endif
-			Custom = 4
-		};
+            Custom = 4
+        };
 
-		inline const char* SerializeScriptEditorToolValue(ScriptEditorTool tool)
-		{
-			switch (tool)
-			{
-			case ScriptEditorTool::None: return "None";
-			case ScriptEditorTool::VisualStudioCode: return "Visual Studio Code";
+        inline const char* SerializeScriptEditorToolValue(ScriptEditorTool tool)
+        {
+            switch (tool)
+            {
+            case ScriptEditorTool::None: return "None";
+            case ScriptEditorTool::VisualStudioCode: return "Visual Studio Code";
 #ifdef _WIN32
-			case ScriptEditorTool::VisualStudio: return "Visual Studio";
-			case ScriptEditorTool::Rider: return "Rider";
+            case ScriptEditorTool::VisualStudio: return "Visual Studio";
+            case ScriptEditorTool::Rider: return "Rider";
 #endif
-			case ScriptEditorTool::Custom: return "Custom";
-			default: return "Invalid";
-			}
-		}
+            case ScriptEditorTool::Custom: return "Custom";
+            default: return "Invalid";
+            }
+        }
 
-		enum class InputAction
-		{
-			None = 0,
-			Forward,
-			Backward,
-			Left,
-			Right,
-			Up,
-			Down,
-			FastMode,
-		};
+        enum class InputAction
+        {
+            None = 0,
+            Forward,
+            Backward,
+            Left,
+            Right,
+            Up,
+            Down,
+            FastMode,
+        };
 
-		struct EditorInput
-		{
-			std::string name;
-			Key key;
+        struct EditorInput
+        {
+            std::string name;
+            Key key;
 
-			EditorInput(const std::string& name, const Key key) : name(name), key(key) {}
-			EditorInput() = default;
-		};
+            EditorInput(const std::string& name, const Key key) : name(name), key(key)
+            {
+            }
 
-		class EditorInputsManager
-		{
-		public:
-			Key GetInputForAction(const InputAction action) const
-			{
-				return EditorInputs.at(action).key;
-			}
-			
-			std::unordered_map<InputAction, EditorInput> EditorInputs;
+            EditorInput() = default;
+        };
 
-			void Initialize();
-		};
-		
+        class EditorInputsManager
+        {
+        public:
+            Key GetInputForAction(const InputAction action) const
+            {
+                return EditorInputs.at(action).key;
+            }
 
-		class EditorSettings
-		{
-		public:
-			EditorSettings();
-			~EditorSettings();
+            std::unordered_map<InputAction, EditorInput> EditorInputs;
 
-			static EditorSettings& GetInstance();
-			
-			void Display();
+            void Initialize();
+        };
 
-			void TakeScreenShot();
 
-			void AddListElement(EditorSettingsTab tab);
+        class EditorSettings
+        {
+        public:
+            EditorSettings();
+            ~EditorSettings();
 
-			[[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
-			void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
+            static EditorSettings& GetInstance();
 
-			void SaveSettings() const;
-			void LoadSettings();
-			void LoadThumbnail();
+            void Display();
 
-			// Save the engine location for xmake to work, by parsing it on load
-			static void SaveEngineLocation();
+            void TakeScreenShot();
 
-			void InitializeScriptEditorTools();
+            void AddListElement(EditorSettingsTab tab);
 
-			[[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
+            [[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
+            void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
 
-			Path GetDefaultProjectPath() const { return m_defaultProjectPath; }
+            void SaveSettings() const;
+            void LoadSettings();
+            void LoadThumbnail();
 
-			bool GetShouldUseVSync() const { return m_useVSync; }
-			[[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
+            // Save the engine location for xmake to work, by parsing it on load
+            static void SaveEngineLocation();
 
-			PackageManager& GetPackageManager() { return m_packageManager; }
-			
-		private:
-			void DisplayTab(EditorSettingsTab tab);
+            void InitializeScriptEditorTools();
 
-			void DisplayGeneralTab();
-			
-			void DisplayExternalToolTab();
-			void ChangeOtherScriptTool();
-			
-			void DisplayAppearanceTab();
-			
-			void DisplayBenchmarkTab();
+            [[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
 
-			void DisplayEditorInputsTab();
+            Path GetDefaultProjectPath() const { return m_defaultProjectPath; }
 
-			void UpdateScreenShot();
-		private:
-			friend Core::Application;
-			bool m_firstUpdate = false;
-			bool m_shouldTakeScreenshot = false;
-			bool m_useVSync = true;
-			Path m_defaultProjectPath;
+            bool GetShouldUseVSync() const { return m_useVSync; }
+            [[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
 
-			EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
+            PackageManager& GetPackageManager() { return m_packageManager; }
+
+            bool FocusGameWindowOnPlay() const { return m_focusGameWindowOnPlay; }
+
+        private:
+            void DisplayTab(EditorSettingsTab tab);
+
+            void DisplayGeneralTab();
+
+            void DisplayExternalToolTab();
+            void ChangeOtherScriptTool();
+
+            void DisplayAppearanceTab();
+
+            void DisplayBenchmarkTab();
+
+            void DisplayEditorInputsTab();
+
+            void UpdateScreenShot();
+
+        private:
+            friend Core::Application;
+            bool m_firstUpdate = false;
+            bool m_shouldTakeScreenshot = false;
+            bool m_useVSync = true;
+            bool m_focusGameWindowOnPlay = true;
+            Path m_defaultProjectPath;
+
+            EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
 
 #pragma region External Tools
-			std::optional<Path> m_otherScriptEditorToolPath = std::nullopt;
+            std::optional<Path> m_otherScriptEditorToolPath = std::nullopt;
 
-			std::map<ScriptEditorTool, std::string> m_scriptEditorToolsString = {}; 
+            std::map<ScriptEditorTool, std::string> m_scriptEditorToolsString = {};
 #if defined(_WIN32)
-			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudio;
+            ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudio;
 #else
 			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
 #endif
 #pragma endregion
 
-			EditorInputsManager m_editorInputsManager;
-			
-			Weak<Resource::Texture> m_projectThumbnail = {};
+            EditorInputsManager m_editorInputsManager;
 
-			PackageManager m_packageManager;
-		};
-	}
+            Weak<Resource::Texture> m_projectThumbnail = {};
+
+            PackageManager m_packageManager;
+        };
+    }
 }

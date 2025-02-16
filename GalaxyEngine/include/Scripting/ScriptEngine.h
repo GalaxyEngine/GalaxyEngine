@@ -51,6 +51,8 @@ namespace GALAXY
 			static void GenerateSolution(Editor::ScriptEditorTool tool);
 
 			static void OpenSolution(Editor::ScriptEditorTool tool);
+
+			static void OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorTool tool);
 #endif
 
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
@@ -58,6 +60,8 @@ namespace GALAXY
 			static ScriptEngine* GetInstance();
 
 			void ResetLastWriteTime();
+
+			static std::filesystem::path GetFilePathForScript(const std::string& scriptClassName);
 		private:
 			static std::unique_ptr<ScriptEngine> s_instance;
 

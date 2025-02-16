@@ -89,6 +89,66 @@ namespace GALAXY
 		m_lastWriteTime.reset();
 	}
 
+	std::filesystem::path Scripting::ScriptEngine::GetFilePathForScript(const std::string& scriptClassName)
+	{
+		Path projectPath = Resource::ResourceManager::GetProjectPath();
+		Path genPathFolder = projectPath / "Generate" / "Headers";
+
+		auto parseGenFile = [&](const std::filesystem::path& headerPath)
+		{
+			CppSer::Parser parser(headerPath);
+
+			do
+			{
+				const std::string className = parser["Class Name"];
+
+				if (className == scriptClassName)
+					return true;
+				parser.PushDepth();
+			}
+			while (parser.GetValueMap().size() > parser.GetCurrentDepth());
+
+			return false;
+		};
+
+		std::filesystem::path genFileName = "";
+		std::vector<std::filesystem::path> genFiles;
+		for (const auto& entry : std::filesystem::directory_iterator(genPathFolder))
+		{
+			if (entry.is_regular_file() && entry.path().extension() == ".gen")
+			{
+				if (entry.path().filename().string() == scriptClassName)
+				{
+					if (parseGenFile(entry.path()))
+					{
+						genFileName = entry.path().filename().stem();
+					}
+				}
+				else
+				{
+					genFiles.push_back(entry.path());
+				}
+			}
+		}
+
+		if (genFileName.empty())
+		{
+			for (const auto& genFile : genFiles)
+			{
+				if (parseGenFile(genFile))
+					genFileName = genFile.filename().stem();
+			}
+		}
+
+		if (genFileName.empty())
+			return {};
+
+		genFileName = genFileName.generic_string() + ".h";
+
+		auto assetPath = Resource::ResourceManager::GetAssetPath();
+		return Utils::FileSystem::FindFileWithNameInFolder(assetPath, genFileName.generic_string(), true, true);
+	}
+
 	void Scripting::ScriptEngine::FreeDLL()
 	{
 		if (!m_scriptEngine)
@@ -255,31 +315,41 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorTool tool)
 	{
+		OpenFileWithScriptEditor(Resource::ResourceManager::GetProjectPath().string() + "\"", tool);
+	}
+
+	void Scripting::ScriptEngine::OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorTool tool)
+	{
 		switch (tool)
 		{
 #ifdef _WIN32
 		case Editor::ScriptEditorTool::VisualStudio:
-		{
-			Utils::OS::OpenWithVS(Resource::ResourceManager::GetProjectPath().string() + "\"");
-			break;
-		}
+			{
+				Utils::OS::OpenWithVS(path);
+				break;
+			}
 		case Editor::ScriptEditorTool::Rider:
-		{
-			Utils::OS::OpenWithRider(Resource::ResourceManager::GetProjectPath().string() + "\"");
-			break;
-		}
+			{
+				Utils::OS::OpenWithRider(path);
+				break;
+			}
 #endif
 		case Editor::ScriptEditorTool::VisualStudioCode:
-		{
-			Utils::OS::OpenWithVSCode(Resource::ResourceManager::GetProjectPath().string() + "\"");
-			break;
-		}
+			{
+				Utils::OS::OpenWithVSCode(path);
+				break;
+			}
 		case Editor::ScriptEditorTool::Custom:
-		{
-			auto editorSettings = Core::Application::GetInstance().GetEditorSettings();
-			Utils::OS::OpenWith(editorSettings.GetOtherScriptEditorToolPath(),Resource::ResourceManager::GetProjectPath().string() + "\"");
+			{
+				auto editorSettings = Core::Application::GetInstance().GetEditorSettings();
+				Utils::OS::OpenWith(editorSettings.GetOtherScriptEditorToolPath(),path);
+				break;
+			}
+		case Editor::ScriptEditorTool::None:
+			{
+				PrintError("No script editor tool selected");
+			}
 			break;
-		}
 		}
 	}
 #endif

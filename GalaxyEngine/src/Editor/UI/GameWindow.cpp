@@ -17,6 +17,11 @@ void Editor::UI::GameWindow::Draw()
 		m_visible = false;
 		return;
 	}
+	if (m_shouldFocus)
+	{
+		ImGui::SetNextWindowFocus();
+		m_shouldFocus = false;
+	}
 	if ((m_visible = ImGui::Begin("Game", &p_open)))
 	{
 		DrawImage();

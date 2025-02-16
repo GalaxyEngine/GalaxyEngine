@@ -1,5 +1,8 @@
 #include "pch.h"
 #include "Editor/UI/Inspector.h"
+
+#include "Component/ScriptComponent.h"
+#include "Core/Application.h"
 #include "Editor/UI/FileExplorer.h"
 
 #include "Core/GameObject.h"
@@ -13,6 +16,7 @@
 
 #include "Editor/Gizmo.h"
 #include "Editor/UI/EditorUIManager.h"
+#include "Utils/OS.h"
 
 void Editor::UI::Inspector::Draw()
 {
@@ -260,17 +264,32 @@ void Editor::UI::Inspector::RightClickPopup()
 {
 	if (m_rightClicked.lock() && ImGui::BeginPopup("RightClickPopup"))
 	{
+		Shared<Component::BaseComponent> rightClicked = m_rightClicked.lock();
 		const Vec2f buttonSize(ImGui::GetContentRegionAvail().x, 0);
+		if (auto scriptComponent = std::dynamic_pointer_cast<Component::ScriptComponent>(rightClicked))
+		{
+			if (ImGui::Button("Edit", buttonSize))
+			{
+				auto filePath = Scripting::ScriptEngine::GetFilePathForScript(scriptComponent->GetComponentName());
+				if (!filePath.empty())
+				{
+					Scripting::ScriptEngine::OpenFileWithScriptEditor(filePath, Core::Application::GetInstance().GetEditorSettings().GetScriptEditorTool());
+					m_rightClicked.reset();
+					ImGui::CloseCurrentPopup();
+				}
+			}
+			ImGui::Separator();
+		}
 		if (ImGui::Button("Destroy", buttonSize))
 		{
-			m_rightClicked.lock()->RemoveFromGameObject();
+			rightClicked->RemoveFromGameObject();
 			m_rightClicked.reset();
 			ImGui::CloseCurrentPopup();
 		}
 		else if (ImGui::Button("Move Up", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject();
-			const uint32_t index = m_rightClicked.lock()->GetIndex();
+			Core::GameObject* owner = rightClicked->GetGameObject();
+			const uint32_t index = rightClicked->GetIndex();
 
 			owner->ChangeComponentIndex(index, index - 1);
 
@@ -279,8 +298,8 @@ void Editor::UI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Move Down", buttonSize))
 		{
-			Core::GameObject* owner = m_rightClicked.lock()->GetGameObject();
-			const uint32_t index = m_rightClicked.lock()->GetIndex();
+			Core::GameObject* owner = rightClicked->GetGameObject();
+			const uint32_t index = rightClicked->GetIndex();
 
 			owner->ChangeComponentIndex(index, index + 1);
 
@@ -289,7 +308,7 @@ void Editor::UI::Inspector::RightClickPopup()
 		}
 		else if (ImGui::Button("Reset", buttonSize))
 		{
-			m_rightClicked.lock()->Reset();
+			rightClicked->Reset();
 		}
 		ImGui::EndPopup();
 	}

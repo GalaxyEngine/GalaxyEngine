@@ -1,7 +1,6 @@
 add_rules("mode.release", "mode.debug", "mode.gamedbg", "mode.game")
 add_rules("plugin.compile_commands.autoupdate", { outputdir = ".vscode" } )
 add_rules("plugin.vsxmake.autoupdate")
-add_rules("plugin.compile_commands.autoupdate", { outputdir = ".vscode" })
 
 -- Define physics API selection
 option("physics_api")
@@ -53,6 +52,7 @@ add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 
 -- Required Packages
 add_requires("galaxymath", "cpp_serializer", "galaxyscript v1.2-galaxyengine")
+add_requires("galaxyheadertool v1.0-galaxyengine", { configs = { destdir = "GalaxyCore" } })
 add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
 add_requires("glad", { configs = { debug = isDebug, extensions = "GL_KHR_debug" }})
 add_requires("stb", "nativefiledialog-extended", "openfbx", "miniaudio")

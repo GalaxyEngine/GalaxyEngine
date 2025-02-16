@@ -85,7 +85,52 @@ namespace GALAXY {
 				return entry.path();
 			}
 		}
-		return std::filesystem::path();
+		return {};
+	}
+
+	std::filesystem::path Utils::FileSystem::FindFileWithNameInFolder(const std::filesystem::path& folderPath,
+	                                                                  const std::string& filename, bool extensionIncluded, bool searchInSubFolder)
+	{
+		
+		// Check if the provided folder exists.
+		if (!std::filesystem::exists(folderPath) || !std::filesystem::is_directory(folderPath))
+		{
+			std::cerr << "The path " << folderPath << " is not a valid directory.\n";
+			return {};
+		}
+
+		try {
+			if (searchInSubFolder)
+			{
+				// Recursively search in the folder and its subdirectories.
+				for (const auto& entry : std::filesystem::recursive_directory_iterator(folderPath))
+				{
+					// Check if it's a regular file and if its filename matches.
+					if (entry.is_regular_file() && (extensionIncluded ? entry.path().filename() : entry.path().filename().stem()) == filename)
+					{
+						return entry.path();
+					}
+				}
+			}
+			else
+			{
+				// Only search in the top-level directory.
+				for (const auto& entry : std::filesystem::directory_iterator(folderPath))
+				{
+					if (entry.is_regular_file() &&  (extensionIncluded ? entry.path().filename() : entry.path().filename().stem()) == filename)
+					{
+						return entry.path();
+					}
+				}
+			}
+		}
+		catch (const std::filesystem::filesystem_error& e)
+		{
+			std::cerr << "Filesystem error: " << e.what() << '\n';
+		}
+
+		// Return an empty path if the file wasn't found.
+		return {};
 	}
 
 	bool Utils::FileSystem::RemoveFile(const std::filesystem::path& path)

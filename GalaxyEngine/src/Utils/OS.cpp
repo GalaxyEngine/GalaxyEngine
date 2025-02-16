@@ -373,6 +373,10 @@ namespace GALAXY
         {
             const std::string slnPath = (Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
                 Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln")).string();
+            if (!std::filesystem::exists(slnPath))
+            {
+                PrintError("Can't find %s, the solution need to be generated", slnPath.c_str());
+            }
             const std::string command = "start \"\" \"" + slnPath + "\"";
             system(command.c_str());
         }

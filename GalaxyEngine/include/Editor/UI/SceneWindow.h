@@ -5,58 +5,63 @@
 
 namespace GALAXY
 {
-	namespace Core
-	{
-		class GameObject;
-	}
+    namespace Core
+    {
+        class GameObject;
+    }
 
-	namespace Resource
-	{
-		class Model;
-		class Texture;
-	}
-	namespace Editor::UI
-	{
-		class SceneWindow : public EditorWindow
-		{
-		public:
-			virtual ~SceneWindow();
+    namespace Resource
+    {
+        class Model;
+        class Texture;
+    }
 
-			void Draw() override;
+    namespace Editor::UI
+    {
+        class SceneWindow : public EditorWindow
+        {
+        public:
+            virtual ~SceneWindow();
 
-			void SetResources();
+            void Draw() override;
 
-			Vec2f GetMousePosition() const;
+            void SetResources();
 
-			inline Vec2f GetImageSize() const { return m_imageSize; }
+            Vec2f GetMousePosition() const;
 
-			inline bool IsVisible() const { return m_visible; }
-			inline bool IsHovered() const { return m_isHovered; }
-			inline bool IsFocused() const { return m_isFocused; }
+            inline Vec2f GetImageSize() const { return m_imageSize; }
+
+            inline bool IsVisible() const { return m_visible; }
+            inline bool IsHovered() const { return m_isHovered; }
+            inline bool IsFocused() const { return m_isFocused; }
 
 #ifdef WITH_EDITOR
-			void UpdateDragModel();
-			void OnModelLoaded(Weak<Resource::Model> model);
+            void UpdateDragModel();
+            void OnModelLoaded(Weak<Resource::Model> model);
+            void SetShouldFocus(bool value) { m_shouldFocus = value; }
 #endif
-		private:
-			friend class MainBar;
 
-			void DrawImage();
+        private:
+            friend class MainBar;
 
-			bool m_visible = true;
-			bool m_isHovered = false;
-			bool m_isFocused = false;
+            void DrawImage();
 
-			Vec2i m_imagePosition = Vec2i(0);
-			Vec2i m_imageSize = Vec2i(0);
+            bool m_visible = true;
+            bool m_isHovered = false;
+            bool m_isFocused = false;
 
-			std::weak_ptr<Resource::Texture> m_settingsIcon;
-			std::weak_ptr<Resource::Texture> m_menuIcon;
-			
+            bool m_shouldFocus = false;
+
+            Vec2i m_imagePosition = Vec2i(0);
+            Vec2i m_imageSize = Vec2i(0);
+
+            std::weak_ptr<Resource::Texture> m_settingsIcon;
+            std::weak_ptr<Resource::Texture> m_menuIcon;
+
 #ifdef WITH_EDITOR
-			Weak<Resource::Model> m_dragModel;
-			Shared<Core::GameObject> m_dragModelObject = nullptr;
+            Weak<Resource::Model> m_dragModel;
+            Shared<Core::GameObject> m_dragModelObject = nullptr;
 #endif
-		};
-	}
+        };
+    }
 }

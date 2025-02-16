@@ -387,6 +387,16 @@ namespace GALAXY {
 			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
 		}
 		m_applicationMode = mode;
+
+		if (m_applicationMode == Editor::ApplicationMode::Play &&  Editor::EditorSettings::GetInstance().FocusGameWindowOnPlay())
+		{
+			m_editorUI->GetGameWindow()->SetShouldFocus(true);
+		}
+		else if (m_applicationMode == Editor::ApplicationMode::Editor &&  Editor::EditorSettings::GetInstance().FocusGameWindowOnPlay())
+		{
+			m_editorUI->GetSceneWindow()->SetShouldFocus(true);
+		}
+		
 	}
 
 	void Core::Application::MoveOneFrame()
