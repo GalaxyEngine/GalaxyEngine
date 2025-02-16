@@ -23,6 +23,6 @@ compile.*
 *.lib
 /.vscode
 *.a
-GalaxyCore/GalaxyHeaderTool
+GalaxyHeaderTool.*
 GalaxyCore/Editor.settings
 *.*~
