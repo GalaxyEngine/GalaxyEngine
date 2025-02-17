@@ -14,6 +14,11 @@
 #include "Core/GameObject.h"
 #include "Resource/Mesh.h"
 #include "Utils/Time.h"
+
+#define EPA_TOLERANCE 0.0001
+#define EPA_MAX_NUM_FACES 64
+#define EPA_MAX_NUM_LOOSE_EDGES 32
+#define EPA_MAX_NUM_ITERATIONS 64
     
 // Define custom hash function for Vec3f
 namespace std {
@@ -24,40 +29,70 @@ namespace std {
         }
     };
 }
-
+using namespace Wrapper::PhysicAPI;
 namespace GALAXY
 {
 
-    bool Wrapper::PhysicAPI::CustomPhysicsAPI::InitializeAPI()
+    bool CustomPhysicsAPI::InitializeAPI()
     {
         PrintLog("Custom Physics Initialized");
         return true;
     }
 
-    Wrapper::PhysicAPI::CustomPhysicsAPI::~CustomPhysicsAPI()
+    CustomPhysicsAPI::~CustomPhysicsAPI()
     {
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::InternalUpdate() const
+    void CustomPhysicsAPI::InternalUpdate()
     {
         std::vector<ColliderPair> objects = BroadPhase();
 
         for (ColliderPair& pair : objects)
         {
             Vec3f mtv = Vec3f::Zero();
+            CollisionPoints points;
             // PrintLog("Testing pair %ull - %ull", pair.first->GetGameObject()->GetUUID(), pair.second->GetGameObject()->GetUUID());
-            if (GJK(pair.first, pair.second, mtv))
+            if (GJK(pair.first, pair.second, points))
             {
                 pair.first->SetDebugCollide(true);
                 pair.second->SetDebugCollide(true);
-                // PrintLog("%s collide with %s",
-                // pair.first->GetGameObject()->GetName().c_str(),
-                // pair.second->GetGameObject()->GetName().c_str());
+                
+
+                ResolveCollisions(pair.first, pair.second, points);
             }
         }
     }
+    void CustomPhysicsAPI::ResolveCollisions(Component::Collider* collider1,
+                                           Component::Collider* collider2,
+                                           const CollisionPoints& collisionPoints)
+    {
+        auto instance = Renderer::GetInstance();
+        m_prevPoints = collisionPoints;
+        // Loop through each contact point provided by EPA/GJK.
+        for (const CollisionPoint& contact : collisionPoints)
+        {
+            // Retrieve the rigidbody components if they exist.
+            Shared<Component::RigidBody> body1 = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
+            Shared<Component::RigidBody> body2 = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
+            instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+            float depth = contact.normal.Length();
+            Vec3f normal = contact.normal.GetNormalize();
+            instance->DrawLine(contact.point, contact.point + normal * depth, Vec4f(1, 0, 0, 1), 10.f);
+            if (body1)
+            {
+                // body1->SetGravityForce(Vec3f::Zero());
+                // body1->SetVelocity(Vec3f::Zero());
+            }
+            else if (body2)
+            {
+                // body2->SetGravityForce(Vec3f::Zero());
+                // body2->SetVelocity(Vec3f::Zero());
+            }
+            continue;
+        }
+    }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::Update()
+    void CustomPhysicsAPI::Update()
     {
 #ifdef WITH_EDITOR
         if (!Core::Application::IsPlayMode())
@@ -112,12 +147,24 @@ namespace GALAXY
         InternalUpdate();
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateRigidBody(Weak<Component::RigidBody> rigidbody)
+    void CustomPhysicsAPI::DrawDebug()
+    {
+        auto instance = Renderer::GetInstance();
+        for (const CollisionPoint& contact : m_prevPoints)
+        {
+            // instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+            // instance->DrawLine(contact.point, contact.point + contact.normal * contact.depth, Vec4f(1, 0, 0, 1), 10.f);
+        
+            return;
+        }
+    }
+
+    void CustomPhysicsAPI::CreateRigidBody(Weak<Component::RigidBody> rigidbody)
     {
         m_objectSet.insert(rigidbody);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyRigidBody(Weak<Component::RigidBody> rigidbody)
+    void CustomPhysicsAPI::DestroyRigidBody(Weak<Component::RigidBody> rigidbody)
     {
         auto object = m_objectSet.find(rigidbody); // Use auto, no reference
         if (object == m_objectSet.end())
@@ -128,12 +175,12 @@ namespace GALAXY
         m_objectSet.erase(object); // Erase using the iterator
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateBoxCollider(Weak<Component::BoxCollider> collider)
+    void CustomPhysicsAPI::CreateBoxCollider(Weak<Component::BoxCollider> collider)
     {
         m_colliderSet.insert(collider);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyBoxCollider(Weak<Component::BoxCollider> collider)
+    void CustomPhysicsAPI::DestroyBoxCollider(Weak<Component::BoxCollider> collider)
     {
         auto object = m_colliderSet.find(collider); // Use auto, no reference
         if (object == m_colliderSet.end())
@@ -144,32 +191,32 @@ namespace GALAXY
         m_colliderSet.erase(object); // Erase using the iterator
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateMeshCollider(Weak<Component::MeshCollider> collider)
+    void CustomPhysicsAPI::CreateMeshCollider(Weak<Component::MeshCollider> collider)
     {
         m_colliderSet.insert(collider);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroyMeshCollider(Weak<Component::MeshCollider> collider)
+    void CustomPhysicsAPI::DestroyMeshCollider(Weak<Component::MeshCollider> collider)
     {
         m_colliderSet.erase(collider);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::CreateSphereCollider(Weak<Component::SphereCollider> collider)
+    void CustomPhysicsAPI::CreateSphereCollider(Weak<Component::SphereCollider> collider)
     {
         m_colliderSet.insert(collider);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::DestroySphereCollider(Weak<Component::SphereCollider> collider)
+    void CustomPhysicsAPI::DestroySphereCollider(Weak<Component::SphereCollider> collider)
     {
         m_colliderSet.erase(collider);
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::SetDefaultGravity(const Vec3f& value)
+    void CustomPhysicsAPI::SetDefaultGravity(const Vec3f& value)
     {
-        defaultGravity = value;
+        m_defaultGravity = value;
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force)
+    void CustomPhysicsAPI::AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force)
     {
         auto object = m_objectSet.find(rigidbody); // Use auto, no reference
         if (object == m_objectSet.end())
@@ -184,7 +231,7 @@ namespace GALAXY
     }
 
 #pragma region GJK
-    Weak<Resource::Mesh> Wrapper::PhysicAPI::CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
+    Weak<Resource::Mesh> CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
     {
         if (!mesh)
             return {};
@@ -204,7 +251,7 @@ namespace GALAXY
         return convexMesh;
     }   
 
-    std::vector<Vec3f> Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& positions)
+    std::vector<Vec3f> CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& positions)
     {
         std::vector<Vec3f> convexVertices;
         struct Face {
@@ -349,7 +396,7 @@ namespace GALAXY
         return sortedVertices;
     }
 
-    void Wrapper::PhysicAPI::CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
+    void CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
     {
         Shared<Resource::Mesh> convexMesh = m_convexMesh[mesh->GetUUID()];
         if (!mesh || (convexMesh && convexMesh->HasBeenSent()))
@@ -377,7 +424,7 @@ namespace GALAXY
         Vec3f Max;
     };
 
-    std::vector<Wrapper::PhysicAPI::ColliderPair> Wrapper::PhysicAPI::CustomPhysicsAPI::BroadPhase() const
+    std::vector<ColliderPair> CustomPhysicsAPI::BroadPhase() const
     {
         auto colliders = m_colliderSet;
         std::vector<SAPAABB> aabbs;
@@ -528,146 +575,140 @@ namespace GALAXY
         return true;
     }
 
-
-#define EPA_TOLERANCE 0.0001
-#define EPA_MAX_NUM_FACES 64
-#define EPA_MAX_NUM_LOOSE_EDGES 32
-#define EPA_MAX_NUM_ITERATIONS 64
-
     // Expanding Polytope Algorithm
     // Find minimum translation vector to resolve collision
-Vec3f EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, Component::Collider* coll1, Component::Collider* coll2)
-{
-    Vec3f faces[4 * EPA_MAX_NUM_FACES]; // Array of faces, each with 3 verts and a normal
-    
-    //Init with final simplex from GJK
-    faces[0]  = a;
-    faces[1]  = b;
-    faces[2]  = c;
-    faces[3]  = (b-a).Cross(c-a).GetNormalize(); //ABC
-    faces[4]  = a;
-    faces[5]  = c;
-    faces[6]  = d;
-    faces[7]  = (c-a).Cross(d-a).GetNormalize(); //ACD
-    faces[8]  = a;
-    faces[9]  = d;
-    faces[10] = b;
-    faces[11] = (d-a).Cross(b-a).GetNormalize(); //ADB
-    faces[12] = b;
-    faces[13] = d;
-    faces[14] = c;
-    faces[15] = (d-b).Cross(c-b).GetNormalize(); //BDC
-
-    int num_faces = 4;
-    int closest_face;
-
-    for (int iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
+    CollisionPoints CustomPhysicsAPI::EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, Component::Collider* coll1, Component::Collider* coll2)
     {
-        // Find face that's closest to origin
-        float min_dist = faces[0].Dot(faces[3]);
-        closest_face = 0;
-        for (int i=1; i<num_faces; i++)
+        Vec3f faces[4 * EPA_MAX_NUM_FACES]; // Array of faces, each with 3 verts and a normal
+        
+        //Init with final simplex from GJK
+        faces[0]  = a;
+        faces[1]  = b;
+        faces[2]  = c;
+        faces[3]  = (b-a).Cross(c-a).GetNormalize(); //ABC
+        faces[4]  = a;
+        faces[5]  = c;
+        faces[6]  = d;
+        faces[7]  = (c-a).Cross(d-a).GetNormalize(); //ACD
+        faces[8]  = a;
+        faces[9]  = d;
+        faces[10] = b;
+        faces[11] = (d-a).Cross(b-a).GetNormalize(); //ADB
+        faces[12] = b;
+        faces[13] = d;
+        faces[14] = c;
+        faces[15] = (d-b).Cross(c-b).GetNormalize(); //BDC
+
+        int num_faces = 4;
+        int closest_face;
+
+        for (int iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
         {
-            float dist = faces[i * 4].Dot(faces[i * 4 + 3]);
-            if (dist < min_dist)
+            // Find face that's closest to origin
+            float min_dist = faces[0].Dot(faces[3]);
+            closest_face = 0;
+            for (int i=1; i<num_faces; i++)
             {
-                min_dist = dist;
-                closest_face = i;
-            }
-        }
-
-        // Search normal to face that's closest to origin
-        Vec3f search_dir = faces[closest_face * 4 + 3]; 
-        Vec3f p = coll2->Support(search_dir) - coll1->Support(-search_dir);
-
-        if (p.Dot(search_dir) - min_dist < EPA_TOLERANCE)
-        {
-            // Convergence (new point is not significantly further from origin)
-            return faces[closest_face * 4 + 3] * p.Dot(search_dir); // dot vertex with normal to resolve collision along normal!
-        }
-
-        Vec3f loose_edges[4 * EPA_MAX_NUM_LOOSE_EDGES + 2]; //keep track of edges we need to fix after removing faces
-        int num_loose_edges = 0;
-
-        //Find all triangles that are facing p
-        for (int i = 0; i < num_faces; i++)
-        {
-            if (faces[i * 4 + 3].Dot(p - faces[i * 4]) > 0) // triangle i faces p, remove it
-            {
-                // Add removed triangle's edges to loose edge list.
-                // If it's already there, remove it (both triangles it belonged to are gone)
-                for (int j = 0; j < 3; j++) // Three edges per face
+                float dist = faces[i * 4].Dot(faces[i * 4 + 3]);
+                if (dist < min_dist)
                 {
-                    Vec3f current_edge[2] = { faces[i * 4 + j], faces[i * 4 + (j + 1) % 3] };
-                    bool found_edge = false;
-                    for (int k = 0; k < num_loose_edges; k++) // Check if current edge is already in list
+                    min_dist = dist;
+                    closest_face = i;
+                }
+            }
+
+            // Search normal to face that's closest to origin
+            Vec3f search_dir = faces[closest_face * 4 + 3]; 
+            Vec3f p = coll2->Support(search_dir) - coll1->Support(-search_dir);
+
+            if (p.Dot(search_dir) - min_dist < EPA_TOLERANCE)
+            {
+                // Convergence (new point is not significantly further from origin)
+                return {CollisionPoint(faces[closest_face * 4 + 3] * p.Dot(search_dir))}; // dot vertex with normal to resolve collision along normal!
+            }
+
+            Vec3f loose_edges[4 * EPA_MAX_NUM_LOOSE_EDGES + 2]; //keep track of edges we need to fix after removing faces
+            int num_loose_edges = 0;
+
+            //Find all triangles that are facing p
+            for (int i = 0; i < num_faces; i++)
+            {
+                if (faces[i * 4 + 3].Dot(p - faces[i * 4]) > 0) // triangle i faces p, remove it
+                {
+                    // Add removed triangle's edges to loose edge list.
+                    // If it's already there, remove it (both triangles it belonged to are gone)
+                    for (int j = 0; j < 3; j++) // Three edges per face
                     {
-                        if (loose_edges[k * 4 + 1] == current_edge[0] && loose_edges[k * 4] == current_edge[1])
+                        Vec3f current_edge[2] = { faces[i * 4 + j], faces[i * 4 + (j + 1) % 3] };
+                        bool found_edge = false;
+                        for (int k = 0; k < num_loose_edges; k++) // Check if current edge is already in list
                         {
-                            // Edge is already in the list, remove it
-                            // THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
-                            // THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which 
-                            // should be true provided every triangle is wound CCW)
-                            loose_edges[k * 4]     = loose_edges[(num_loose_edges-1) * 4]; // Overwrite current edge
-                            loose_edges[k * 4 + 1] = loose_edges[(num_loose_edges-1) * 4 + 1]; // with last edge in list
-                            num_loose_edges--;
-                            found_edge = true;
-                            k = num_loose_edges; // exit loop because edge can only be shared once
+                            if (loose_edges[k * 4 + 1] == current_edge[0] && loose_edges[k * 4] == current_edge[1])
+                            {
+                                // Edge is already in the list, remove it
+                                // THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
+                                // THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which 
+                                // should be true provided every triangle is wound CCW)
+                                loose_edges[k * 4]     = loose_edges[(num_loose_edges-1) * 4]; // Overwrite current edge
+                                loose_edges[k * 4 + 1] = loose_edges[(num_loose_edges-1) * 4 + 1]; // with last edge in list
+                                num_loose_edges--;
+                                found_edge = true;
+                                k = num_loose_edges; // exit loop because edge can only be shared once
+                            }
+                        }
+
+                        if (!found_edge) // add current edge to list
+                        {
+                            // assert(num_loose_edges < EPA_MAX_NUM_LOOSE_EDGES);
+                            if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES)
+                                break;
+
+                            loose_edges[num_loose_edges * 4]     = current_edge[0];
+                            loose_edges[num_loose_edges * 4 + 1] = current_edge[1];
+                            num_loose_edges++;
                         }
                     }
 
-                    if (!found_edge) // add current edge to list
-                    {
-                        // assert(num_loose_edges < EPA_MAX_NUM_LOOSE_EDGES);
-                        if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES)
-                            break;
-
-                        loose_edges[num_loose_edges * 4]     = current_edge[0];
-                        loose_edges[num_loose_edges * 4 + 1] = current_edge[1];
-                        num_loose_edges++;
-                    }
+                    // Remove triangle i from list
+                    faces[i * 4]     = faces[(num_faces-1) * 4];
+                    faces[i * 4 + 1] = faces[(num_faces-1) * 4 + 1];
+                    faces[i * 4 + 2] = faces[(num_faces-1) * 4 + 2];
+                    faces[i * 4 + 3] = faces[(num_faces-1) * 4 + 3];
+                    num_faces--;
+                    i--;
                 }
-
-                // Remove triangle i from list
-                faces[i * 4]     = faces[(num_faces-1) * 4];
-                faces[i * 4 + 1] = faces[(num_faces-1) * 4 + 1];
-                faces[i * 4 + 2] = faces[(num_faces-1) * 4 + 2];
-                faces[i * 4 + 3] = faces[(num_faces-1) * 4 + 3];
-                num_faces--;
-                i--;
             }
-        }
-        
-        //Reconstruct polytope with p added
-        for (int i = 0; i < num_loose_edges; i++)
-        {
-            // assert(num_faces<EPA_MAX_NUM_FACES);
-            if (num_faces >= EPA_MAX_NUM_FACES)
-                break;
-            faces[num_faces * 4] = loose_edges[i * 4];
-            faces[num_faces * 4 + 1] = loose_edges[i * 4 + 1];
-            faces[num_faces * 4 + 2] = p;
-            faces[num_faces * 4 + 3] = (loose_edges[i * 4]-loose_edges[i * 4 + 1]).Cross(loose_edges[i * 4] - p).GetNormalize();
-
-            // Check for wrong normal to maintain CCW winding
-            float bias = 0.000001f; //in case dot result is only slightly < 0 (because origin is on face)
-            if (faces[num_faces * 4].Dot(faces[num_faces * 4 + 3]) + bias < 0)
+            
+            //Reconstruct polytope with p added
+            for (int i = 0; i < num_loose_edges; i++)
             {
-                Vec3f temp = faces[num_faces * 4];
-                faces[num_faces * 4]     = faces[num_faces * 4 + 1];
-                faces[num_faces * 4 + 1] = temp;
-                faces[num_faces * 4 + 3] = -faces[num_faces * 4 + 3];
+                // assert(num_faces<EPA_MAX_NUM_FACES);
+                if (num_faces >= EPA_MAX_NUM_FACES)
+                    break;
+                faces[num_faces * 4] = loose_edges[i * 4];
+                faces[num_faces * 4 + 1] = loose_edges[i * 4 + 1];
+                faces[num_faces * 4 + 2] = p;
+                faces[num_faces * 4 + 3] = (loose_edges[i * 4]-loose_edges[i * 4 + 1]).Cross(loose_edges[i * 4] - p).GetNormalize();
+
+                // Check for wrong normal to maintain CCW winding
+                float bias = 0.000001f; //in case dot result is only slightly < 0 (because origin is on face)
+                if (faces[num_faces * 4].Dot(faces[num_faces * 4 + 3]) + bias < 0)
+                {
+                    Vec3f temp = faces[num_faces * 4];
+                    faces[num_faces * 4]     = faces[num_faces * 4 + 1];
+                    faces[num_faces * 4 + 1] = temp;
+                    faces[num_faces * 4 + 3] = -faces[num_faces * 4 + 3];
+                }
+                num_faces++;
             }
-            num_faces++;
         }
+        PrintLog("EPA did not converge");
+        //Return most recent closest point
+        return {CollisionPoint(faces[closest_face * 4 + 3] * faces[closest_face * 4].Dot(faces[closest_face * 4 + 3]))};
     }
-    PrintLog("EPA did not converge");
-    //Return most recent closest point
-    return faces[closest_face * 4 + 3] * faces[closest_face * 4].Dot(faces[closest_face * 4 + 3]);
-}
 
     // Source : https://github.com/kevinmoran/GJK/blob/master
-    bool Wrapper::PhysicAPI::CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, Vec3f& mtv)
+    bool CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionPoints& collisionPoints)
     {
         Vec3f a,b,c,d;
         Vec3f bWorldPos = coll1->GetTransform()->GetWorldPosition();
@@ -705,7 +746,7 @@ Vec3f EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, Compon
             }
             else if(UpdateSimplex4(a,b,c,d,simp_dim,searchDir))
             {
-                mtv = EPA(a,b,c,d,coll1,coll2);
+                collisionPoints = EPA(a,b,c,d,coll1,coll2);
                 return true;
             }
         }

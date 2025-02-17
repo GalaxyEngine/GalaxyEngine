@@ -373,7 +373,7 @@ namespace GALAXY {
 		auto projectPath = Resource::ResourceManager::GetProjectPath();
 		if (mode == Editor::ApplicationMode::Play && m_applicationMode == Editor::ApplicationMode::Editor)
 		{
-			Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+			Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
 			currentScene->Save(projectPath / PLAYMODE_SCENE_PATH);
 
 			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
@@ -384,11 +384,11 @@ namespace GALAXY {
 			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
 
 			// Only set the date of the scene			
-			Core::SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
+			SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
 		}
 		m_applicationMode = mode;
 
-		if (m_applicationMode == Editor::ApplicationMode::Play &&  Editor::EditorSettings::GetInstance().FocusGameWindowOnPlay())
+		if (m_applicationMode == Editor::ApplicationMode::Play && Editor::EditorSettings::GetInstance().FocusGameWindowOnPlay() && SceneHolder::GetCurrentScene()->GetMainCamera())
 		{
 			m_editorUI->GetGameWindow()->SetShouldFocus(true);
 		}

@@ -3,7 +3,6 @@
 #include "GalaxyAPI.h"
 #include "Wrapper/PhysicsWrapper.h"
 #include <list>
-
 namespace GALAXY::Resource
 {
     class Mesh;
@@ -18,39 +17,35 @@ namespace GALAXY
 {
     namespace Wrapper::PhysicAPI
     {
-        class InternalRigidbody
-        {
-        public:
-            InternalRigidbody() = default;
-            ~InternalRigidbody() = default;
-
-            Quat m_rotation;
-            Vec3f m_position;
-            Vec3f m_velocity;
-            Vec3f m_gravityForce;
-            Vec3f m_omega;
-            bool m_static = false;
-        };
-
-        class InternalCollider
-        {
-        public:
-            InternalCollider() = default;
-            ~InternalCollider() = default;
-
-            Quat m_rotation;
-            Vec3f m_position;
-            Vec3f m_velocity;
-            Vec3f m_gravityForce;
-            Vec3f m_omega;
-            bool m_static = false;
-        };
-
+        
         struct ColliderPair
         {
             Component::Collider* first;
             Component::Collider* second;
         };
+        
+        struct CollisionPoint
+        {
+            CollisionPoint(Vec3f _normal) : normal(_normal) {}
+            
+            Vec3f point;
+            Vec3f normal;
+            float depth = 1.f;
+        };
+
+        struct EPAVertex {
+            Vec3f point;
+            Vec3f supA;   
+            Vec3f supB;   
+        };
+
+        struct EPAFace {
+            EPAVertex v[3];
+            Vec3f normal;  
+            float distance;
+        };
+
+        typedef std::vector<CollisionPoint> CollisionPoints;
         
         class CustomPhysicsAPI : public Wrapper::PhysicsWrapper
         {
@@ -59,6 +54,7 @@ namespace GALAXY
             ~CustomPhysicsAPI();
 
             void Update() override;
+            void DrawDebug() override;
 
             void CreateRigidBody(Weak<Component::RigidBody> rigidbody) override;
             void DestroyRigidBody(Weak<Component::RigidBody> rigidbody) override;
@@ -77,15 +73,20 @@ namespace GALAXY
             void ComputeConvexVertices(Shared<Resource::Mesh> mesh) override;
         private:
             bool InitializeAPI() override;
-            void InternalUpdate() const;
+            void InternalUpdate();
+            void ResolveCollisions(Component::Collider* collider1, Component::Collider* collider2, const CollisionPoints& collisionPoints);
             
             std::vector<ColliderPair> BroadPhase() const;
-            static bool GJK(Component::Collider* coll1, Component::Collider* coll2, Vec3f& mtv);
+            static CollisionPoints EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d,
+                                            Component::Collider* coll1, Component::Collider* coll2);
+            static bool GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionPoints& collisionPoints);
 
         private:
             std::set<Weak<Component::RigidBody>, WeakPtrCompare<Component::RigidBody>> m_objectSet;
             std::set<Weak<Component::Collider>, WeakPtrCompare<Component::Collider>> m_colliderSet;
-            Vec3f defaultGravity = Vec3f(0.f, -9.81f, 0.f);
+            Vec3f m_defaultGravity = Vec3f(0.f, -9.81f, 0.f);
+
+            CollisionPoints m_prevPoints;
 
             std::unordered_map<Core::UUID, Shared<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
         };

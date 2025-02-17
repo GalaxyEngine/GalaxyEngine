@@ -172,6 +172,8 @@ namespace GALAXY
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
+			physics->DrawDebug();
+			
 			renderer->RenderDebug();
 			m_root->DrawSelfAndChild(DrawMode::Editor);
 			m_gizmo->Draw();

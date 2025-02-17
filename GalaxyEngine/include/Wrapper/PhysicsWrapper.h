@@ -61,6 +61,7 @@ namespace GALAXY
             static void Release();
 
             virtual void Update() = 0;
+            virtual void DrawDebug() {}
 
             virtual void CreateRigidBody(Weak<Component::RigidBody> body) = 0;
             virtual void DestroyRigidBody(Weak<Component::RigidBody> body) = 0;

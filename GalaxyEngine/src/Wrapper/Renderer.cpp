@@ -178,9 +178,9 @@ namespace GALAXY {
 
 	void Wrapper::Renderer::DrawSimpleWireSphere(const Vec3f& pos, float radius, int numSegments, Vec4f color,float lineWidth)
 	{
-		DrawWireCircle(pos, Vec3f::Up(), radius, numSegments, color, 2.f);
-		DrawWireCircle(pos, Vec3f::Right(), radius, numSegments, color, 2.f);
-		DrawWireCircle(pos, Vec3f::Forward(), radius, numSegments, color, 2.f);
+		DrawWireCircle(pos, Vec3f::Up(), radius, numSegments, color, lineWidth);
+		DrawWireCircle(pos, Vec3f::Right(), radius, numSegments, color, lineWidth);
+		DrawWireCircle(pos, Vec3f::Forward(), radius, numSegments, color, lineWidth);
 	}
 
 	void Wrapper::Renderer::DrawWireSphere(const Vec3f& pos, float radius, int numSegments, int numRings, Vec4f color, float lineWidth)
