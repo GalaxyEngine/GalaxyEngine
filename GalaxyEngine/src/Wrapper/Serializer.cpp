@@ -114,13 +114,6 @@ template<> CppSer::Serializer& CppSer::Serializer::operator<<(Component::BaseCom
 	this->operator<<(pairString);
 	return *this;
 }
-
-template<> CppSer::Serializer& CppSer::Serializer::operator<<(const unsigned long& value)
-{
-	auto stringValue = std::to_string(value);
-	*this << stringValue;
-	return *this;
-}
 // --------------------------------------- Parser ---------------------------------------
 template<>
 uint32_t CppSer::StringSerializer::As() const
