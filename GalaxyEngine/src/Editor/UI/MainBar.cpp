@@ -141,10 +141,11 @@ namespace GALAXY
 			
 			auto cursorPosX = ImGui::GetWindowContentRegionMax().x * 0.48f;
 			ImGui::SetCursorPosX(cursorPosX);
-			if (ImGui::MenuItem(Core::Application::IsPlayMode() ? "[  ]" : "|>"))
+			bool displaySquare = Core::Application::IsPlayMode() || Core::Application::IsPauseMode();
+			if (ImGui::MenuItem(displaySquare ? "[  ]" : "|>"))
 			{
 				auto& appInstance = application;
-				appInstance.SetApplicationMode(Core::Application::IsPlayMode() ? ApplicationMode::Editor : ApplicationMode::Play);
+				appInstance.SetApplicationMode(displaySquare ? ApplicationMode::Editor : ApplicationMode::Play);
 			}
 			bool isPauseMode = Core::Application::IsPauseMode();
 			if (isPauseMode)

@@ -145,6 +145,14 @@ target("GalaxyEngine")
         print("Physics API selected: ")
         print(apis)
     end)
+
+    add_installfiles("GalaxyCore/imgui.ini", {prefixdir = "bin/"})
+    add_installfiles("GalaxyCore/GalaxyHeaderTool.*", {prefixdir = "bin/"})
+
+    -- Copy additional files/folders upon installation
+    after_install(function (target)
+        os.cp("GalaxyCore/CoreResources", target:installdir() .. "/bin")
+    end)
 target_end()
 
 -- Core application target

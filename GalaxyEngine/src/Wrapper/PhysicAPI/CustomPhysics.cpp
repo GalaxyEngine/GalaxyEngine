@@ -74,10 +74,7 @@ namespace GALAXY
             // Retrieve the rigidbody components if they exist.
             Shared<Component::RigidBody> body1 = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
             Shared<Component::RigidBody> body2 = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
-            instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
-            float depth = contact.normal.Length();
-            Vec3f normal = contact.normal.GetNormalize();
-            instance->DrawLine(contact.point, contact.point + normal * depth, Vec4f(1, 0, 0, 1), 10.f);
+            
             if (body1)
             {
                 // body1->SetGravityForce(Vec3f::Zero());
@@ -152,6 +149,8 @@ namespace GALAXY
         auto instance = Renderer::GetInstance();
         for (const CollisionPoint& contact : m_prevPoints)
         {
+            instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+            instance->DrawLine(contact.point, contact.point + contact.normal * contact.depth, Vec4f(1, 0, 0, 1), 10.f);
             // instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
             // instance->DrawLine(contact.point, contact.point + contact.normal * contact.depth, Vec4f(1, 0, 0, 1), 10.f);
         

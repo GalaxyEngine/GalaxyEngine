@@ -26,11 +26,14 @@ namespace GALAXY
         
         struct CollisionPoint
         {
-            CollisionPoint(Vec3f _normal) : normal(_normal) {}
+            CollisionPoint() {}
+            CollisionPoint(Vec3f _point, Vec3f _normal, float _depth) : point(_point), normal(_normal), depth(_depth) {}
+            CollisionPoint(Vec3f mtv, Vec3f _point = Vec3f::Zero())
+            : point(_point), normal(mtv.GetNormalize()), depth(mtv.Length()) {}
             
             Vec3f point;
             Vec3f normal;
-            float depth = 1.f;
+            float depth = 0.f;
         };
 
         struct EPAVertex {
