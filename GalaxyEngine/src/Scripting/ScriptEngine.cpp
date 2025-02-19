@@ -337,7 +337,7 @@ namespace GALAXY
 			}
 		case Editor::ScriptEditorToolType::Rider:
 			{
-				Utils::OS::OpenWithRider(GetSLNPath());
+				Utils::OS::OpenWithRider("");
 				break;
 			}
 #endif

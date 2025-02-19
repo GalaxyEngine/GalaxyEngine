@@ -104,17 +104,17 @@ namespace GALAXY
 			return result;
 		}
 
-		std::string command = "cd \"" + vsPath.string() + "\" && " + "vswhere.exe";
+		std::string command = "cmd /C \"" + vsPath.string() + "/vswhere.exe\" -prerelease" ;
 		std::string output = OS::RunCommand(command, false);
 
 		VSAppInfos apps = ParseVSWhereResult(output);
 
 		//Choose the latest version of Visual Studio
-		std::sort(apps.begin(), apps.end(), [](const VSAppInfo& a, const VSAppInfo& b) {
+		std::ranges::sort(apps, [](const VSAppInfo& a, const VSAppInfo& b) {
 			return a.version > b.version;
 		});
 
-		if (apps.size() > 0)
+		if (!apps.empty())
 		{
 			result = apps[0].productPath;
 		}
@@ -508,7 +508,8 @@ namespace GALAXY
         return nullptr;
 #endif
     }
-
+    
+#ifdef WITH_EDITOR
     void Utils::OS::OpenWithVSCode(const std::filesystem::path& filePath)
     {
         std::string command = "code ";
@@ -524,6 +525,63 @@ namespace GALAXY
         command += filePath.string();
         std::system(command.c_str());
     }
+#ifdef _WIN32
+
+    void Utils::OS::OpenWithVS(const std::filesystem::path& filePath)
+    {
+        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
+        std::string command = "cd " + editorToolPath.parent_path().generic_string();
+        command += " && " + editorToolPath.filename().generic_string() + " ";
+        const std::string slnPath = "\"" + Scripting::ScriptEngine::GetSLNPath().generic_string() + "\"";
+        command += slnPath;
+        std::string windowName = Resource::ResourceManager::GetProjectPath().filename().stem().string() +
+            " - Microsoft Visual Studio";
+        if (!IsWindowOpen(windowName))
+        {
+            ShellExecute(nullptr, "open", editorToolPath.generic_string().c_str(), slnPath.c_str(), nullptr, SW_SHOWNORMAL);
+			
+            Utils::ElapsedTimer timer;
+            while (!IsWindowOpen(windowName))
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                double elapsedTime = timer.GetElapsedTime().AsSeconds();
+                if (elapsedTime > 5.0f)
+                    return;
+            }
+        }
+    
+        HWND hwnd = static_cast<HWND>(GetWindow(windowName));
+        if (hwnd)
+        {
+            // Visual Studio window exists, bring it to the foreground
+            SetForegroundWindow(hwnd);
+            SetActiveWindow(hwnd);
+
+            std::string command = " /edit ";
+            const std::string env = editorToolPath.generic_string() ;
+            const std::string newPath = "\"" + filePath.string() + "\"";
+            command += newPath;
+
+            // Open file with the first instance of Visual Studio
+            ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
+        }
+    }
+
+    void Utils::OS::OpenWithRider(const std::filesystem::path& filePath)
+    {
+        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
+        const std::string slnPath = "\"" + Scripting::ScriptEngine::GetSLNPath().generic_string() + "\"";
+        
+        std::string command = slnPath;
+        command += " ";
+        const std::string env = editorToolPath.generic_string();
+        const std::string newPath = "\"" + filePath.string() + "\"";
+        command += newPath;
+        // Open file with the first instance of Rider
+        ShellExecuteA(nullptr, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
+    }
+#endif
+#endif
 
     static std::string RemoveColorCodes(const std::string& input) {
         // Regular expression to match ANSI color codes (like \x1b[32;1m)
@@ -568,61 +626,6 @@ namespace GALAXY
     }
 
 #ifdef _WIN32
-
-    void Utils::OS::OpenWithVS(const std::filesystem::path& filePath)
-    {
-        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
-        std::string command = "cd " + editorToolPath.parent_path().generic_string();
-        command += " && " + editorToolPath.filename().generic_string() + " ";
-        const std::string slnPath = Scripting::ScriptEngine::GetSLNPath().generic_string();
-        command += slnPath;
-        std::string windowName = Resource::ResourceManager::GetProjectPath().filename().stem().string() +
-            " - Microsoft Visual Studio";
-        if (!IsWindowOpen(windowName))
-        {
-            ShellExecute(nullptr, "open", editorToolPath.generic_string().c_str(), slnPath.c_str(), nullptr, SW_SHOWNORMAL);
-			
-            Utils::ElapsedTimer timer;
-            while (!IsWindowOpen(windowName))
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                double elapsedTime = timer.GetElapsedTime().AsSeconds();
-                if (elapsedTime > 5.0f)
-                    return;
-            }
-        }
-    
-        HWND hwnd = static_cast<HWND>(GetWindow(windowName));
-        if (hwnd)
-        {
-            // Visual Studio window exists, bring it to the foreground
-            SetForegroundWindow(hwnd);
-            SetActiveWindow(hwnd);
-
-            std::string command = " /edit ";
-            const std::string env = editorToolPath.generic_string() ;
-            const std::string newPath = "\"" + filePath.string() + "\"";
-            command += newPath;
-
-            // Open file with the first instance of Visual Studio
-            ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
-        }
-    }
-
-    void Utils::OS::OpenWithRider(const std::filesystem::path& filePath)
-    {
-        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
-        const std::string slnPath = Scripting::ScriptEngine::GetSLNPath().generic_string();
-        
-        std::string command = slnPath;
-        command += " ";
-        const std::string env = editorToolPath.generic_string();
-        const std::string newPath = "\"" + filePath.string() + "\"";
-        command += newPath;
-        // Open file with the first instance of Rider
-        ShellExecuteA(nullptr, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
-    }
-
     // Global variables
     HBITMAP hBitmap = NULL;
     int imgWidth, imgHeight; // Store image dimensions
@@ -766,7 +769,7 @@ namespace GALAXY
     }
 #elif defined(__linux__)
 	
-    void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { PrintError("Not implemented yet"); }
+    void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { Assert(false && "Not implemented yet"); }
 	
 #endif // _WIN32
 
