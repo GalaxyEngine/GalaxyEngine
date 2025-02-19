@@ -73,16 +73,16 @@ namespace GALAXY
 		const char* GetDLLExtension();
 		const char* GetBinaryExtension();
 
-		bool IsWindowOpen(const std::string& windowName);
-		void* GetWindow(const std::string& windowName);
+		bool IsWindowOpen(const std::string& windowTitle);
+		void* GetWindow(const std::string& windowTitle);
 
 #ifdef WITH_EDITOR
-		void OpenWithVSCode(const std::filesystem::path& filePath);
+		EDITOR_ONLY void OpenWithVSCode(const std::filesystem::path& filePath);
 
-		void OpenWith(const std::filesystem::path& appPath, const std::filesystem::path& filePath);
+		EDITOR_ONLY void OpenWith(const std::filesystem::path& appPath, const std::filesystem::path& filePath);
 #ifdef _WIN32
-		void OpenWithVS(const std::filesystem::path& filePath);
-		void OpenWithRider(const std::filesystem::path& filePath);
+		EDITOR_ONLY void OpenWithVS(const std::filesystem::path& filePath);
+		EDITOR_ONLY void OpenWithRider(const std::filesystem::path& filePath);
 #endif
 #endif
 		std::string RunCommand(const std::string& command, bool print = true);

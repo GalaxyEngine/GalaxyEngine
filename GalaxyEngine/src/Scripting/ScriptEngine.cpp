@@ -315,11 +315,13 @@ namespace GALAXY
 		}
 	}
 
+#ifdef _WIN32
 	std::filesystem::path Scripting::ScriptEngine::GetSLNPath()
 	{
 		return Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
 			Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln");
 	}
+#endif
 
 	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorToolType tool)
 	{
