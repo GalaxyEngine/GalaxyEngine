@@ -326,12 +326,14 @@ namespace GALAXY
         case ScriptEditorToolType::VisualStudioCode:
             newCurrent.path = "code.exe";
             break;
+#ifdef _WIN32
         case ScriptEditorToolType::VisualStudio:
             newCurrent.path = Utils::FindTool::FindVS();
             break;
         case ScriptEditorToolType::Rider:
             newCurrent.path = Utils::FindTool::FindRider();
             break;
+#endif
         case ScriptEditorToolType::Custom:
             if (newCurrent.path.empty())
                 ChangeOtherScriptTool();
