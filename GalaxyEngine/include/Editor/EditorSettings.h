@@ -52,7 +52,7 @@ namespace GALAXY
             }
         }
 
-        enum class ScriptEditorTool
+        enum class ScriptEditorToolType
         {
             None = 0,
             VisualStudioCode = 1,
@@ -60,23 +60,34 @@ namespace GALAXY
             VisualStudio = 2,
             Rider = 3,
 #endif
-            Custom = 4
+            Custom = 4,
+            Count
         };
 
-        inline const char* SerializeScriptEditorToolValue(ScriptEditorTool tool)
+        inline const char* SerializeScriptEditorToolTypeValue(ScriptEditorToolType tool)
         {
             switch (tool)
             {
-            case ScriptEditorTool::None: return "None";
-            case ScriptEditorTool::VisualStudioCode: return "Visual Studio Code";
+            case ScriptEditorToolType::None: return "None";
+            case ScriptEditorToolType::VisualStudioCode: return "Visual Studio Code";
 #ifdef _WIN32
-            case ScriptEditorTool::VisualStudio: return "Visual Studio";
-            case ScriptEditorTool::Rider: return "Rider";
+            case ScriptEditorToolType::VisualStudio: return "Visual Studio";
+            case ScriptEditorToolType::Rider: return "Rider";
 #endif
-            case ScriptEditorTool::Custom: return "Custom";
+            case ScriptEditorToolType::Custom: return "Custom";
             default: return "Invalid";
             }
         }
+
+        struct ScriptEditorTool
+        {
+            ScriptEditorTool(ScriptEditorToolType _type = ScriptEditorToolType::None)
+                : type(_type), name(SerializeScriptEditorToolTypeValue(_type)) {}
+            
+            ScriptEditorToolType type;
+            std::string name;
+            std::filesystem::path path;
+        };
 
         enum class InputAction
         {
@@ -130,8 +141,8 @@ namespace GALAXY
 
             void AddListElement(EditorSettingsTab tab);
 
-            [[nodiscard]] ScriptEditorTool GetScriptEditorTool() const { return m_scriptEditorTool; }
-            void SetScriptEditorTool(const ScriptEditorTool val) { m_scriptEditorTool = val; }
+            [[nodiscard]] ScriptEditorToolType GetScriptEditorToolType() const { return m_currentScriptEditorToolType; }
+            void SetScriptEditorToolType(const ScriptEditorToolType val);
 
             void SaveSettings() const;
             void LoadSettings();
@@ -142,7 +153,7 @@ namespace GALAXY
 
             void InitializeScriptEditorTools();
 
-            [[nodiscard]] Path GetOtherScriptEditorToolPath() const { return m_otherScriptEditorToolPath.value(); }
+            [[nodiscard]] Path GetCurrentScriptEditorToolPath() const;
 
             Path GetDefaultProjectPath() const { return m_defaultProjectPath; }
 
@@ -180,13 +191,11 @@ namespace GALAXY
             EditorSettingsTab m_selectedTab = EditorSettingsTab::General;
 
 #pragma region External Tools
-            std::optional<Path> m_otherScriptEditorToolPath = std::nullopt;
-
-            std::map<ScriptEditorTool, std::string> m_scriptEditorToolsString = {};
+            std::map<ScriptEditorToolType, ScriptEditorTool> m_scriptEditorTools = {};
 #if defined(_WIN32)
-            ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudio;
+            ScriptEditorToolType m_currentScriptEditorToolType = ScriptEditorToolType::VisualStudio;
 #else
-			ScriptEditorTool m_scriptEditorTool = ScriptEditorTool::VisualStudioCode;
+			ScriptEditorToolType m_currentScriptEditorToolType = ScriptEditorToolType::VisualStudioCode;
 #endif
 #pragma endregion
 

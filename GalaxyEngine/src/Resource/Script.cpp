@@ -97,22 +97,22 @@ END_FILE()
 
 	void Resource::Script::OpenScript(const Path& path)
 	{
-		const Editor::ScriptEditorTool tool = Editor::EditorSettings::GetInstance().GetScriptEditorTool();
+		const Editor::ScriptEditorToolType tool = Editor::EditorSettings::GetInstance().GetScriptEditorToolType();
 		switch (tool)
 		{
 #ifdef _WIN32
-		case Editor::ScriptEditorTool::VisualStudio:
+		case Editor::ScriptEditorToolType::VisualStudio:
 		{
 			OpenWithVS(path);
 			break;
 		}
 #endif
-		case Editor::ScriptEditorTool::VisualStudioCode:
+		case Editor::ScriptEditorToolType::VisualStudioCode:
 		{
 			OpenWithVSCode(path);
 			break;
 		}
-		case Editor::ScriptEditorTool::None:
+		case Editor::ScriptEditorToolType::None:
 		default:
 			break;
 		}
@@ -120,7 +120,7 @@ END_FILE()
 
 	void Resource::Script::OpenWithVSCode(const Path& path)
 	{
-		Utils::OS::OpenWithVSCode(ResourceManager::GetInstance()->GetAssetPath().parent_path().string() + "\"");
+		Utils::OS::OpenWithVSCode(ResourceManager::GetProjectPath().generic_string() + "\" " + path.generic_string() + "\"");
 	}
 #ifdef _WIN32
 	void Resource::Script::OpenWithVS(const Path& path)

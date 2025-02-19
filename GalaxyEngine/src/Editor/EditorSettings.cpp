@@ -168,39 +168,34 @@ namespace GALAXY
         auto out = Utils::OS::OpenDialog({{"Script Editor Tool", "exe"}});
         if (!out.empty())
         {
-            m_otherScriptEditorToolPath = out;
-            m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(out).stem().string();
+            ScriptEditorTool& customEditorTool = m_scriptEditorTools[ScriptEditorToolType::Custom];
+            customEditorTool.path = out;
+            customEditorTool.name = Path(out).stem().string();
         }
     }
 
     void Editor::EditorSettings::DisplayExternalToolTab()
     {
-        ScriptEditorTool externalToolID = Core::Application::GetInstance().GetEditorSettings().GetScriptEditorTool();
-        if (ImGui::BeginCombo("Script Editor Tool", m_scriptEditorToolsString[externalToolID].c_str()))
+        ScriptEditorToolType externalToolID = Core::Application::GetInstance().GetEditorSettings().GetScriptEditorToolType();
+        if (ImGui::BeginCombo("Script Editor Tool", m_scriptEditorTools[externalToolID].name.c_str()))
         {
-            for (auto& i : m_scriptEditorToolsString)
+            for (auto& i : m_scriptEditorTools)
             {
-                bool isOther = i.first == ScriptEditorTool::Custom;
-                if (ImGui::Selectable(i.second.c_str(), i.first == externalToolID,
+                bool isOther = i.first == ScriptEditorToolType::Custom;
+                if (ImGui::Selectable(i.second.name.c_str(), i.first == externalToolID,
                                       ImGuiSelectableFlags_AllowItemOverlap))
                 {
-                    SetScriptEditorTool(i.first);
-
-                    if (isOther && !m_otherScriptEditorToolPath.has_value())
-                    {
-                        ChangeOtherScriptTool();
-                    }
-
+                    SetScriptEditorToolType(i.first);
                     continue;
                 }
-                if (!isOther || !m_otherScriptEditorToolPath.has_value())
+                if (!isOther || !i.second.path.empty())
                     continue;
                 ImGui::SameLine();
                 if (ImGui::SmallButton("X"))
                 {
-                    SetScriptEditorTool(ScriptEditorTool::None);
-                    m_otherScriptEditorToolPath.reset();
-                    i.second = "Other";
+                    SetScriptEditorToolType(ScriptEditorToolType::None);
+                    i.second.path = "";
+                    i.second.name = "Other";
                 }
             }
             ImGui::EndCombo();
@@ -215,11 +210,11 @@ namespace GALAXY
         }
         if (ImGui::Button("Generate solution"))
         {
-            Scripting::ScriptEngine::GenerateSolution(GetScriptEditorTool());
+            Scripting::ScriptEngine::GenerateSolution(GetScriptEditorToolType());
         }
         if (ImGui::Button("Open solution"))
         {
-            Scripting::ScriptEngine::OpenSolution(GetScriptEditorTool());
+            Scripting::ScriptEngine::OpenSolution(GetScriptEditorToolType());
         }
     }
 
@@ -318,15 +313,43 @@ namespace GALAXY
         m_projectThumbnail = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
     }
 
+    void Editor::EditorSettings::SetScriptEditorToolType(const ScriptEditorToolType val)
+    {
+
+        ScriptEditorTool& newCurrent = m_scriptEditorTools[val];
+        switch (val)
+        {
+        case ScriptEditorToolType::None:
+            break;
+        case ScriptEditorToolType::VisualStudioCode:
+            newCurrent.path = "code.exe";
+            break;
+        case ScriptEditorToolType::VisualStudio:
+            newCurrent.path = Utils::FindTool::FindVS();
+            break;
+        case ScriptEditorToolType::Rider:
+            break;
+        case ScriptEditorToolType::Custom:
+            if (newCurrent.path.empty())
+                ChangeOtherScriptTool();
+            break;
+        case ScriptEditorToolType::Count:
+            break;
+        default: ;
+        }
+        m_currentScriptEditorToolType = val;
+    }
+
 	void Editor::EditorSettings::SaveSettings() const
-	{
+    {
 		CppSer::Serializer serializer(Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME);
 		serializer << CppSer::Pair::BeginMap << "Editor Settings";
 		serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
         serializer << CppSer::Pair::Key << "Focus Game Window On Play" << CppSer::Pair::Value << m_focusGameWindowOnPlay;
-		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorTool());
-		if (m_otherScriptEditorToolPath.has_value())
-			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << m_otherScriptEditorToolPath.value();
+		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorToolType());
+        std::filesystem::path customScriptEditorPath = m_scriptEditorTools.at(ScriptEditorToolType::Custom).path;
+		if (!customScriptEditorPath.empty())
+			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << customScriptEditorPath;
         serializer << CppSer::Pair::Key << "Default Project Path" << CppSer::Pair::Value << m_defaultProjectPath.string();
         for (auto input : m_editorInputsManager.EditorInputs)
         {
@@ -352,16 +375,17 @@ namespace GALAXY
         {
             m_focusGameWindowOnPlay = parser["Focus Game Window On Play"].As<bool>();
         }
-		auto scriptEditorTool = static_cast<ScriptEditorTool>(parser["Script Editor Tool"].As<int>());
+		auto scriptEditorTool = static_cast<ScriptEditorToolType>(parser["Script Editor Tool"].As<int>());
 		
-		if (m_scriptEditorToolsString.contains(scriptEditorTool))
-			SetScriptEditorTool(scriptEditorTool);
+		if (m_scriptEditorTools.contains(scriptEditorTool))
+			SetScriptEditorToolType(scriptEditorTool);
 
 		auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
 		if (!otherScriptEditorTool.empty())
 		{
-			m_otherScriptEditorToolPath = otherScriptEditorTool;
-			m_scriptEditorToolsString[ScriptEditorTool::Custom] = Path(otherScriptEditorTool).stem().string();
+		    ScriptEditorTool& customEditorTool = m_scriptEditorTools[ScriptEditorToolType::Custom];
+		    customEditorTool.path = otherScriptEditorTool;
+		    customEditorTool.name = Path(otherScriptEditorTool).stem().string();
 		}
         for (auto& input : m_editorInputsManager.EditorInputs)
         {
@@ -416,15 +440,20 @@ namespace GALAXY
 
     void Editor::EditorSettings::InitializeScriptEditorTools()
     {
-        m_scriptEditorToolsString[ScriptEditorTool::None] = "None";
+        m_scriptEditorTools[ScriptEditorToolType::None] = ScriptEditorTool();
 #ifdef _WIN32
-        m_scriptEditorToolsString[ScriptEditorTool::VisualStudio] = "Visual Studio";
+        m_scriptEditorTools[ScriptEditorToolType::VisualStudio] = ScriptEditorTool(ScriptEditorToolType::VisualStudio);
         if (IsRiderInstalled())
         {
-            m_scriptEditorToolsString[ScriptEditorTool::Rider] = "Rider";
+            m_scriptEditorTools[ScriptEditorToolType::Rider] = ScriptEditorTool(ScriptEditorToolType::Rider);
         }
 #endif
-        m_scriptEditorToolsString[ScriptEditorTool::VisualStudioCode] = "Visual Studio Code";
-        m_scriptEditorToolsString[ScriptEditorTool::Custom] = "Custom";
+        m_scriptEditorTools[ScriptEditorToolType::VisualStudioCode] = ScriptEditorTool(ScriptEditorToolType::VisualStudioCode);
+        m_scriptEditorTools[ScriptEditorToolType::Custom] = ScriptEditorTool(ScriptEditorToolType::Custom);;
+    }
+
+    Path Editor::EditorSettings::GetCurrentScriptEditorToolPath() const
+    {
+        return m_scriptEditorTools.at(m_currentScriptEditorToolType).path;
     }
 }

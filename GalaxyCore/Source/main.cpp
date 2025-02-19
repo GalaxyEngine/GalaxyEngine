@@ -9,7 +9,7 @@ using namespace GALAXY;
 
 
 // Main code
-void Main(int argc, char** argv)
+void Main(int argc, char** argv, char** envp)
 {
 	/*
 	 * TODO : Fix shader loading and sending
@@ -21,6 +21,14 @@ void Main(int argc, char** argv)
 	 * TODO : Implement Shadow Mapping
 	 */
 
+	/*
+	for (char **env = envp; *env != 0; env++)
+	{
+		char *thisEnv = *env;
+		std::cout << thisEnv << std::endl;
+	}
+	*/
+	
 	std::filesystem::path exePath = std::filesystem::path(argv[0]);
 	// On development			   							exe/	 mode/        architecture/ platform/	  build/		GalaxyEngine/
 	std::filesystem::path workDir = std::filesystem::path(argv[0]).parent_path().parent_path().parent_path().parent_path().parent_path() / "GalaxyCore";
@@ -48,7 +56,7 @@ void Main(int argc, char** argv)
 	application.Destroy();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char** argv, char** envp)
 {
 #ifdef _WIN32
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -57,6 +65,6 @@ int main(int argc, char** argv)
 	// V
 	// _CrtSetBreakAlloc(29402);
 #endif
-	Main(argc, argv);
+	Main(argc, argv, envp);
 	return 0;
 }

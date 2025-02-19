@@ -246,12 +246,12 @@ namespace GALAXY
 
 	}
 
-	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName)
+	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName) const
 	{
 		return m_scriptEngine->GetScriptVariable(scriptComponent, scriptName, variableName);
 	}
 
-	void Scripting::ScriptEngine::SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value)
+	void Scripting::ScriptEngine::SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value) const
 	{
 		m_scriptEngine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
 	}
@@ -275,14 +275,14 @@ namespace GALAXY
 		Utils::OS::RunCommandThread(command);
 	}
 
-	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorTool tool)
+	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorToolType tool)
 	{
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 		switch (tool)
 		{
 #ifdef _WIN32
-		case Editor::ScriptEditorTool::Rider:
-		case Editor::ScriptEditorTool::VisualStudio:
+		case Editor::ScriptEditorToolType::Rider:
+		case Editor::ScriptEditorToolType::VisualStudio:
 		{
 				std::string command = "cd " + projectPath.generic_string()
 					+ " && xmake f -p windows -a x64 -m debug"
@@ -291,7 +291,7 @@ namespace GALAXY
 			break;
 		}
 #endif
-		case Editor::ScriptEditorTool::VisualStudioCode:
+		case Editor::ScriptEditorToolType::VisualStudioCode:
 		{
 				auto threadMethod = [projectPath]()
 				{
@@ -300,52 +300,55 @@ namespace GALAXY
 					Utils::OS::RunCommand(command);
 					std::ofstream file(projectPath / ".vscode/c_cpp_properties.json");
 					if (file.is_open()) {
-						file << std::string("{\n\t\"configurations\": [\n\t\t {\n\t\t\t\"compileCommands\":\
-							 \".vscode/compile_commands.json\"\n\t\t }\n\t],\n\t\"version\": 4\n})");
+						std::string c_cpp_properties("{\n\t\"configurations\": [\n\t\t {\n\t\t\t\"compileCommands\":\".vscode/compile_commands.json\",\n\t\t\t\"includePath\": [\"%s\"]\n\t\t }\n\t],\n\t\"version\": 4\n}");
+						auto includePath = std::filesystem::current_path().parent_path() / "GalaxyEngine/include";
+						c_cpp_properties = Debug::FormatString(c_cpp_properties.c_str(), includePath.generic_string().c_str());
+						file << c_cpp_properties;
 					}
 				};
 				Core::ThreadManager::GetInstance()->AddTask(threadMethod);
 			break;
 		}
 		default:
-			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolValue(tool));
+			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolTypeValue(tool));
 			break;
 		}
 	}
 
-	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorTool tool)
+	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorToolType tool)
 	{
 		OpenFileWithScriptEditor(Resource::ResourceManager::GetProjectPath().string() + "\"", tool);
 	}
 
-	void Scripting::ScriptEngine::OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorTool tool)
+	void Scripting::ScriptEngine::OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorToolType tool)
 	{
+		Editor::EditorSettings editorSettings = Core::Application::GetInstance().GetEditorSettings();
+		Path currentEditorToolPath = editorSettings.GetCurrentScriptEditorToolPath();
 		switch (tool)
 		{
 #ifdef _WIN32
-		case Editor::ScriptEditorTool::VisualStudio:
+		case Editor::ScriptEditorToolType::VisualStudio:
 			{
 				Utils::OS::OpenWithVS(path);
 				break;
 			}
-		case Editor::ScriptEditorTool::Rider:
+		case Editor::ScriptEditorToolType::Rider:
 			{
 				Utils::OS::OpenWithRider(path);
 				break;
 			}
 #endif
-		case Editor::ScriptEditorTool::VisualStudioCode:
+		case Editor::ScriptEditorToolType::VisualStudioCode:
 			{
 				Utils::OS::OpenWithVSCode(path);
 				break;
 			}
-		case Editor::ScriptEditorTool::Custom:
+		case Editor::ScriptEditorToolType::Custom:
 			{
-				auto editorSettings = Core::Application::GetInstance().GetEditorSettings();
-				Utils::OS::OpenWith(editorSettings.GetOtherScriptEditorToolPath(),path);
+				Utils::OS::OpenWith(currentEditorToolPath, path);
 				break;
 			}
-		case Editor::ScriptEditorTool::None:
+		case Editor::ScriptEditorToolType::None:
 			{
 				PrintError("No script editor tool selected");
 			}

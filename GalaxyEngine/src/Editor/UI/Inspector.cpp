@@ -273,7 +273,7 @@ void Editor::UI::Inspector::RightClickPopup()
 				auto filePath = Scripting::ScriptEngine::GetFilePathForScript(scriptComponent->GetComponentName());
 				if (!filePath.empty())
 				{
-					Scripting::ScriptEngine::OpenFileWithScriptEditor(filePath, Core::Application::GetInstance().GetEditorSettings().GetScriptEditorTool());
+					Scripting::ScriptEngine::OpenFileWithScriptEditor(filePath, Core::Application::GetInstance().GetEditorSettings().GetScriptEditorToolType());
 					m_rightClicked.reset();
 					ImGui::CloseCurrentPopup();
 				}

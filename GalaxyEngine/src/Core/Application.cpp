@@ -371,7 +371,7 @@ namespace GALAXY {
 		}
 
 		auto projectPath = Resource::ResourceManager::GetProjectPath();
-		if (mode == Editor::ApplicationMode::Play && m_applicationMode == Editor::ApplicationMode::Editor)
+		if (mode == Editor::ApplicationMode::Play && IsEditorMode())
 		{
 			Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
 			currentScene->Save(projectPath / PLAYMODE_SCENE_PATH);
@@ -379,7 +379,7 @@ namespace GALAXY {
 			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
 			
 		}
-		else if (mode == Editor::ApplicationMode::Editor && m_applicationMode == Editor::ApplicationMode::Play)
+		else if (mode == Editor::ApplicationMode::Editor && (IsPlayMode() || IsPauseMode()))
 		{
 			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
 

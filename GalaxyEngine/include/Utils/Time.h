@@ -2,15 +2,16 @@
 #include "GalaxyAPI.h"
 namespace GALAXY
 {
-	namespace Utils {
-
+	namespace Utils
+	{
 		class GALAXY_API Time
 		{
 		public:
 			Time(const uint64_t time = 0) : m_time(time) {}
+			Time(const std::chrono::steady_clock::time_point& tp);
 
 			static Time FromSeconds(float seconds);
-			static Time FromMilliseconds(float milliseconds);
+			static Time FromMilliseconds(uint64_t milliseconds);
 			static Time FromMinutes(float minutes);
 			static Time FromHours(float hours);
 
@@ -31,6 +32,21 @@ namespace GALAXY
 			static float s_deltaTime;
 
 			uint64_t m_time = 0;
+		};
+		
+		class GALAXY_API ElapsedTimer
+		{
+		public:
+			ElapsedTimer();
+
+			void Start();
+			void Stop();
+
+			Time GetElapsedTime() const;
+		private:
+			Time m_startPoint;
+			Time m_elapsedTime;
+			bool m_started = false;
 		};
 	}
 }

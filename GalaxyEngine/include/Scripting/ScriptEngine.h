@@ -11,7 +11,7 @@
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
 {
-	namespace Editor { enum class ScriptEditorTool; }
+	namespace Editor { enum class ScriptEditorToolType; }
 	namespace Scripting
 	{
 		class ScriptEngine
@@ -30,8 +30,8 @@ namespace GALAXY
 
 			void ReloadDLL();
 
-			void* GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName);
-			void SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value);
+			void* GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName) const;
+			void SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value) const;
 
 			template<typename T>
 			T* GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName)
@@ -48,11 +48,11 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 			static void CompileCode();
 
-			static void GenerateSolution(Editor::ScriptEditorTool tool);
+			static void GenerateSolution(Editor::ScriptEditorToolType tool);
 
-			static void OpenSolution(Editor::ScriptEditorTool tool);
+			static void OpenSolution(Editor::ScriptEditorToolType tool);
 
-			static void OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorTool tool);
+			static void OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorToolType tool);
 #endif
 
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);

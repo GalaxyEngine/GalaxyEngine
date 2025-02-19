@@ -15,6 +15,7 @@
 #include <regex>
 
 #include "Render/Framebuffer.h"
+#include "Utils/Time.h"
 #include "Wrapper/ImageLoader.h"
 
 #ifdef __linux__
@@ -279,6 +280,60 @@ namespace GALAXY
         return "";
 #endif
     }
+    
+    struct FindWindowData {
+        std::string title  = "";  
+        void*       handle = nullptr;
+        bool        found  = false;         
+    };
+
+#ifdef _WIN32
+    BOOL CALLBACK FindWindowProc(HWND hwnd, LPARAM lParam)
+    {
+        FindWindowData* data = reinterpret_cast<FindWindowData*>(lParam);
+        char windowTitle[256];
+
+        if (GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle)) > 0)
+        {
+            if (std::string(windowTitle).find(data->title) != std::string::npos)
+            {
+                data->handle = hwnd;
+                data->found = true;
+                return FALSE;
+            }
+        }
+
+        return TRUE; // Continue enumerating windows.
+    }
+#endif
+
+    bool Utils::OS::IsWindowOpen(const std::string& windowTitle)
+    {
+#ifdef _WIN32
+        FindWindowData data{ windowTitle, false };
+
+        EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
+
+        return data.found;
+#else
+        ASSERT(false && "Not Implemented yet");
+        return false;
+#endif
+    }
+
+    void* Utils::OS::GetWindow(const std::string& windowTitle)
+    {
+#ifdef _WIN32
+        FindWindowData data{ windowTitle, false };
+
+        EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
+
+        return data.handle;
+#else
+        ASSERT(false && "Not Implemented yet");
+        return nullptr;
+#endif
+    }
 
     void Utils::OS::OpenWithVSCode(const std::filesystem::path& filePath)
     {
@@ -302,7 +357,7 @@ namespace GALAXY
         return std::regex_replace(input, colorRegex, "");
     }
 
-    void Utils::OS::RunCommand(const std::string& command)
+    std::string Utils::OS::RunCommand(const std::string& command, bool print /* = true*/)
     {
         // Open a pipe to read the command's output
         std::array<char, MAX_LOG_SIZE> buffer;
@@ -317,7 +372,7 @@ namespace GALAXY
         if (!pipe)
         {
             PrintError("popen() failed!");
-            return;
+            return "";
         }
 
         // Read the output a line at a time
@@ -328,7 +383,9 @@ namespace GALAXY
         result = RemoveColorCodes(result);
 
         // Print the result
-        PrintLog(result.c_str());
+        if (print)
+            PrintLog(result.c_str());
+        return result;
     }
 
     void Utils::OS::RunCommandThread(const std::string& command)
@@ -337,62 +394,45 @@ namespace GALAXY
     }
 
 #ifdef _WIN32
-    BOOL CALLBACK EnumWindowsProc(const HWND hwnd, const LPARAM lParam)
-    {
-        char windowTitle[256];
-        GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle));
-
-        // Check if the window title contains "Microsoft Visual Studio"
-        if (strstr(windowTitle, "Microsoft Visual Studio") != nullptr)
-        {
-            // Check for additional criteria to identify the specific instance
-            if (strstr(windowTitle,
-                       Resource::ResourceManager::GetInstance()->GetProjectPath().filename().string().c_str()) !=
-                nullptr)
-            {
-                // We found the specific instance of Visual Studio
-                *reinterpret_cast<HWND*>(lParam) = hwnd;
-                return FALSE; // Stop enumerating windows
-            }
-        }
-
-        return TRUE; // Continue enumerating windows
-    }
 
     void Utils::OS::OpenWithVS(const std::filesystem::path& filePath)
     {
-        // Find the Visual Studio window by its class name or window title
+        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
+        std::string command = "cd " + editorToolPath.parent_path().generic_string();
+        command += " && " + editorToolPath.filename().generic_string() + " ";
+        const std::string slnPath = (Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
+            Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln")).string();
+        command += slnPath;
         std::string windowName = Resource::ResourceManager::GetProjectPath().filename().stem().string() +
             " - Microsoft Visual Studio";
-
-        HWND hwnd = nullptr; // This will hold the window handle of the specific instance
-
-        // Enumerate windows to find the specific instance of Visual Studio
-        EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&hwnd));
-        if (!hwnd)
+        if (!IsWindowOpen(windowName))
         {
-            const std::string slnPath = (Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
-                Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln")).string();
-            if (!std::filesystem::exists(slnPath))
+            ShellExecute(nullptr, "open", editorToolPath.generic_string().c_str(), slnPath.c_str(), nullptr, SW_SHOWNORMAL);
+			
+            Utils::ElapsedTimer timer;
+            while (!IsWindowOpen(windowName))
             {
-                PrintError("Can't find %s, the solution need to be generated", slnPath.c_str());
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                double elapsedTime = timer.GetElapsedTime().AsSeconds();
+                if (elapsedTime > 5.0f)
+                    return;
             }
-            const std::string command = "start \"\" \"" + slnPath + "\"";
-            system(command.c_str());
         }
-        else
+    
+        HWND hwnd = static_cast<HWND>(GetWindow(windowName));
+        if (hwnd)
         {
             // Visual Studio window exists, bring it to the foreground
             SetForegroundWindow(hwnd);
             SetActiveWindow(hwnd);
 
-            //std::string command = " /edit ";
-            //const std::string env = "devenv.exe";
-            //const std::string newPath = "\"" + path.string() + "\"";
-            //command += newPath;
+            std::string command = " /edit ";
+            const std::string env = editorToolPath.generic_string() ;
+            const std::string newPath = "\"" + filePath.string() + "\"";
+            command += newPath;
 
-            //// Open file with the first instance of Visual Studio
-            //ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
+            // Open file with the first instance of Visual Studio
+            ShellExecuteA(hwnd, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
         }
     }
 
