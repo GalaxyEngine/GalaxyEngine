@@ -33,6 +33,7 @@ namespace GALAXY
 			static void OpenWithVSCode(const Path& path);
 #ifdef _WIN32
 			static void OpenWithVS(const Path& path);
+			static void OpenWithRider(const Path& path);
 #endif
 #endif
 

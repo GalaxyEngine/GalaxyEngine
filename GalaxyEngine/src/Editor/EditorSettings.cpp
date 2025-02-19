@@ -176,7 +176,9 @@ namespace GALAXY
 
     void Editor::EditorSettings::DisplayExternalToolTab()
     {
+        Vec2f buttonSize = {ImGui::GetContentRegionAvail().x, 0};
         ScriptEditorToolType externalToolID = Core::Application::GetInstance().GetEditorSettings().GetScriptEditorToolType();
+        ImGui::SetNextItemWidth(buttonSize.x);
         if (ImGui::BeginCombo("Script Editor Tool", m_scriptEditorTools[externalToolID].name.c_str()))
         {
             for (auto& i : m_scriptEditorTools)
@@ -200,19 +202,19 @@ namespace GALAXY
             }
             ImGui::EndCombo();
         }
-        if (ImGui::Button("Compile code"))
+        if (ImGui::Button("Compile code", buttonSize))
         {
             Scripting::ScriptEngine::CompileCode();
         }
-        if (ImGui::Button("Reload Project DLL"))
+        if (ImGui::Button("Reload Project DLL", buttonSize))
         {
             Scripting::ScriptEngine::GetInstance()->ReloadDLL();
         }
-        if (ImGui::Button("Generate solution"))
+        if (ImGui::Button("Generate solution", buttonSize))
         {
             Scripting::ScriptEngine::GenerateSolution(GetScriptEditorToolType());
         }
-        if (ImGui::Button("Open solution"))
+        if (ImGui::Button("Open solution", buttonSize))
         {
             Scripting::ScriptEngine::OpenSolution(GetScriptEditorToolType());
         }
@@ -328,6 +330,7 @@ namespace GALAXY
             newCurrent.path = Utils::FindTool::FindVS();
             break;
         case ScriptEditorToolType::Rider:
+            newCurrent.path = Utils::FindTool::FindRider();
             break;
         case ScriptEditorToolType::Custom:
             if (newCurrent.path.empty())

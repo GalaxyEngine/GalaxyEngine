@@ -315,13 +315,16 @@ namespace GALAXY
 		}
 	}
 
-	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorToolType tool)
+	std::filesystem::path Scripting::ScriptEngine::GetSLNPath()
 	{
-		OpenFileWithScriptEditor(Resource::ResourceManager::GetProjectPath().string() + "\"", tool);
+		return Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
+			Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln");
 	}
 
-	void Scripting::ScriptEngine::OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorToolType tool)
+	void Scripting::ScriptEngine::OpenSolution(Editor::ScriptEditorToolType tool)
 	{
+		Path path = Resource::ResourceManager::GetProjectPath().string() + "\"";
+		
 		Editor::EditorSettings editorSettings = Core::Application::GetInstance().GetEditorSettings();
 		Path currentEditorToolPath = editorSettings.GetCurrentScriptEditorToolPath();
 		switch (tool)
@@ -334,7 +337,7 @@ namespace GALAXY
 			}
 		case Editor::ScriptEditorToolType::Rider:
 			{
-				Utils::OS::OpenWithRider(path);
+				Utils::OS::OpenWithRider(GetSLNPath());
 				break;
 			}
 #endif

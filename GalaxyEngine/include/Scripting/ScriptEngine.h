@@ -50,9 +50,11 @@ namespace GALAXY
 
 			static void GenerateSolution(Editor::ScriptEditorToolType tool);
 
-			static void OpenSolution(Editor::ScriptEditorToolType tool);
+#ifdef _WIN32
+			static std::filesystem::path GetSLNPath();
+#endif
 
-			static void OpenFileWithScriptEditor(const std::filesystem::path& path, Editor::ScriptEditorToolType tool);
+			static void OpenSolution(Editor::ScriptEditorToolType tool);
 #endif
 
 			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);

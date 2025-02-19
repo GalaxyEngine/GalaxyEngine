@@ -15,6 +15,7 @@
 #include <regex>
 
 #include "Render/Framebuffer.h"
+#include "Scripting/ScriptEngine.h"
 #include "Utils/Time.h"
 #include "Wrapper/ImageLoader.h"
 
@@ -25,7 +26,180 @@
 #endif
 
 namespace GALAXY
-{
+{    
+#ifdef _WIN32
+
+    struct VSAppInfo {
+        std::string displayName;
+        std::string version;
+        std::string productPath;
+        std::string installationPath;  // Example of an extra field
+    };
+
+    using VSAppInfos = std::vector<VSAppInfo>;
+
+    VSAppInfos ParseVSWhereResult(const std::string& input) {
+        VSAppInfos apps;
+        
+        // Fields to search for
+        std::vector<std::string> fields = { "installationVersion", "productPath",
+    	    "displayName", "installationPath" };
+
+        // Regex pattern for key-value pairs
+        std::regex fieldRe(R"((\w+):\s*([^\r\n]+))");
+        
+        // Find each instance block by detecting "instanceId:" as a separator
+        std::regex instanceRe(R"(instanceId:\s*[^\r\n]+)");
+        auto instanceStart = std::sregex_iterator(input.begin(), input.end(), instanceRe);
+        auto instanceEnd = std::sregex_iterator();
+
+        for (auto it = instanceStart; it != instanceEnd; ++it) {
+            // Get the substring for this instance
+            auto startPos = it->position();
+            auto nextPos = (std::next(it) != instanceEnd) ? std::next(it)->position() : input.length();
+            std::string instanceBlock = input.substr(startPos, nextPos - startPos);
+            
+            // Extract fields
+            std::unordered_map<std::string, std::string> fieldValues;
+            std::sregex_iterator fieldStart(instanceBlock.begin(), instanceBlock.end(), fieldRe);
+            std::sregex_iterator fieldEnd;
+            
+            for (auto fit = fieldStart; fit != fieldEnd; ++fit) {
+                fieldValues[(*fit)[1].str()] = (*fit)[2].str();
+            }
+
+            // Ensure required fields exist before adding to the result
+            if (fieldValues.count("displayName") && fieldValues.count("installationVersion") && fieldValues.count("productPath")) {
+                apps.emplace_back(VSAppInfo{
+                    fieldValues["displayName"],
+                    fieldValues["installationVersion"],
+                    fieldValues["productPath"],
+                    fieldValues.count("installationPath") ? fieldValues["installationPath"] : ""  // Optional field
+                });
+            }
+        }
+        return apps;
+    }
+    
+	std::filesystem::path Utils::FindTool::FindVS()
+	{
+		std::filesystem::path result;
+
+		std::filesystem::path vsPath = OS::GetEnvVar("VSINSTALLDIR");
+		if (vsPath.empty())
+		{
+			vsPath = OS::GetEnvVar("ProgramFiles(x86)");
+			if (vsPath.empty())
+			{
+				vsPath = OS::GetEnvVar("ProgramFiles");
+			}
+			if (!vsPath.empty())
+			{
+				vsPath /= "Microsoft Visual Studio\\Installer";
+			}
+		}
+		
+		if (vsPath.empty())
+		{
+			return result;
+		}
+
+		std::string command = "cd \"" + vsPath.string() + "\" && " + "vswhere.exe";
+		std::string output = OS::RunCommand(command, false);
+
+		VSAppInfos apps = ParseVSWhereResult(output);
+
+		//Choose the latest version of Visual Studio
+		std::sort(apps.begin(), apps.end(), [](const VSAppInfo& a, const VSAppInfo& b) {
+			return a.version > b.version;
+		});
+
+		if (apps.size() > 0)
+		{
+			result = apps[0].productPath;
+		}
+		
+		return result;
+	}
+    
+    // Helper function: Enumerate versioned subkeys (ignoring "vAny") and retrieve the "installDir" value.
+    inline bool GetRiderInstallLocation(HKEY hKeyRoot, std::string& installLocation)
+    {
+        HKEY hKey;
+        const char* baseSubKeyPath = "SOFTWARE\\JetBrains\\Rider";
+        // Open the base key. Use KEY_WOW64_64KEY for the 64-bit registry view.
+        LONG result = RegOpenKeyExA(hKeyRoot, baseSubKeyPath, 0, KEY_READ | KEY_WOW64_64KEY, &hKey);
+        if (result != ERROR_SUCCESS) {
+            return false;
+        }
+
+        bool found = false;
+        DWORD index = 0;
+        char subKeyName[256];
+        DWORD subKeyNameSize = sizeof(subKeyName);
+        
+        // Enumerate all subkeys under "SOFTWARE\\JetBrains\\Rider"
+        while (RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS)
+        {
+            // Skip the "vAny" key, which does not contain an installDir value.
+            if (_stricmp(subKeyName, "vAny") == 0) {
+                index++;
+                subKeyNameSize = sizeof(subKeyName);
+                continue;
+            }
+            
+            // Check if the subkey name starts with 'V' (e.g., "V2022.1", "V2023.2", etc.)
+            if (subKeyName[0] == 'V' || subKeyName[0] == 'v')
+            {
+                HKEY hSubKey;
+                // Open the version-specific subkey.
+                result = RegOpenKeyExA(hKey, subKeyName, 0, KEY_READ | KEY_WOW64_64KEY, &hSubKey);
+                if (result == ERROR_SUCCESS)
+                {
+                    char pathBuffer[MAX_PATH];
+                    DWORD bufferSize = sizeof(pathBuffer);
+                    // Attempt to retrieve the "installDir" value from the subkey.
+                    result = RegQueryValueExA(hSubKey, "installDir", nullptr, nullptr, reinterpret_cast<LPBYTE>(pathBuffer), &bufferSize);
+                    RegCloseKey(hSubKey);
+                    if (result == ERROR_SUCCESS)
+                    {
+                        installLocation = std::string(pathBuffer);
+                        found = true;
+                        break; // Found the installation directory, so exit the loop.
+                    }
+                }
+            }
+            index++;
+            subKeyNameSize = sizeof(subKeyName); // Reset size for the next iteration.
+        }
+        RegCloseKey(hKey);
+        return found;
+    }
+
+    // Retrieves the full path to the Rider executable by checking both HKCU and HKLM.
+    inline std::string GetRiderExePath()
+    {
+        std::string installLocation;
+
+        // First, try looking under HKEY_CURRENT_USER.
+        if (!GetRiderInstallLocation(HKEY_CURRENT_USER, installLocation))
+        {
+            // If not found, try under HKEY_LOCAL_MACHINE.
+            if (!GetRiderInstallLocation(HKEY_LOCAL_MACHINE, installLocation))
+                return "";  // Rider installation not found.
+        }
+        
+        // Construct the full path to the Rider executable.
+        std::string exePath = installLocation + "\\bin\\rider64.exe";
+        return exePath;
+    }
+
+	std::filesystem::path Utils::FindTool::FindRider()
+	{
+		return GetRiderExePath();
+	}
+#endif
+    
     std::filesystem::path GALAXY::Utils::OS::GetUserAppDataFolder()
     {
         std::filesystem::path result;
@@ -400,8 +574,7 @@ namespace GALAXY
         Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
         std::string command = "cd " + editorToolPath.parent_path().generic_string();
         command += " && " + editorToolPath.filename().generic_string() + " ";
-        const std::string slnPath = (Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022" / (
-            Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln")).string();
+        const std::string slnPath = Scripting::ScriptEngine::GetSLNPath().generic_string();
         command += slnPath;
         std::string windowName = Resource::ResourceManager::GetProjectPath().filename().stem().string() +
             " - Microsoft Visual Studio";
@@ -438,14 +611,16 @@ namespace GALAXY
 
     void Utils::OS::OpenWithRider(const std::filesystem::path& filePath)
     {
-        //TODO : Fix this, rider isn't recognized as a command
-        auto prevPath = std::filesystem::current_path();
-        std::string riderPath = "rider";
-        const std::string slnPath = (Resource::ResourceManager::GetProjectPath().filename().stem().string() + ".sln");
-        std::filesystem::current_path(Resource::ResourceManager::GetAssetPath().parent_path() / "vsxmake2022");
-        const std::string command = riderPath + " \"" + slnPath + "\"";
-        std::system(command.c_str());
-        std::filesystem::current_path(prevPath);
+        Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
+        const std::string slnPath = Scripting::ScriptEngine::GetSLNPath().generic_string();
+        
+        std::string command = slnPath;
+        command += " ";
+        const std::string env = editorToolPath.generic_string();
+        const std::string newPath = "\"" + filePath.string() + "\"";
+        command += newPath;
+        // Open file with the first instance of Rider
+        ShellExecuteA(nullptr, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
     }
 
     // Global variables

@@ -19,6 +19,7 @@ namespace GALAXY
 		{
 #ifdef _WIN32
 			std::filesystem::path FindVS();
+			std::filesystem::path FindRider();
 #endif
 		}
 	}

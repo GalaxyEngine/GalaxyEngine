@@ -16,6 +16,7 @@
 
 #include "Editor/Gizmo.h"
 #include "Editor/UI/EditorUIManager.h"
+#include "Resource/Script.h"
 #include "Utils/OS.h"
 
 void Editor::UI::Inspector::Draw()
@@ -273,7 +274,7 @@ void Editor::UI::Inspector::RightClickPopup()
 				auto filePath = Scripting::ScriptEngine::GetFilePathForScript(scriptComponent->GetComponentName());
 				if (!filePath.empty())
 				{
-					Scripting::ScriptEngine::OpenFileWithScriptEditor(filePath, Core::Application::GetInstance().GetEditorSettings().GetScriptEditorToolType());
+					Resource::Script::OpenScript(filePath);
 					m_rightClicked.reset();
 					ImGui::CloseCurrentPopup();
 				}

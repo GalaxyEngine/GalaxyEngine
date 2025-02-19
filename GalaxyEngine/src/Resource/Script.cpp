@@ -106,6 +106,11 @@ END_FILE()
 			OpenWithVS(path);
 			break;
 		}
+		case Editor::ScriptEditorToolType::Rider:
+		{
+			OpenWithRider(path);
+			break;
+		}
 #endif
 		case Editor::ScriptEditorToolType::VisualStudioCode:
 		{
@@ -126,6 +131,10 @@ END_FILE()
 	void Resource::Script::OpenWithVS(const Path& path)
 	{
 		Utils::OS::OpenWithVS(path);
+	}
+	void Resource::Script::OpenWithRider(const Path& path)
+	{
+		Utils::OS::OpenWithRider(path);
 	}
 #endif
 #endif
