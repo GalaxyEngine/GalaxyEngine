@@ -456,6 +456,7 @@ namespace GALAXY
     }
     
     struct FindWindowData {
+        FindWindowData(std::string title) : title(std::move(title)) {}
         std::string title  = "";  
         void*       handle = nullptr;
         bool        found  = false;         
@@ -484,7 +485,7 @@ namespace GALAXY
     bool Utils::OS::IsWindowOpen(const std::string& windowTitle)
     {
 #ifdef _WIN32
-        FindWindowData data{ windowTitle, false };
+        FindWindowData data{ windowTitle };
 
         EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
 
@@ -498,7 +499,7 @@ namespace GALAXY
     void* Utils::OS::GetWindow(const std::string& windowTitle)
     {
 #ifdef _WIN32
-        FindWindowData data{ windowTitle, false };
+        FindWindowData data{ windowTitle };
 
         EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
 
@@ -769,7 +770,7 @@ namespace GALAXY
     }
 #elif defined(__linux__)
 	
-    void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { Assert(false && "Not implemented yet"); }
+    void Utils::OS::DisplayImageInPopup(const Wrapper::Image& image, int windowWidth, int windowHeight) { ASSERT(false && "Not implemented yet"); }
 	
 #endif // _WIN32
 
