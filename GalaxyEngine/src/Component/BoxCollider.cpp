@@ -65,6 +65,16 @@ namespace GALAXY
         return worldSupport;
     }
 
+    Mat4 Component::BoxCollider::GetInverseInertia(float Mass) const
+    {
+        Vec3f Scale = m_size * GetTransform()->GetWorldScale();
+        Mat4 Result(1);
+        Result[0][0] = (Scale.y * Scale.y + Scale.z * Scale.z) * Mass / 12.f;
+        Result[1][1] = (Scale.x * Scale.x + Scale.z * Scale.z) * Mass / 12.f;
+        Result[2][2] = (Scale.x * Scale.x + Scale.y * Scale.y) * Mass / 12.f;
+        return Result;
+    }
+
 #ifdef WITH_EDITOR
     void Component::BoxCollider::OnEditorDraw()
     {

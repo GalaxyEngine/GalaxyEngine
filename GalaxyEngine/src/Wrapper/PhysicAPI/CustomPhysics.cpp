@@ -12,6 +12,7 @@
 #include "Core/Application.h"
 
 #include "Core/GameObject.h"
+#include "Physic/Plane.h"
 #include "Resource/Mesh.h"
 #include "Utils/Time.h"
 
@@ -19,76 +20,268 @@
 #define EPA_MAX_NUM_FACES 64
 #define EPA_MAX_NUM_LOOSE_EDGES 32
 #define EPA_MAX_NUM_ITERATIONS 64
-    
+
 // Define custom hash function for Vec3f
-namespace std {
+namespace std
+{
     template <>
-    struct hash<Vec3f> {
-        size_t operator()(const Vec3f& v) const {
+    struct hash<Vec3f>
+    {
+        size_t operator()(const Vec3f& v) const
+        {
             return hash<float>()(v.x) ^ (hash<float>()(v.y) << 1) ^ (hash<float>()(v.z) << 2);
         }
     };
 }
+
 using namespace Wrapper::PhysicAPI;
+
 namespace GALAXY
 {
+    Point::Point(const Vec3f& searchDir, Component::Collider* a, Component::Collider* b)
+    {
+        CalculateSupport(searchDir, a, b);
+    }
 
+    void Point::CalculateSupport(const Vec3f& searchDir, Component::Collider* a, Component::Collider* b)
+    {
+        supB = b->Support(searchDir);
+        supA = a->Support(-searchDir);
+        point = supB - supA;
+    }
+    
     bool CustomPhysicsAPI::InitializeAPI()
     {
+        m_dTOffset = 0.f;
+        m_staticCountMax = 25;
+        m_staticMaxPosMagn = 0.0004f;
         PrintLog("Custom Physics Initialized");
         return true;
     }
 
-    CustomPhysicsAPI::~CustomPhysicsAPI()
-    {
-    }
-
     void CustomPhysicsAPI::InternalUpdate()
     {
+        m_collisionInfos.clear();
         std::vector<ColliderPair> objects = BroadPhase();
 
         for (ColliderPair& pair : objects)
         {
             Vec3f mtv = Vec3f::Zero();
-            CollisionPoints points;
+            CollisionInfo info;
             // PrintLog("Testing pair %ull - %ull", pair.first->GetGameObject()->GetUUID(), pair.second->GetGameObject()->GetUUID());
-            if (GJK(pair.first, pair.second, points))
+            if (GJK(pair.first, pair.second, info))
             {
                 pair.first->SetDebugCollide(true);
                 pair.second->SetDebugCollide(true);
-                
 
-                ResolveCollisions(pair.first, pair.second, points);
+                m_collisionInfos.push_back(info);
+
+                ResolveCollisions(pair.first, pair.second, info);
             }
         }
     }
-    void CustomPhysicsAPI::ResolveCollisions(Component::Collider* collider1,
-                                           Component::Collider* collider2,
-                                           const CollisionPoints& collisionPoints)
+
+    void CustomPhysicsAPI::IntegrateAccel(float dt) const
     {
-        auto instance = Renderer::GetInstance();
-        m_prevPoints = collisionPoints;
-        // Loop through each contact point provided by EPA/GJK.
-        for (const CollisionPoint& contact : collisionPoints)
+        for (auto& body : m_objectSet)
         {
-            // Retrieve the rigidbody components if they exist.
-            Shared<Component::RigidBody> body1 = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
-            Shared<Component::RigidBody> body2 = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
-            
-            if (body1)
+            Shared<Component::RigidBody> rigidBody = body.lock();
+
+            float inverseMass = rigidBody->GetInverseMass();
+
+            Vec3f vel = rigidBody->GetVelocity();
+            Vec3f force = rigidBody->GetForce();
+            Vec3f accel = force * inverseMass;
+
+            if (accel.Length() > 10 && inverseMass > 0.f)
             {
-                // body1->SetGravityForce(Vec3f::Zero());
-                // body1->SetVelocity(Vec3f::Zero());
+                rigidBody->StaticPositionCount = 0;
             }
-            else if (body2)
+
+            if (inverseMass > 0)
             {
-                // body2->SetGravityForce(Vec3f::Zero());
-                // body2->SetVelocity(Vec3f::Zero());
+                accel += rigidBody->GetGravityForce();
             }
-            continue;
+
+            vel += accel * dt;
+            rigidBody->SetVelocity(vel);
+
+            Vec3f torque = rigidBody->GetTorque();
+            Vec3f angVel = rigidBody->GetAngularVelocity();
+
+            rigidBody->UpdateInertiaTensor();
+
+            Vec3f angAccel = rigidBody->GetInertiaTensor().MultiplyPoint3x4(torque);
+            angVel += angAccel * dt;
+
+            rigidBody->SetAngularVelocity(angVel);
         }
     }
 
+    void CustomPhysicsAPI::ResolveCollisions(Component::Collider* collider1,
+                                             Component::Collider* collider2,
+                                             const CollisionInfo& collisionInfo)
+    {
+        // Retrieve rigid bodies from both colliders.
+        Shared<Component::RigidBody> bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
+        Shared<Component::RigidBody> bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
+
+        if (!bodyA && !bodyB)
+            return;
+
+        // Get transforms (assumes each GameObject provides a GetTransform() method).
+        auto transformA = collider1->GetGameObject()->GetTransform();
+        auto transformB = collider2->GetGameObject()->GetTransform();
+
+        float aInvMass = bodyA ? bodyA->GetInverseMass() : 0;
+        float bInvMass = bodyB ? bodyB->GetInverseMass() : 0;
+
+        Vec3f aAngularVelocity = bodyA ? bodyA->GetAngularVelocity() : Vec3f::Zero();
+        Vec3f bAngularVelocity = bodyB ? bodyB->GetAngularVelocity() : Vec3f::Zero();
+
+        Vec3f aVelocity = bodyA ? bodyA->GetVelocity() : Vec3f::Zero();
+        Vec3f bVelocity = bodyB ? bodyB->GetVelocity() : Vec3f::Zero();
+
+        // (Angular drag is retrieved but not used here.)
+        float aAngularDrag = bodyA ? bodyA->GetAngularDrag() : 0;
+        float bAngularDrag = bodyB ? bodyB->GetAngularDrag() : 0;
+        
+        auto inverseInertiaTensorA = bodyA ? bodyA->GetInverseInertiaTensor() : Mat4::Identity();
+        auto inverseInertiaTensorB = bodyB ? bodyB->GetInverseInertiaTensor() : Mat4::Identity();
+        
+        float totalMass = aInvMass + bInvMass;
+        if (totalMass == 0)
+            return; // two static objects collided
+
+        auto p = collisionInfo.point;
+        
+        // ----- Positional Correction -----
+        if (bodyA)
+        {
+            transformA->SetWorldPosition(transformA->GetWorldPosition() -
+                (p.normal * p.depth * (aInvMass / totalMass)));
+        }
+        if (bodyB)
+        {
+            transformB->SetWorldPosition(transformB->GetWorldPosition() +
+                (p.normal * p.depth * (bInvMass / totalMass)));
+        }
+
+        // ----- Impulse Resolution -----
+        Vec3f relativeA = p.localA;
+        Vec3f relativeB = p.localB;
+
+        Vec3f angVelocityA =
+            angVelocityA.Cross(relativeA);
+        Vec3f angVelocityB =
+            angVelocityB.Cross(relativeB);
+
+        Vec3f fullVelocityA = aVelocity + angVelocityA;
+        Vec3f fullVelocityB = bVelocity + angVelocityB;
+
+        Vec3f contactVelocity = fullVelocityB - fullVelocityA;
+
+        float impulseForce = contactVelocity.Dot(p.normal);
+
+        // now to work out the effect of inertia ....
+        Vec3f inertiaA = inverseInertiaTensorA.MultiplyPoint3x4(relativeA.Cross(p.normal)).Cross(relativeA); //?
+        Vec3f inertiaB = inverseInertiaTensorB.MultiplyPoint3x4(relativeB.Cross(p.normal)).Cross(relativeB); //?
+        float angularEffect = (inertiaA + inertiaB).Dot(p.normal);
+
+        //float cRestitution = 0.66f; // disperse some kinetic energy
+        float cRestitution = collider1->GetRestitution() + collider2->GetRestitution();
+
+        float j = (-(1.0f + cRestitution) * impulseForce) /
+            (totalMass + angularEffect);
+
+        Vec3f fullImpulse = p.normal * j;
+
+        if (bodyA)
+        {
+            bodyA->SetVelocity(bodyA->GetVelocity() + (-fullImpulse * aInvMass));
+            bodyA->SetAngularVelocity(bodyA->GetAngularVelocity() + inverseInertiaTensorA.MultiplyPoint3x4(relativeA.Cross(-fullImpulse)));
+        }
+        if (bodyB)
+        {
+            bodyB->SetVelocity(bodyB->GetVelocity() + (fullImpulse * bInvMass));
+            bodyB->SetAngularVelocity(bodyB->GetAngularVelocity() + inverseInertiaTensorB.MultiplyPoint3x4(relativeB.Cross(fullImpulse)));
+        }        
+    }
+
+    void CustomPhysicsAPI::UpdateConstraints(float constraintDt)
+    {
+        
+    }
+
+    void CustomPhysicsAPI::IntegrateVelocity(float dt) const
+    {
+        float frameLinearDamping = 1.0f - (0.4f * dt);
+        for (auto& _body : m_objectSet)
+        {
+            auto body = _body.lock();
+            Component::Transform* transform = body->GetTransform();
+
+            Vec3f position = transform->GetWorldPosition();
+            Vec3f velocity = body->GetVelocity();
+
+            Vec3f dPosition = velocity * dt;
+            float mag_position = (velocity * dt).Length();
+
+            if (dPosition.Length() < m_staticMaxPosMagn)
+            {
+                body->StaticPositionCount++;
+            }
+
+            if (body->StaticPositionCount < m_staticCountMax)
+            {
+                position += velocity * dt;
+
+                transform->SetWorldPosition(position);
+
+                velocity = velocity * frameLinearDamping;
+                body->SetVelocity(velocity);
+
+                Quat rotation = transform->GetWorldRotation();
+                Vec3f angularVelocity = body->GetAngularVelocity();
+
+                Vec3f dAngle = angularVelocity * dt;
+                float mag_angle = (angularVelocity * dt).Length();
+
+                Vec3f a = angularVelocity * dt * 0.5f;
+
+                rotation = rotation + (Quat(a.x, a.y, a.z, 0) * rotation);
+                rotation.Normalize();
+
+                transform->SetWorldRotation(rotation);
+
+                float frameAngularDamping = 1.0f - (0.4f * dt);
+                angularVelocity = angularVelocity * frameAngularDamping;
+                body->SetAngularVelocity(angularVelocity);
+            }
+            else
+            {
+                body->StaticPositionCount = m_staticCountMax;
+                body->SetVelocity(Vec3f::Zero());
+            }
+            
+        }
+        
+    }
+
+    //This is the fixed timestep we'd LIKE to have
+    const int   idealHZ = 120;
+    const float idealDT = 1.0f / idealHZ;
+
+    /*
+    This is the fixed update we actually have...
+    If physics takes too long it starts to kill the framerate, it'll drop the 
+    iteration count down until the FPS stabilises, even if that ends up
+    being at a low rate. 
+    */
+    int realHZ		= idealHZ;
+    float realDT	= idealDT;
+    int constraintIterationCount = 1;
+    
     void CustomPhysicsAPI::Update()
     {
 #ifdef WITH_EDITOR
@@ -101,20 +294,63 @@ namespace GALAXY
         std::erase_if(m_objectSet, [](const Weak<Component::RigidBody>& body) { return body.expired(); });
         std::erase_if(m_colliderSet, [](const Weak<Component::Collider>& collider) { return collider.expired(); });
 
-        /*
-        for (auto& body : m_objectMap)
+        //TODO: Update AABB for broadphases
+
+        Utils::ElapsedTimer timer;
+        m_dTOffset += dt; //We accumulate time delta here - there might be remainders from previous frame!
+        while (m_dTOffset >= realDT)
         {
-            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
+            IntegrateAccel(realDT);
+            std::vector<ColliderPair> objects = BroadPhase();
+
+            for (auto& object : objects)
             {
-                Component::Transform* transform = rigidbody->GetTransform();
-                Vec3f position = transform->GetWorldPosition();
-                Quat rotation = transform->GetWorldRotation();
-                // body.second.m_position = position;
-                // body.second.m_rotation = rotation;
+                CollisionInfo info;
+                if (GJK(object.first, object.second, info))
+                {
+                    object.first->SetDebugCollide(true);
+                    object.second->SetDebugCollide(false);
+                    
+                    info.framesLeft = m_numCollisionFrames;
+                    ResolveCollisions(object.first, object.second, info);
+                    m_collisionInfos.push_back(info);
+                }
+            }
+
+            float constraintDt = realDT /  (float)constraintIterationCount;
+            for (int i = 0; i < constraintIterationCount; ++i) {
+                UpdateConstraints(constraintDt);	
+            }
+            IntegrateVelocity(realDT); //update positions from new velocity changes
+
+            m_dTOffset -= realDT;
+        }
+        m_collisionInfos.clear();
+
+        timer.Stop();
+        float updateTime = timer.GetElapsedTime().AsSeconds();
+
+        //Uh oh, physics is taking too long...
+        if (updateTime > realDT) {
+            realHZ /= 2;
+            realDT *= 2;
+            PrintLog("Dropping iteration count due to long physics time...(now %d)", realHZ);
+        }
+        else if(dt*2 < realDT) { //we have plenty of room to increase iteration count!
+            int temp = realHZ;
+            realHZ *= 2;
+            realDT /= 2;
+
+            if (realHZ > idealHZ) {
+                realHZ = idealHZ;
+                realDT = idealDT;
+            }
+            if (temp != realHZ) {
+                PrintLog("Raising iteration count due to short physics time...(now %d)", realHZ);
             }
         }
-        */
 
+        /*
         for (const Weak<Component::RigidBody>& _body : m_objectSet)
         {
             Shared<Component::RigidBody> body = _body.lock();
@@ -128,33 +364,23 @@ namespace GALAXY
 
             transform->SetWorldPosition(newPosition);
             transform->SetWorldRotation(newRotation);
-        }
-        /*
 
-        for (auto& body : m_objectMap)
-        {
-            if (auto rigidbody = dynamic_cast<Component::RigidBody*>(body.first))
-            {
-                Component::Transform* transform = rigidbody->GetTransform();
-                transform->SetWorldPosition(body.second.m_position);
-                transform->SetWorldRotation(body.second.m_rotation);
-            }
+            body->UpdateInertiaTensor();
         }
         */
-        InternalUpdate();
     }
 
     void CustomPhysicsAPI::DrawDebug()
     {
         auto instance = Renderer::GetInstance();
-        for (const CollisionPoint& contact : m_prevPoints)
+        for (const CollisionInfo& info : m_collisionInfos)
         {
-            instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
-            instance->DrawLine(contact.point, contact.point + contact.normal * contact.depth, Vec4f(1, 0, 0, 1), 10.f);
-            // instance->DrawSimpleWireSphere(contact.point, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
-            // instance->DrawLine(contact.point, contact.point + contact.normal * contact.depth, Vec4f(1, 0, 0, 1), 10.f);
-        
-            return;
+            instance->DrawSimpleWireSphere(info.point.localA, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+            instance->DrawSimpleWireSphere(info.point.localB, 0.1f, 32, Vec4f(0, 0, 1, 1), 10.f);
+            instance->DrawLine(info.point.localA, info.point.localA + info.point.normal * info.point.depth,
+                               Vec4f(1, 0, 0, 1), 10.f);
+            instance->DrawLine(info.point.localB, info.point.localB + info.point.normal * info.point.depth,
+                               Vec4f(0, 0, 1, 1), 10.f);
         }
     }
 
@@ -229,12 +455,50 @@ namespace GALAXY
         rigidbodyComponent->SetVelocity(velocity + force / mass);
     }
 
+    void CustomPhysicsAPI::AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force,
+        const Vec3f& position)
+    {
+        auto object = m_objectSet.find(weak); // Use auto, no reference
+        if (object == m_objectSet.end())
+        {
+            PrintError("Could not find rigidbody associated with component 0x%x !", weak);
+            return;
+        }
+        Component::RigidBody* rigidbodyComponent = object->lock().get();
+        
+        Component::Transform* transform = rigidbodyComponent->GetTransform();
+        if (!transform)
+            return;
+
+        Vec3f centerOfMass = transform->GetWorldPosition();
+        Vec3f offset = position - centerOfMass;
+        
+        AddForce(weak, force);
+        
+        Vec3f torque = offset.Cross(force);
+        
+        rigidbodyComponent->SetAngularVelocity(rigidbodyComponent->GetAngularVelocity() + torque);
+    }
+
+    void CustomPhysicsAPI::AddTorque(const Weak<Component::RigidBody>& weak, const Vec3f& torque)
+    {
+        auto object = m_objectSet.find(weak); // Use auto, no reference
+        if (object == m_objectSet.end())
+        {
+            PrintError("Could not find rigidbody associated with component 0x%x !", weak);
+            return;
+        }
+        Component::RigidBody* rigidbodyComponent = object->lock().get();
+        Vec3f angularVelocity = rigidbodyComponent->GetAngularVelocity();
+        rigidbodyComponent->SetAngularVelocity(angularVelocity + torque);
+    }
+
 #pragma region GJK
     Weak<Resource::Mesh> CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
     {
         if (!mesh)
             return {};
-        
+
         auto it = m_convexMesh.find(mesh->GetUUID());
         if (it != m_convexMesh.end())
             return it->second;
@@ -248,25 +512,28 @@ namespace GALAXY
             mesh->OnLoad.Bind([this, mesh] { ComputeConvexVertices(mesh); });
 
         return convexMesh;
-    }   
+    }
 
     std::vector<Vec3f> CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& positions)
     {
         std::vector<Vec3f> convexVertices;
-        struct Face {
+        struct Face
+        {
             Vec3f a, b, c;
             Vec3f normal;
             float distance;
             std::vector<Vec3f> outsidePoints;
 
-            Face(const Vec3f& a, const Vec3f& b, const Vec3f& c) : a(a), b(b), c(c) {
+            Face(const Vec3f& a, const Vec3f& b, const Vec3f& c) : a(a), b(b), c(c)
+            {
                 Vec3f ab = b - a;
                 Vec3f ac = c - a;
                 normal = ab.Cross(ac).GetNormalize();
                 distance = normal.Dot(a);
             }
 
-            float distanceTo(const Vec3f& p) const {
+            float distanceTo(const Vec3f& p) const
+            {
                 return normal.Dot(p) - distance;
             }
         };
@@ -278,9 +545,11 @@ namespace GALAXY
 
         Vec3f B = A;
         float maxDistSq = 0.0f;
-        for (const Vec3f& p : positions) {
+        for (const Vec3f& p : positions)
+        {
             float distSq = (p - A).LengthSquared();
-            if (distSq > maxDistSq) {
+            if (distSq > maxDistSq)
+            {
                 maxDistSq = distSq;
                 B = p;
             }
@@ -289,13 +558,15 @@ namespace GALAXY
         Vec3f C;
         float maxLineDistSq = 0.0f;
         Vec3f AB = B - A;
-        for (const Vec3f& p : positions) {
+        for (const Vec3f& p : positions)
+        {
             Vec3f AP = p - A;
             float t = AP.Dot(AB) / AB.LengthSquared();
             t = std::max(0.0f, std::min(1.0f, t));
             Vec3f proj = A + AB * t;
             float distSq = (p - proj).LengthSquared();
-            if (distSq > maxLineDistSq) {
+            if (distSq > maxLineDistSq)
+            {
                 maxLineDistSq = distSq;
                 C = p;
             }
@@ -305,9 +576,11 @@ namespace GALAXY
         float planeDist = normal.Dot(A);
         Vec3f D;
         float maxPlaneDist = 0.0f;
-        for (const Vec3f& p : positions) {
+        for (const Vec3f& p : positions)
+        {
             float dist = std::abs(normal.Dot(p) - planeDist);
-            if (dist > maxPlaneDist) {
+            if (dist > maxPlaneDist)
+            {
                 maxPlaneDist = dist;
                 D = p;
             }
@@ -323,25 +596,32 @@ namespace GALAXY
         faces.emplace_back(B, D, C);
 
         std::vector<Vec3f> remainingPoints;
-        for (const Vec3f& p : positions) {
+        for (const Vec3f& p : positions)
+        {
             if (p != A && p != B && p != C && p != D)
                 remainingPoints.push_back(p);
         }
 
         // Assign outside points to initial faces
-        for (Face& face : faces) {
-            for (auto it = remainingPoints.begin(); it != remainingPoints.end();) {
-                if (face.distanceTo(*it) > 1e-6f) {
+        for (Face& face : faces)
+        {
+            for (auto it = remainingPoints.begin(); it != remainingPoints.end();)
+            {
+                if (face.distanceTo(*it) > 1e-6f)
+                {
                     face.outsidePoints.push_back(*it);
                     it = remainingPoints.erase(it);
-                } else {
+                }
+                else
+                {
                     ++it;
                 }
             }
         }
 
         std::vector<Face> activeFaces = faces;
-        while (!activeFaces.empty()) {
+        while (!activeFaces.empty())
+        {
             Face face = activeFaces.back();
             activeFaces.pop_back();
 
@@ -351,9 +631,11 @@ namespace GALAXY
             // Find the furthest point from the face
             Vec3f p = face.outsidePoints[0];
             float maxDist = face.distanceTo(p);
-            for (const Vec3f& q : face.outsidePoints) {
+            for (const Vec3f& q : face.outsidePoints)
+            {
                 float dist = face.distanceTo(q);
-                if (dist > maxDist) {
+                if (dist > maxDist)
+                {
                     maxDist = dist;
                     p = q;
                 }
@@ -365,16 +647,22 @@ namespace GALAXY
             newFaces.emplace_back(face.b, face.c, p);
             newFaces.emplace_back(face.c, face.a, p);
 
-            for (Face& newFace : newFaces) {
-                for (auto it = face.outsidePoints.begin(); it != face.outsidePoints.end();) {
-                    if (*it == p) {
+            for (Face& newFace : newFaces)
+            {
+                for (auto it = face.outsidePoints.begin(); it != face.outsidePoints.end();)
+                {
+                    if (*it == p)
+                    {
                         ++it;
                         continue;
                     }
-                    if (newFace.distanceTo(*it) > 1e-6f) {
+                    if (newFace.distanceTo(*it) > 1e-6f)
+                    {
                         newFace.outsidePoints.push_back(*it);
                         it = face.outsidePoints.erase(it);
-                    } else {
+                    }
+                    else
+                    {
                         ++it;
                     }
                 }
@@ -386,7 +674,8 @@ namespace GALAXY
         // Instead of gathering unique vertices, we now output triangle vertices in the proper order.
         // Each face (triangle) is added as three consecutive vertices.
         std::vector<Vec3f> sortedVertices;
-        for (const Face& face : faces) {
+        for (const Face& face : faces)
+        {
             sortedVertices.push_back(face.a);
             sortedVertices.push_back(face.b);
             sortedVertices.push_back(face.c);
@@ -404,17 +693,18 @@ namespace GALAXY
         std::vector<Vec3f> positions = mesh->GetPositionVertices();
         std::vector<Vec3f> convexVertices;
 
-        if (positions.empty()) {
+        if (positions.empty())
+        {
             convexMesh->SetMeshPosition(convexVertices);
             return;
         }
-        
+
         convexVertices = ComputeConvexHull(positions);
 
         convexMesh->SetMeshPosition(convexVertices);
         PrintLog("Convex mesh created for %s", mesh->GetMeshName().c_str());
     }
-#pragma endregion 
+#pragma endregion
 
     struct SAPAABB
     {
@@ -475,9 +765,9 @@ namespace GALAXY
 
         return result;
     }
-    
+
     // Triangle case
-    void UpdateSimplex3(const Vec3f& a, Vec3f& b, Vec3f& c, Vec3f& d, int& simpDim, Vec3f& searchDir)
+    void UpdateSimplex3(const Point& a, Point& b, Point& c, Point& d, int& simpDim, Vec3f& searchDir)
     {
         /* Required winding order:
         //  b
@@ -488,27 +778,27 @@ namespace GALAXY
         //  | /
         //  c
         */
-        Vec3f n = (b - a).Cross(c - a); // Triangle's normal
-        Vec3f AO = -a; // Direction to origin
+        Vec3f n = (b.point - a.point).Cross(c.point - a.point); // Triangle's normal
+        Vec3f AO = -a.point; // Direction to origin
 
         // Determine which feature is closest to origin, make that the new simplex
 
         simpDim = 2;
-        if ((b - a).Cross(n).Dot(AO) > 0) // Closest to edge AB
+        if ((b.point - a.point).Cross(n).Dot(AO) > 0) // Closest to edge AB
         {
             c = a;
             //simp_dim = 2;
-            searchDir = (b-a).Cross(AO).Cross(b-a);
+            searchDir = (b.point - a.point).Cross(AO).Cross(b.point - a.point);
             return;
         }
-        if (n.Cross(c - a).Dot(AO) > 0) // Closest to edge AC
+        if (n.Cross(c.point - a.point).Dot(AO) > 0) // Closest to edge AC
         {
             b = a;
             //simp_dim = 2;
-            searchDir = (c - a).Cross(AO).Cross(c - a);
+            searchDir = (c.point - a.point).Cross(AO).Cross(c.point - a.point);
             return;
         }
-        
+
         simpDim = 3;
         if (n.Dot(AO) > 0) // Above triangle
         {
@@ -527,17 +817,17 @@ namespace GALAXY
     }
 
     // Tetrahedral case
-    bool UpdateSimplex4(const Vec3f& a, Vec3f& b, Vec3f& c, Vec3f& d, int& simpDim, Vec3f& searchDir)
+    bool UpdateSimplex4(const Point& a, Point& b, Point& c, Point& d, int& simpDim, Vec3f& searchDir)
     {
         // a is peak/tip of pyramid, BCD is the base (counterclockwise winding order)
-	    // We know a priori that origin is above BCD and below a
+        // We know a priori that origin is above BCD and below a
 
         // Get normals of three new faces
-        Vec3f ABC = (b - a).Cross(c - a);
-        Vec3f ACD = (c - a).Cross(d - a);
-        Vec3f ADB = (d - a).Cross(b - a);
+        Vec3f ABC = (b.point - a.point).Cross(c.point - a.point);
+        Vec3f ACD = (c.point - a.point).Cross(d.point - a.point);
+        Vec3f ADB = (d.point - a.point).Cross(b.point - a.point);
 
-        Vec3f AO = -a; // dir to origin
+        Vec3f AO = -a.point; // dir to origin
         simpDim = 3;
 
         // Plane-test origin with 3 faces
@@ -549,54 +839,71 @@ namespace GALAXY
         */
         if (ABC.Dot(AO) > 0) // In front of ABC
         {
-    	    d = c;
-    	    c = b;
-    	    b = a;
+            d = c;
+            c = b;
+            b = a;
             searchDir = ABC;
-    	    return false;
+            return false;
         }
         if (ACD.Dot(AO) > 0) // In front of ACD
         {
-    	    b = a;
+            b = a;
             searchDir = ACD;
-    	    return false;
+            return false;
         }
         if (ADB.Dot(AO) > 0) // In front of ADB
         {
-    	    c = d;
-    	    d = b;
-    	    b = a;
+            c = d;
+            d = b;
+            b = a;
             searchDir = ADB;
-    	    return false;
+            return false;
         }
 
         // else inside tetrahedron; enclosed!
         return true;
     }
 
+    void Barycentric(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& p, float& u, float& v, float& w)
+    {
+        Vec3f v0 = b - a, v1 = c - a, v2 = p - a;
+        float d00 = v0.Dot(v0);
+        float d01 = v0.Dot(v1);
+        float d11 = v1.Dot(v1);
+        float d20 = v2.Dot(v0);
+        float d21 = v2.Dot(v1);
+        float denom = d00 * d11 - d01 * d01;
+        v = (d11 * d20 - d01 * d21) / denom;
+        w = (d00 * d21 - d01 * d20) / denom;
+        u = 1.0f - v - w;
+    }
+
     // Expanding Polytope Algorithm
     // Find minimum translation vector to resolve collision
-    CollisionPoints CustomPhysicsAPI::EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d, Component::Collider* coll1, Component::Collider* coll2)
+    void CustomPhysicsAPI::EPA(const Point& a, const Point& b, const Point& c, const Point& d,
+                               Component::Collider* coll1, Component::Collider* coll2, CollisionInfo& collisionInfo)
     {
-        Vec3f faces[4 * EPA_MAX_NUM_FACES]; // Array of faces, each with 3 verts and a normal
-        
+        Point faces[EPA_MAX_NUM_FACES][4]; // Array of faces, each with 3 verts and a normal
+
         //Init with final simplex from GJK
-        faces[0]  = a;
-        faces[1]  = b;
-        faces[2]  = c;
-        faces[3]  = (b-a).Cross(c-a).GetNormalize(); //ABC
-        faces[4]  = a;
-        faces[5]  = c;
-        faces[6]  = d;
-        faces[7]  = (c-a).Cross(d-a).GetNormalize(); //ACD
-        faces[8]  = a;
-        faces[9]  = d;
-        faces[10] = b;
-        faces[11] = (d-a).Cross(b-a).GetNormalize(); //ADB
-        faces[12] = b;
-        faces[13] = d;
-        faces[14] = c;
-        faces[15] = (d-b).Cross(c-b).GetNormalize(); //BDC
+
+        //Init with final simplex from GJK
+        faces[0][0] = a;
+        faces[0][1] = b;
+        faces[0][2] = c;
+        faces[0][3].point = (b.point - a.point).Cross(c.point - a.point).GetNormalize(); //ABC
+        faces[1][0] = a;
+        faces[1][1] = c;
+        faces[1][2] = d;
+        faces[1][3].point = (c.point - a.point).Cross(d.point - a.point).GetNormalize(); //ACD
+        faces[2][0] = a;
+        faces[2][1] = d;
+        faces[2][2] = b;
+        faces[2][3].point = (d.point - a.point).Cross(b.point - a.point).GetNormalize(); //ADB
+        faces[3][0] = b;
+        faces[3][1] = d;
+        faces[3][2] = c;
+        faces[3][3].point = (d.point - b.point).Cross(c.point - b.point).GetNormalize(); //BDC
 
         int num_faces = 4;
         int closest_face;
@@ -604,11 +911,11 @@ namespace GALAXY
         for (int iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
         {
             // Find face that's closest to origin
-            float min_dist = faces[0].Dot(faces[3]);
+            float min_dist = faces[0][0].point.Dot(faces[0][3].point);
             closest_face = 0;
-            for (int i=1; i<num_faces; i++)
+            for (int i = 1; i < num_faces; i++)
             {
-                float dist = faces[i * 4].Dot(faces[i * 4 + 3]);
+                float dist = faces[i][0].point.Dot(faces[i][3].point);
                 if (dist < min_dist)
                 {
                     min_dist = dist;
@@ -617,139 +924,180 @@ namespace GALAXY
             }
 
             // Search normal to face that's closest to origin
-            Vec3f search_dir = faces[closest_face * 4 + 3]; 
-            Vec3f p = coll2->Support(search_dir) - coll1->Support(-search_dir);
+            Vec3f search_dir = faces[closest_face][3].point;
+            Point p = Point(search_dir, coll1, coll2);
 
-            if (p.Dot(search_dir) - min_dist < EPA_TOLERANCE)
+            if (p.point.Dot(search_dir) - min_dist < EPA_TOLERANCE)
             {
-                // Convergence (new point is not significantly further from origin)
-                return {CollisionPoint(faces[closest_face * 4 + 3] * p.Dot(search_dir))}; // dot vertex with normal to resolve collision along normal!
+                Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(
+                    faces[closest_face][0].point, faces[closest_face][1].point,
+                    faces[closest_face][2].point); //plane of closest triangle face
+                Vec3f projectionPoint = closestPlane.ProjectPointOntoPlane(Vec3f::Zero());
+                //projecting the origin onto the triangle(both are in Minkowski space)
+                float u, v, w;
+                Barycentric(faces[closest_face][0].point, faces[closest_face][1].point, faces[closest_face][2].point,
+                            projectionPoint, u, v,
+                            w); //finding the barycentric coordinate of this projection point to the triangle
+
+                //The contact points just have the same barycentric coordinate in their own triangles which  are composed by result coordinates of support function 
+                Vec3f localA = faces[closest_face][0].supA * u + faces[closest_face][1].supA * v + faces[closest_face][
+                    2].supA * w;
+                Vec3f localB = faces[closest_face][0].supB * u + faces[closest_face][1].supB * v + faces[closest_face][
+                    2].supB * w;
+                float penetration = (localA - localB).Length();
+                Vec3f normal = (localA - localB).GetNormalize();
+
+                //Convergence (new point is not significantly further from origin)
+                localA -= coll1->GetTransform()->GetWorldPosition();
+                localB -= coll2->GetTransform()->GetWorldPosition();
+
+                collisionInfo.AddContactPoint(localA, localB, normal, penetration);
+                return;
             }
 
-            Vec3f loose_edges[4 * EPA_MAX_NUM_LOOSE_EDGES + 2]; //keep track of edges we need to fix after removing faces
+            Point loose_edges[EPA_MAX_NUM_LOOSE_EDGES][2]; //keep track of edges we need to fix after removing faces
             int num_loose_edges = 0;
 
             //Find all triangles that are facing p
             for (int i = 0; i < num_faces; i++)
             {
-                if (faces[i * 4 + 3].Dot(p - faces[i * 4]) > 0) // triangle i faces p, remove it
+                if (faces[i][3].point.Dot(p.point - faces[i][0].point) > 0) //triangle i faces p, remove it
                 {
-                    // Add removed triangle's edges to loose edge list.
-                    // If it's already there, remove it (both triangles it belonged to are gone)
-                    for (int j = 0; j < 3; j++) // Three edges per face
+                    //Add removed triangle's edges to loose edge list.
+                    //If it's already there, remove it (both triangles it belonged to are gone)
+                    for (int j = 0; j < 3; j++) //Three edges per face
                     {
-                        Vec3f current_edge[2] = { faces[i * 4 + j], faces[i * 4 + (j + 1) % 3] };
+                        Point current_edge[2] = {faces[i][j], faces[i][(j + 1) % 3]};
                         bool found_edge = false;
-                        for (int k = 0; k < num_loose_edges; k++) // Check if current edge is already in list
+                        for (int k = 0; k < num_loose_edges; k++) //Check if current edge is already in list
                         {
-                            if (loose_edges[k * 4 + 1] == current_edge[0] && loose_edges[k * 4] == current_edge[1])
+                            if (loose_edges[k][1].point == current_edge[0].point && loose_edges[k][0].point ==
+                                current_edge[1].point)
                             {
-                                // Edge is already in the list, remove it
-                                // THIS ASSUMES EDGE CAN ONLY BE SHARED BY 2 TRIANGLES (which should be true)
-                                // THIS ALSO ASSUMES SHARED EDGE WILL BE REVERSED IN THE TRIANGLES (which 
-                                // should be true provided every triangle is wound CCW)
-                                loose_edges[k * 4]     = loose_edges[(num_loose_edges-1) * 4]; // Overwrite current edge
-                                loose_edges[k * 4 + 1] = loose_edges[(num_loose_edges-1) * 4 + 1]; // with last edge in list
+                                loose_edges[k][0] = loose_edges[num_loose_edges - 1][0]; //Overwrite current edge
+                                loose_edges[k][1] = loose_edges[num_loose_edges - 1][1]; //with last edge in list
                                 num_loose_edges--;
                                 found_edge = true;
-                                k = num_loose_edges; // exit loop because edge can only be shared once
+                                k = num_loose_edges; //exit loop because edge can only be shared once
                             }
-                        }
+                        } //endfor loose_edges
 
-                        if (!found_edge) // add current edge to list
+                        if (!found_edge)
                         {
-                            // assert(num_loose_edges < EPA_MAX_NUM_LOOSE_EDGES);
-                            if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES)
-                                break;
-
-                            loose_edges[num_loose_edges * 4]     = current_edge[0];
-                            loose_edges[num_loose_edges * 4 + 1] = current_edge[1];
+                            //add current edge to list
+                            // assert(num_loose_edges<EPA_MAX_NUM_LOOSE_EDGES);
+                            if (num_loose_edges >= EPA_MAX_NUM_LOOSE_EDGES) break;
+                            loose_edges[num_loose_edges][0] = current_edge[0];
+                            loose_edges[num_loose_edges][1] = current_edge[1];
                             num_loose_edges++;
                         }
                     }
 
-                    // Remove triangle i from list
-                    faces[i * 4]     = faces[(num_faces-1) * 4];
-                    faces[i * 4 + 1] = faces[(num_faces-1) * 4 + 1];
-                    faces[i * 4 + 2] = faces[(num_faces-1) * 4 + 2];
-                    faces[i * 4 + 3] = faces[(num_faces-1) * 4 + 3];
+                    //Remove triangle i from list
+                    faces[i][0] = faces[num_faces - 1][0];
+                    faces[i][1] = faces[num_faces - 1][1];
+                    faces[i][2] = faces[num_faces - 1][2];
+                    faces[i][3] = faces[num_faces - 1][3];
                     num_faces--;
                     i--;
-                }
+                } //endif p can see triangle i
             }
-            
+
             //Reconstruct polytope with p added
             for (int i = 0; i < num_loose_edges; i++)
             {
                 // assert(num_faces<EPA_MAX_NUM_FACES);
-                if (num_faces >= EPA_MAX_NUM_FACES)
-                    break;
-                faces[num_faces * 4] = loose_edges[i * 4];
-                faces[num_faces * 4 + 1] = loose_edges[i * 4 + 1];
-                faces[num_faces * 4 + 2] = p;
-                faces[num_faces * 4 + 3] = (loose_edges[i * 4]-loose_edges[i * 4 + 1]).Cross(loose_edges[i * 4] - p).GetNormalize();
+                if (num_faces >= EPA_MAX_NUM_FACES) break;
+                faces[num_faces][0] = loose_edges[i][0];
+                faces[num_faces][1] = loose_edges[i][1];
+                faces[num_faces][2] = p;
+                faces[num_faces][3].point = (loose_edges[i][0].point - loose_edges[i][1].point).Cross(
+                    loose_edges[i][0].point - p.point).GetNormalize();
 
-                // Check for wrong normal to maintain CCW winding
+                //Check for wrong normal to maintain CCW winding
                 float bias = 0.000001f; //in case dot result is only slightly < 0 (because origin is on face)
-                if (faces[num_faces * 4].Dot(faces[num_faces * 4 + 3]) + bias < 0)
+                if (faces[num_faces][0].point.Dot(faces[num_faces][3].point) + bias < 0)
                 {
-                    Vec3f temp = faces[num_faces * 4];
-                    faces[num_faces * 4]     = faces[num_faces * 4 + 1];
-                    faces[num_faces * 4 + 1] = temp;
-                    faces[num_faces * 4 + 3] = -faces[num_faces * 4 + 3];
+                    Point temp = faces[num_faces][0];
+                    faces[num_faces][0] = faces[num_faces][1];
+                    faces[num_faces][1] = temp;
+                    faces[num_faces][3].point = -faces[num_faces][3].point;
                 }
                 num_faces++;
             }
         }
         PrintLog("EPA did not converge");
         //Return most recent closest point
-        return {CollisionPoint(faces[closest_face * 4 + 3] * faces[closest_face * 4].Dot(faces[closest_face * 4 + 3]))};
+        Vec3f search_dir = faces[closest_face][3].point;
+
+        Point p = Point(search_dir, coll1, coll2);
+
+        Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(faces[closest_face][0].point,
+                                                                 faces[closest_face][1].point,
+                                                                 faces[closest_face][2].point);
+        Vec3f projectionPoint = closestPlane.ProjectPointOntoPlane(Vec3f::Zero());
+        float u, v, w;
+        Barycentric(faces[closest_face][0].point, faces[closest_face][1].point, faces[closest_face][2].point,
+                    projectionPoint, u, v, w);
+        Vec3f localA = faces[closest_face][0].supA * u + faces[closest_face][1].supA * v + faces[closest_face][2].supA *
+            w;
+        Vec3f localB = faces[closest_face][0].supB * u + faces[closest_face][1].supB * v + faces[closest_face][2].supB *
+            w;
+        float penetration = (localA - localB).Length();
+        Vec3f normal = (localA - localB).GetNormalize();
+
+        collisionInfo.AddContactPoint(localA, localB, normal, penetration);
     }
 
     // Source : https://github.com/kevinmoran/GJK/blob/master
-    bool CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionPoints& collisionPoints)
+    bool CustomPhysicsAPI::GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionInfo& collisionInfo)
     {
-        Vec3f a,b,c,d;
-        Vec3f bWorldPos = coll1->GetTransform()->GetWorldPosition();
-        Vec3f aWorldPos = coll2->GetTransform()->GetWorldPosition();
+        collisionInfo.a = coll1->GetGameObject();
+        collisionInfo.b = coll2->GetGameObject();
 
-        Vec3f searchDir = bWorldPos - aWorldPos;
+        Vec3f* mtv = nullptr;
 
-        c = coll2->Support(searchDir) - coll1->Support(-searchDir);
-        searchDir = -c;
+        Vec3f coll1Pos = coll1->GetTransform()->GetWorldPosition();
+        Vec3f coll2Pos = coll2->GetTransform()->GetWorldPosition();
 
-        b = coll2->Support(searchDir) - coll1->Support(-searchDir);
+        Point a, b, c, d;
+        Vec3f searchDir = coll1Pos - coll2Pos;
 
-        if (b.Dot(searchDir) < 0)
-            return false;
+        c.CalculateSupport(searchDir, coll1, coll2);
+        searchDir = -c.point;
 
-        searchDir = (c - b).Cross(-b).Cross(c - b);
+        b.CalculateSupport(searchDir, coll1, coll2);
+
+        if (b.point.Dot(searchDir) < 0)
+            return false; //we didn't reach the origin, won't enclose it
+
+        searchDir = (c.point - b.point).Cross(-b.point).Cross(c.point - b.point);
         if (searchDir == Vec3f::Zero())
         {
-            searchDir = (c - b).Cross(Vec3f::Right());
+            searchDir = (c.point - b.point).Cross(Vec3f::Right());
             if (searchDir == Vec3f::Zero())
-                searchDir = (c - b).Cross(Vec3f::Forward());
+                searchDir = (c.point - b.point).Cross(Vec3f::Forward());
         }
         int simp_dim = 2; //simplex dimension
 
         constexpr int GJK_MAX_NUM_ITERATIONS = 64;
-        for(int iterations=0; iterations<GJK_MAX_NUM_ITERATIONS; iterations++)
+        for (int iterations = 0; iterations < GJK_MAX_NUM_ITERATIONS; iterations++)
         {
-            a = coll2->Support(searchDir) - coll1->Support(-searchDir);
-            if(a.Dot(searchDir)<0)
+            a.CalculateSupport(searchDir, coll1, coll2);
+            if (a.point.Dot(searchDir) < 0)
                 return false; //we didn't reach the origin, won't enclose it
-    
+
             simp_dim++;
-            if(simp_dim==3){
-                UpdateSimplex3(a,b,c,d,simp_dim,searchDir);
-            }
-            else if(UpdateSimplex4(a,b,c,d,simp_dim,searchDir))
+            if (simp_dim == 3)
             {
-                collisionPoints = EPA(a,b,c,d,coll1,coll2);
+                UpdateSimplex3(a, b, c, d, simp_dim, searchDir);
+            }
+            else if (UpdateSimplex4(a, b, c, d, simp_dim, searchDir))
+            {
+                EPA(a, b, c, d, coll1, coll2, collisionInfo);
                 return true;
             }
         }
         return false;
     }
-
 }

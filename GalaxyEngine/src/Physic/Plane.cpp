@@ -2,6 +2,23 @@
 #include "Physic/Plane.h"
 namespace GALAXY 
 {
+	Vec3f Physic::Plane::ProjectPointOntoPlane(const Vec3f& point) const
+	{
+		return point - normal * GetDistanceFromPlane(point);
+	}
+
+	Physic::Plane Physic::Plane::PlaneFromTri(const Vec3f& v0, const Vec3f& v1, const Vec3f& v2)
+	{
+		Vec3f v1v0 = v1-v0;
+		Vec3f v2v0 = v2-v0;
+
+		Vec3f normal = v1v0.Cross(v2v0);
+
+	
+		normal.Normalize();
+		float d = -v0.Dot(normal);
+		return Plane(normal, d);
+	}
 
 	void Physic::Plane::DebugDraw() const
 	{

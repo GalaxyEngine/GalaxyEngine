@@ -75,6 +75,12 @@ namespace GALAXY
 		return GetWorldRotation() * Vec3f::Up();
 	}
 
+	inline Vec3f Component::Transform::TransformPoint(Vec3f point)
+	{
+		//TODO MAKE CONST IN MATH LIB
+		return m_modelMatrix.MultiplyPoint3x4(point);
+	}
+
 	inline Vec3f Component::Transform::GetRight() const
 	{
 		return GetWorldRotation() * Vec3f::Right();

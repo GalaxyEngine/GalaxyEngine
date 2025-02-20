@@ -24,37 +24,50 @@ namespace GALAXY
             Component::Collider* second;
         };
         
-        struct CollisionPoint
+        struct ContactPoint
         {
-            CollisionPoint() {}
-            CollisionPoint(Vec3f _point, Vec3f _normal, float _depth) : point(_point), normal(_normal), depth(_depth) {}
-            CollisionPoint(Vec3f mtv, Vec3f _point = Vec3f::Zero())
-            : point(_point), normal(mtv.GetNormalize()), depth(mtv.Length()) {}
+            ContactPoint() {}
             
-            Vec3f point;
+            Vec3f localA;
+            Vec3f localB;
             Vec3f normal;
             float depth = 0.f;
         };
 
-        struct EPAVertex {
+        struct CollisionInfo
+        {
+            Core::GameObject* a;
+            Core::GameObject* b;
+            ContactPoint point;
+            int framesLeft;
+
+            void AddContactPoint(const Vec3f& localA, const Vec3f& localB, const Vec3f& normal, float depth)
+            {
+                point.localA = localA;
+                point.localB = localB;
+                point.normal = normal;
+                point.depth = depth;
+            }
+        };
+
+        struct Point {
             Vec3f point;
             Vec3f supA;   
-            Vec3f supB;   
+            Vec3f supB;
+
+            Point() = default;
+            Point(const Vec3f& searchDir, Component::Collider* a, Component::Collider* b);
+
+            void CalculateSupport(const Vec3f& searchDir, Component::Collider* a, Component::Collider* b);
         };
 
-        struct EPAFace {
-            EPAVertex v[3];
-            Vec3f normal;  
-            float distance;
-        };
-
-        typedef std::vector<CollisionPoint> CollisionPoints;
+        typedef std::vector<ContactPoint> CollisionPoints;
         
         class CustomPhysicsAPI : public Wrapper::PhysicsWrapper
         {
         public:
             CustomPhysicsAPI() = default;
-            ~CustomPhysicsAPI();
+            ~CustomPhysicsAPI() = default;
 
             void Update() override;
             void DrawDebug() override;
@@ -70,6 +83,8 @@ namespace GALAXY
             void SetDefaultGravity(const Vec3f& value) override;
 
             void AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force) override;
+            void AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force, const Vec3f& position) override;
+            void AddTorque(const Weak<Component::RigidBody>& weak, const Vec3f& torque) override;
 
             Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) override;
             static std::vector<Vec3f> ComputeConvexHull(const std::vector<Vec3f>& positions);
@@ -77,19 +92,26 @@ namespace GALAXY
         private:
             bool InitializeAPI() override;
             void InternalUpdate();
-            void ResolveCollisions(Component::Collider* collider1, Component::Collider* collider2, const CollisionPoints& collisionPoints);
+            void IntegrateAccel(float dt) const;
+            void ResolveCollisions(Component::Collider* collider1, Component::Collider* collider2, const CollisionInfo& collisionInfo);
+            void UpdateConstraints(float constraintDt);
+            void IntegrateVelocity(float dt) const;
             
             std::vector<ColliderPair> BroadPhase() const;
-            static CollisionPoints EPA(const Vec3f& a, const Vec3f& b, const Vec3f& c, const Vec3f& d,
-                                            Component::Collider* coll1, Component::Collider* coll2);
-            static bool GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionPoints& collisionPoints);
+            static void EPA(const Point& a, const Point& b, const Point& c, const Point& d,
+                            Component::Collider* coll1, Component::Collider* coll2, CollisionInfo& collisionInfo);
+            static bool GJK(Component::Collider* coll1, Component::Collider* coll2, CollisionInfo& collisionInfo);
 
         private:
             std::set<Weak<Component::RigidBody>, WeakPtrCompare<Component::RigidBody>> m_objectSet;
             std::set<Weak<Component::Collider>, WeakPtrCompare<Component::Collider>> m_colliderSet;
             Vec3f m_defaultGravity = Vec3f(0.f, -9.81f, 0.f);
 
-            CollisionPoints m_prevPoints;
+            std::vector<CollisionInfo> m_collisionInfos;
+			float m_dTOffset = 0.f;
+			int m_numCollisionFrames = 5;
+			float m_staticMaxPosMagn = 0.f;
+            float m_staticCountMax = 0.f;
 
             std::unordered_map<Core::UUID, Shared<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
         };

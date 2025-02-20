@@ -66,6 +66,8 @@ namespace GALAXY {
 			[[nodiscard]] inline Vec3f GetUp() const;
 
 			// === Other Methods === //
+			inline Vec3f TransformPoint(Vec3f point);
+			
 			inline Vec3f TransformDirection(Vec3f direction) const;
 
 			inline void RotateAround(Vec3f axis, float angle);

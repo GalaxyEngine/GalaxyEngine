@@ -22,11 +22,13 @@ namespace GALAXY
         class GALAXY_API Collider : public IComponent<Collider>
         {
         public:
+            Collider() = default;
+            Collider& operator=(const Collider& other) = default;
+            Collider(const Collider&) = default;
+            Collider(Collider&&) noexcept = default;
+            ~Collider() override = default;
 
             const char* GetComponentName() const override { return "Collider"; }
-
-            Quat m_offsetRot;
-            Vec3f m_offsetPos;
 
             virtual ColliderType GetType() const;
 
@@ -38,13 +40,21 @@ namespace GALAXY
 
             void OnUpdate() override;
 
+            float GetRestitution() const { return p_restitution; }
+            void SetRestitution(float value) { p_restitution = value; }
+
             virtual Physic::AABB GetAABB() { return {}; }
             virtual Vec3f Support(const Vec3f& direction);
 
             void SetDebugCollide(bool value) { p_debugCollide = value; }
             bool GetDebugCollide() const { return p_debugCollide; }
+
+            virtual Mat4 GetInverseInertia(float Mass) const { return {}; }
+            
         protected:
             Weak<RigidBody> p_attachedRigidbody;
+
+            float p_restitution = 0.5f;
 
             bool p_debugCollide = false;
             Vec3f p_supportDirection = Vec3f(1, 0, 0);

@@ -1,7 +1,10 @@
 #include "pch.h"
 #include "Component/RigidBody.h"
 
+#include "Component/Collider.h"
+#include "Component/Transform.h"
 #include "Core/Application.h"
+#include "Core/GameObject.h"
 #include "Wrapper/PhysicsWrapper.h"
 
 namespace GALAXY 
@@ -51,5 +54,38 @@ namespace GALAXY
     void Component::RigidBody::AddForce(const Vec3f& force)
     {
         Wrapper::PhysicsWrapper::GetInstance()->AddForce(weak_from_this(), force);
+    }
+
+    void Component::RigidBody::AddForceAtPosition(const Vec3f& force, const Vec3f& position)
+    {
+        Wrapper::PhysicsWrapper::GetInstance()->AddForceAtPosition(weak_from_this(), force, position);
+    }
+
+    void Component::RigidBody::AddTorque(const Vec3f& torque)
+    {
+        Wrapper::PhysicsWrapper::GetInstance()->AddTorque(weak_from_this(), torque);
+    }
+
+    Mat4 Component::RigidBody::GetInertiaTensor() const
+    {
+        return m_inverseInertiaTensorLocal;
+    }
+
+    Mat4 Component::RigidBody::GetInverseInertiaTensor() const
+    {
+        Mat4 rotation = GetTransform()->GetWorldRotation().ToRotationMatrix();
+        return rotation * m_inverseInertiaTensorLocal * rotation.GetTranspose();
+    }
+
+    void Component::RigidBody::UpdateInertiaTensor()
+    {
+        Quat rotation = GetTransform()->GetWorldRotation();
+        Mat4 invOrientation = Mat4::CreateRotationMatrix(rotation.GetConjugate());
+        Mat4 orientation = Mat4::CreateRotationMatrix(rotation);
+
+        Shared<Collider> collider = GetGameObject()->GetComponent<Collider>();
+        
+        m_inverseInertiaTensorLocal = orientation *
+            collider->GetInverseInertia(m_mass) * invOrientation;
     }
 }

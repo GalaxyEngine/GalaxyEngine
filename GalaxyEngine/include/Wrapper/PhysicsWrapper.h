@@ -72,8 +72,10 @@ namespace GALAXY
             virtual void CreateMeshCollider(Weak<Component::MeshCollider> collider) = 0;
             virtual void DestroyMeshCollider(Weak<Component::MeshCollider> collider) = 0;
 
-            virtual void AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force) {};
-
+            virtual void AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force) {}
+            virtual void AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force, const Vec3f& position) {}
+            virtual void AddTorque(const Weak<Component::RigidBody>& weak, const Vec3f& torque) {}
+            
             virtual void SetDefaultGravity(const Vec3f& value) = 0;
             virtual Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) {return {};}
             virtual void ComputeConvexVertices(Shared<Resource::Mesh> mesh) {}

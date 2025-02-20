@@ -31,7 +31,9 @@ namespace GALAXY
             Vec3f GetSize() const { return m_size; }
 
             Physic::AABB GetAABB() override;
-            Vec3f Support(const Vec3f& direction) override; 
+            Vec3f Support(const Vec3f& direction) override;
+
+            Mat4 GetInverseInertia(float Mass) const override;
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
             

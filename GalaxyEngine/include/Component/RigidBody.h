@@ -26,6 +26,9 @@ namespace GALAXY
 
             float GetMass() const { return m_mass; }
             void SetMass(float mass) { m_mass = mass; }
+
+            float GetInverseMass() const { return m_mass == 0.0f ? 0.0f : 1.0f / m_mass; }
+            void SetInverseMass(float inverseMass) { m_mass = 1.0f / inverseMass; }
             
             float GetDrag() const { return m_drag; }
             void SetDrag(float drag) { m_drag = drag; }
@@ -42,13 +45,26 @@ namespace GALAXY
             void SetGravityForce(const Vec3f& gravityForce) { m_gravityForce = gravityForce; }
             Vec3f GetGravityForce() const { return m_gravityForce; }
             
+            Vec3f GetForce() const { return m_force; }
+            Vec3f GetTorque() const { return m_torque;}
+            
+            
             void OnStart() override;
             void OnDestroy() override;
 
+            // ================ Physics ================ //
             void AddForce(const Vec3f& force);
+            void AddForceAtPosition(const Vec3f& force, const Vec3f& position);
 
-        private:
+            void AddTorque(const Vec3f& torque);
             
+            Mat4 GetInertiaTensor() const;
+            Mat4 GetInverseInertiaTensor() const;
+
+            void UpdateInertiaTensor();
+        public:
+            int StaticPositionCount = 0;
+        private:
             float m_mass = 1.0f;
             float m_drag = 0.0f;
             float m_angularDrag = 0.0f;
@@ -57,6 +73,11 @@ namespace GALAXY
             Vec3f m_angularVelocity;
 
             Vec3f m_gravityForce = Vec3f::Up() * -9.81f;
+
+            Mat4 m_inverseInertiaTensorLocal = Mat4::Identity();
+
+            Vec3f m_force;
+            Vec3f m_torque;
         };
     }
 }
