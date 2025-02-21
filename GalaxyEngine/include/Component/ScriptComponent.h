@@ -13,6 +13,7 @@
 namespace GALAXY
 {
 	namespace Scripting { class ScriptEngine; }
+	namespace Core {class GameObject;}
 	namespace Component
 	{
 
@@ -53,6 +54,7 @@ namespace GALAXY
 
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;
+			
 		private:
 			void InitializeVariablesInfo();
 			void SetupVariables();

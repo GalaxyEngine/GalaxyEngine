@@ -40,7 +40,9 @@ namespace GALAXY
 		ImGui::SliderFloat("FOV", &p_fov, 25.f, 120.f);
 		ImGui::DragFloatRange2("Near/Far", &p_near, &p_far, 0.1f);
 		ImGui::ColorEdit4("Clear Color", &p_clearColor.x);
-		Resource::ResourceManager::ResourceField<Resource::Cubemap>(p_skybox, "Cubemap");
+		if (Resource::ResourceManager::ResourceField<Resource::Cubemap>(p_skybox, "Cubemap"))
+		{
+		}
 		std::string buttonName;
 		if (const Shared<Resource::PostProcessShader> shader = p_framebuffer->GetPostProcessShader().lock())
 			buttonName = shader->GetFileInfo().GetFileNameNoExtension();
@@ -100,7 +102,7 @@ namespace GALAXY
 	{
 		if (!p_skybox.lock() || !p_skybox.lock()->HasBeenSent() || !p_skybox.lock()->IsLoaded())
 			return;
-		Render::Skybox::Render(GetViewMatrix(), GetProjectionMatrix(), p_skybox);
+		Skybox::Render(GetViewMatrix(), GetProjectionMatrix(), p_skybox);
 		/*
 		for (const auto& shader : Resource::ResourceManager::GetAllResources<Resource::Shader>())
 		{

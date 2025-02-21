@@ -68,11 +68,29 @@ namespace GALAXY
     Mat4 Component::BoxCollider::GetInverseInertia(float Mass) const
     {
         Vec3f Scale = m_size * GetTransform()->GetWorldScale();
-        Mat4 Result(1);
-        Result[0][0] = (Scale.y * Scale.y + Scale.z * Scale.z) * Mass / 12.f;
-        Result[1][1] = (Scale.x * Scale.x + Scale.z * Scale.z) * Mass / 12.f;
-        Result[2][2] = (Scale.x * Scale.x + Scale.y * Scale.y) * Mass / 12.f;
-        return Result;
+
+        Vec3f fullWidth = Scale * 2;
+
+        Vec3f dimsSqr = fullWidth * fullWidth;
+
+        float inverseMass = 1.0f / Mass;
+        Vec3f inverseInertia;
+        inverseInertia.x = (12.0f * inverseMass) / (dimsSqr.y + dimsSqr.z);
+        inverseInertia.y = (12.0f * inverseMass) / (dimsSqr.x + dimsSqr.z);
+        inverseInertia.z = (12.0f * inverseMass) / (dimsSqr.x + dimsSqr.y);
+        return Mat4::CreateScaleMatrix(inverseInertia);
+    }
+
+    void Component::BoxCollider::Serialize(CppSer::Serializer& serializer)
+    {
+        Collider::Serialize(serializer);
+        serializer << CppSer::Pair::Key << "Size" << CppSer::Pair::Value << m_size;
+    }
+
+    void Component::BoxCollider::Deserialize(CppSer::Parser& parser)
+    {
+        Collider::Deserialize(parser);
+        m_size = parser["Size"].As<Vec3f>();
     }
 
 #ifdef WITH_EDITOR

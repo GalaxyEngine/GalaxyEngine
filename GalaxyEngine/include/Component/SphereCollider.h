@@ -32,6 +32,11 @@ namespace GALAXY
 
             Physic::AABB GetAABB() override;
             Vec3f Support(const Vec3f& direction) override;
+
+            void Serialize(CppSer::Serializer& serializer) override;
+            void Deserialize(CppSer::Parser& parser) override;
+
+            Mat4 GetInverseInertia(float Mass) const override;
         private:
             float m_size = 1;
 

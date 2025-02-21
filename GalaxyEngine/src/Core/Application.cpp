@@ -370,13 +370,14 @@ namespace GALAXY {
 			return;
 		}
 
+		bool shouldCallStart = false;
 		auto projectPath = Resource::ResourceManager::GetProjectPath();
 		if (mode == Editor::ApplicationMode::Play && IsEditorMode())
 		{
 			Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
 			currentScene->Save(projectPath / PLAYMODE_SCENE_PATH);
 
-			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
+			shouldCallStart = true;
 			
 		}
 		else if (mode == Editor::ApplicationMode::Editor && (IsPlayMode() || IsPauseMode()))
@@ -396,7 +397,12 @@ namespace GALAXY {
 		{
 			m_editorUI->GetSceneWindow()->SetShouldFocus(true);
 		}
-		
+
+		if (shouldCallStart)
+		{
+			Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
+			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
+		}
 	}
 
 	void Core::Application::MoveOneFrame()

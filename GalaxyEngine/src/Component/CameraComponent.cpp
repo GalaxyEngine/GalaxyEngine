@@ -111,6 +111,7 @@ namespace GALAXY
 		serializer << CppSer::Pair::Key << "Is Main Camera" << CppSer::Pair::Value << m_isMainCamera;
 		serializer << CppSer::Pair::Key << "View Mode" << CppSer::Pair::Value << static_cast<int>(p_viewMode);
 		Resource::IResource::SerializeResource(serializer, "PP Shader", p_framebuffer->GetPostProcessShader());
+		Resource::IResource::SerializeResource(serializer, "Skybox", p_skybox);
 	}
 
 	void Component::CameraComponent::Deserialize(CppSer::Parser& parser)
@@ -122,6 +123,7 @@ namespace GALAXY
 		m_isMainCamera = parser["Is Main Camera"].As<bool>();
 		m_postprocessID = parser["PP Shader"].As<uint64_t>();
 		p_viewMode = static_cast<Render::ViewMode>(parser["View Mode"].As<int>());
+		p_skybox = Resource::ResourceManager::GetOrLoad<Resource::Cubemap>(parser["Skybox"].As<uint64_t>());
 	}
 
 	void Component::CameraComponent::AfterLoad()

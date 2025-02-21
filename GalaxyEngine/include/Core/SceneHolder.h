@@ -11,7 +11,7 @@ namespace GALAXY {
 		class Scene;
 	}
 	namespace Core {
-		class SceneHolder
+		class GALAXY_API SceneHolder
 		{
 		public:
 			~SceneHolder();

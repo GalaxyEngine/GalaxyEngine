@@ -34,6 +34,9 @@ namespace GALAXY
             Vec3f Support(const Vec3f& direction) override;
 
             Mat4 GetInverseInertia(float Mass) const override;
+
+            void Serialize(CppSer::Serializer& serializer) override;
+            void Deserialize(CppSer::Parser& parser) override;
         private:
             Vec3f m_size = Vec3f(1, 1, 1);
             

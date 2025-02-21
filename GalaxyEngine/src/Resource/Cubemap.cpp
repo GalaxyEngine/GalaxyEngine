@@ -68,6 +68,12 @@ namespace GALAXY
         IResource::SerializeResource(serializer, "Texture", m_texture);
     }
 
+    void Resource::CubemapTexture::SetFace(uint32_t index, const Path& path)
+    {
+        Weak<Texture> texture = ResourceManager::GetOrLoad<Texture>(path);
+        SetFace(index, texture);
+    }
+
     void Resource::CubemapTexture::UpdateCubemap()
     {
         m_image = new Image(ImageLoader::Load(m_texture.lock()->GetFileInfo().GetFullPath()));
@@ -82,6 +88,11 @@ namespace GALAXY
             Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), textures[i]);
             ImageLoader::ImageFree(textures[i]);
         }
+    }
+
+    Shared<Resource::Texture> Resource::CubemapTexture::GetThumbnail() const
+    {
+        return m_texture.lock();
     }
 #pragma region SixSidedTexture
 
@@ -131,7 +142,7 @@ namespace GALAXY
             }
             else
             {
-                Wrapper::Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), Wrapper::Image());
+                Renderer::GetInstance()->SetCubemapFace(static_cast<int>(i), Image());
             }
         }
     }
@@ -146,7 +157,8 @@ namespace GALAXY
 
     void Resource::SixSidedTexture::UpdateFace(uint32_t index, const Path& path)
     {
-        UpdateFace(index, Resource::ResourceManager::GetOrLoad<Texture>(path));
+        Weak<Texture> texture = ResourceManager::GetOrLoad<Texture>(path);
+        UpdateFace(index, texture);
     }
 
     void Resource::SixSidedTexture::UpdateFace(uint32_t index, const Weak<Texture>& texture)
@@ -154,7 +166,7 @@ namespace GALAXY
         // TODO : Multi thread this
         auto renderer = Wrapper::Renderer::GetInstance();
         renderer->BindCubemap(p_owner);
-        m_textures[index] = texture;
+        SetFace(index, texture.lock());
         if (texture.lock())
         {
             Wrapper::Image image = Wrapper::ImageLoader::Load(
@@ -169,6 +181,16 @@ namespace GALAXY
         renderer->UnbindCubemap();
         //Save();
     }
+
+    void Resource::SixSidedTexture::SetFace(uint32_t index, Weak<Texture> texture)
+    {
+        m_textures[index].swap(texture);
+    }
+
+    Shared<Resource::Texture> Resource::SixSidedTexture::GetThumbnail() const
+    {
+        return m_textures[2].lock(); // Get top face
+    }
 #pragma endregion 
 
     Resource::Cubemap::Cubemap(const Path& fullPath) : IResource(fullPath)
@@ -179,6 +201,14 @@ namespace GALAXY
     Resource::Cubemap::~Cubemap()
     {
         Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
+        delete m_texture;
+    }
+
+    Path Resource::Cubemap::GetThumbnailPath() const
+    {
+        if (auto thumbnail = m_texture->GetThumbnail())
+            return thumbnail->GetFileInfo().GetFullPath();
+        return "";
     }
 
     void Resource::Cubemap::Load()
@@ -254,10 +284,10 @@ namespace GALAXY
         switch (type)
         {
         case CubemapType::Default:
-            m_texture = std::make_unique<CubemapTexture>(this);
+            m_texture = new CubemapTexture(this);
             break;
         case CubemapType::SixSided:
-            m_texture = std::make_unique<SixSidedTexture>(this);
+            m_texture = new SixSidedTexture(this);
             break;
         case CubemapType::Panoramic:
             PrintError("Cubemap Type not implemented : %s", p_fileInfo.GetFullPath().string().c_str());
@@ -267,8 +297,13 @@ namespace GALAXY
             break;
         }
     }
-
+    
+    void Resource::Cubemap::SetFaceTexture(int index, const Path& path) const
+    {
+        m_texture->SetFace(index, path);
+    }
 #ifdef WITH_EDITOR
+
     void Resource::Cubemap::ShowInInspector()
     {
         if (p_shouldBeLoaded && !p_loaded)

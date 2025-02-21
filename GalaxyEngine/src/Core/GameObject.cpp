@@ -8,6 +8,7 @@
 #include "Resource/Scene.h"
 
 #include "Component/ComponentHolder.h"
+#include "Component/ScriptComponent.h"
 #include "Core/Application.h"
 
 using namespace Core;

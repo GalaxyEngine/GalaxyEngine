@@ -43,7 +43,7 @@ namespace GALAXY {
 	}
 
 	namespace Resource {
-		class Scene : public IResource
+		class GALAXY_API Scene : public IResource
 		{
 		public:
 			explicit Scene(const Path& path);

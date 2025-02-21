@@ -38,6 +38,9 @@ namespace GALAXY
             EDITOR_ONLY void OnEditorDraw() override;
 #endif
 
+            void Serialize(CppSer::Serializer& serializer) override;
+            void Deserialize(CppSer::Parser& parser) override;
+
             void OnUpdate() override;
 
             float GetRestitution() const { return p_restitution; }

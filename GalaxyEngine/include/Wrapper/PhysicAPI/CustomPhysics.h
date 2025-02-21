@@ -111,7 +111,7 @@ namespace GALAXY
 			float m_dTOffset = 0.f;
 			int m_numCollisionFrames = 5;
 			float m_staticMaxPosMagn = 0.f;
-            float m_staticCountMax = 0.f;
+            int m_staticCountMax = 0;
 
             std::unordered_map<Core::UUID, Shared<Resource::Mesh>> m_convexMesh; // Convex mesh with mesh as key
         };

@@ -128,6 +128,8 @@ namespace GALAXY {
 		}
 		case ResourceType::Cubemap:
 			{
+				auto cubemap = ResourceManager::GetOrLoad<Resource::Cubemap>(path).lock();
+				m_icon = cubemap->GetTexture()->GetThumbnail();
 				//TODO Add icon to cubemap resource, draw a cube with the cubemap textures
 				break;
 			}
@@ -905,7 +907,7 @@ namespace GALAXY {
 				}
 				if (ImGui::Button("Cubemap", buttonSize))
 				{
-					const auto materialPath = m_currentFile->m_info.GetFullPath() / "New Cubemap.cubemap";
+					const auto materialPath = m_currentFile->m_info.GetFullPath() / "New Cubemap" CUBE_MAP_EXTENSION;
 					Resource::Cubemap::Create(materialPath);
 					const Shared<File> file = std::make_shared<File>(materialPath);
 					m_currentFile->AddChild(file);

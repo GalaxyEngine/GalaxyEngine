@@ -136,15 +136,8 @@ namespace GALAXY
         float aInvMass = bodyA ? bodyA->GetInverseMass() : 0;
         float bInvMass = bodyB ? bodyB->GetInverseMass() : 0;
 
-        Vec3f aAngularVelocity = bodyA ? bodyA->GetAngularVelocity() : Vec3f::Zero();
-        Vec3f bAngularVelocity = bodyB ? bodyB->GetAngularVelocity() : Vec3f::Zero();
-
         Vec3f aVelocity = bodyA ? bodyA->GetVelocity() : Vec3f::Zero();
         Vec3f bVelocity = bodyB ? bodyB->GetVelocity() : Vec3f::Zero();
-
-        // (Angular drag is retrieved but not used here.)
-        float aAngularDrag = bodyA ? bodyA->GetAngularDrag() : 0;
-        float bAngularDrag = bodyB ? bodyB->GetAngularDrag() : 0;
         
         auto inverseInertiaTensorA = bodyA ? bodyA->GetInverseInertiaTensor() : Mat4::Identity();
         auto inverseInertiaTensorB = bodyB ? bodyB->GetInverseInertiaTensor() : Mat4::Identity();
@@ -184,8 +177,8 @@ namespace GALAXY
         float impulseForce = contactVelocity.Dot(p.normal);
 
         // now to work out the effect of inertia ....
-        Vec3f inertiaA = inverseInertiaTensorA.MultiplyPoint3x4(relativeA.Cross(p.normal)).Cross(relativeA); //?
-        Vec3f inertiaB = inverseInertiaTensorB.MultiplyPoint3x4(relativeB.Cross(p.normal)).Cross(relativeB); //?
+        Vec3f inertiaA = inverseInertiaTensorA.MultiplyVector(relativeA.Cross(p.normal)).Cross(relativeA); //?
+        Vec3f inertiaB = inverseInertiaTensorB.MultiplyVector(relativeB.Cross(p.normal)).Cross(relativeB); //?
         float angularEffect = (inertiaA + inertiaB).Dot(p.normal);
 
         //float cRestitution = 0.66f; // disperse some kinetic energy
@@ -245,9 +238,8 @@ namespace GALAXY
                 Vec3f angularVelocity = body->GetAngularVelocity();
 
                 Vec3f dAngle = angularVelocity * dt;
-                float mag_angle = (angularVelocity * dt).Length();
 
-                Vec3f a = angularVelocity * dt * 0.5f;
+                Vec3f a = dAngle * 0.5f;
 
                 rotation = rotation + (Quat(a.x, a.y, a.z, 0) * rotation);
                 rotation.Normalize();
@@ -328,7 +320,7 @@ namespace GALAXY
         m_collisionInfos.clear();
 
         timer.Stop();
-        float updateTime = timer.GetElapsedTime().AsSeconds();
+        float updateTime = static_cast<float>(timer.GetElapsedTime().AsSeconds());
 
         //Uh oh, physics is taking too long...
         if (updateTime > realDT) {

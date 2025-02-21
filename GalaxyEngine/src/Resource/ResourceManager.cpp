@@ -103,7 +103,7 @@ namespace GALAXY
             AddResource<Prefab>(resourcePath);
             break;
         case ResourceType::Cubemap:
-            AddResource<Cubemap>(resourcePath);
+            GetOrLoad<Cubemap>(resourcePath);
             break;
         case ResourceType::Data:
             {
@@ -567,39 +567,39 @@ namespace GALAXY
         auto type = Utils::FileInfo::GetTypeFromExtension(fullPath.extension());
         switch (type)
         {
-        case Resource::ResourceType::Shader:
+        case ResourceType::Shader:
             return GetOrLoad<Shader>(fullPath, async);
-        case Resource::ResourceType::VertexShader:
+        case ResourceType::VertexShader:
             return GetOrLoad<VertexShader>(fullPath, async);
-        case Resource::ResourceType::FragmentShader:
+        case ResourceType::FragmentShader:
             return GetOrLoad<FragmentShader>(fullPath, async);
-        case Resource::ResourceType::GeometryShader:
+        case ResourceType::GeometryShader:
             return GetOrLoad<GeometryShader>(fullPath, async);
-        case Resource::ResourceType::Materials:
+        case ResourceType::Materials:
             return GetOrLoad<Material>(fullPath, async);
-        case Resource::ResourceType::PostProcessShader:
+        case ResourceType::PostProcessShader:
             return GetOrLoad<PostProcessShader>(fullPath, async);
-        case Resource::ResourceType::Material:
+        case ResourceType::Material:
             return GetOrLoad<Material>(fullPath, async);
-        case Resource::ResourceType::Mesh:
+        case ResourceType::Mesh:
             return GetOrLoad<Mesh>(fullPath, async);
-        case Resource::ResourceType::Texture:
+        case ResourceType::Texture:
             return GetOrLoad<Texture>(fullPath, async);
-        case Resource::ResourceType::Model:
+        case ResourceType::Model:
             return GetOrLoad<Model>(fullPath, async);
-        case Resource::ResourceType::Scene:
+        case ResourceType::Scene:
             return AddResource<Scene>(fullPath);
-        case Resource::ResourceType::Script:
+        case ResourceType::Script:
             return GetOrLoad<Script>(fullPath, async);
-        case Resource::ResourceType::Sound:
+        case ResourceType::Sound:
             return GetOrLoad<Sound>(fullPath, async);
-        case Resource::ResourceType::Cubemap:
+        case ResourceType::Cubemap:
             return GetOrLoad<Cubemap>(fullPath, async);
-        case Resource::ResourceType::Data:
+        case ResourceType::Data:
             return {};
         default:
             PrintError("Resource %s not handled", fullPath.string().c_str());
-            ASSERT(false);
+            // ASSERT(false);
             return {};
         }
     }

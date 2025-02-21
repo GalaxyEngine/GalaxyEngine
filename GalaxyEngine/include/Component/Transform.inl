@@ -40,6 +40,16 @@ namespace GALAXY
 		m_localScale = localScale;
 	}
 
+	inline void Component::Transform::AddLocalPosition(const Vec3f& localOffset)
+	{
+		SetLocalPosition(GetLocalPosition() + localOffset);
+	}
+
+	inline void Component::Transform::AddWorldPosition(const Vec3f& worldOffset)
+	{
+		SetWorldPosition(GetWorldPosition() + worldOffset);
+	}
+
 	inline Vec3f Component::Transform::GetLocalPosition() const
 	{
 		return m_localPosition;

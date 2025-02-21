@@ -64,21 +64,33 @@ namespace GALAXY {
 
 	void Wrapper::ImageLoader::ExtractSixSidedFromCubemap(const std::filesystem::path& cubemapPath)
 	{
+		using namespace Resource;
 		stbi_set_flip_vertically_on_load(0);
 
-		Wrapper::Image cubemap = Load(cubemapPath.string().c_str(), 4);
+		Image cubemapImage = Load(cubemapPath.string().c_str(), 4);
 
-		auto faces = CubemapTextureToSixSided(cubemap);
+		std::array<Image, 6> faces = CubemapTextureToSixSided(cubemapImage);
 
+		std::string newCubemapPath = (cubemapPath.parent_path() / cubemapPath.stem()).generic_string() + CUBE_MAP_EXTENSION;
+
+		Shared<Cubemap> cubemap = Cubemap::Create(newCubemapPath).lock();
+		cubemap->SetType(CubemapType::SixSided);
 		// Save each face
 		for (int i = 0; i < 6; ++i) {
-			auto directionString = Resource::Cubemap::GetDirectionFromIndex(i);
-			std::string filename = cubemapPath.parent_path().string() + "/" + directionString + ".png";
-			SaveImage(filename.c_str(), faces[i]);
+			std::string directionString = Cubemap::GetDirectionFromIndex(i);
+			std::string filePath = cubemapPath.parent_path().string() + "/" + directionString + ".png";
+			SaveImage(filePath.c_str(), faces[i]);
 			ImageFree(faces[i]);
 		}
+		// Need to make a second loop to set the faces (mandatory)
+		for (int i = 0; i < 6; ++i) {
+			std::string directionString = Cubemap::GetDirectionFromIndex(i);
+			std::string filePath = cubemapPath.parent_path().string() + "/" + directionString + ".png";
+			cubemap->SetFaceTexture(i, filePath);
+		}
+		cubemap->Save();
 		
-		ImageFree(cubemap);
+		ImageFree(cubemapImage);
 	}
 
 	Wrapper::Image Wrapper::ImageLoader::FromTextureToImage(Resource::Texture* texture)

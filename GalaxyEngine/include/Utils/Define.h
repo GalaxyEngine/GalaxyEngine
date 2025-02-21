@@ -26,7 +26,8 @@
 #define SPHERE_PATH ENGINE_RESOURCE_FOLDER_NAME"/models/Sphere.obj:Sphere"
 
 // -- Cubemaps -- //
-#define DEFAULT_SKYBOX_PATH ENGINE_RESOURCE_FOLDER_NAME"/cubemaps/default.cubemap"
+#define CUBE_MAP_EXTENSION ".cubemap"
+#define DEFAULT_SKYBOX_PATH ENGINE_RESOURCE_FOLDER_NAME"/cubemaps/default"CUBE_MAP_EXTENSION
 
 // -- Paths -- //
 #define ASSET_FOLDER_NAME "Assets"

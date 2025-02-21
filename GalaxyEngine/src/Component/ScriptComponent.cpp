@@ -38,7 +38,7 @@ void Component::ScriptComponent::ShowInInspector()
 void Component::ScriptComponent::OnCreate()
 {
 	// Setup Variables so the ptrs are correct
-	SetupVariables();
+	// SetupVariables();
 }
 
 void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
@@ -51,6 +51,7 @@ void Component::ScriptComponent::Serialize(CppSer::Serializer& serializer)
 
 void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 {
+	SetupVariables();
 	for (auto& variable : m_variablesInfo)
 	{
 		variable.second->Deserialize(parser, variable.first, m_variablesPtr[variable.first]);

@@ -181,6 +181,9 @@ namespace GALAXY
 			SetLocalScale(scale);
 		}
 
+		const bool showDebug = false;
+		if (!showDebug)
+			return;
 		ImGui::SeparatorText("Debug");
 		
 		Vec3f worldPosition = GetWorldPosition();

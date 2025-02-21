@@ -31,7 +31,12 @@ namespace GALAXY
             virtual void Send(Resource::Cubemap* cubemap);
             virtual void Save(CppSer::Serializer& serializer) const;
 
+            void SetFace(uint32_t index, const Path& path);
+            virtual void SetFace(uint32_t index, Weak<Texture> texture) {}
+
             void UpdateCubemap();
+
+            virtual Shared<Texture> GetThumbnail() const;
 
         protected:
             Cubemap* p_owner = nullptr;
@@ -56,12 +61,15 @@ namespace GALAXY
 #endif
 
             void Load(CppSer::Parser& parser) override;
-            void Send(Resource::Cubemap* cubemap) override;
+            void Send(Cubemap* cubemap) override;
             void Save(CppSer::Serializer& serializer) const;
 
             void UpdateFace(uint32_t index, const Path& path);
             void UpdateFace(uint32_t index, const Weak<Texture>& texture);
-            
+
+            void SetFace(uint32_t index, Weak<Texture> texture) override;
+
+            Shared<Texture> GetThumbnail() const override;
         private:
             friend Wrapper::RendererAPI::OpenGLRenderer;
             
@@ -93,7 +101,7 @@ namespace GALAXY
 
             const char* GetResourceName() const override { return "Cubemap"; }
 #ifdef WITH_EDITOR
-            Path GetThumbnailPath() const override { return ""; }
+            Path GetThumbnailPath() const override;
 #endif
             static inline ResourceType GetResourceType() { return ResourceType::Cubemap; }
 
@@ -111,6 +119,9 @@ namespace GALAXY
 
             void SetType(CubemapType type);
 
+            CubemapTexture* GetTexture() const { return m_texture; }
+
+            void SetFaceTexture(int index, const Path& path) const;
 #ifdef WITH_EDITOR
             EDITOR_ONLY void ShowInInspector() override;
 #endif
@@ -123,7 +134,7 @@ namespace GALAXY
             // std::array<Weak<Texture>, 6> m_textures;
 
             CubemapType m_type = CubemapType::Default;
-            Unique<CubemapTexture> m_texture;
+            CubemapTexture* m_texture;
         };
     }
 }

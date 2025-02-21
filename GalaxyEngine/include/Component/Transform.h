@@ -48,6 +48,9 @@ namespace GALAXY {
 			inline void SetLocalRotation(const Vec3f& localRotation);
 			inline void SetLocalScale(const Vec3f& localScale);
 
+			inline void AddLocalPosition(const Vec3f& localOffset);
+			inline void AddWorldPosition(const Vec3f& worldOffset);
+
 			// === Getters === //
 			[[nodiscard]] Vec3f GetWorldPosition() const;
 			[[nodiscard]] Quat  GetWorldRotation() const;

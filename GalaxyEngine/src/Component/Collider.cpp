@@ -39,6 +39,16 @@ namespace GALAXY
 		if (p_supportPosition.has_value())
 			renderer->DrawWireCube(p_supportPosition.value(), Vec3f::One() * 0.1f, Vec4f(0, 0, 1, 1), 10.f);
 	}
+
+	void Component::Collider::Serialize(CppSer::Serializer& serializer)
+	{
+		serializer << CppSer::Pair::Key << "Restitution" << CppSer::Pair::Value << p_restitution;
+	}
+
+	void Component::Collider::Deserialize(CppSer::Parser& parser)
+	{
+		p_restitution = parser["Restitution"].As<float>();
+	}
 #endif
 
 	void Component::Collider::OnUpdate()

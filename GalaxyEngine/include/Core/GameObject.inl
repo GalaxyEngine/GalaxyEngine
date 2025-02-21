@@ -1,4 +1,5 @@
 #pragma once
+#include "Application.h"
 #include "Core/GameObject.h"
 namespace GALAXY {
 	inline std::string Core::GameObject::GetName() const
@@ -95,6 +96,8 @@ namespace GALAXY {
 		m_components.push_back(component);
 		component->p_id = static_cast<uint32_t>(m_components.size() - 1);
 		component->OnCreate();
+		if (Application::IsPlayMode())
+			component->OnStart();
 	}
 
 	template<typename T>

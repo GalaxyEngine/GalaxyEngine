@@ -39,7 +39,7 @@ std::unordered_map<std::string, Resource::ResourceType> resourceFromExtensionMap
 	{".wav",		Resource::ResourceType::Sound},
 	{".flac",		Resource::ResourceType::Sound},
 	{".prefab", 	Resource::ResourceType::Prefab},
-	{".cubemap",	Resource::ResourceType::Cubemap}
+	{CUBE_MAP_EXTENSION,	Resource::ResourceType::Cubemap}
 
 };
 

@@ -57,4 +57,26 @@ namespace GALAXY
 
         return supportPoint;
     }
+
+    void Component::SphereCollider::Serialize(CppSer::Serializer& serializer)
+    {
+        Collider::Serialize(serializer);
+        serializer << CppSer::Pair::Key << "Size" << CppSer::Pair::Value << m_size;
+    }
+
+    void Component::SphereCollider::Deserialize(CppSer::Parser& parser)
+    {
+        Collider::Deserialize(parser);
+        m_size = parser["Size"].As<float>();
+    }
+
+    Mat4 Component::SphereCollider::GetInverseInertia(float Mass) const
+    {
+        auto transform = GetTransform();
+        float inverseMass = 1.f / Mass;
+        float radius	= (transform->GetWorldScale() * m_size).x;
+        float i			= 2.5f * inverseMass / (radius*radius);
+
+        return Mat4::CreateScaleMatrix(Vec3f(i));
+    }
 }
