@@ -110,9 +110,9 @@ void Core::SceneHolder::Release()
 
 void Core::SceneHolder::SwitchSceneUpdate()
 {
+#ifdef WITH_EDITOR
 	if ((!m_nextScene || !m_nextScene->IsLoaded()) && !m_loadAfterEndPlay)
 		return;
-#ifdef WITH_EDITOR
 	if (!m_loadAfterEndPlay)
 	{
 		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
@@ -139,16 +139,15 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_currentScene->Load(Resource::ResourceManager::GetProjectPath() / PLAYMODE_SCENE_PATH);
 	}
 #else
-	if (m_nextScene && m_nextScene->IsLoaded())
-	{
-		if (m_currentScene != m_nextScene) {
-			// Do not unload if the next scene is the same as the current scene
-			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
-		}
-		m_currentScene.reset();
-
-		m_currentScene = m_nextScene;
-		m_nextScene.reset();
+	if ((!m_nextScene || !m_nextScene->IsLoaded()))
+		return;
+	if (m_currentScene != m_nextScene) {
+		// Do not unload if the next scene is the same as the current scene
+		Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
 	}
+	m_currentScene.reset();
+
+	m_currentScene = m_nextScene;
+	m_nextScene.reset();
 #endif
 }

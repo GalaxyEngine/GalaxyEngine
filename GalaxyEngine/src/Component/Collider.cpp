@@ -39,6 +39,7 @@ namespace GALAXY
 		if (p_supportPosition.has_value())
 			renderer->DrawWireCube(p_supportPosition.value(), Vec3f::One() * 0.1f, Vec4f(0, 0, 1, 1), 10.f);
 	}
+#endif
 
 	void Component::Collider::Serialize(CppSer::Serializer& serializer)
 	{
@@ -49,7 +50,6 @@ namespace GALAXY
 	{
 		p_restitution = parser["Restitution"].As<float>();
 	}
-#endif
 
 	void Component::Collider::OnUpdate()
 	{

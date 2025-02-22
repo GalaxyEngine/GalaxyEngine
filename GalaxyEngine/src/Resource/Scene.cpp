@@ -308,7 +308,9 @@ namespace GALAXY
 		m_objectList.clear();
 		m_cameras.clear();
 		m_lightManager.reset();
+#ifdef WITH_EDITOR
 		m_gizmo.reset();
+#endif
 		p_loaded = false;
 		p_hasBeenSent = false;
 	}

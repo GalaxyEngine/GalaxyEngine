@@ -96,7 +96,9 @@ namespace GALAXY {
 		m_components.push_back(component);
 		component->p_id = static_cast<uint32_t>(m_components.size() - 1);
 		component->OnCreate();
+#ifdef WITH_EDITOR 
 		if (Application::IsPlayMode())
+#endif
 			component->OnStart();
 	}
 

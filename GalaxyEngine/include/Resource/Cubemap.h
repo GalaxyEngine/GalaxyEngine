@@ -101,7 +101,7 @@ namespace GALAXY
 
             const char* GetResourceName() const override { return "Cubemap"; }
 #ifdef WITH_EDITOR
-            Path GetThumbnailPath() const override;
+            EDITOR_ONLY Path GetThumbnailPath() const override;
 #endif
             static inline ResourceType GetResourceType() { return ResourceType::Cubemap; }
 

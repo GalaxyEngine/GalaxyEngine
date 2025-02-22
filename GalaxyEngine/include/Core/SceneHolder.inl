@@ -7,8 +7,10 @@ namespace GALAXY
 		m_nextScene = scene.lock();
 	}
 
+#ifdef WITH_EDITOR
 	inline void Core::SceneHolder::SwitchPlayModeScene()
 	{
 		m_loadAfterEndPlay = true;
 	}
+#endif
 }

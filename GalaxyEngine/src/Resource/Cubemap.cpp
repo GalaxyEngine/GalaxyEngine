@@ -204,12 +204,14 @@ namespace GALAXY
         delete m_texture;
     }
 
+#ifdef WITH_EDITOR
     Path Resource::Cubemap::GetThumbnailPath() const
     {
         if (auto thumbnail = m_texture->GetThumbnail())
             return thumbnail->GetFileInfo().GetFullPath();
         return "";
     }
+#endif
 
     void Resource::Cubemap::Load()
     {
