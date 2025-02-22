@@ -246,6 +246,24 @@ namespace GALAXY
 		SendRequest();
 	}
 
+	void Scene::Load(const Path& path)
+	{
+		Unload();
+		
+		m_root = std::make_shared<Core::GameObject>(GetFileInfo().GetFileNameNoExtension());
+		m_root->m_scene = this;
+		m_lightManager = std::make_shared<Render::LightManager>();
+
+		{
+			PROFILE_SCOPE_LOG("Scene::Load(%s)", path.generic_string().c_str())
+			CppSer::Parser parser(path);
+			m_root->m_scene = this;
+			m_root->Deserialize(parser);
+		}
+		
+		Send();
+	}
+
 	void Scene::SetMainCamera(const Weak<Component::CameraComponent>& camera)
 	{
 		if (m_mainCamera.lock())
@@ -287,6 +305,12 @@ namespace GALAXY
 			m_root->SetScene(nullptr);
 			m_root.reset();
 		}
+		m_objectList.clear();
+		m_cameras.clear();
+		m_lightManager.reset();
+		m_gizmo.reset();
+		p_loaded = false;
+		p_hasBeenSent = false;
 	}
 
 	void Scene::Send()

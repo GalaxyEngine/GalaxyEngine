@@ -27,7 +27,7 @@ namespace GALAXY
 		}
 		else
 		{
-			ASSERT(false && "Object already exists in scene");
+			ASSERT(false && "Object already exists in scene")
 		}
 
 		for (auto& child : gameObject->GetChildren())
@@ -121,7 +121,7 @@ namespace GALAXY
 		m_lightManager = other->m_lightManager;
 		m_cameras = other->m_cameras;
 		m_mainCamera = other->m_mainCamera;
-		m_objectList = other->m_objectList;
+		m_objectList = other->m_objectList; // TODO : Fix this !
 		
 		// This will set the scene for all children as well
 		m_root->SetScene(this);

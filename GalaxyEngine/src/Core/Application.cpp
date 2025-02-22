@@ -382,10 +382,9 @@ namespace GALAXY {
 		}
 		else if (mode == Editor::ApplicationMode::Editor && (IsPlayMode() || IsPauseMode()))
 		{
-			const auto sceneResource = Resource::ResourceManager::ReloadResource<Resource::Scene>(projectPath / PLAYMODE_SCENE_PATH);
-
-			// Only set the date of the scene			
-			SceneHolder::GetInstance()->SwitchScene(sceneResource, true);
+			// Load on mono thread because the scene need to be the same for pointer of gameObject behaviour
+			// (Component holding ptr of gameObject, deserialize in another scene set the wrong ptr) 		
+			SceneHolder::GetInstance()->SwitchPlayModeScene();
 		}
 		m_applicationMode = mode;
 

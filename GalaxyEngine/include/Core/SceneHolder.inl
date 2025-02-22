@@ -2,12 +2,13 @@
 #include "Core/SceneHolder.h"
 namespace GALAXY 
 {
-	inline void Core::SceneHolder::SwitchScene(const Weak<Resource::Scene>& scene, bool copyData/* = false*/)
+	inline void Core::SceneHolder::SwitchScene(const Weak<Resource::Scene>& scene)
 	{
 		m_nextScene = scene.lock();
+	}
 
-#if WITH_EDITOR
-		m_copyData = copyData;
-#endif
+	inline void Core::SceneHolder::SwitchPlayModeScene()
+	{
+		m_loadAfterEndPlay = true;
 	}
 }

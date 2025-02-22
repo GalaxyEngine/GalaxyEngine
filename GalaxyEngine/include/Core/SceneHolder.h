@@ -24,7 +24,9 @@ namespace GALAXY {
 			
 			static void NewScene();
 
-			inline void SwitchScene(const Weak<Resource::Scene>& scene, bool copyData = false);
+			inline void SwitchScene(const Weak<Resource::Scene>& scene);
+
+			inline void SwitchPlayModeScene();
 
 			static Resource::Scene* GetCurrentScene();
 
@@ -43,7 +45,7 @@ namespace GALAXY {
 			Shared<Resource::Scene> m_nextScene;
 
 #ifdef WITH_EDITOR
-			bool m_copyData = false;
+			bool m_loadAfterEndPlay = false;
 			
 			bool first = true;
 #endif

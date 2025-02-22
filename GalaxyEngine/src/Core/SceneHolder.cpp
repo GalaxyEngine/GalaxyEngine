@@ -94,7 +94,7 @@ void Core::SceneHolder::NewScene()
 	m_instance->m_nextScene->Initialize();
 	m_instance->m_nextScene->p_loaded = true;
 
-	m_instance->SwitchScene(m_instance->m_nextScene, false);
+	m_instance->SwitchScene(m_instance->m_nextScene);
 }
 
 Resource::Scene* Core::SceneHolder::GetCurrentScene()
@@ -110,8 +110,10 @@ void Core::SceneHolder::Release()
 
 void Core::SceneHolder::SwitchSceneUpdate()
 {
+	if ((!m_nextScene || !m_nextScene->IsLoaded()) && !m_loadAfterEndPlay)
+		return;
 #ifdef WITH_EDITOR
-	if (m_nextScene && m_nextScene->IsLoaded() && !m_copyData)
+	if (!m_loadAfterEndPlay)
 	{
 		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
 		m_nextScene->m_editorCamera = m_currentScene->m_editorCamera;
@@ -131,10 +133,10 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_currentScene = m_nextScene;
 		m_nextScene.reset();
 	}
-	else if (m_nextScene && m_nextScene->IsLoaded() && m_copyData)
+	else
 	{
-		m_currentScene->SetData(m_nextScene.get());	
-		m_nextScene.reset();
+		m_loadAfterEndPlay = false;
+		m_currentScene->Load(Resource::ResourceManager::GetProjectPath() / PLAYMODE_SCENE_PATH);
 	}
 #else
 	if (m_nextScene && m_nextScene->IsLoaded())

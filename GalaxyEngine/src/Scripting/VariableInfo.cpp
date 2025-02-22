@@ -214,8 +214,9 @@ namespace GALAXY
 	template<>
 	void Scripting::VariableInfoT<Core::GameObject*>::DisplayValue(const std::string& name, void* value)
 	{
-		Core::GameObject** go = (Core::GameObject**)value;
-		const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x / 2.f, 0);
+		Core::GameObject** go = static_cast<Core::GameObject**>(value);
+		Core::GameObject* object = *go;
+		const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x * 0.5f, 0);
 		ImGui::Button(*go ? (*go)->GetName().c_str() : "None", buttonSize);
 		if (*go) {
 			ImGui::SameLine();

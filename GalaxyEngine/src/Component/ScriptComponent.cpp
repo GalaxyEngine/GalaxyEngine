@@ -54,7 +54,9 @@ void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 	SetupVariables();
 	for (auto& variable : m_variablesInfo)
 	{
-		variable.second->Deserialize(parser, variable.first, m_variablesPtr[variable.first]);
+		void* value = m_variablesPtr[variable.first];
+		variable.second->Deserialize(parser, variable.first, value);
+		// variable.second->CheckValues(variable.first, value);
 	}
 }
 

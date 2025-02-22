@@ -369,7 +369,7 @@ namespace GALAXY
     void Resource::Material::SetShader(const Weak<Shader>& val)
     {
         // ! Calling to much in a small amount of time can break the material, and set all there value to default 
-        if (val.lock() == m_shader.lock())
+        if (val.lock() == m_shader.lock() || val.expired())
             return;
         m_shader = val;
 

@@ -54,6 +54,8 @@ namespace GALAXY {
 
 #pragma region Resource Methods
 			void Load() override;
+			// Load a scene from a file without changing the path of the scene
+			void Load(const Path& path);
 			void Unload() override;
 			void Send() override;
 			virtual void Save(const Path& fullPath = "") const;

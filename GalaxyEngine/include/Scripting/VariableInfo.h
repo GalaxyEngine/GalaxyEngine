@@ -64,6 +64,8 @@ namespace GALAXY
 			virtual void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) {}
 			virtual void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const {}
 
+			virtual void CheckValues(const std::string& name, void* value) {}
+
 			void AfterLoad(Resource::Scene* scene);
 
 			static VariableType TypeNameToType(const std::string& typeName);
@@ -130,6 +132,8 @@ namespace GALAXY
 			void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const override
 			{
 				BeginSerialize(serializer, name);
+				if (!value)
+					return;
 				if (isAList)
 				{
 					std::vector<T> vectorValue = *(std::vector<T>*)value;
@@ -194,6 +198,14 @@ namespace GALAXY
 
 			void SerializeT(CppSer::Serializer& serializer, const std::string& name, void* value) const;
 			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value);
+
+			void CheckValues(const std::string& name, void* value) override
+			{
+				T* newValue = static_cast<T*>(value);
+				T realValue = *newValue;
+				if (!newValue)
+					return;
+			}
 		};
 	}
 }
