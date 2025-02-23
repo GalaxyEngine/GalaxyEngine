@@ -19,6 +19,7 @@
 #endif
 
 #include "Component/CameraComponent.h"
+#include "Component/Collider.h"
 
 #include "Wrapper/Window.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -167,7 +168,7 @@ namespace GALAXY
 
 			m_lightManager->SendLightData();
 
-			//renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
+			// renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
@@ -178,9 +179,14 @@ namespace GALAXY
 			m_root->DrawSelfAndChild(DrawMode::Editor);
 			m_gizmo->Draw();
 
+			renderer->SetRenderingType(Render::RenderType::None);
 			currentCamera->End();
 		}
 #endif
+
+		static Vec3f cameraPosition2 = Vec3f::Zero();
+		static Vec3f clickPosition2 = Vec3f::Zero();
+		renderer->DrawLine(cameraPosition2, clickPosition2, Vec4f(1.f, 0.f, 0.f, 10.f));
 
 		size_t index = 0;
 		for (auto& camera : m_cameras)
@@ -196,18 +202,33 @@ namespace GALAXY
 			if (!currentCamera || !currentCamera->IsVisible())
 				return;
 
+#ifdef WITH_EDITOR
+			if (Input::IsMouseButtonPressed(MouseButton::BUTTON_1) && editorUIManager->GetGameWindow()->IsHovered())
+			{
+				Vec2f point = Input::GetMousePositionOnWindow();
+				const Physic::Ray ray = currentCamera->ScreenPointToRay(point);
+				cameraPosition2 = ray.origin;
+				clickPosition2 = ray.origin + ray.direction * ray.scale;
+			}
+#endif
+			// Vec3f cameraPosition = ray.origin;
+			// Vec3f clickPosition = ray.origin + ray.direction * ray.scale;
+			// Wrapper::Renderer::GetInstance()->DrawLine(cameraPosition, clickPosition, Vec4f(1.f, 0.f, 0.f, 1.f));
+
 			// Bind Default Framebuffer
 			currentCamera->Begin();
+			renderer->SetRenderingType(Render::RenderType::Default);
+			
 			currentCamera->SetSize(Core::Application::GetInstance().GetWindow()->GetSize());
 
 			m_lightManager->SendLightData();
 
 			m_root->DrawSelfAndChild(DrawMode::Game);
-
+			
+			renderer->SetRenderingType(Render::RenderType::None);
 			currentCamera->End();
 		}
 		
-		renderer->SetRenderingType(Render::RenderType::None);
 	}
 
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)

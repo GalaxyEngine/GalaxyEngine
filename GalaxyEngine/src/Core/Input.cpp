@@ -7,6 +7,10 @@
 
 #include <Core/Application.h>
 
+#ifdef WITH_EDITOR
+#include "Editor/UI/EditorUIManager.h"
+#endif
+
 namespace GALAXY 
 {
 	std::unordered_map<int, bool> Input::m_keyPressed;
@@ -80,6 +84,27 @@ namespace GALAXY
 
 	Vec2f Input::GetMousePosition()
 	{
-		return Core::Application::GetInstance().GetWindow()->GetMousePosition();;
+		return Core::Application::GetInstance().GetWindow()->GetMousePosition();
+	}
+
+	Vec2f Input::GetMousePositionOnWindow()
+	{
+		Vec2f windowPos = Vec2f();
+#ifdef WITH_EDITOR
+		auto editorUI = Editor::UI::EditorUIManager::GetInstance();
+		if (editorUI->GetSceneWindow()->IsFocused()) return editorUI->GetSceneWindow()->GetMousePosition();
+		if (editorUI->GetGameWindow()->IsFocused()) return editorUI->GetGameWindow()->GetMousePosition();
+#endif
+		return Core::Application::GetInstance().GetWindow()->GetMousePosition(Wrapper::CoordinateSpace::Screen);
+	}
+
+	bool Input::IsWindowHovered()
+	{
+#ifdef WITH_EDITOR
+		auto editorUI = Editor::UI::EditorUIManager::GetInstance();
+		if (editorUI->GetSceneWindow()->IsFocused()) return editorUI->GetSceneWindow()->IsHovered();
+		if (editorUI->GetGameWindow()->IsFocused()) return editorUI->GetGameWindow()->IsHovered();
+#endif
+		return true;
 	}
 }

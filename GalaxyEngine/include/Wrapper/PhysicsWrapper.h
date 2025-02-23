@@ -1,5 +1,7 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Physic/Ray.h"
+
 namespace GALAXY 
 {
     namespace Resource
@@ -49,7 +51,7 @@ namespace GALAXY
         };
 
         
-        class PhysicsWrapper
+        class GALAXY_API PhysicsWrapper
         {
         public:
             virtual ~PhysicsWrapper() = default;
@@ -79,6 +81,8 @@ namespace GALAXY
             virtual void SetDefaultGravity(const Vec3f& value) = 0;
             virtual Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) {return {};}
             virtual void ComputeConvexVertices(Shared<Resource::Mesh> mesh) {}
+
+            virtual bool Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit) { return false; }
         protected:
             void AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body);
             void RemoveDynamicBody(uint32_t id);

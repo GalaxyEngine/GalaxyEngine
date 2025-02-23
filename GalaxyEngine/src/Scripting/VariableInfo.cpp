@@ -235,12 +235,12 @@ namespace GALAXY
 					indices.assign(payloadData, payloadData + payloadSize);
 				}
 				// Get the gameobject with the first index
-				*go = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithSceneGraphID(indices[0]).lock().get();
+				*go = Core::SceneHolder::GetCurrentScene()->GetWithSceneGraphID(indices[0]).lock().get();
 			}
 			ImGui::EndDragDropTarget();
 		}
 		ImGui::SameLine();
-		ImGui::TextUnformatted("(GameObject)");
+		ImGui::TextUnformatted(name.c_str());
 	}
 
 	template<>

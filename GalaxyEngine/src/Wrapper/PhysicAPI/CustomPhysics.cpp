@@ -87,6 +87,9 @@ namespace GALAXY
         {
             Shared<Component::RigidBody> rigidBody = body.lock();
 
+            if (!rigidBody || !rigidBody->IsEnable())
+                continue;
+
             float inverseMass = rigidBody->GetInverseMass();
 
             Vec3f vel = rigidBody->GetVelocity();
@@ -119,12 +122,20 @@ namespace GALAXY
     }
 
     void CustomPhysicsAPI::ResolveCollisions(Component::Collider* collider1,
-                                             Component::Collider* collider2,
+                                             Component::Collider* collider2,    
                                              const CollisionInfo& collisionInfo)
     {
         // Retrieve rigid bodies from both colliders.
         Shared<Component::RigidBody> bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
         Shared<Component::RigidBody> bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
+
+
+        // Not work, why ?
+        // if (bodyA && !bodyA->IsEnable())
+            // bodyA = nullptr;
+
+        // if (bodyB && !bodyB->IsEnable())
+            // bodyB = nullptr;
 
         if (!bodyA && !bodyB)
             return;
@@ -212,6 +223,9 @@ namespace GALAXY
         for (auto& _body : m_objectSet)
         {
             auto body = _body.lock();
+            
+            if (!body || !body->IsEnable())
+                continue;
             Component::Transform* transform = body->GetTransform();
 
             Vec3f position = transform->GetWorldPosition();
@@ -485,7 +499,7 @@ namespace GALAXY
         rigidbodyComponent->SetAngularVelocity(angularVelocity + torque);
     }
 
-#pragma region GJK
+#pragma region GJK Mesh
     Weak<Resource::Mesh> CustomPhysicsAPI::GetConvexMesh(Shared<Resource::Mesh> mesh)
     {
         if (!mesh)
@@ -698,6 +712,124 @@ namespace GALAXY
     }
 #pragma endregion
 
+    bool CustomPhysicsAPI::Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit)
+    {
+        // TODO : Test this
+        bool hitFound = false;
+        float closestDistance = maxDistance;
+        // Ensure the direction is normalized.
+        Vec3f dir = direction.GetNormalize();
+
+        // Lambda to perform a ray-AABB intersection using the slab method.
+        auto RayAABBIntersect = [&](const Vec3f& rayOrigin, const Vec3f& rayDir, 
+                                    const Vec3f& boxMin, const Vec3f& boxMax, float& tOut) -> bool {
+            float tMin = 0.0f;
+            float tMax = maxDistance;
+
+            // X-axis
+            if (fabs(rayDir.x) < 1e-8f)
+            {
+                if (rayOrigin.x < boxMin.x || rayOrigin.x > boxMax.x)
+                    return false;
+            }
+            else
+            {
+                float t1 = (boxMin.x - rayOrigin.x) / rayDir.x;
+                float t2 = (boxMax.x - rayOrigin.x) / rayDir.x;
+                if (t1 > t2)
+                    std::swap(t1, t2);
+                tMin = std::max(tMin, t1);
+                tMax = std::min(tMax, t2);
+                if (tMin > tMax)
+                    return false;
+            }
+
+            // Y-axis
+            if (fabs(rayDir.y) < 1e-8f)
+            {
+                if (rayOrigin.y < boxMin.y || rayOrigin.y > boxMax.y)
+                    return false;
+            }
+            else
+            {
+                float t1 = (boxMin.y - rayOrigin.y) / rayDir.y;
+                float t2 = (boxMax.y - rayOrigin.y) / rayDir.y;
+                if (t1 > t2)
+                    std::swap(t1, t2);
+                tMin = std::max(tMin, t1);
+                tMax = std::min(tMax, t2);
+                if (tMin > tMax)
+                    return false;
+            }
+
+            // Z-axis
+            if (fabs(rayDir.z) < 1e-8f)
+            {
+                if (rayOrigin.z < boxMin.z || rayOrigin.z > boxMax.z)
+                    return false;
+            }
+            else
+            {
+                float t1 = (boxMin.z - rayOrigin.z) / rayDir.z;
+                float t2 = (boxMax.z - rayOrigin.z) / rayDir.z;
+                if (t1 > t2)
+                    std::swap(t1, t2);
+                tMin = std::max(tMin, t1);
+                tMax = std::min(tMax, t2);
+                if (tMin > tMax)
+                    return false;
+            }
+
+            tOut = tMin;
+            return true;
+        };
+
+        // Iterate over each collider in the set.
+        for (auto& weakCollider : m_colliderSet)
+        {
+            Shared<Component::Collider> collider = weakCollider.lock();
+            if (!collider)
+                continue;
+
+            // Retrieve the collider's AABB.
+            Physic::AABB aabb = collider->GetAABB();
+            float t = 0.0f;
+            if (RayAABBIntersect(origin, dir, aabb.Min, aabb.Max, t))
+            {
+                if (t < closestDistance)
+                {
+                    closestDistance = t;
+                    hit.collider = collider;
+                    hit.distance = t;
+                    hit.point = origin + dir * t;
+
+                    // Compute a simple normal based on which AABB face is hit.
+                    // (This method assumes the hit point lies very close to one of the faces.)
+                    const float epsilon = 1e-4f;
+                    if (fabs(hit.point.x - aabb.Min.x) < epsilon)
+                        hit.normal = Vec3f(-1, 0, 0);
+                    else if (fabs(hit.point.x - aabb.Max.x) < epsilon)
+                        hit.normal = Vec3f(1, 0, 0);
+                    else if (fabs(hit.point.y - aabb.Min.y) < epsilon)
+                        hit.normal = Vec3f(0, -1, 0);
+                    else if (fabs(hit.point.y - aabb.Max.y) < epsilon)
+                        hit.normal = Vec3f(0, 1, 0);
+                    else if (fabs(hit.point.z - aabb.Min.z) < epsilon)
+                        hit.normal = Vec3f(0, 0, -1);
+                    else if (fabs(hit.point.z - aabb.Max.z) < epsilon)
+                        hit.normal = Vec3f(0, 0, 1);
+                    else
+                        hit.normal = Vec3f::Zero(); // Fallback if no face is clearly hit.
+
+                    hitFound = true;
+                }
+            }
+        }
+
+        return hitFound;
+    }
+
+#pragma region Collision Detection
     struct SAPAABB
     {
         Component::Collider* collider;
@@ -1092,4 +1224,5 @@ namespace GALAXY
         }
         return false;
     }
+#pragma endregion 
 }

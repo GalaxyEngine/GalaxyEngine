@@ -28,20 +28,9 @@ namespace GALAXY {
 
 	void Editor::UI::SceneWindow::Draw()
 	{
-		if (!p_open)
+		EditorWindow::Draw();
+		if (Begin("Scene"))
 		{
-			m_visible = false;
-			return;
-		}
-		if (m_shouldFocus)
-		{
-			ImGui::SetNextWindowFocus();
-			m_shouldFocus = false;
-		}
-		if ((m_visible = ImGui::Begin("Scene", &p_open)))
-		{
-			m_isFocused = ImGui::IsWindowFocused();
-			m_isHovered = ImGui::IsWindowHovered();
 			SetResources();
 			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;
 			if (Wrapper::GUI::TextureButton(m_settingsIcon.lock() ? m_settingsIcon.lock().get() : nullptr, Vec2f(16)))
@@ -144,9 +133,9 @@ namespace GALAXY {
 		}
 	}
 
-	Math::Vec2f Editor::UI::SceneWindow::GetMousePosition() const
+	Vec2f Editor::UI::SceneWindow::GetMousePosition() const
 	{
-		return (Vec2i)(Input::GetMousePosition() - m_imagePosition);
+		return (Input::GetMousePosition() - m_imagePosition);
 	}
 
 	void Editor::UI::SceneWindow::UpdateDragModel()

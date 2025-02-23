@@ -2,7 +2,7 @@
 
 #include "GalaxyAPI.h"
 #include "Wrapper/PhysicsWrapper.h"
-#include <list>
+
 namespace GALAXY::Resource
 {
     class Mesh;
@@ -63,7 +63,7 @@ namespace GALAXY
 
         typedef std::vector<ContactPoint> CollisionPoints;
         
-        class CustomPhysicsAPI : public Wrapper::PhysicsWrapper
+        class GALAXY_API CustomPhysicsAPI : public Wrapper::PhysicsWrapper
         {
         public:
             CustomPhysicsAPI() = default;
@@ -89,6 +89,8 @@ namespace GALAXY
             Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) override;
             static std::vector<Vec3f> ComputeConvexHull(const std::vector<Vec3f>& positions);
             void ComputeConvexVertices(Shared<Resource::Mesh> mesh) override;
+
+            bool Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit) override;
         private:
             bool InitializeAPI() override;
             void InternalUpdate();

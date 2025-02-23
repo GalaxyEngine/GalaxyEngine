@@ -31,26 +31,15 @@ namespace GALAXY
 
             inline Vec2f GetImageSize() const { return m_imageSize; }
 
-            inline bool IsVisible() const { return m_visible; }
-            inline bool IsHovered() const { return m_isHovered; }
-            inline bool IsFocused() const { return m_isFocused; }
-
 #ifdef WITH_EDITOR
             void UpdateDragModel();
             void OnModelLoaded(Weak<Resource::Model> model);
-            void SetShouldFocus(bool value) { m_shouldFocus = value; }
 #endif
 
         private:
             friend class MainBar;
 
             void DrawImage();
-
-            bool m_visible = true;
-            bool m_isHovered = false;
-            bool m_isFocused = false;
-
-            bool m_shouldFocus = false;
 
             Vec2i m_imagePosition = Vec2i(0);
             Vec2i m_imageSize = Vec2i(0);

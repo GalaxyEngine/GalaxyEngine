@@ -168,6 +168,8 @@ namespace GALAXY
 		static inline Key GetKeyPressed();
 		static void GetMousePosition(Vec2f& mousePosition);
 		static Vec2f GetMousePosition();
+		static Vec2f GetMousePositionOnWindow();
+		static bool IsWindowHovered(); 
 		static inline Vec2f GetMouseDragDelta();
 		static std::string GetKeyName(Key key);
 	private:

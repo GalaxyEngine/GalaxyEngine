@@ -40,7 +40,7 @@ namespace GALAXY
             return "Perspective\0Orthographic\0";
         }
 
-        class Camera
+        class GALAXY_API Camera
         {
         public:
             Camera();

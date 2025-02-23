@@ -12,17 +12,8 @@
 
 void Editor::UI::GameWindow::Draw()
 {
-	if (!p_open)
-	{
-		m_visible = false;
-		return;
-	}
-	if (m_shouldFocus)
-	{
-		ImGui::SetNextWindowFocus();
-		m_shouldFocus = false;
-	}
-	if ((m_visible = ImGui::Begin("Game", &p_open)))
+	EditorWindow::Draw();
+	if (Begin("Game"))
 	{
 		DrawImage();
 	}
@@ -77,8 +68,8 @@ void Editor::UI::GameWindow::DrawImage()
 	// Get Position to draw a border
 	const Vec2f topLeft = ImGui::GetCursorScreenPos();
 
-	//Vec2f m_imagePosition = static_cast<Vec2i>(static_cast<Vec2f>(ImGui::GetWindowPos()) - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f()
-		//+ static_cast<Vec2f>(ImGui::GetCursorPos()));
+	m_imagePosition = static_cast<Vec2i>(static_cast<Vec2f>(ImGui::GetWindowPos()) - Core::Application::GetInstance().GetWindow()->GetPosition().ToVec2f()
+		+ static_cast<Vec2f>(ImGui::GetCursorPos()));
 
 	Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
@@ -87,4 +78,9 @@ void Editor::UI::GameWindow::DrawImage()
 		auto drawList = ImGui::GetWindowDrawList();
 		drawList->AddRect(topLeft, bottomRight, IM_COL32(50, 50, 50, 255), 2.0f, 0, 5.0f); // Gray border
 	}
+}
+
+Vec2i Editor::UI::GameWindow::GetMousePosition() const
+{
+	return (Input::GetMousePosition() - m_imagePosition);
 }
