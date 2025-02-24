@@ -139,7 +139,7 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_currentScene->Load(Resource::ResourceManager::GetProjectPath() / PLAYMODE_SCENE_PATH);
 	}
 #else
-	if ((!m_nextScene || !m_nextScene->IsLoaded()))
+	if (!m_nextScene || !m_nextScene->IsLoaded())
 		return;
 	if (m_currentScene != m_nextScene) {
 		// Do not unload if the next scene is the same as the current scene

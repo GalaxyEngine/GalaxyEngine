@@ -373,70 +373,70 @@ namespace GALAXY
 
 #pragma region Deserialize
 	template<typename T>
-	void Scripting::VariableInfoT<T>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<T>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		PrintError("Cannot Deserialize variable: %s", name.c_str());
 	}
 
 	template<>
-	void Scripting::VariableInfoT<bool>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<bool>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(bool*)value = parser[name].As<bool>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<int>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<int>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(int*)value = parser[name].As<int>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<float>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<float>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(float*)value = parser[name].As<float>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<double>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<double>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(double*)value = parser[name].As<double>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<std::string>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<std::string>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(std::string*)value = parser[name].As<std::string>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Vec2f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Vec2f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(Vec2f*)value = parser[name].As<Vec2f>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Vec3f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Vec3f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(Vec3f*)value = parser[name].As<Vec3f>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Vec4f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Vec4f>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(Vec4f*)value = parser[name].As<Vec4f>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Quat>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Quat>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		*(Quat*)value = parser[name].As<Quat>();
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Core::GameObject*>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Core::GameObject*>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		uint64_t entityID = parser[name].As<uint64_t>();
-		auto object = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithUUID(entityID);
+		auto object = scene->GetWithUUID(entityID);
 		if (!object.lock())
 		{
 			GameObjectReloader reloader;
@@ -451,7 +451,7 @@ namespace GALAXY
 	}
 
 	template<>
-	void Scripting::VariableInfoT<Component::BaseComponent*>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value)
+	void Scripting::VariableInfoT<Component::BaseComponent*>::DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene)
 	{
 		Vec2<uint64_t> ids = parser[name].As<Vec2<uint64_t>>();
 		auto object = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithUUID(ids.x);

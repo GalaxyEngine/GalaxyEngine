@@ -54,7 +54,7 @@ namespace GALAXY
     {
         m_dTOffset = 0.f;
         m_staticCountMax = 25;
-        m_staticMaxPosMagn = 0.0004f;
+        m_staticMaxPosMagn = 0.01f;
         PrintLog("Custom Physics Initialized");
         return true;
     }

@@ -71,7 +71,11 @@ namespace GALAXY {
 			// ! Sould only happend in the ide running the engine
 			Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
 			CppSer::Parser parser(settingsPath);
-			auto defaultProjectPath = parser["Default Project Path"].As<std::string>();
+			std::string defaultProjectPath = parser["Default Project Path"].As<std::string>();
+			if (std::filesystem::is_directory(Path(defaultProjectPath)))
+			{
+				defaultProjectPath = Utils::FileSystem::FindFileWithExtension(Path(defaultProjectPath), ".gProject").generic_string();
+			}
 			projectPath = defaultProjectPath;
 		}
 #endif

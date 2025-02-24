@@ -61,7 +61,7 @@ namespace GALAXY
 			static size_t BeginDeserializeList(CppSer::Parser& parser, const std::string& name);
 			bool BeginDeserialize(CppSer::Parser& parser, const std::string& name) const;
 
-			virtual void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) {}
+			virtual void Deserialize(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene) {}
 			virtual void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const {}
 
 			virtual void CheckValues(const std::string& name, void* value) {}
@@ -159,7 +159,7 @@ namespace GALAXY
 				}
 			}
 
-			void Deserialize(CppSer::Parser& parser, const std::string& name, void* value) override
+			void Deserialize(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene) override
 			{
 				if (!BeginDeserialize(parser, name))
 					return;
@@ -178,7 +178,7 @@ namespace GALAXY
 						{
 							// Handle the bool case separately
 							bool element = vectorValue->operator[](i);
-							DeserializeT(parser, name + " " + std::to_string(i), &element);
+							DeserializeT(parser, name + " " + std::to_string(i), &element, scene);
 							(*vectorValue)[i] = element; // Assign the deserialized value back to the vector
 						}
 					} 
@@ -186,18 +186,18 @@ namespace GALAXY
 						for (size_t i = 0; i < size; i++)
 						{
 							// For other types, your existing code can be used
-							DeserializeT(parser, name + " " + std::to_string(i), &vectorValue->operator[](i));
+							DeserializeT(parser, name + " " + std::to_string(i), &vectorValue->operator[](i), scene);
 						}
 					}
 				}
 				else
 				{
-					DeserializeT(parser, name, value);
+					DeserializeT(parser, name, value, scene);
 				}
 			}
 
 			void SerializeT(CppSer::Serializer& serializer, const std::string& name, void* value) const;
-			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value);
+			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene);
 
 			void CheckValues(const std::string& name, void* value) override
 			{

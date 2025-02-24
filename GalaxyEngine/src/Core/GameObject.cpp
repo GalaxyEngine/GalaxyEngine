@@ -364,6 +364,7 @@ namespace GALAXY
 				}
 			}
 			if (component) {
+				component->p_gameObject = this;
 				component->SetSelfEnable(enable);
 				component->Deserialize(parser);
 				AddComponent(component);

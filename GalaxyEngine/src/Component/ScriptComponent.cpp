@@ -55,7 +55,7 @@ void Component::ScriptComponent::Deserialize(CppSer::Parser& parser)
 	for (auto& variable : m_variablesInfo)
 	{
 		void* value = m_variablesPtr[variable.first];
-		variable.second->Deserialize(parser, variable.first, value);
+		variable.second->Deserialize(parser, variable.first, value, GetGameObject()->GetScene());
 		// variable.second->CheckValues(variable.first, value);
 	}
 }
