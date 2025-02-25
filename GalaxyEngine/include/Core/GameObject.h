@@ -42,6 +42,8 @@ namespace GALAXY {
 
 			// === Methods === //
 			void StartSelfAndChild() const;
+
+			void StartSelf() const;
 			
 			void UpdateSelfAndChild() const;
 			void DrawSelfAndChild(DrawMode drawMode) const;
@@ -60,6 +62,7 @@ namespace GALAXY {
 
 			// === Setters === //
 			inline void SetName(String val);
+			inline void SetActive(bool val);
 
 			void AddChild(const Shared<GameObject>& child, uint32_t index = -1);
 

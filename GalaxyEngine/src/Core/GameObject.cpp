@@ -103,38 +103,41 @@ namespace GALAXY
 
 	void GameObject::StartSelfAndChild() const
 	{
-		for (const auto& m_component : m_components)
+		StartSelf();
+		for (size_t i = 0; i < m_children.size(); i++)
 		{
-			// Does the component need to be started ?
-			if (m_component->IsEnable())
-				m_component->OnStart();
+			m_children[i]->StartSelfAndChild();
 		}
-		for (const Shared<GameObject>& m_child : m_children)
+	}
+
+	void GameObject::StartSelf() const
+	{
+		for (size_t i = 0; i < m_components.size(); i++)
 		{
-			m_child->StartSelfAndChild();
+			m_components[i]->OnStart();
 		}
 	}
 
 	void GameObject::UpdateSelfAndChild() const
 	{
 		m_transform->OnUpdate();
-		for (const auto& m_component : m_components)
+		for (size_t i = 0; i < m_components.size(); ++i)
 		{
-			if (m_component->IsEnable()) {
+			if (m_components[i]->IsEnable()) {
 #ifdef WITH_EDITOR
 				if (Core::Application::IsPlayMode())
-					m_component->OnUpdate();
+					m_components[i]->OnUpdate();
 				else
-					m_component->OnEditorUpdate();
+					m_components[i]->OnEditorUpdate();
 #else
-				m_component->OnUpdate();
+				m_components[i]->OnUpdate();
 #endif
 			}
 		}
 
-		for (const Shared<GameObject>& m_child : m_children)
+		for (size_t i = 0; i < m_children.size(); ++i)
 		{
-			m_child->UpdateSelfAndChild();
+			m_children[i]->UpdateSelfAndChild();
 		}
 	}
 
@@ -247,6 +250,8 @@ namespace GALAXY
 		clone->m_name = m_name;
 		clone->m_scene = m_scene;
 		clone->m_parent = {};
+		clone->m_transform = std::make_unique<Component::Transform>(*m_transform);
+		clone->m_transform->SetGameObject(clone.get());
 		clone->m_children.resize(m_children.size());
 		for (size_t i = 0; i < m_children.size(); i++)
 		{

@@ -24,9 +24,12 @@ namespace GALAXY
 		{
 			m_objectList[gameObject->m_UUID] = gameObject;
 			gameObject->SetScene(this);
+
+			OnAddObject(gameObject);
 		}
 		else
 		{
+			PrintError("Object already exists in scene");
 			// ASSERT(false && "Object already exists in scene") // TODO
 		}
 
@@ -34,6 +37,8 @@ namespace GALAXY
 		{
 			AddObject(child.lock());
 		}
+
+		
 	}
 
 	inline void Resource::Scene::RemoveObject(Core::GameObject* object)

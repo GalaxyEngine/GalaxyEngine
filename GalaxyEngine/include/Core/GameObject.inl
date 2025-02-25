@@ -72,6 +72,11 @@ namespace GALAXY {
 		m_name = std::move(val);
 	}
 
+	inline void Core::GameObject::SetActive(bool val)
+	{
+		m_active = val;
+	}
+
 	template<typename T>
 	inline Weak<T> Core::GameObject::AddComponent()
 	{

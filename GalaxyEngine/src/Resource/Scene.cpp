@@ -231,6 +231,14 @@ namespace GALAXY
 		
 	}
 
+	void Scene::OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject)
+	{
+#ifdef WITH_EDITOR 
+		if (Core::Application::IsPlayMode())
+#endif
+			gameObject->StartSelf();
+	}
+
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
 	{
 		m_currentCamera = camera;

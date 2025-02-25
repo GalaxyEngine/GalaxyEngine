@@ -82,6 +82,8 @@ namespace GALAXY {
 
 			inline void RemoveObject(Core::GameObject* object);
 
+			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject);
+
 			void SetCurrentCamera(const Weak<Render::Camera>& camera);
 
 			// Call when the window should close to prevent unsaved scene
