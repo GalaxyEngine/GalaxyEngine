@@ -144,18 +144,21 @@ namespace GALAXY
 			bool displaySquare = Core::Application::IsPlayMode() || Core::Application::IsPauseMode();
 			if (ImGui::MenuItem(displaySquare ? "[  ]" : "|>"))
 			{
-				auto& appInstance = application;
-				appInstance.SetApplicationMode(displaySquare ? ApplicationMode::Editor : ApplicationMode::Play);
+				application.SetApplicationMode(displaySquare ? ApplicationMode::Editor : ApplicationMode::Play);
 			}
-			bool isPauseMode = Core::Application::IsPauseMode();
+			bool isPauseMode = Core::Application::IsPauseMode() || application.ShouldPauseFirstFrame();
 			if (isPauseMode)
 				ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(0.4f, 0.59f, 0.73f, 1.0f));
 			if (ImGui::MenuItem("||"))
 			{
 				if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
 					application.SetApplicationMode(isPauseMode ? ApplicationMode::Play : ApplicationMode::Pause);
+				else if (Core::Application::IsEditorMode())
+					application.SetShouldPauseFirstFrame(true);
 			}
 			if (isPauseMode)
+				ImGui::PopStyleColor();
+			if (Core::Application::IsPauseMode())
 			{
 				ImGui::PopStyleColor();
 				if (ImGui::MenuItem(">>"))

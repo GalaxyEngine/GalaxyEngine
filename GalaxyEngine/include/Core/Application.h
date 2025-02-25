@@ -67,6 +67,9 @@ namespace GALAXY
 
 			void SetApplicationMode(Editor::ApplicationMode mode);
 			void MoveOneFrame();
+
+			void SetShouldPauseFirstFrame(bool pause);
+			bool ShouldPauseFirstFrame() const { return m_pauseFirstFrame; }
 #endif
 			inline ProjectSettings& GetProjectSettings();
 
@@ -94,6 +97,7 @@ namespace GALAXY
 
 			Editor::ApplicationMode m_applicationMode = Editor::ApplicationMode::Editor;
 			bool m_moveOnFrame = false;
+			bool m_pauseFirstFrame = false;
 #endif
 
 			Scripting::ScriptEngine* m_scriptEngine = nullptr;

@@ -43,6 +43,9 @@ namespace GALAXY
 
             void OnUpdate() override;
 
+            float GetFriction() const { return p_friction; }
+            void SetFriction(float friction) {p_friction = friction;}
+
             float GetRestitution() const { return p_restitution; }
             void SetRestitution(float value) { p_restitution = value; }
 
@@ -58,10 +61,9 @@ namespace GALAXY
             Weak<RigidBody> p_attachedRigidbody;
 
             float p_restitution = 0.5f;
+            float p_friction = 0.5f;
 
             bool p_debugCollide = false;
-            Vec3f p_supportDirection = Vec3f(1, 0, 0);
-            std::optional<Vec3f> p_supportPosition;
 
             bool p_drawAABB = false;
         };

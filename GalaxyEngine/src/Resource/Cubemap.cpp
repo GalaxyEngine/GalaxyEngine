@@ -122,7 +122,8 @@ namespace GALAXY
     {
         for (uint32_t i = 0; i < 6; i++)
         {
-            Core::UUID textureUUID = parser[Cubemap::GetDirectionFromIndex(i)].As<uint64_t>();
+            std::string directionString = Cubemap::GetDirectionFromIndex(i);
+            Core::UUID textureUUID = parser[directionString].As<uint64_t>();
             m_textures[i] = ResourceManager::GetOrLoad<Texture>(textureUUID);
         }
     }
@@ -201,7 +202,6 @@ namespace GALAXY
     Resource::Cubemap::~Cubemap()
     {
         Wrapper::Renderer::GetInstance()->DestroyCubemap(this);
-        delete m_texture;
     }
 
 #ifdef WITH_EDITOR
@@ -286,10 +286,10 @@ namespace GALAXY
         switch (type)
         {
         case CubemapType::Default:
-            m_texture = new CubemapTexture(this);
+            m_texture = std::make_unique<CubemapTexture>(this);
             break;
         case CubemapType::SixSided:
-            m_texture = new SixSidedTexture(this);
+            m_texture = std::make_unique<SixSidedTexture>(this);
             break;
         case CubemapType::Panoramic:
             PrintError("Cubemap Type not implemented : %s", p_fileInfo.GetFullPath().string().c_str());

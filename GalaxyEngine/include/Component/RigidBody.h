@@ -66,13 +66,12 @@ namespace GALAXY
             int StaticPositionCount = 0;
         private:
             float m_mass = 1.0f;
-            float m_drag = 0.0f;
-            float m_angularDrag = 0.0f;
+            float m_drag = 0.4f;
+            float m_angularDrag = 0.4f;
+            Vec3f m_gravityForce = Vec3f::Up() * -9.81f;
 
             Vec3f m_velocity;
             Vec3f m_angularVelocity;
-
-            Vec3f m_gravityForce = Vec3f::Up() * -9.81f;
 
             Mat4 m_inverseInertiaTensorLocal = Mat4::Identity();
 

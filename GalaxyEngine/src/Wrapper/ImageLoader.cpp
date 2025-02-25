@@ -27,7 +27,7 @@ namespace GALAXY {
 
 	std::array<Wrapper::Image, 6> Wrapper::ImageLoader::CubemapTextureToSixSided(const Wrapper::Image& cubemapTexture)
 	{
-		std::array<Wrapper::Image, 6> output;
+		std::array<Image, 6> output;
 		
 		int faceWidth = cubemapTexture.size.x / 4;
 		int faceHeight = cubemapTexture.size.y / 3;
@@ -130,6 +130,7 @@ namespace GALAXY {
 		Image image;
 		int comp;
 		image.data = stbi_load_from_memory(data, len, &image.size.x, &image.size.y, &comp, 4);
+		image.channels = comp;
 
 		return image;
 	}

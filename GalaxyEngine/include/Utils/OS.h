@@ -45,6 +45,7 @@ namespace GALAXY
 		};
 
 		std::filesystem::path GetEnvVar(std::string const& key);
+		std::vector<std::filesystem::path> SplitEnvVar(const std::filesystem::path& path);
 
 		GALAXY_API std::filesystem::path GetUserAppDataFolder();
 		GALAXY_API std::filesystem::path GetEngineDataFolder();

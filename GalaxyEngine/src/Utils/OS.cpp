@@ -186,7 +186,20 @@ namespace GALAXY
         {
             // If not found, try under HKEY_LOCAL_MACHINE.
             if (!GetRiderInstallLocation(HKEY_LOCAL_MACHINE, installLocation))
-                return "";  // Rider installation not found.
+            {
+                // Search in the PATH env
+                auto envVar = Utils::OS::GetEnvVar("PATH");
+                std::vector paths  = Utils::OS::SplitEnvVar(envVar);
+
+                for (const std::filesystem::path& dir : paths)
+                {
+                    std::filesystem::path candidate = dir / "rider64.exe";
+                    if (std::filesystem::exists(candidate))
+                    {
+                        return (dir / "rider64.exe").generic_string();
+                    }
+                }
+            }
         }
         
         // Construct the full path to the Rider executable.
@@ -576,8 +589,11 @@ namespace GALAXY
         std::string command = slnPath;
         command += " ";
         const std::string env = editorToolPath.generic_string();
-        const std::string newPath = "\"" + filePath.string() + "\"";
-        command += newPath;
+        if (!filePath.empty())
+        {
+            const std::string newPath = "\"" + filePath.string() + "\"";
+            command += newPath;
+        }
         // Open file with the first instance of Rider
         ShellExecuteA(nullptr, "open", env.c_str(), command.c_str(), NULL, SW_SHOWNORMAL);
     }

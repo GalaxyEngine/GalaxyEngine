@@ -119,7 +119,7 @@ namespace GALAXY
 
             void SetType(CubemapType type);
 
-            CubemapTexture* GetTexture() const { return m_texture; }
+            CubemapTexture* GetTexture() const { return m_texture.get(); }
 
             void SetFaceTexture(int index, const Path& path) const;
 #ifdef WITH_EDITOR
@@ -134,7 +134,7 @@ namespace GALAXY
             // std::array<Weak<Texture>, 6> m_textures;
 
             CubemapType m_type = CubemapType::Default;
-            CubemapTexture* m_texture;
+            Unique<CubemapTexture> m_texture = nullptr;
         };
     }
 }

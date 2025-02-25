@@ -27,9 +27,8 @@ namespace GALAXY
         struct ContactPoint
         {
             ContactPoint() {}
-            
-            Vec3f localA;
-            Vec3f localB;
+
+            Vec3f position;
             Vec3f normal;
             float depth = 0.f;
         };
@@ -41,10 +40,9 @@ namespace GALAXY
             ContactPoint point;
             int framesLeft;
 
-            void AddContactPoint(const Vec3f& localA, const Vec3f& localB, const Vec3f& normal, float depth)
+            void AddContactPoint(const Vec3f& position, const Vec3f& normal, float depth)
             {
-                point.localA = localA;
-                point.localB = localB;
+                point.position = position;
                 point.normal = normal;
                 point.depth = depth;
             }
@@ -93,9 +91,8 @@ namespace GALAXY
             bool Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit) override;
         private:
             bool InitializeAPI() override;
-            void InternalUpdate();
             void IntegrateAccel(float dt) const;
-            void ResolveCollisions(Component::Collider* collider1, Component::Collider* collider2, const CollisionInfo& collisionInfo);
+            static void ResolveCollisions(Component::Collider* collider1, Component::Collider* collider2, const CollisionInfo& collisionInfo);
             void UpdateConstraints(float constraintDt);
             void IntegrateVelocity(float dt) const;
             

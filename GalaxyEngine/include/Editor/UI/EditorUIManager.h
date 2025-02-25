@@ -50,7 +50,7 @@ namespace GALAXY::Editor::UI {
 		void AddResourceLoading(const Core::UUID& uuid) { m_loadingResources.insert(uuid);}
 		void RemoveResourceLoading(const Core::UUID& uuid) { m_loadingResources.erase(uuid); }
 
-		std::set<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
+		const std::set<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
 
 		inline MainBar* GetMainBar() const { return m_mainBar.get(); }
 		inline Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }

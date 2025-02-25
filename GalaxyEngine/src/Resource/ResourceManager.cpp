@@ -103,7 +103,7 @@ namespace GALAXY
             AddResource<Prefab>(resourcePath);
             break;
         case ResourceType::Cubemap:
-            GetOrLoad<Cubemap>(resourcePath);
+            AddResource<Cubemap>(resourcePath);
             break;
         case ResourceType::Data:
             {
@@ -188,6 +188,12 @@ namespace GALAXY
 #endif
                 break;
             case ResourceType::Scene:
+                break;
+            case ResourceType::Cubemap:
+                if (auto shader = dynamic_pointer_cast<Cubemap>(resource.second))
+                {
+                    GetOrLoad<Cubemap>(resource.first); //Load after Import because use uuid to load textures
+                }
                 break;
             case ResourceType::Sound:
                 break;

@@ -382,7 +382,11 @@ namespace GALAXY {
 			currentScene->Save(projectPath / PLAYMODE_SCENE_PATH);
 
 			shouldCallStart = true;
-			
+			if (m_pauseFirstFrame)
+			{
+				m_moveOnFrame = true;
+				m_pauseFirstFrame = false;
+			}
 		}
 		else if (mode == Editor::ApplicationMode::Editor && (IsPlayMode() || IsPauseMode()))
 		{
@@ -411,6 +415,11 @@ namespace GALAXY {
 	void Core::Application::MoveOneFrame()
 	{
 		m_moveOnFrame = true;
+	}
+
+	void Core::Application::SetShouldPauseFirstFrame(bool pause)
+	{
+		m_pauseFirstFrame = pause;
 	}
 #endif
 

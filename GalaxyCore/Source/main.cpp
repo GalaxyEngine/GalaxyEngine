@@ -20,7 +20,6 @@ void Main(int argc, char** argv, char** envp)
 	 * TODO : Fix rotation Gizmo (To test)
 	 * TODO : Implement Shadow Mapping
 	 */
-
 	/*
 	for (char **env = envp; *env != 0; env++)
 	{
@@ -63,7 +62,7 @@ int main(int argc, char** argv, char** envp)
 	//  TODO: Remove Comments To Break on leaks
 	// |
 	// V
-	// _CrtSetBreakAlloc(15393);
+	// _CrtSetBreakAlloc(3344);
 #endif
 	Main(argc, argv, envp);
 	return 0;

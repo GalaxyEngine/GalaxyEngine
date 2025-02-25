@@ -227,15 +227,17 @@ namespace GALAXY
 				continue;
 			}
 
+
+			uint32_t componentID = parser["EDITOR ComponentID"].As<uint32_t>();
+			uint64_t entityID = parser["EDITOR EntityID"].As<uint64_t>();
+			
+			auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithUUID(entityID);
 			const Shared<Component::BaseComponent> script = instanceScriptComponent->Clone();
 			// Setup manually
 			std::dynamic_pointer_cast<Component::ScriptComponent>(script)->SetupVariables();
 
+			script->SetGameObject(gameObject.lock().get());
 			script->Deserialize(parser);
-
-			uint32_t componentID = parser["EDITOR ComponentID"].As<uint32_t>();
-			uint64_t entityID = parser["EDITOR EntityID"].As<uint64_t>();
-			auto gameObject = Core::SceneHolder::GetInstance()->GetCurrentScene()->GetWithUUID(entityID);
 
 			assert(gameObject.lock() != nullptr);
 

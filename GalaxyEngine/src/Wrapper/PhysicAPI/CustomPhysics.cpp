@@ -7,13 +7,15 @@
 #include "Component/SphereCollider.h"
 #include "Component/MeshCollider.h"
 #include "Component/Transform.h"
-
 #include "Component/RigidBody.h"
-#include "Core/Application.h"
 
+#include "Core/Application.h"
 #include "Core/GameObject.h"
+
 #include "Physic/Plane.h"
+
 #include "Resource/Mesh.h"
+
 #include "Utils/Time.h"
 
 #define EPA_TOLERANCE 0.0001
@@ -27,7 +29,7 @@ namespace std
     template <>
     struct hash<Vec3f>
     {
-        size_t operator()(const Vec3f& v) const
+        size_t operator()(const Vec3f& v) const noexcept
         {
             return hash<float>()(v.x) ^ (hash<float>()(v.y) << 1) ^ (hash<float>()(v.z) << 2);
         }
@@ -49,36 +51,14 @@ namespace GALAXY
         supA = a->Support(-searchDir);
         point = supB - supA;
     }
-    
+
     bool CustomPhysicsAPI::InitializeAPI()
     {
         m_dTOffset = 0.f;
         m_staticCountMax = 25;
-        m_staticMaxPosMagn = 0.01f;
+        m_staticMaxPosMagn = 0.0004f;
         PrintLog("Custom Physics Initialized");
         return true;
-    }
-
-    void CustomPhysicsAPI::InternalUpdate()
-    {
-        m_collisionInfos.clear();
-        std::vector<ColliderPair> objects = BroadPhase();
-
-        for (ColliderPair& pair : objects)
-        {
-            Vec3f mtv = Vec3f::Zero();
-            CollisionInfo info;
-            // PrintLog("Testing pair %ull - %ull", pair.first->GetGameObject()->GetUUID(), pair.second->GetGameObject()->GetUUID());
-            if (GJK(pair.first, pair.second, info))
-            {
-                pair.first->SetDebugCollide(true);
-                pair.second->SetDebugCollide(true);
-
-                m_collisionInfos.push_back(info);
-
-                ResolveCollisions(pair.first, pair.second, info);
-            }
-        }
     }
 
     void CustomPhysicsAPI::IntegrateAccel(float dt) const
@@ -113,7 +93,6 @@ namespace GALAXY
             Vec3f angVel = rigidBody->GetAngularVelocity();
 
             rigidBody->UpdateInertiaTensor();
-
             Vec3f angAccel = rigidBody->GetInertiaTensor().MultiplyPoint3x4(torque);
             angVel += angAccel * dt;
 
@@ -122,108 +101,177 @@ namespace GALAXY
     }
 
     void CustomPhysicsAPI::ResolveCollisions(Component::Collider* collider1,
-                                             Component::Collider* collider2,    
+                                             Component::Collider* collider2,
                                              const CollisionInfo& collisionInfo)
     {
-        // Retrieve rigid bodies from both colliders.
-        Shared<Component::RigidBody> bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
-        Shared<Component::RigidBody> bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
-
-
-        // Not work, why ?
-        // if (bodyA && !bodyA->IsEnable())
-            // bodyA = nullptr;
-
-        // if (bodyB && !bodyB->IsEnable())
-            // bodyB = nullptr;
-
+        // Retrieve rigid bodies.
+        auto bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
+        auto bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
         if (!bodyA && !bodyB)
-            return;
+            return; // Nothing to resolve if both bodies are static.
 
-        // Get transforms (assumes each GameObject provides a GetTransform() method).
+        // Retrieve transforms.
         auto transformA = collider1->GetGameObject()->GetTransform();
         auto transformB = collider2->GetGameObject()->GetTransform();
 
-        float aInvMass = bodyA ? bodyA->GetInverseMass() : 0;
-        float bInvMass = bodyB ? bodyB->GetInverseMass() : 0;
+        // Get inverse masses.
+        float invMassA = bodyA ? bodyA->GetInverseMass() : 0.f;
+        float invMassB = bodyB ? bodyB->GetInverseMass() : 0.f;
+        float invMassSum = invMassA + invMassB;
+        if (invMassSum == 0.f)
+            return; // Both objects are static.
 
-        Vec3f aVelocity = bodyA ? bodyA->GetVelocity() : Vec3f::Zero();
-        Vec3f bVelocity = bodyB ? bodyB->GetVelocity() : Vec3f::Zero();
-        
-        auto inverseInertiaTensorA = bodyA ? bodyA->GetInverseInertiaTensor() : Mat4::Identity();
-        auto inverseInertiaTensorB = bodyB ? bodyB->GetInverseInertiaTensor() : Mat4::Identity();
-        
-        float totalMass = aInvMass + bInvMass;
-        if (totalMass == 0)
-            return; // two static objects collided
-
-        auto p = collisionInfo.point;
-        
         // ----- Positional Correction -----
+        const auto& p = collisionInfo.point;
+        
         if (bodyA)
         {
             transformA->SetWorldPosition(transformA->GetWorldPosition() -
-                (p.normal * p.depth * (aInvMass / totalMass)));
+                (p.normal * p.depth * (invMassA / invMassSum)));
         }
         if (bodyB)
         {
             transformB->SetWorldPosition(transformB->GetWorldPosition() +
-                (p.normal * p.depth * (bInvMass / totalMass)));
+                (p.normal * p.depth * (invMassB / invMassSum)));
         }
 
-        // ----- Impulse Resolution -----
-        Vec3f relativeA = p.localA;
-        Vec3f relativeB = p.localB;
+        // ----- Impulse Resolution (Normal Impulse) -----
+        // Compute contact offsets (rA and rB) from each center-of-mass to contact point.
+        Vec3f rA = p.position - transformA->GetWorldPosition();
+        Vec3f rB = p.position - transformB->GetWorldPosition();
 
-        Vec3f angVelocityA =
-            angVelocityA.Cross(relativeA);
-        Vec3f angVelocityB =
-            angVelocityB.Cross(relativeB);
+        // Get current linear and angular velocities.
+        Vec3f velA = bodyA ? bodyA->GetVelocity() : Vec3f::Zero();
+        Vec3f velB = bodyB ? bodyB->GetVelocity() : Vec3f::Zero();
+        Vec3f angVelA = bodyA ? bodyA->GetAngularVelocity() : Vec3f::Zero();
+        Vec3f angVelB = bodyB ? bodyB->GetAngularVelocity() : Vec3f::Zero();
 
-        Vec3f fullVelocityA = aVelocity + angVelocityA;
-        Vec3f fullVelocityB = bVelocity + angVelocityB;
+        // Compute the full velocity at the contact point.
+        Vec3f fullVelA = velA + angVelA.Cross(rA);
+        Vec3f fullVelB = velB + angVelB.Cross(rB);
+        Vec3f contactVel = fullVelB - fullVelA;
+        float velAlongNormal = contactVel.Dot(p.normal);
 
-        Vec3f contactVelocity = fullVelocityB - fullVelocityA;
+        // Do not resolve if objects are separating.
+        if (velAlongNormal > 0)
+            return;
 
-        float impulseForce = contactVelocity.Dot(p.normal);
+        // Retrieve inverse inertia tensors.
+        auto IinvA = bodyA ? bodyA->GetInverseInertiaTensor() : Mat4::Identity();
+        auto IinvB = bodyB ? bodyB->GetInverseInertiaTensor() : Mat4::Identity();
 
-        // now to work out the effect of inertia ....
-        Vec3f inertiaA = inverseInertiaTensorA.MultiplyVector(relativeA.Cross(p.normal)).Cross(relativeA); //?
-        Vec3f inertiaB = inverseInertiaTensorB.MultiplyVector(relativeB.Cross(p.normal)).Cross(relativeB); //?
-        float angularEffect = (inertiaA + inertiaB).Dot(p.normal);
+        // Compute rotational terms for the normal impulse.
+        Vec3f crossA = rA.Cross(p.normal);
+        Vec3f crossB = rB.Cross(p.normal);
+        float angularTermA = bodyA ? (IinvA.MultiplyVector(crossA).Cross(rA)).Dot(p.normal) : 0.f;
+        float angularTermB = bodyB ? (IinvB.MultiplyVector(crossB).Cross(rB)).Dot(p.normal) : 0.f;
 
-        //float cRestitution = 0.66f; // disperse some kinetic energy
-        float cRestitution = collider1->GetRestitution() + collider2->GetRestitution();
+        // Total effective mass (linear + angular) in the normal direction.
+        float effectiveMass = invMassSum + angularTermA + angularTermB;
+        effectiveMass = std::max(effectiveMass, 1e-6f); // Prevent division by zero
+        if (effectiveMass == 0.f)
+            return;
 
-        float j = (-(1.0f + cRestitution) * impulseForce) /
-            (totalMass + angularEffect);
+        // Combine restitution values (average).
+        float restitution = (collider1->GetRestitution() + collider2->GetRestitution()) * 0.5f;
+        float j = -(1.0f + restitution) * velAlongNormal / effectiveMass;
+        Vec3f normalImpulse = p.normal * j;
 
-        Vec3f fullImpulse = p.normal * j;
+        // Apply the normal impulse to both bodies.
+        Vec3f newVelA = velA;
+        Vec3f newAngVelA = angVelA;
+        Vec3f newVelB = velB;
+        Vec3f newAngVelB = angVelB;
 
         if (bodyA)
         {
-            bodyA->SetVelocity(bodyA->GetVelocity() + (-fullImpulse * aInvMass));
-            bodyA->SetAngularVelocity(bodyA->GetAngularVelocity() + inverseInertiaTensorA.MultiplyPoint3x4(relativeA.Cross(-fullImpulse)));
+            newVelA -= normalImpulse * invMassA;
+            newAngVelA += IinvA.MultiplyPoint3x4(rA.Cross(-normalImpulse));
+            bodyA->SetVelocity(newVelA);
+            bodyA->SetAngularVelocity(newAngVelA);
         }
         if (bodyB)
         {
-            bodyB->SetVelocity(bodyB->GetVelocity() + (fullImpulse * bInvMass));
-            bodyB->SetAngularVelocity(bodyB->GetAngularVelocity() + inverseInertiaTensorB.MultiplyPoint3x4(relativeB.Cross(fullImpulse)));
-        }        
-    }
+            newVelB += normalImpulse * invMassB;
+            newAngVelB += IinvB.MultiplyPoint3x4(rB.Cross(normalImpulse));
+            bodyB->SetVelocity(newVelB);
+            bodyB->SetAngularVelocity(newAngVelB);
+        }
 
+        // ----- Friction Impulse -----
+        // Recompute the contact velocities at the contact point after applying the normal impulse.
+        fullVelA = newVelA + newAngVelA.Cross(rA);
+        fullVelB = newVelB + newAngVelB.Cross(rB);
+        contactVel = fullVelB - fullVelA;
+
+        // Compute the tangent (friction) direction.
+        Vec3f tangent = contactVel - p.normal * contactVel.Dot(p.normal);
+        if (tangent.LengthSquared() > 1e-6f)  // Using squared length for efficiency.
+        {
+            tangent.Normalize();
+        }
+        else
+        {
+            // Generate an arbitrary perpendicular tangent if the computed one is too small.
+            tangent = p.normal.Cross(Vec3f(1.0f, 0.0f, 0.0f));
+            if (tangent.LengthSquared() < 1e-6f) // In case p.normal is parallel to (1,0,0).
+            {
+                tangent = p.normal.Cross(Vec3f(0.0f, 1.0f, 0.0f));
+            }
+            tangent.Normalize();
+        }
+
+        // Compute effective mass for the friction impulse.
+        // For friction, effective mass = invMass + (r x tangent)^T * Iinv * (r x tangent)
+        Vec3f rAxt = rA.Cross(tangent);
+        Vec3f rBxt = rB.Cross(tangent);
+        float angularTermA_tan = bodyA ? IinvA.MultiplyVector(rAxt).Dot(rAxt) : 0.f;
+        float angularTermB_tan = bodyB ? IinvB.MultiplyVector(rBxt).Dot(rBxt) : 0.f;
+        float effectiveMassFriction = invMassSum + angularTermA_tan + angularTermB_tan;
+
+        float jt = 0.f;
+        if (effectiveMassFriction != 0.f)
+        {
+            jt = -contactVel.Dot(tangent) / effectiveMassFriction;
+        }
+
+        // Compute the combined friction coefficient (average).
+        float mu = (collider1->GetFriction() + collider2->GetFriction()) * 0.5f;
+        // Clamp the friction impulse magnitude using Coulomb's law.
+        float maxFrictionImpulse = fabs(j) * mu;
+        if (fabs(jt) > maxFrictionImpulse)
+        {
+            jt = (jt < 0 ? -maxFrictionImpulse : maxFrictionImpulse);
+        }
+        Vec3f frictionImpulse = tangent * jt;
+
+        // Apply the friction impulse.
+        if (bodyA)
+        {
+            newVelA -= frictionImpulse * invMassA;
+            newAngVelA += IinvA.MultiplyVector(rA.Cross(-frictionImpulse));
+            bodyA->SetVelocity(newVelA);
+            bodyA->SetAngularVelocity(newAngVelA);
+        }
+        if (bodyB)
+        {
+            newVelB += frictionImpulse * invMassB;
+            newAngVelB += IinvB.MultiplyVector(rB.Cross(frictionImpulse));
+            bodyB->SetVelocity(newVelB);
+            bodyB->SetAngularVelocity(newAngVelB);
+        }
+    }
+    
     void CustomPhysicsAPI::UpdateConstraints(float constraintDt)
     {
-        
     }
 
     void CustomPhysicsAPI::IntegrateVelocity(float dt) const
     {
-        float frameLinearDamping = 1.0f - (0.4f * dt);
         for (auto& _body : m_objectSet)
         {
             auto body = _body.lock();
-            
+
             if (!body || !body->IsEnable())
                 continue;
             Component::Transform* transform = body->GetTransform();
@@ -239,13 +287,14 @@ namespace GALAXY
                 body->StaticPositionCount++;
             }
 
-            if (body->StaticPositionCount < m_staticCountMax)
+            if (/*body->StaticPositionCount < m_staticCountMax*/ true)
             {
                 position += velocity * dt;
 
                 transform->SetWorldPosition(position);
 
-                velocity = velocity * frameLinearDamping;
+                float linearDrag = body->GetDrag();
+                velocity *= (1.0f - body->GetDrag() * dt);
                 body->SetVelocity(velocity);
 
                 Quat rotation = transform->GetWorldRotation();
@@ -260,7 +309,7 @@ namespace GALAXY
 
                 transform->SetWorldRotation(rotation);
 
-                float frameAngularDamping = 1.0f - (0.4f * dt);
+                float frameAngularDamping = 1.0f - (body->GetAngularDrag() * dt);
                 angularVelocity = angularVelocity * frameAngularDamping;
                 body->SetAngularVelocity(angularVelocity);
             }
@@ -269,13 +318,11 @@ namespace GALAXY
                 body->StaticPositionCount = m_staticCountMax;
                 body->SetVelocity(Vec3f::Zero());
             }
-            
         }
-        
     }
 
     //This is the fixed timestep we'd LIKE to have
-    const int   idealHZ = 120;
+    const int idealHZ = 120;
     const float idealDT = 1.0f / idealHZ;
 
     /*
@@ -284,10 +331,10 @@ namespace GALAXY
     iteration count down until the FPS stabilises, even if that ends up
     being at a low rate. 
     */
-    int realHZ		= idealHZ;
-    float realDT	= idealDT;
+    int realHZ = idealHZ;
+    float realDT = idealDT;
     int constraintIterationCount = 1;
-    
+
     void CustomPhysicsAPI::Update()
     {
 #ifdef WITH_EDITOR
@@ -297,6 +344,7 @@ namespace GALAXY
         float dt = Utils::Time::DeltaTime();
 
         // Remove expired objects
+        m_collisionInfos.clear();
         std::erase_if(m_objectSet, [](const Weak<Component::RigidBody>& body) { return body.expired(); });
         std::erase_if(m_colliderSet, [](const Weak<Component::Collider>& collider) { return collider.expired(); });
 
@@ -307,6 +355,7 @@ namespace GALAXY
         while (m_dTOffset >= realDT)
         {
             IntegrateAccel(realDT);
+
             std::vector<ColliderPair> objects = BroadPhase();
 
             for (auto& object : objects)
@@ -315,78 +364,63 @@ namespace GALAXY
                 if (GJK(object.first, object.second, info))
                 {
                     object.first->SetDebugCollide(true);
-                    object.second->SetDebugCollide(false);
-                    
+                    object.second->SetDebugCollide(true);
+
                     info.framesLeft = m_numCollisionFrames;
                     ResolveCollisions(object.first, object.second, info);
                     m_collisionInfos.push_back(info);
                 }
             }
 
-            float constraintDt = realDT /  (float)constraintIterationCount;
-            for (int i = 0; i < constraintIterationCount; ++i) {
-                UpdateConstraints(constraintDt);	
+            float constraintDt = realDT / (float)constraintIterationCount;
+            for (int i = 0; i < constraintIterationCount; ++i)
+            {
+                UpdateConstraints(realDT);
             }
+
             IntegrateVelocity(realDT); //update positions from new velocity changes
 
             m_dTOffset -= realDT;
         }
-        m_collisionInfos.clear();
 
         timer.Stop();
         float updateTime = static_cast<float>(timer.GetElapsedTime().AsSeconds());
 
         //Uh oh, physics is taking too long...
-        if (updateTime > realDT) {
+        if (updateTime > realDT)
+        {
             realHZ /= 2;
             realDT *= 2;
             PrintLog("Dropping iteration count due to long physics time...(now %d)", realHZ);
         }
-        else if(dt*2 < realDT) { //we have plenty of room to increase iteration count!
+        else if (dt * 2 < realDT)
+        {
+            //we have plenty of room to increase iteration count!
             int temp = realHZ;
             realHZ *= 2;
             realDT /= 2;
 
-            if (realHZ > idealHZ) {
+            if (realHZ > idealHZ)
+            {
                 realHZ = idealHZ;
                 realDT = idealDT;
             }
-            if (temp != realHZ) {
+            if (temp != realHZ)
+            {
                 PrintLog("Raising iteration count due to short physics time...(now %d)", realHZ);
             }
         }
-
-        /*
-        for (const Weak<Component::RigidBody>& _body : m_objectSet)
-        {
-            Shared<Component::RigidBody> body = _body.lock();
-            Component::Transform* transform = body->GetTransform();
-
-            Vec3f newVelocity = body->GetVelocity() + body->GetGravityForce() * dt;
-            Vec3f newPosition = transform->GetWorldPosition() + newVelocity * dt;
-            Quat newRotation = transform->GetWorldRotation() * Quat::AngleAxis(
-                body->GetAngularVelocity().Length() * dt, body->GetAngularVelocity());
-            body->SetVelocity(newVelocity);
-
-            transform->SetWorldPosition(newPosition);
-            transform->SetWorldRotation(newRotation);
-
-            body->UpdateInertiaTensor();
-        }
-        */
     }
 
     void CustomPhysicsAPI::DrawDebug()
     {
+        return;
         auto instance = Renderer::GetInstance();
         for (const CollisionInfo& info : m_collisionInfos)
         {
-            instance->DrawSimpleWireSphere(info.point.localA, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
-            instance->DrawSimpleWireSphere(info.point.localB, 0.1f, 32, Vec4f(0, 0, 1, 1), 10.f);
-            instance->DrawLine(info.point.localA, info.point.localA + info.point.normal * info.point.depth,
+            instance->DrawSimpleWireSphere(info.point.position, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+            instance->DrawLine(info.point.position, info.point.position + info.point.normal * info.point.depth,
                                Vec4f(1, 0, 0, 1), 10.f);
-            instance->DrawLine(info.point.localB, info.point.localB + info.point.normal * info.point.depth,
-                               Vec4f(0, 0, 1, 1), 10.f);
         }
     }
 
@@ -462,7 +496,7 @@ namespace GALAXY
     }
 
     void CustomPhysicsAPI::AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force,
-        const Vec3f& position)
+                                              const Vec3f& position)
     {
         auto object = m_objectSet.find(weak); // Use auto, no reference
         if (object == m_objectSet.end())
@@ -471,18 +505,18 @@ namespace GALAXY
             return;
         }
         Component::RigidBody* rigidbodyComponent = object->lock().get();
-        
+
         Component::Transform* transform = rigidbodyComponent->GetTransform();
         if (!transform)
             return;
 
         Vec3f centerOfMass = transform->GetWorldPosition();
         Vec3f offset = position - centerOfMass;
-        
+
         AddForce(weak, force);
-        
+
         Vec3f torque = offset.Cross(force);
-        
+
         rigidbodyComponent->SetAngularVelocity(rigidbodyComponent->GetAngularVelocity() + torque);
     }
 
@@ -712,7 +746,8 @@ namespace GALAXY
     }
 #pragma endregion
 
-    bool CustomPhysicsAPI::Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit)
+    bool CustomPhysicsAPI::Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance,
+                                   Physic::RaycastHit& hit)
     {
         // TODO : Test this
         bool hitFound = false;
@@ -721,8 +756,9 @@ namespace GALAXY
         Vec3f dir = direction.GetNormalize();
 
         // Lambda to perform a ray-AABB intersection using the slab method.
-        auto RayAABBIntersect = [&](const Vec3f& rayOrigin, const Vec3f& rayDir, 
-                                    const Vec3f& boxMin, const Vec3f& boxMax, float& tOut) -> bool {
+        auto RayAABBIntersect = [&](const Vec3f& rayOrigin, const Vec3f& rayDir,
+                                    const Vec3f& boxMin, const Vec3f& boxMax, float& tOut) -> bool
+        {
             float tMin = 0.0f;
             float tMax = maxDistance;
 
@@ -1053,29 +1089,33 @@ namespace GALAXY
 
             if (p.point.Dot(search_dir) - min_dist < EPA_TOLERANCE)
             {
+                // Compute barycentric coordinates for the projection of the origin
                 Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(
-                    faces[closest_face][0].point, faces[closest_face][1].point,
-                    faces[closest_face][2].point); //plane of closest triangle face
+                    faces[closest_face][0].point,
+                    faces[closest_face][1].point,
+                    faces[closest_face][2].point
+                );
                 Vec3f projectionPoint = closestPlane.ProjectPointOntoPlane(Vec3f::Zero());
-                //projecting the origin onto the triangle(both are in Minkowski space)
                 float u, v, w;
-                Barycentric(faces[closest_face][0].point, faces[closest_face][1].point, faces[closest_face][2].point,
-                            projectionPoint, u, v,
-                            w); //finding the barycentric coordinate of this projection point to the triangle
+                Barycentric(faces[closest_face][0].point,
+                            faces[closest_face][1].point,
+                            faces[closest_face][2].point,
+                            projectionPoint, u, v, w);
 
-                //The contact points just have the same barycentric coordinate in their own triangles which  are composed by result coordinates of support function 
-                Vec3f localA = faces[closest_face][0].supA * u + faces[closest_face][1].supA * v + faces[closest_face][
-                    2].supA * w;
-                Vec3f localB = faces[closest_face][0].supB * u + faces[closest_face][1].supB * v + faces[closest_face][
-                    2].supB * w;
-                float penetration = (localA - localB).Length();
-                Vec3f normal = (localA - localB).GetNormalize();
+                // Get the support points from each collider in world space using the same barycentrics
+                Vec3f worldA = faces[closest_face][0].supA * u +
+                    faces[closest_face][1].supA * v +
+                    faces[closest_face][2].supA * w;
+                Vec3f worldB = faces[closest_face][0].supB * u +
+                    faces[closest_face][1].supB * v +
+                    faces[closest_face][2].supB * w;
 
-                //Convergence (new point is not significantly further from origin)
-                localA -= coll1->GetTransform()->GetWorldPosition();
-                localB -= coll2->GetTransform()->GetWorldPosition();
+                // Compute a single contact point as the average of the two support points
+                Vec3f contactPoint = (worldA + worldB) * 0.5f;
+                float penetration = (worldA - worldB).Length();
+                Vec3f normal = (worldA - worldB).GetNormalize();
 
-                collisionInfo.AddContactPoint(localA, localB, normal, penetration);
+                collisionInfo.AddContactPoint(contactPoint, normal, penetration);
                 return;
             }
 
@@ -1152,25 +1192,29 @@ namespace GALAXY
         }
         PrintLog("EPA did not converge");
         //Return most recent closest point
+
         Vec3f search_dir = faces[closest_face][3].point;
-
         Point p = Point(search_dir, coll1, coll2);
-
-        Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(faces[closest_face][0].point,
-                                                                 faces[closest_face][1].point,
-                                                                 faces[closest_face][2].point);
+        Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(
+            faces[closest_face][0].point,
+            faces[closest_face][1].point,
+            faces[closest_face][2].point);
         Vec3f projectionPoint = closestPlane.ProjectPointOntoPlane(Vec3f::Zero());
         float u, v, w;
-        Barycentric(faces[closest_face][0].point, faces[closest_face][1].point, faces[closest_face][2].point,
+        Barycentric(faces[closest_face][0].point,
+                    faces[closest_face][1].point,
+                    faces[closest_face][2].point,
                     projectionPoint, u, v, w);
-        Vec3f localA = faces[closest_face][0].supA * u + faces[closest_face][1].supA * v + faces[closest_face][2].supA *
-            w;
-        Vec3f localB = faces[closest_face][0].supB * u + faces[closest_face][1].supB * v + faces[closest_face][2].supB *
-            w;
-        float penetration = (localA - localB).Length();
-        Vec3f normal = (localA - localB).GetNormalize();
-
-        collisionInfo.AddContactPoint(localA, localB, normal, penetration);
+        Vec3f worldA = faces[closest_face][0].supA * u +
+            faces[closest_face][1].supA * v +
+            faces[closest_face][2].supA * w;
+        Vec3f worldB = faces[closest_face][0].supB * u +
+            faces[closest_face][1].supB * v +
+            faces[closest_face][2].supB * w;
+        Vec3f contactPoint = (worldA + worldB) * 0.5f;
+        float penetration = (worldA - worldB).Length();
+        Vec3f normal = (worldA - worldB).GetNormalize();
+        collisionInfo.AddContactPoint(contactPoint, normal, penetration);
     }
 
     // Source : https://github.com/kevinmoran/GJK/blob/master
@@ -1178,8 +1222,6 @@ namespace GALAXY
     {
         collisionInfo.a = coll1->GetGameObject();
         collisionInfo.b = coll2->GetGameObject();
-
-        Vec3f* mtv = nullptr;
 
         Vec3f coll1Pos = coll1->GetTransform()->GetWorldPosition();
         Vec3f coll2Pos = coll2->GetTransform()->GetWorldPosition();
@@ -1224,5 +1266,5 @@ namespace GALAXY
         }
         return false;
     }
-#pragma endregion 
+#pragma endregion
 }

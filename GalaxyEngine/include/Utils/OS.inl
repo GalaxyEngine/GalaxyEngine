@@ -46,4 +46,15 @@ namespace GALAXY
 #endif
 	}
 
+	inline std::vector<std::filesystem::path> Utils::OS::SplitEnvVar(const std::filesystem::path& path)
+	{
+		std::vector<std::filesystem::path> tokens;
+		std::istringstream iss(path.generic_string());
+		std::string token;
+		while (std::getline(iss, token, ';'))
+		{
+			tokens.push_back(token);
+		}
+		return tokens;
+	}
 }
