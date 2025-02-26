@@ -54,6 +54,11 @@ namespace GALAXY
 		}
 	}
 
+	inline bool Resource::Scene::HasObject(Core::UUID uuid) const
+	{
+		return m_objectList.contains(uuid);
+	}
+
 	inline Weak<GALAXY::Core::GameObject> Resource::Scene::GetWithSceneGraphID(const uint64_t index)
 	{
 		for (auto& object : m_objectList | std::views::values)
@@ -75,7 +80,7 @@ namespace GALAXY
 		return {};
 	}
 
-	inline Weak<Core::GameObject> Resource::Scene::GetRootGameObject() const
+	inline Shared<Core::GameObject> Resource::Scene::GetRootGameObject() const
 	{
 		return m_root;
 	}

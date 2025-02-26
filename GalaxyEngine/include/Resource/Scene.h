@@ -79,9 +79,8 @@ namespace GALAXY {
 			inline Weak<Core::GameObject> CreateObject(Args&&... args);
 
 			inline void AddObject(const std::shared_ptr<Core::GameObject>& gameObject);
-
 			inline void RemoveObject(Core::GameObject* object);
-
+			inline bool HasObject(Core::UUID uuid) const;
 			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject);
 
 			void SetCurrentCamera(const Weak<Render::Camera>& camera);
@@ -97,7 +96,7 @@ namespace GALAXY {
 			inline Weak<Core::GameObject> GetWithSceneGraphID(uint64_t index);
 			// Return the GameObject with the uuid given
 			inline Weak<Core::GameObject> GetWithUUID(const Core::UUID& uuid);
-			inline Weak<Core::GameObject> GetRootGameObject() const;
+			inline Shared<Core::GameObject> GetRootGameObject() const;
 			inline const Mat4& GetView() const;
 			inline const Mat4& GetProjection() const;
 			inline const Mat4& GetVP() const;

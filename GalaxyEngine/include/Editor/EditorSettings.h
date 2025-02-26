@@ -139,7 +139,7 @@ namespace GALAXY
 
             void TakeScreenShot();
 
-            void AddListElement(EditorSettingsTab tab);
+            void DrawTabElement(EditorSettingsTab tab);
 
             [[nodiscard]] ScriptEditorToolType GetScriptEditorToolType() const { return m_currentScriptEditorToolType; }
             void SetScriptEditorToolType(const ScriptEditorToolType val);

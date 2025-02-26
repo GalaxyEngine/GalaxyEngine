@@ -18,6 +18,8 @@ namespace GALAXY
         ImGui::SeparatorText("Force");
         if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
         {
+            bool isStatic = (StaticPositionCount >= 25);
+            ImGui::Checkbox("Is Static", &isStatic);
             ImGui::DragFloat3("Velocity", &m_velocity.x, 0.1f, -100.0f, 100.0f);
             ImGui::DragFloat3("Angular Velocity", &m_angularVelocity.x, 0.1f, -100.0f, 100.0f);
         }
@@ -79,13 +81,7 @@ namespace GALAXY
 
     void Component::RigidBody::UpdateInertiaTensor()
     {
-        Quat rotation = GetTransform()->GetWorldRotation();
-        Mat4 invOrientation = Mat4::CreateRotationMatrix(rotation.GetConjugate());
-        Mat4 orientation = Mat4::CreateRotationMatrix(rotation);
-
         Shared<Collider> collider = GetGameObject()->GetComponent<Collider>();
-        
-        m_inverseInertiaTensorLocal = orientation *
-            collider->GetInverseInertia(m_mass) * invOrientation;
+        m_inverseInertiaTensorLocal = collider->GetInverseInertia(m_mass);
     }
 }

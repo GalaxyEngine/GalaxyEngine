@@ -71,7 +71,7 @@ namespace GALAXY
 			child->SetParent(weak_from_this());
 		}
 
-		if (m_scene && child->m_scene != m_scene)
+		if (m_scene && !m_scene->HasObject(child->GetUUID()))
 			m_scene->AddObject(child);
 
 	}
@@ -92,7 +92,7 @@ namespace GALAXY
 	{
 		std::erase_if(m_children, [&](const Weak<GameObject>& c) {
 			return c.lock().get() == child;
-			});
+		});
 	}
 
 	void GameObject::RemoveChild(const uint32_t index)

@@ -170,7 +170,7 @@ namespace GALAXY {
 		s_modelLoaded = true;
 		m_dragModelObject = model.lock()->ToGameObject();
 		auto scene = Core::SceneHolder::GetCurrentScene();
-		scene->GetRootGameObject().lock()->AddChild(m_dragModelObject);
+		scene->GetRootGameObject()->AddChild(m_dragModelObject);
 	}
 	
 	void Editor::UI::SceneWindow::DrawImage()

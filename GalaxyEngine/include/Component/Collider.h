@@ -43,6 +43,9 @@ namespace GALAXY
 
             void OnUpdate() override;
 
+            uint32_t GetCollisionLayer() const { return p_collisionLayer; }
+            void SetCollisionLayer(uint32_t layer) { p_collisionLayer = layer; }
+
             float GetFriction() const { return p_friction; }
             void SetFriction(float friction) {p_friction = friction;}
 
@@ -66,6 +69,8 @@ namespace GALAXY
             bool p_debugCollide = false;
 
             bool p_drawAABB = false;
+
+            uint32_t p_collisionLayer = 0;
         };
     }
 }

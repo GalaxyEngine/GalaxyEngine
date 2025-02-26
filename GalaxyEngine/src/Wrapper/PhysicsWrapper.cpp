@@ -11,7 +11,7 @@
 #endif
 namespace GALAXY 
 {
-    Wrapper::PhysicsWrapper* Wrapper::PhysicsWrapper::m_instance = nullptr;
+    Wrapper::PhysicsWrapper* Wrapper::PhysicsWrapper::p_instance = nullptr;
     void Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType type)
     {
         switch (type)
@@ -37,7 +37,7 @@ namespace GALAXY
             case PhysicAPIType::Custom:
             {
 #ifdef USE_CUSTOM_PHYSICS
-                m_instance = new Wrapper::PhysicAPI::CustomPhysicsAPI();
+                p_instance = new Wrapper::PhysicAPI::CustomPhysicsAPI();
 #else
                 ASSERT(false || "You need to enable Custom Physics API when compiling using --physic_api=custom");
 #endif
@@ -46,13 +46,17 @@ namespace GALAXY
             default:
                 break;
         }
-        m_instance->InitializeAPI();
+        p_instance->p_collisionLayerManager.AddLayer("Default");
+        p_instance->p_collisionLayerManager.AddLayer("Layer 1");
+        p_instance->p_collisionLayerManager.AddLayer("Layer 2");
+        p_instance->p_collisionLayerManager.AddLayer("Layer 3");
+        p_instance->InitializeAPI();
     }
 
     void Wrapper::PhysicsWrapper::Release()
     {
-        delete m_instance;
-        m_instance = nullptr;
+        delete p_instance;
+        p_instance = nullptr;
     }
 
     void Wrapper::PhysicsWrapper::AddDynamicBody(uint32_t id, Weak<Component::RigidBody> body)

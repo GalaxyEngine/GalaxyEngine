@@ -72,11 +72,11 @@ namespace GALAXY
             Wrapper::GUI::Splitter(true, 2, &leftSize, &rightSize, 10, 10);
 
             ImGui::BeginChild("List", Vec2f(leftSize, ImGui::GetContentRegionAvail().y - buttonSizeY), false);
-            AddListElement(EditorSettingsTab::General);
-            AddListElement(EditorSettingsTab::ExternalTool);
-            AddListElement(EditorSettingsTab::Appearance);
-            AddListElement(EditorSettingsTab::Benchmark);
-            AddListElement(EditorSettingsTab::EditorInputs);
+            DrawTabElement(EditorSettingsTab::General);
+            DrawTabElement(EditorSettingsTab::ExternalTool);
+            DrawTabElement(EditorSettingsTab::Appearance);
+            DrawTabElement(EditorSettingsTab::Benchmark);
+            DrawTabElement(EditorSettingsTab::EditorInputs);
             ImGui::EndChild();
 
             ImGui::SameLine();
@@ -112,7 +112,7 @@ namespace GALAXY
         m_shouldTakeScreenshot = true;
     }
 
-    void Editor::EditorSettings::AddListElement(const EditorSettingsTab tab)
+    void Editor::EditorSettings::DrawTabElement(const EditorSettingsTab tab)
     {
         if (ImGui::Selectable(SerializeEditorSettingsTabValue(tab)))
         {

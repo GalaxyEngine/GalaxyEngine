@@ -56,7 +56,7 @@ namespace GALAXY
     {
         m_dTOffset = 0.f;
         m_staticCountMax = 25;
-        m_staticMaxPosMagn = 0.0004f;
+        m_staticMaxPosMagn = 0.004f;
         PrintLog("Custom Physics Initialized");
         return true;
     }
@@ -75,8 +75,9 @@ namespace GALAXY
             Vec3f vel = rigidBody->GetVelocity();
             Vec3f force = rigidBody->GetForce();
             Vec3f accel = force * inverseMass;
-
-            if (accel.Length() > 10 && inverseMass > 0.f)
+            
+            // Reset static counter if acceleration is significant.
+            if (accel.Length() > 0.1f && inverseMass > 0.f)
             {
                 rigidBody->StaticPositionCount = 0;
             }
@@ -107,6 +108,13 @@ namespace GALAXY
         // Retrieve rigid bodies.
         auto bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
         auto bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
+
+        if (bodyA && !bodyA->IsEnable())
+            bodyA = nullptr;
+
+        if (bodyB && !bodyB->IsEnable())
+            bodyB = nullptr;
+        
         if (!bodyA && !bodyB)
             return; // Nothing to resolve if both bodies are static.
 
@@ -186,14 +194,14 @@ namespace GALAXY
         if (bodyA)
         {
             newVelA -= normalImpulse * invMassA;
-            newAngVelA += IinvA.MultiplyPoint3x4(rA.Cross(-normalImpulse));
+            newAngVelA += IinvA.MultiplyVector(rA.Cross(-normalImpulse));
             bodyA->SetVelocity(newVelA);
             bodyA->SetAngularVelocity(newAngVelA);
         }
         if (bodyB)
         {
             newVelB += normalImpulse * invMassB;
-            newAngVelB += IinvB.MultiplyPoint3x4(rB.Cross(normalImpulse));
+            newAngVelB += IinvB.MultiplyVector(rB.Cross(normalImpulse));
             bodyB->SetVelocity(newVelB);
             bodyB->SetAngularVelocity(newAngVelB);
         }
@@ -286,14 +294,18 @@ namespace GALAXY
             {
                 body->StaticPositionCount++;
             }
+            else
+            {
+                body->StaticPositionCount = 0;
+            }
 
-            if (/*body->StaticPositionCount < m_staticCountMax*/ true)
+            // if (body->StaticPositionCount < m_staticCountMax)
+            if (true)
             {
                 position += velocity * dt;
 
                 transform->SetWorldPosition(position);
 
-                float linearDrag = body->GetDrag();
                 velocity *= (1.0f - body->GetDrag() * dt);
                 body->SetVelocity(velocity);
 
@@ -360,6 +372,10 @@ namespace GALAXY
 
             for (auto& object : objects)
             {
+                if (!object.first->IsEnable() || !object.second->IsEnable())
+                    continue;
+                if (!Physic::CollisionLayerManager::CanCollide(object.first->GetCollisionLayer(), object.second->GetCollisionLayer()))
+                    continue;
                 CollisionInfo info;
                 if (GJK(object.first, object.second, info))
                 {

@@ -3,6 +3,8 @@
 #include "Component/RigidBody.h"
 #include "Core/Application.h"
 
+#include "Physic/CollisionLayer.h"
+
 namespace GALAXY 
 {
 	Component::ColliderType Component::Collider::GetType() const
@@ -13,6 +15,23 @@ namespace GALAXY
 #ifdef WITH_EDITOR
 	void Component::Collider::ShowInInspector()
 	{
+		auto layers = Physic::CollisionLayerManager::GetLayerNames();
+		if (ImGui::BeginCombo("Layer", layers[p_collisionLayer].c_str()))
+		{
+			for (int i = 0; i < layers.size(); i++)
+			{
+				bool isSelected = p_collisionLayer == i;
+				if (ImGui::Selectable(layers[i].c_str(), isSelected))
+				{
+					p_collisionLayer = i;
+				}
+				if (isSelected)
+				{
+					ImGui::SetItemDefaultFocus();
+				}
+			}
+			ImGui::EndCombo();
+		}
 		ImGui::InputFloat("Restitution", &p_restitution, 0.1f, 1.f);
 		ImGui::InputFloat("Friction", &p_friction, 0.1f, 1.f);
 		if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
@@ -36,12 +55,14 @@ namespace GALAXY
 
 	void Component::Collider::Serialize(CppSer::Serializer& serializer)
 	{
+		serializer << CppSer::Pair::Key << "CollisionLayer" << CppSer::Pair::Value << p_collisionLayer;
 		serializer << CppSer::Pair::Key << "Restitution" << CppSer::Pair::Value << p_restitution;
 		serializer << CppSer::Pair::Key << "Friction" << CppSer::Pair::Value << p_friction;
 	}
 
 	void Component::Collider::Deserialize(CppSer::Parser& parser)
 	{
+		p_collisionLayer = parser["CollisionLayer"].As<int>();
 		p_restitution = parser["Restitution"].As<float>();
 		p_friction = parser["Friction"].As<float>();
 	}

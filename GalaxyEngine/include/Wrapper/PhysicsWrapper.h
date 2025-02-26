@@ -1,5 +1,6 @@
 #pragma once
 #include "GalaxyAPI.h"
+#include "Physic/CollisionLayer.h"
 #include "Physic/Ray.h"
 
 namespace GALAXY 
@@ -56,7 +57,9 @@ namespace GALAXY
         public:
             virtual ~PhysicsWrapper() = default;
 
-            static PhysicsWrapper* GetInstance() { return m_instance; }
+            static PhysicsWrapper* GetInstance() { return p_instance; }
+
+            Physic::CollisionLayerManager& GetCollisionLayerManager() { return p_collisionLayerManager; }
 
             static void Initialize(PhysicAPIType type);
 
@@ -88,10 +91,10 @@ namespace GALAXY
             void RemoveDynamicBody(uint32_t id);
             
             virtual bool InitializeAPI() = 0;
-        private:
-            static PhysicsWrapper* m_instance;
+        protected:
+            static PhysicsWrapper* p_instance;
 
-            
+            Physic::CollisionLayerManager p_collisionLayerManager;
         };
     }
     

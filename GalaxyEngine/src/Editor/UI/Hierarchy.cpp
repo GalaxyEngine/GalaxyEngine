@@ -318,8 +318,8 @@ void CreateGameObject(const List<Weak<GameObject>>& selected)
         auto createObject = [currentScene = currentScene]()
         {
             const Weak<GameObject> gameObject = currentScene->CreateObject();
-            currentScene->GetRootGameObject().lock()->AddChild(gameObject.lock());
-            currentScene->GetRootGameObject().lock()->SetHierarchyOpen(true);
+            currentScene->GetRootGameObject()->AddChild(gameObject.lock());
+            currentScene->GetRootGameObject()->SetHierarchyOpen(true);
         };
 
         createObject();

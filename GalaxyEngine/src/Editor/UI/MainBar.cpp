@@ -185,7 +185,7 @@ namespace GALAXY
 	{
 		const auto currentScene = Core::SceneHolder::GetCurrentScene();
 		if (!parent)
-			parent = currentScene->GetRootGameObject().lock().get(); 
+			parent = currentScene->GetRootGameObject().get(); 
 		if (ImGui::MenuItem("Empty"))
 		{
 			auto emptyObject = currentScene->CreateObject();
@@ -282,7 +282,7 @@ namespace GALAXY
 					const Shared<Core::GameObject> object = modelShared->ToGameObject();
 					
 					Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-					Core::GameObject* parentObject = parent ? parent : currentScene->GetRootGameObject().lock().get();
+					Core::GameObject* parentObject = parent ? parent : currentScene->GetRootGameObject().get();
 					
 					parentObject->GetScene()->AddObject(object);
 					parentObject->AddChild(object);

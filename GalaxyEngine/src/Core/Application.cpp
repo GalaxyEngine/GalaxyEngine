@@ -302,7 +302,7 @@ namespace GALAXY {
 		Shared<GameObject> parent;
 		if (selected.empty())
 		{
-			parent = SceneHolder::GetCurrentScene()->GetRootGameObject().lock();
+			parent = SceneHolder::GetCurrentScene()->GetRootGameObject();
 		}
 		else
 		{
@@ -408,7 +408,7 @@ namespace GALAXY {
 		if (shouldCallStart)
 		{
 			Resource::Scene* currentScene = SceneHolder::GetCurrentScene();
-			currentScene->GetRootGameObject().lock()->StartSelfAndChild();
+			currentScene->GetRootGameObject()->StartSelfAndChild();
 		}
 	}
 

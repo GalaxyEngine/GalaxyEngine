@@ -185,7 +185,7 @@ namespace GALAXY
 		auto rootGameObject = Core::SceneHolder::GetCurrentScene()->GetRootGameObject();
 
 		CppSer::Serializer serializer;
-		for (auto& child : rootGameObject.lock()->GetAllChildren())
+		for (auto& child : rootGameObject->GetAllChildren())
 		{
 			for (auto& scriptComponent : child.lock()->GetComponents<Component::ScriptComponent>())
 			{
