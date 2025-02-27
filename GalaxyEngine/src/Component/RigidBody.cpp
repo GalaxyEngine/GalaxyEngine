@@ -18,8 +18,14 @@ namespace GALAXY
         ImGui::SeparatorText("Force");
         if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
         {
-            bool isStatic = (StaticPositionCount >= 25);
-            ImGui::Checkbox("Is Static", &isStatic);
+            if (ImGui::Checkbox("Is Static", &m_isSleeping))
+            {
+                if (!m_isSleeping)
+                {
+                    Wrapper::PhysicsWrapper::GetInstance()->WakeUpRigidBody(this);
+                }
+            }
+            ImGui::Text("Group ID : %d", m_groupIndex);
             ImGui::DragFloat3("Velocity", &m_velocity.x, 0.1f, -100.0f, 100.0f);
             ImGui::DragFloat3("Angular Velocity", &m_angularVelocity.x, 0.1f, -100.0f, 100.0f);
         }
@@ -68,6 +74,12 @@ namespace GALAXY
         Wrapper::PhysicsWrapper::GetInstance()->AddTorque(weak_from_this(), torque);
     }
 
+    void Component::RigidBody::WakeUp()
+    {
+        m_isSleeping = false;
+        m_staticTime = 0.f;
+    }
+    
     Mat4 Component::RigidBody::GetInertiaTensor() const
     {
         return m_inverseInertiaTensorLocal;
@@ -75,7 +87,7 @@ namespace GALAXY
 
     Mat4 Component::RigidBody::GetInverseInertiaTensor() const
     {
-        Mat4 rotation = GetTransform()->GetWorldRotation().ToRotationMatrix();
+        Mat4 rotation = GetTransform()->GetWorldRotation().ToRotationMatrix4();
         return rotation * m_inverseInertiaTensorLocal * rotation.GetTranspose();
     }
 

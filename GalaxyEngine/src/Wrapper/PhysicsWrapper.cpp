@@ -19,7 +19,7 @@ namespace GALAXY
             case PhysicAPIType::Jolt:
             {
 #ifdef USE_JOLT
-                m_instance = new Wrapper::PhysicAPI::JoltAPI();
+                p_instance = new Wrapper::PhysicAPI::JoltAPI();
 #else
                 ASSERT(false && "You need to enable Jolt Physics API when compiling using --physic_api=jolt");
 #endif

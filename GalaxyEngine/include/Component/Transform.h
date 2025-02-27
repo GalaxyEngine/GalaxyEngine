@@ -80,6 +80,8 @@ namespace GALAXY {
 			inline void Rotate(Vec3f axis, float angle, Space relativeTo = Space::Local);
 
 			inline bool WasDirty() const { return m_wasDirty; }
+
+			inline bool IsDirty() const {return m_dirty;}
 			
 			Utils::Event<> EOnUpdate;
 		private:

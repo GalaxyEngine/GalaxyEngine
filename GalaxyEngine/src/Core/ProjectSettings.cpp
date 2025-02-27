@@ -109,7 +109,13 @@ namespace GALAXY
 	void Core::ProjectSettings::DisplayCollisionTab()
 	{
 		Physic::CollisionMatrix& layers = m_collisionLayerManager.GetCollisionMatrix();
+		Wrapper::PhysicsWrapper* physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
+		auto threshold = physicsWrapper->GetSleepThreshold();
 
+		if (ImGui::InputFloat("Sleep Threshold", &threshold, 0.001f, 0.01f, "%.6f"))
+		{
+			physicsWrapper->SetSleepThreshold(threshold);
+		}
 		ImGui::TextUnformatted("Collision Matrix");
 		ImGui::Separator();
 		const int numLayers = static_cast<int>(layers.size());
@@ -127,7 +133,7 @@ namespace GALAXY
 			for (int col = 0; col < numLayers; col++)
 			{
 				ImGui::TableSetColumnIndex(col + 1);
-				ImGui::Text("%s", m_collisionLayerManager.GetLayerName(col).c_str());
+				ImGui::Text("%s", Physic::Layer::GetLayerName(col).c_str());
 			}
 
 			for (int row = 0; row < numLayers; row++)
@@ -135,7 +141,7 @@ namespace GALAXY
 				ImGui::TableNextRow();
 				// Row header: display layer name.
 				ImGui::TableSetColumnIndex(0);
-				ImGui::Text("%s", m_collisionLayerManager.GetLayerName(row).c_str());
+				ImGui::Text("%s", Physic::Layer::GetLayerName(row).c_str());
 
 				for (int col = 0; col < numLayers; col++)
 				{
@@ -227,6 +233,9 @@ namespace GALAXY
 		serializer << CppSer::Pair::Key << "Start Scene" << CppSer::Pair::Value << m_startScene;
 		serializer << CppSer::Pair::Key << "Project Icon" << CppSer::Pair::Value << m_projectIcon;
 
+		auto physicWrapper = Wrapper::PhysicsWrapper::GetInstance();
+		serializer << CppSer::Pair::Key << "Sleep Threshold" << CppSer::Pair::Value << physicWrapper->GetSleepThreshold();  
+
 		const Physic::CollisionMatrix& layers = m_collisionLayerManager.GetCollisionMatrix();
 		const int numLayers = static_cast<int>(layers.size());
 		serializer << CppSer::Pair::Key << "Num Layers" << CppSer::Pair::Value << numLayers;
@@ -259,6 +268,12 @@ namespace GALAXY
 		if (!m_projectIcon.empty())
 		{
 			m_projectIconTexture = Resource::ResourceManager::GetOrLoad<Resource::Texture>(m_projectIcon);
+		}
+		auto physicWrapper = Wrapper::PhysicsWrapper::GetInstance();
+		if (parser.HasKey("Sleep Threshold"))
+		{
+			float sleepThreshold = parser["Sleep Threshold"].As<float>();
+			physicWrapper->SetSleepThreshold(sleepThreshold);
 		}
 
 		const int numLayers = parser["Num Layers"].As<int>();

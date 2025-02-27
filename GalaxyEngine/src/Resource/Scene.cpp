@@ -186,7 +186,7 @@ namespace GALAXY
 
 		static Vec3f cameraPosition2 = Vec3f::Zero();
 		static Vec3f clickPosition2 = Vec3f::Zero();
-		renderer->DrawLine(cameraPosition2, clickPosition2, Vec4f(1.f, 0.f, 0.f, 10.f));
+		// renderer->DrawLine(cameraPosition2, clickPosition2, Vec4f(1.f, 0.f, 0.f, 10.f));
 
 		size_t index = 0;
 		for (auto& camera : m_cameras)

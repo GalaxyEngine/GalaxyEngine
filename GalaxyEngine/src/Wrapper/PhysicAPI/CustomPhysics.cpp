@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Wrapper/PhysicAPI/CustomPhysics.h"
 
+#include <random>
 #include <unordered_set>
 
 #include "Component/BoxCollider.h"
@@ -52,11 +53,66 @@ namespace GALAXY
         point = supB - supA;
     }
 
+    void RigidBodyGroup::AddRigidbody(Shared<Component::RigidBody> rb)
+    {
+        if (rb->GetGroupIndex() != -1)
+            return;
+        rigidbodies.push_back(rb);
+        rb->SetGroup(index);
+    }
+
+    bool RigidBodyGroup::IsSleeping() const
+    {
+        for (const auto& _rb : rigidbodies)
+        {
+            auto rb = _rb.lock();
+            if (!rb)
+                continue;
+            if (!rb->IsSleeping())
+                return false;
+        }
+        return true;
+    }
+
+    void RigidBodyGroup::WakeUp() const
+    {
+        for (const auto& _rb : rigidbodies)
+        {
+            auto rb = _rb.lock();
+            if (!rb)
+                continue;
+            rb->WakeUp();
+        }
+    }
+
+    Physic::AABB RigidBodyGroup::GetAABB() const
+    {
+        Physic::AABB aabb;
+        aabb.Min = Vec3f(FLT_MAX);
+        aabb.Max = Vec3f(FLT_MIN);
+        for (auto& _rb : rigidbodies)
+        {
+            auto rb = _rb.lock();
+            if (!rb)
+                continue;
+            Core::GameObject* gameObject = rb->GetGameObject();
+            auto collider = gameObject->GetComponent<Component::Collider>();
+            Physic::AABB _aabb = collider->GetAABB();
+
+            aabb.Min.x = std::min(aabb.Min.x, _aabb.Min.x);
+            aabb.Min.y = std::min(aabb.Min.y, _aabb.Min.y);
+            aabb.Min.z = std::min(aabb.Min.z, _aabb.Min.z);
+            
+            aabb.Max.x = std::max(aabb.Max.x, _aabb.Max.x);
+            aabb.Max.y = std::max(aabb.Max.y, _aabb.Max.y);
+            aabb.Max.z = std::max(aabb.Max.z, _aabb.Max.z);
+        }
+        return aabb;
+    }
+
     bool CustomPhysicsAPI::InitializeAPI()
     {
         m_dTOffset = 0.f;
-        m_staticCountMax = 25;
-        m_staticMaxPosMagn = 0.004f;
         PrintLog("Custom Physics Initialized");
         return true;
     }
@@ -79,7 +135,7 @@ namespace GALAXY
             // Reset static counter if acceleration is significant.
             if (accel.Length() > 0.1f && inverseMass > 0.f)
             {
-                rigidBody->StaticPositionCount = 0;
+                rigidBody->WakeUp();
             }
 
             if (inverseMass > 0)
@@ -114,6 +170,93 @@ namespace GALAXY
 
         if (bodyB && !bodyB->IsEnable())
             bodyB = nullptr;
+
+        if (bodyA && bodyB)
+        {
+            const int groupA = bodyA->GetGroupIndex();
+            const int groupB = bodyB->GetGroupIndex();
+            if (groupA != -1 && groupB == -1)
+            {
+                int index = groupA;
+                if (index < m_rigidBodyGroups.size())
+                {
+                    auto& group = m_rigidBodyGroups[index];
+                    group.AddRigidbody(bodyB);
+                }
+                else
+                {
+                    // FIX THIS, NEVER SHOULD BE GOING HERE
+                    auto& group = AddRigidbodyGroup();
+                    group.AddRigidbody(bodyA);
+                    group.AddRigidbody(bodyB);
+                }
+            }
+            else if (groupA == -1 && groupB != -1)
+            {
+                int index = groupB;
+                if (index < m_rigidBodyGroups.size())
+                {
+                    auto& group = m_rigidBodyGroups[index];
+                    group.AddRigidbody(bodyA);
+                }
+                else
+                {
+                    // FIX THIS, NEVER SHOULD BE GOING HERE
+                    auto& group = AddRigidbodyGroup();
+                    group.AddRigidbody(bodyA);
+                    group.AddRigidbody(bodyB);
+                }
+            }
+            else if (groupA != groupB && groupA != -1 && groupB != -1)
+            {
+                bool merge = true;
+                if (groupA < m_rigidBodyGroups.size())
+                {
+                    // FIX THIS, NEVER SHOULD BE GOING HERE
+                    merge = false;
+                    auto& group = AddRigidbodyGroup();
+                    group.AddRigidbody(bodyA);
+                    group.AddRigidbody(bodyB);
+                }
+                if (groupB < m_rigidBodyGroups.size())
+                {
+                    // FIX THIS, NEVER SHOULD BE GOING HERE
+                    merge = false;
+                    auto& group = AddRigidbodyGroup();
+                    group.AddRigidbody(bodyA);
+                    group.AddRigidbody(bodyB);
+                }
+                if (merge)
+                    MergeRigidbodyGroup(groupA, groupB);
+            }
+            else if (groupA == -1 && groupB == -1)
+            {
+                auto& group = AddRigidbodyGroup();
+                group.AddRigidbody(bodyA);
+                group.AddRigidbody(bodyB);
+            }
+            else if (groupA == groupB)
+            {
+                // Same group, keep it
+            }
+            else
+            {
+                ASSERT(false);
+            }
+        }
+
+        /*
+        // Check Group
+        for (int i = 0; i < m_rigidBodyGroups.size(); i++)
+        {
+            
+            ASSERT(m_rigidBodyGroups[i].index == i);
+            for (int j = 0; j < m_rigidBodyGroups[i].rigidbodies.size(); j++)
+            {
+                ASSERT(m_rigidBodyGroups[i].rigidbodies[j].lock()->GetGroupIndex() == i);
+            }
+        }
+        */
         
         if (!bodyA && !bodyB)
             return; // Nothing to resolve if both bodies are static.
@@ -171,8 +314,8 @@ namespace GALAXY
         // Compute rotational terms for the normal impulse.
         Vec3f crossA = rA.Cross(p.normal);
         Vec3f crossB = rB.Cross(p.normal);
-        float angularTermA = bodyA ? (IinvA.MultiplyVector(crossA).Cross(rA)).Dot(p.normal) : 0.f;
-        float angularTermB = bodyB ? (IinvB.MultiplyVector(crossB).Cross(rB)).Dot(p.normal) : 0.f;
+        float angularTermA = bodyA ? ((IinvA * crossA).Cross(rA)).Dot(p.normal) : 0.f;
+        float angularTermB = bodyB ? ((IinvB * crossB).Cross(rB)).Dot(p.normal) : 0.f;
 
         // Total effective mass (linear + angular) in the normal direction.
         float effectiveMass = invMassSum + angularTermA + angularTermB;
@@ -194,14 +337,14 @@ namespace GALAXY
         if (bodyA)
         {
             newVelA -= normalImpulse * invMassA;
-            newAngVelA += IinvA.MultiplyVector(rA.Cross(-normalImpulse));
+            newAngVelA += IinvA * (rA.Cross(-normalImpulse));
             bodyA->SetVelocity(newVelA);
             bodyA->SetAngularVelocity(newAngVelA);
         }
         if (bodyB)
         {
             newVelB += normalImpulse * invMassB;
-            newAngVelB += IinvB.MultiplyVector(rB.Cross(normalImpulse));
+            newAngVelB += IinvB * (rB.Cross(normalImpulse));
             bodyB->SetVelocity(newVelB);
             bodyB->SetAngularVelocity(newAngVelB);
         }
@@ -233,8 +376,8 @@ namespace GALAXY
         // For friction, effective mass = invMass + (r x tangent)^T * Iinv * (r x tangent)
         Vec3f rAxt = rA.Cross(tangent);
         Vec3f rBxt = rB.Cross(tangent);
-        float angularTermA_tan = bodyA ? IinvA.MultiplyVector(rAxt).Dot(rAxt) : 0.f;
-        float angularTermB_tan = bodyB ? IinvB.MultiplyVector(rBxt).Dot(rBxt) : 0.f;
+        float angularTermA_tan = bodyA ? (IinvA * rAxt).Dot(rAxt) : 0.f;
+        float angularTermB_tan = bodyB ? (IinvB * rBxt).Dot(rBxt) : 0.f;
         float effectiveMassFriction = invMassSum + angularTermA_tan + angularTermB_tan;
 
         float jt = 0.f;
@@ -257,14 +400,14 @@ namespace GALAXY
         if (bodyA)
         {
             newVelA -= frictionImpulse * invMassA;
-            newAngVelA += IinvA.MultiplyVector(rA.Cross(-frictionImpulse));
+            newAngVelA += IinvA * (rA.Cross(-frictionImpulse));
             bodyA->SetVelocity(newVelA);
             bodyA->SetAngularVelocity(newAngVelA);
         }
         if (bodyB)
         {
             newVelB += frictionImpulse * invMassB;
-            newAngVelB += IinvB.MultiplyVector(rB.Cross(frictionImpulse));
+            newAngVelB += IinvB * (rB.Cross(frictionImpulse));
             bodyB->SetVelocity(newVelB);
             bodyB->SetAngularVelocity(newAngVelB);
         }
@@ -274,7 +417,7 @@ namespace GALAXY
     {
     }
 
-    void CustomPhysicsAPI::IntegrateVelocity(float dt) const
+    void CustomPhysicsAPI::IntegrateVelocity(float dt)
     {
         for (auto& _body : m_objectSet)
         {
@@ -286,21 +429,38 @@ namespace GALAXY
 
             Vec3f position = transform->GetWorldPosition();
             Vec3f velocity = body->GetVelocity();
+            Vec3f angularVelocity = body->GetAngularVelocity();
 
             Vec3f dPosition = velocity * dt;
             float mag_position = (velocity * dt).Length();
+            
+            Vec3f dAngle = angularVelocity * dt;
 
-            if (dPosition.Length() < m_staticMaxPosMagn)
+            if (dPosition.Length() < p_sleepThreshold && dAngle.Length() < p_sleepThreshold)
             {
-                body->StaticPositionCount++;
+                body->AddStaticTime(dt);
             }
             else
             {
-                body->StaticPositionCount = 0;
+                const int groupIndex = body->GetGroupIndex();
+                if (groupIndex != -1)
+                {
+                    if (groupIndex >= m_rigidBodyGroups.size())
+                    {
+                        // FIX THIS, NEVER SHOULD BE GOING HERE
+                    }
+                    else
+                    {
+                        m_rigidBodyGroups[groupIndex].WakeUp();
+                    }
+                }
+                body->WakeUp();
             }
 
-            // if (body->StaticPositionCount < m_staticCountMax)
-            if (true)
+            body->SetIsSleeping(body->GetStaticTime() >= p_sleepThreshold);
+
+            if (!body->IsSleeping())
+            // if (true)
             {
                 position += velocity * dt;
 
@@ -310,9 +470,6 @@ namespace GALAXY
                 body->SetVelocity(velocity);
 
                 Quat rotation = transform->GetWorldRotation();
-                Vec3f angularVelocity = body->GetAngularVelocity();
-
-                Vec3f dAngle = angularVelocity * dt;
 
                 Vec3f a = dAngle * 0.5f;
 
@@ -327,14 +484,14 @@ namespace GALAXY
             }
             else
             {
-                body->StaticPositionCount = m_staticCountMax;
+                body->SetStaticTime(m_staticCountMax);
                 body->SetVelocity(Vec3f::Zero());
             }
         }
     }
 
     //This is the fixed timestep we'd LIKE to have
-    const int idealHZ = 120;
+    const int idealHZ = 144;
     const float idealDT = 1.0f / idealHZ;
 
     /*
@@ -357,9 +514,23 @@ namespace GALAXY
 
         // Remove expired objects
         m_collisionInfos.clear();
+        ClearRigidbodyGroup();
         std::erase_if(m_objectSet, [](const Weak<Component::RigidBody>& body) { return body.expired(); });
         std::erase_if(m_colliderSet, [](const Weak<Component::Collider>& collider) { return collider.expired(); });
 
+        /*
+        for (auto _rb : m_objectSet)
+        {
+            if (auto rb = _rb.lock())
+            {
+                if (rb->GetTransform()->WasDirty() && rb->IsSleeping)
+                {
+                    WakeUpRigidBody(rb.get());
+                }
+            }
+        }
+        */
+        
         //TODO: Update AABB for broadphases
 
         Utils::ElapsedTimer timer;
@@ -379,8 +550,10 @@ namespace GALAXY
                 CollisionInfo info;
                 if (GJK(object.first, object.second, info))
                 {
+#ifdef _DEBUG
                     object.first->SetDebugCollide(true);
                     object.second->SetDebugCollide(true);
+#endif
 
                     info.framesLeft = m_numCollisionFrames;
                     ResolveCollisions(object.first, object.second, info);
@@ -428,15 +601,44 @@ namespace GALAXY
         }
     }
 
+    static std::vector color_for_index = {
+        Vec4f(0.87f, 0.12f, 0.98f, 1.0f),
+        Vec4f(0.34f, 0.56f, 0.91f, 1.0f),
+        Vec4f(0.22f, 0.89f, 0.45f, 1.0f),
+        Vec4f(0.76f, 0.32f, 0.54f, 1.0f),
+        Vec4f(0.11f, 0.47f, 0.79f, 1.0f),
+        Vec4f(0.65f, 0.88f, 0.13f, 1.0f),
+        Vec4f(0.91f, 0.34f, 0.27f, 1.0f),
+        Vec4f(0.48f, 0.75f, 0.92f, 1.0f),
+        Vec4f(0.23f, 0.68f, 0.55f, 1.0f),
+        Vec4f(0.56f, 0.12f, 0.77f, 1.0f),
+        Vec4f(0.90f, 0.45f, 0.33f, 1.0f),
+        Vec4f(0.67f, 0.89f, 0.44f, 1.0f),
+        Vec4f(0.15f, 0.64f, 0.82f, 1.0f),
+        Vec4f(0.39f, 0.91f, 0.26f, 1.0f),
+        Vec4f(0.53f, 0.78f, 0.88f, 1.0f),
+        Vec4f(0.82f, 0.29f, 0.64f, 1.0f)
+    };
+
+
     void CustomPhysicsAPI::DrawDebug()
     {
         return;
         auto instance = Renderer::GetInstance();
+        /*
         for (const CollisionInfo& info : m_collisionInfos)
         {
             instance->DrawSimpleWireSphere(info.point.position, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
             instance->DrawLine(info.point.position, info.point.position + info.point.normal * info.point.depth,
                                Vec4f(1, 0, 0, 1), 10.f);
+        }
+        */
+
+        for (auto& group :m_rigidBodyGroups)
+        {
+            auto aabb = group.GetAABB();
+            Vec4f color = color_for_index[group.index % color_for_index.size()];
+            instance->DrawWireCube(aabb.GetCenter(), aabb.GetExtents(), color);
         }
     }
 
@@ -547,6 +749,13 @@ namespace GALAXY
         Component::RigidBody* rigidbodyComponent = object->lock().get();
         Vec3f angularVelocity = rigidbodyComponent->GetAngularVelocity();
         rigidbodyComponent->SetAngularVelocity(angularVelocity + torque);
+    }
+
+    void CustomPhysicsAPI::WakeUpRigidBody(Component::RigidBody* rigidbody)
+    {
+        rigidbody->WakeUp();
+        if (rigidbody->GetGroupIndex() != -1)
+            m_rigidBodyGroups[rigidbody->GetGroupIndex()].WakeUp();
     }
 
 #pragma region GJK Mesh
@@ -1281,6 +1490,86 @@ namespace GALAXY
             }
         }
         return false;
+    }
+
+    RigidBodyGroup& CustomPhysicsAPI::AddRigidbodyGroup()
+    {
+        auto& group = m_rigidBodyGroups.emplace_back();
+        group.index = static_cast<int>(m_rigidBodyGroups.size() - 1);
+
+        // std::cout << "Add" << std::endl;
+        PrintGroupsState();
+        
+        return group;
+    }
+
+    void CustomPhysicsAPI::MergeRigidbodyGroup(uint32_t groupAIndex, uint32_t groupBIndex)
+    {
+        RigidBodyGroup& groupA = m_rigidBodyGroups[groupAIndex];
+        RigidBodyGroup& groupB = m_rigidBodyGroups[groupBIndex];
+
+        std::vector<Weak<Component::RigidBody>> rigidbodies = groupB.rigidbodies;
+        RemoveRigidbodyGroup(groupB.index);
+        for (Weak _rb : rigidbodies)
+        {
+            Shared<Component::RigidBody> rb = _rb.lock();
+            groupA.AddRigidbody(rb);
+        }
+    }
+
+    void CustomPhysicsAPI::RemoveRigidbodyGroup(uint32_t index)
+    {
+        RigidBodyGroup& group = m_rigidBodyGroups[index];
+
+        for (auto& _rb : group.rigidbodies)
+        {
+            auto rb = _rb.lock();
+            rb->SetGroup(-1);
+        }
+        group.rigidbodies.clear();
+
+        m_rigidBodyGroups.erase(m_rigidBodyGroups.begin() + index);
+        for (uint32_t i = index; i < m_rigidBodyGroups.size(); i++)
+        {
+            m_rigidBodyGroups[i].index = i;
+            for (auto& _rb : m_rigidBodyGroups[i].rigidbodies)
+            {
+                auto rb = _rb.lock();
+                rb->SetGroup(i);
+            }
+        }
+        // std::cout << "Remove" << std::endl;
+        PrintGroupsState();
+    }
+
+    void CustomPhysicsAPI::ClearRigidbodyGroup()
+    {
+        for (auto& group : m_rigidBodyGroups)
+        {
+            for (auto _rb : group.rigidbodies)
+            {
+                auto rb = _rb.lock();
+                if (!rb)
+                    continue;
+                rb->SetGroup(-1);
+            }
+        }
+        m_rigidBodyGroups.clear();
+    }
+
+    void CustomPhysicsAPI::PrintGroupsState()
+    {
+        return;
+        for (int i = 0; i < m_rigidBodyGroups.size(); i++)
+        {
+            std::cout << "Group "  << i << ": " << std::endl;       
+            auto rigidbodies = m_rigidBodyGroups[i].rigidbodies;
+            for (int j = 0; j < rigidbodies.size(); j++)
+            {
+                auto rb = rigidbodies[j].lock();
+                std::cout << "\t[" << j << "] Group ID: " << rb->GetGroupIndex() << std::endl;
+            }
+        }
     }
 #pragma endregion
 }

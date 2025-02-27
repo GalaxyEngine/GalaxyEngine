@@ -48,7 +48,6 @@ namespace GALAXY
             Vec3f GetForce() const { return m_force; }
             Vec3f GetTorque() const { return m_torque;}
             
-            
             void OnStart() override;
             void OnDestroy() override;
 
@@ -57,13 +56,22 @@ namespace GALAXY
             void AddForceAtPosition(const Vec3f& force, const Vec3f& position);
 
             void AddTorque(const Vec3f& torque);
+            void WakeUp();
             
             Mat4 GetInertiaTensor() const;
             Mat4 GetInverseInertiaTensor() const;
 
             void UpdateInertiaTensor();
-        public:
-            int StaticPositionCount = 0;
+
+            void AddStaticTime(float deltaTime) { m_staticTime += deltaTime; }
+            void SetStaticTime(float time) { m_staticTime = time;}
+            float GetStaticTime() const { return m_staticTime; }
+            
+            void SetIsSleeping(bool value) { m_isSleeping = value; }
+            bool IsSleeping() const { return m_isSleeping;}
+
+            void SetGroup(int index) { m_groupIndex = index; }
+            int GetGroupIndex() const {return m_groupIndex;}
         private:
             float m_mass = 1.0f;
             float m_drag = 0.4f;
@@ -77,6 +85,10 @@ namespace GALAXY
 
             Vec3f m_force;
             Vec3f m_torque;
+
+            bool m_isSleeping = false;
+            float m_staticTime = 0.f;
+            int m_groupIndex = -1;
         };
     }
 }

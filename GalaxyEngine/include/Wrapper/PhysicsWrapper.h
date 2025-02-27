@@ -68,6 +68,9 @@ namespace GALAXY
             virtual void Update() = 0;
             virtual void DrawDebug() {}
 
+            virtual void SetSleepThreshold(float value) { p_sleepThreshold = value; }
+            virtual float GetSleepThreshold() const { return p_sleepThreshold;}
+
             virtual void CreateRigidBody(Weak<Component::RigidBody> body) = 0;
             virtual void DestroyRigidBody(Weak<Component::RigidBody> body) = 0;
             virtual void CreateBoxCollider(Weak<Component::BoxCollider> collider) = 0;
@@ -80,6 +83,7 @@ namespace GALAXY
             virtual void AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force) {}
             virtual void AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force, const Vec3f& position) {}
             virtual void AddTorque(const Weak<Component::RigidBody>& weak, const Vec3f& torque) {}
+            virtual void WakeUpRigidBody(Component::RigidBody* rigidbody) {}
             
             virtual void SetDefaultGravity(const Vec3f& value) = 0;
             virtual Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) {return {};}
@@ -93,6 +97,8 @@ namespace GALAXY
             virtual bool InitializeAPI() = 0;
         protected:
             static PhysicsWrapper* p_instance;
+
+            float p_sleepThreshold = 0.005f;
 
             Physic::CollisionLayerManager p_collisionLayerManager;
         };
