@@ -56,7 +56,9 @@ namespace GALAXY
 
     void Component::RigidBody::OnDestroy()
     {
+#ifdef WITH_EDITOR
         if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
+#endif
             Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(weak_from_this());
     }
 
