@@ -71,7 +71,7 @@ namespace GALAXY
 			child->SetParent(weak_from_this());
 		}
 
-		if (m_scene && !m_scene->HasObject(child->GetUUID()))
+		if (child->m_loaded && m_scene && !m_scene->HasObject(child->GetUUID()))
 			m_scene->AddObject(child);
 
 	}
@@ -237,11 +237,12 @@ namespace GALAXY
 		return {};
 	}
 
-	void GameObject::RemoveFromParent() const
+	void GameObject::RemoveFromParent()
 	{
 		if (!m_parent.lock())
 			return;
 		m_parent.lock()->RemoveChild(this);
+		m_parent = {};
 	}
 
 	Shared<GameObject> GameObject::Clone() const
@@ -355,7 +356,7 @@ namespace GALAXY
 		for (size_t i = 0; i < componentNumber; i++)
 		{
 			parser.PushDepth();
-			Shared<Component::BaseComponent> component;
+			Shared<BaseComponent> component;
 			String componentNameString = parser["Name"];
 			const bool enable = parser["Enable"].As<bool>();
 			const char* componentName = componentNameString.c_str();
@@ -381,10 +382,12 @@ namespace GALAXY
 			parser.PushDepth();
 
 			child = std::make_shared<GameObject>();
+			child->m_loaded = false;
 			child->m_scene = m_scene;
 			child->SetParent(weak_from_this());
 			child->Deserialize(parser, parseUUID);
-			m_scene->AddObject(child);
+			m_scene->AddObject(child, false);
+			child->m_loaded = true;
 		}
 	}
 

@@ -66,7 +66,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
 #ifdef _DEBUG
     if (gameobject->GetParent())
     {
-        bool contains = gameobject->GetScene()->GetObjectList().contains(gameobject->GetUUID());
+        bool contains = gameobject->GetScene()->HasObject(gameobject->GetUUID());
         if (!contains)
             PrintError("Object list of the scene does not countain the gameObject : %s with uuid %llu", gameobject->GetName().c_str(), gameobject->GetUUID());
     }

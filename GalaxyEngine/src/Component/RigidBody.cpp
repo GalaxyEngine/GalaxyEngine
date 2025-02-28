@@ -56,7 +56,8 @@ namespace GALAXY
 
     void Component::RigidBody::OnDestroy()
     {
-        Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(weak_from_this());
+        if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
+            Wrapper::PhysicsWrapper::GetInstance()->DestroyRigidBody(weak_from_this());
     }
 
     void Component::RigidBody::AddForce(const Vec3f& force)

@@ -186,7 +186,9 @@ namespace GALAXY
 
 		static Vec3f cameraPosition2 = Vec3f::Zero();
 		static Vec3f clickPosition2 = Vec3f::Zero();
-		// renderer->DrawLine(cameraPosition2, clickPosition2, Vec4f(1.f, 0.f, 0.f, 10.f));
+		//renderer->DrawLine(cameraPosition2, clickPosition2, Vec4f(1.f, 0.f, 0.f, 10.f));
+		//renderer->DrawSimpleWireSphere(clickPosition2, 0.1f, 32, Vec4f(1, 0, 0, 1), 10.f);
+		
 
 		size_t index = 0;
 		for (auto& camera : m_cameras)
@@ -208,13 +210,14 @@ namespace GALAXY
 				Vec2f point = Input::GetMousePositionOnWindow();
 				const Physic::Ray ray = currentCamera->ScreenPointToRay(point);
 				cameraPosition2 = ray.origin;
-				clickPosition2 = ray.origin + ray.direction * ray.scale;
+				Physic::RaycastHit hit;
+				Physic::Raycast(ray, 1000.f, hit);
+				clickPosition2 = ray.origin + ray.direction * 1000.f;
+
+				if (hit.hit)
+					PrintLog("%s", hit.collider->GetGameObject()->GetName().c_str());
 			}
 #endif
-			// Vec3f cameraPosition = ray.origin;
-			// Vec3f clickPosition = ray.origin + ray.direction * ray.scale;
-			// Wrapper::Renderer::GetInstance()->DrawLine(cameraPosition, clickPosition, Vec4f(1.f, 0.f, 0.f, 1.f));
-
 			// Bind Default Framebuffer
 			currentCamera->Begin();
 			renderer->SetRenderingType(Render::RenderType::Default);

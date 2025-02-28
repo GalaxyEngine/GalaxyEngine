@@ -102,7 +102,7 @@ namespace GALAXY
             aabb.Min.x = std::min(aabb.Min.x, _aabb.Min.x);
             aabb.Min.y = std::min(aabb.Min.y, _aabb.Min.y);
             aabb.Min.z = std::min(aabb.Min.z, _aabb.Min.z);
-            
+
             aabb.Max.x = std::max(aabb.Max.x, _aabb.Max.x);
             aabb.Max.y = std::max(aabb.Max.y, _aabb.Max.y);
             aabb.Max.z = std::max(aabb.Max.z, _aabb.Max.z);
@@ -131,7 +131,7 @@ namespace GALAXY
             Vec3f vel = rigidBody->GetVelocity();
             Vec3f force = rigidBody->GetForce();
             Vec3f accel = force * inverseMass;
-            
+
             // Reset static counter if acceleration is significant.
             if (accel.Length() > 0.1f && inverseMass > 0.f)
             {
@@ -257,7 +257,7 @@ namespace GALAXY
             }
         }
         */
-        
+
         if (!bodyA && !bodyB)
             return; // Nothing to resolve if both bodies are static.
 
@@ -274,7 +274,7 @@ namespace GALAXY
 
         // ----- Positional Correction -----
         const auto& p = collisionInfo.point;
-        
+
         if (bodyA)
         {
             transformA->SetWorldPosition(transformA->GetWorldPosition() -
@@ -357,7 +357,7 @@ namespace GALAXY
 
         // Compute the tangent (friction) direction.
         Vec3f tangent = contactVel - p.normal * contactVel.Dot(p.normal);
-        if (tangent.LengthSquared() > 1e-6f)  // Using squared length for efficiency.
+        if (tangent.LengthSquared() > 1e-6f) // Using squared length for efficiency.
         {
             tangent.Normalize();
         }
@@ -412,7 +412,7 @@ namespace GALAXY
             bodyB->SetAngularVelocity(newAngVelB);
         }
     }
-    
+
     void CustomPhysicsAPI::UpdateConstraints(float constraintDt)
     {
     }
@@ -432,11 +432,9 @@ namespace GALAXY
             Vec3f angularVelocity = body->GetAngularVelocity();
 
             Vec3f dPosition = velocity * dt;
-            float mag_position = (velocity * dt).Length();
-            
             Vec3f dAngle = angularVelocity * dt;
 
-            if (dPosition.Length() < p_sleepThreshold && dAngle.Length() < p_sleepThreshold)
+            if (dPosition.Length() < p_sleepThreshold)
             {
                 body->AddStaticTime(dt);
             }
@@ -457,7 +455,7 @@ namespace GALAXY
                 body->WakeUp();
             }
 
-            body->SetIsSleeping(body->GetStaticTime() >= p_sleepThreshold);
+            body->SetIsSleeping(body->GetStaticTime() >= m_staticCountMax);
 
             if (!body->IsSleeping())
             // if (true)
@@ -530,7 +528,7 @@ namespace GALAXY
             }
         }
         */
-        
+
         //TODO: Update AABB for broadphases
 
         Utils::ElapsedTimer timer;
@@ -545,7 +543,8 @@ namespace GALAXY
             {
                 if (!object.first->IsEnable() || !object.second->IsEnable())
                     continue;
-                if (!Physic::CollisionLayerManager::CanCollide(object.first->GetCollisionLayer(), object.second->GetCollisionLayer()))
+                if (!Physic::CollisionLayerManager::CanCollide(object.first->GetCollisionLayer(),
+                                                               object.second->GetCollisionLayer()))
                     continue;
                 CollisionInfo info;
                 if (GJK(object.first, object.second, info))
@@ -634,7 +633,7 @@ namespace GALAXY
         }
         */
 
-        for (auto& group :m_rigidBodyGroups)
+        for (auto& group : m_rigidBodyGroups)
         {
             auto aabb = group.GetAABB();
             Vec4f color = color_for_index[group.index % color_for_index.size()];
@@ -779,175 +778,197 @@ namespace GALAXY
         return convexMesh;
     }
 
-    std::vector<Vec3f> CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& positions)
+    std::vector<Vec3f> CustomPhysicsAPI::ComputeConvexHull(const std::vector<Vec3f>& meshPositionsVert)
     {
-        std::vector<Vec3f> convexVertices;
-        struct Face
+        // --- Step 1. Compute extreme vertices using spherical sampling ---
+        auto Support = [&](const Vec3f& direction) -> Vec3f
         {
-            Vec3f a, b, c;
-            Vec3f normal;
-            float distance;
-            std::vector<Vec3f> outsidePoints;
-
-            Face(const Vec3f& a, const Vec3f& b, const Vec3f& c) : a(a), b(b), c(c)
+            float bestDot = -std::numeric_limits<float>::infinity();
+            Vec3f bestVertex;
+            for (const Vec3f& vertex : meshPositionsVert)
             {
-                Vec3f ab = b - a;
-                Vec3f ac = c - a;
-                normal = ab.Cross(ac).GetNormalize();
-                distance = normal.Dot(a);
+                float dot = direction.Dot(vertex);
+                if (dot > bestDot)
+                {
+                    bestDot = dot;
+                    bestVertex = vertex;
+                }
             }
-
-            float distanceTo(const Vec3f& p) const
-            {
-                return normal.Dot(p) - distance;
-            }
+            return bestVertex;
         };
 
-        // Find initial tetrahedron vertices
-        Vec3f A = positions[0];
-        for (const Vec3f& p : positions)
-            if (p.x > A.x) A = p;
+        const int numTheta = 18; // polar divisions
+        const int numPhi = 36; // azimuth divisions
+        std::vector<Vec3f> convexHullVertices;
+        const float tolerance = 1e-6f;
 
-        Vec3f B = A;
-        float maxDistSq = 0.0f;
-        for (const Vec3f& p : positions)
+        for (int i = 0; i <= numTheta; ++i)
         {
-            float distSq = (p - A).LengthSquared();
-            if (distSq > maxDistSq)
+            float theta = i * PI / numTheta;
+            for (int j = 0; j < numPhi; ++j)
             {
-                maxDistSq = distSq;
-                B = p;
-            }
-        }
+                float phi = j * 2.0f * PI / numPhi;
+                Vec3f direction(std::sin(theta) * std::cos(phi),
+                                std::sin(theta) * std::sin(phi),
+                                std::cos(theta));
+                Vec3f point = Support(direction);
 
-        Vec3f C;
-        float maxLineDistSq = 0.0f;
-        Vec3f AB = B - A;
-        for (const Vec3f& p : positions)
-        {
-            Vec3f AP = p - A;
-            float t = AP.Dot(AB) / AB.LengthSquared();
-            t = std::max(0.0f, std::min(1.0f, t));
-            Vec3f proj = A + AB * t;
-            float distSq = (p - proj).LengthSquared();
-            if (distSq > maxLineDistSq)
-            {
-                maxLineDistSq = distSq;
-                C = p;
-            }
-        }
-
-        Vec3f normal = (B - A).Cross(C - A).GetNormalize();
-        float planeDist = normal.Dot(A);
-        Vec3f D;
-        float maxPlaneDist = 0.0f;
-        for (const Vec3f& p : positions)
-        {
-            float dist = std::abs(normal.Dot(p) - planeDist);
-            if (dist > maxPlaneDist)
-            {
-                maxPlaneDist = dist;
-                D = p;
-            }
-        }
-
-        if (normal.Dot(D) < planeDist)
-            normal = -normal;
-
-        std::vector<Face> faces;
-        faces.emplace_back(A, B, C);
-        faces.emplace_back(A, C, D);
-        faces.emplace_back(A, D, B);
-        faces.emplace_back(B, D, C);
-
-        std::vector<Vec3f> remainingPoints;
-        for (const Vec3f& p : positions)
-        {
-            if (p != A && p != B && p != C && p != D)
-                remainingPoints.push_back(p);
-        }
-
-        // Assign outside points to initial faces
-        for (Face& face : faces)
-        {
-            for (auto it = remainingPoints.begin(); it != remainingPoints.end();)
-            {
-                if (face.distanceTo(*it) > 1e-6f)
+                bool isUnique = true;
+                for (const Vec3f& v : convexHullVertices)
                 {
-                    face.outsidePoints.push_back(*it);
-                    it = remainingPoints.erase(it);
-                }
-                else
-                {
-                    ++it;
-                }
-            }
-        }
-
-        std::vector<Face> activeFaces = faces;
-        while (!activeFaces.empty())
-        {
-            Face face = activeFaces.back();
-            activeFaces.pop_back();
-
-            if (face.outsidePoints.empty())
-                continue;
-
-            // Find the furthest point from the face
-            Vec3f p = face.outsidePoints[0];
-            float maxDist = face.distanceTo(p);
-            for (const Vec3f& q : face.outsidePoints)
-            {
-                float dist = face.distanceTo(q);
-                if (dist > maxDist)
-                {
-                    maxDist = dist;
-                    p = q;
-                }
-            }
-
-            // Create new faces (triangles) with the furthest point
-            std::vector<Face> newFaces;
-            newFaces.emplace_back(face.a, face.b, p);
-            newFaces.emplace_back(face.b, face.c, p);
-            newFaces.emplace_back(face.c, face.a, p);
-
-            for (Face& newFace : newFaces)
-            {
-                for (auto it = face.outsidePoints.begin(); it != face.outsidePoints.end();)
-                {
-                    if (*it == p)
+                    if ((v - point).Length() < tolerance)
                     {
-                        ++it;
+                        isUnique = false;
+                        break;
+                    }
+                }
+                if (isUnique)
+                    convexHullVertices.push_back(point);
+            }
+        }
+
+        // --- Step 2. Group the convex-hull vertices into planar faces and triangulate them ---
+        Vec3f overallCenter(0, 0, 0);
+        for (const Vec3f& v : convexHullVertices)
+            overallCenter = overallCenter + v;
+        overallCenter = overallCenter / convexHullVertices.size();
+
+        // Structure to hold a face (planar polygon) of the hull
+        struct FacePolygon
+        {
+            Vec3f normal;
+            float offset;
+            std::vector<int> indices; // indices into convexHullVertices that lie on the same plane
+        };
+        std::vector<FacePolygon> facePolygons;
+        size_t n = convexHullVertices.size();
+
+        // For each combination of 3 vertices, check if they define a hull face.
+        // (A face is detected if all other points lie on one side of the plane.)
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = i + 1; j < n; j++)
+            {
+                for (int k = j + 1; k < n; k++)
+                {
+                    Vec3f edge1 = convexHullVertices[j] - convexHullVertices[i];
+                    Vec3f edge2 = convexHullVertices[k] - convexHullVertices[i];
+                    Vec3f normal = edge1.Cross(edge2);
+                    if (normal.Length() < tolerance)
+                        continue; // degenerate triangle
+                    normal = normal.GetNormalize();
+                    float offset = normal.Dot(convexHullVertices[i]);
+
+                    // Check that every other point is on one side of the plane.
+                    bool allPositive = true;
+                    bool allNegative = true;
+                    for (int m = 0; m < n; m++)
+                    {
+                        if (m == i || m == j || m == k)
+                            continue;
+                        float d = normal.Dot(convexHullVertices[m]) - offset;
+                        if (d > tolerance)
+                            allNegative = false;
+                        if (d < -tolerance)
+                            allPositive = false;
+                    }
+                    if (!(allPositive || allNegative))
+                        continue; // Not a hull face
+
+                    // Adjust normal so it points outward relative to the overall center.
+                    float centerDist = normal.Dot(overallCenter) - offset;
+                    if (centerDist > 0)
+                    {
+                        normal = -normal;
+                        offset = -offset;
+                    }
+
+                    // Avoid duplicate faces by checking if a similar face (same plane) was already added.
+                    bool found = false;
+                    for (auto& fp : facePolygons)
+                    {
+                        if (fabs(fp.normal.Dot(normal) - 1.0f) < tolerance && fabs(fp.offset - offset) < tolerance)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
                         continue;
-                    }
-                    if (newFace.distanceTo(*it) > 1e-6f)
+
+                    // Build a new face: collect all vertices that lie in this plane.
+                    FacePolygon fp;
+                    fp.normal = normal;
+                    fp.offset = offset;
+                    for (int m = 0; m < n; m++)
                     {
-                        newFace.outsidePoints.push_back(*it);
-                        it = face.outsidePoints.erase(it);
+                        float d = fabs(fp.normal.Dot(convexHullVertices[m]) - fp.offset);
+                        if (d < tolerance)
+                            fp.indices.push_back(m);
                     }
+                    // Remove duplicate indices (if any) and sort them.
+                    std::sort(fp.indices.begin(), fp.indices.end());
+                    fp.indices.erase(std::unique(fp.indices.begin(), fp.indices.end()), fp.indices.end());
+
+                    // Order the vertices around the face.
+                    // Compute the face’s centroid.
+                    Vec3f faceCentroid(0, 0, 0);
+                    for (int idx : fp.indices)
+                        faceCentroid = faceCentroid + convexHullVertices[idx];
+                    faceCentroid = faceCentroid / fp.indices.size();
+
+                    // Choose a basis for the plane.
+                    Vec3f u;
+                    if (fabs(fp.normal.x) > fabs(fp.normal.y))
+                        u = Vec3f(-fp.normal.z, 0, fp.normal.x).GetNormalize();
                     else
+                        u = Vec3f(0, fp.normal.z, -fp.normal.y).GetNormalize();
+                    Vec3f v = fp.normal.Cross(u);
+
+                    // Sort the vertex indices by angle around the centroid.
+                    std::ranges::sort(fp.indices, [&](int a, int b)
                     {
-                        ++it;
-                    }
+                        Vec3f pa = convexHullVertices[a] - faceCentroid;
+                        Vec3f pb = convexHullVertices[b] - faceCentroid;
+                        float angleA = std::atan2(pa.Dot(v), pa.Dot(u));
+                        float angleB = std::atan2(pb.Dot(v), pb.Dot(u));
+                        return angleA < angleB;
+                    });
+
+                    facePolygons.push_back(fp);
                 }
-                activeFaces.push_back(newFace);
-                faces.push_back(newFace);
             }
         }
 
-        // Instead of gathering unique vertices, we now output triangle vertices in the proper order.
-        // Each face (triangle) is added as three consecutive vertices.
-        std::vector<Vec3f> sortedVertices;
-        for (const Face& face : faces)
+        // --- Step 3. Triangulate each face polygon using a fan method ---
+        std::vector<Vec3f> triangleVertices; // This will contain groups of 3 vertices per triangle.
+        for (const auto& fp : facePolygons)
         {
-            sortedVertices.push_back(face.a);
-            sortedVertices.push_back(face.b);
-            sortedVertices.push_back(face.c);
+            if (fp.indices.size() < 3)
+                continue;
+            // Compute the centroid of the face to check orientation.
+            Vec3f polyCentroid(0, 0, 0);
+            for (int idx : fp.indices)
+                polyCentroid = polyCentroid + convexHullVertices[idx];
+            polyCentroid = polyCentroid / fp.indices.size();
+            // If the centroid is on the “wrong” side, reverse the ordering.
+            bool reverseOrder = (fp.normal.Dot(polyCentroid) - fp.offset > 0);
+            std::vector<int> orderedIndices = fp.indices;
+            if (reverseOrder)
+                std::reverse(orderedIndices.begin(), orderedIndices.end());
+
+            // Fan-triangulate the convex polygon.
+            for (size_t i = 1; i < orderedIndices.size() - 1; i++)
+            {
+                triangleVertices.push_back(convexHullVertices[orderedIndices[0]]);
+                triangleVertices.push_back(convexHullVertices[orderedIndices[i]]);
+                triangleVertices.push_back(convexHullVertices[orderedIndices[i + 1]]);
+            }
         }
 
-        return sortedVertices;
+        return triangleVertices;
     }
+
 
     void CustomPhysicsAPI::ComputeConvexVertices(Shared<Resource::Mesh> mesh)
     {
@@ -974,7 +995,7 @@ namespace GALAXY
     bool CustomPhysicsAPI::Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance,
                                    Physic::RaycastHit& hit)
     {
-        // TODO : Test this
+        // TODO : FIX THIS
         bool hitFound = false;
         float closestDistance = maxDistance;
         // Ensure the direction is normalized.
@@ -1087,6 +1108,7 @@ namespace GALAXY
             }
         }
 
+        hit.hit = hitFound;
         return hitFound;
     }
 
@@ -1499,7 +1521,7 @@ namespace GALAXY
 
         // std::cout << "Add" << std::endl;
         PrintGroupsState();
-        
+
         return group;
     }
 
@@ -1562,7 +1584,7 @@ namespace GALAXY
         return;
         for (int i = 0; i < m_rigidBodyGroups.size(); i++)
         {
-            std::cout << "Group "  << i << ": " << std::endl;       
+            std::cout << "Group " << i << ": " << std::endl;
             auto rigidbodies = m_rigidBodyGroups[i].rigidbodies;
             for (int j = 0; j < rigidbodies.size(); j++)
             {

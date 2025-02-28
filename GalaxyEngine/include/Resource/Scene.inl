@@ -18,7 +18,7 @@ namespace GALAXY
 		return shared;
 	}
 
-	inline void Resource::Scene::AddObject(const std::shared_ptr<Core::GameObject>& gameObject)
+	inline void Resource::Scene::AddObject(const Shared<Core::GameObject>& gameObject, bool addChild)
 	{
 		if (!m_objectList.contains(gameObject->m_UUID))
 		{
@@ -33,9 +33,12 @@ namespace GALAXY
 			// ASSERT(false && "Object already exists in scene") // TODO
 		}
 
-		for (auto& child : gameObject->GetChildren())
+		if (addChild)
 		{
-			AddObject(child.lock());
+			for (auto& child : gameObject->GetChildren())
+			{
+				AddObject(child.lock());
+			}
 		}
 
 		

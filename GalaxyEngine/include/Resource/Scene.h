@@ -78,7 +78,7 @@ namespace GALAXY {
 			template<typename... Args>
 			inline Weak<Core::GameObject> CreateObject(Args&&... args);
 
-			inline void AddObject(const std::shared_ptr<Core::GameObject>& gameObject);
+			inline void AddObject(const Shared<Core::GameObject>& gameObject, bool addChild = true);
 			inline void RemoveObject(Core::GameObject* object);
 			inline bool HasObject(Core::UUID uuid) const;
 			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject);

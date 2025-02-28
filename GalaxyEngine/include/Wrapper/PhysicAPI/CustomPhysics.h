@@ -103,7 +103,7 @@ namespace GALAXY
             void WakeUpRigidBody(Component::RigidBody* rigidbody) override;
 
             Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) override;
-            static std::vector<Vec3f> ComputeConvexHull(const std::vector<Vec3f>& positions);
+            static std::vector<Vec3f> ComputeConvexHull(const std::vector<Vec3f>& meshPositionsVert);
             void ComputeConvexVertices(Shared<Resource::Mesh> mesh) override;
 
             bool Raycast(const Vec3f& origin, const Vec3f& direction, float maxDistance, Physic::RaycastHit& hit) override;

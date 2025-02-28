@@ -39,7 +39,6 @@ namespace GALAXY {
 			GameObject(GameObject&&) noexcept = default;
 			virtual ~GameObject();
 
-
 			// === Methods === //
 			void StartSelfAndChild() const;
 
@@ -51,7 +50,7 @@ namespace GALAXY {
 			void RemoveChild(const GameObject* child);
 			void RemoveChild(uint32_t index);
 
-			void RemoveFromParent() const;
+			void RemoveFromParent();
 
 			Shared<GameObject> Clone() const;
 
@@ -157,6 +156,7 @@ namespace GALAXY {
 
 			bool m_active = true;
 
+			bool m_loaded = true;
 		private:
 			template<typename T>
 			inline List<Shared<T>> GetComponentsPrivate();
