@@ -239,6 +239,7 @@ namespace GALAXY
 #ifdef WITH_EDITOR 
 		if (Core::Application::IsPlayMode())
 #endif
+		if (p_loaded)
 			gameObject->StartSelf();
 	}
 

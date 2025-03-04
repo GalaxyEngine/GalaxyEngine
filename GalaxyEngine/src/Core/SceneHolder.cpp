@@ -149,5 +149,7 @@ void Core::SceneHolder::SwitchSceneUpdate()
 
 	m_currentScene = m_nextScene;
 	m_nextScene.reset();
+
+	m_currentScene->GetRootGameObject()->StartSelfAndChild();
 #endif
 }

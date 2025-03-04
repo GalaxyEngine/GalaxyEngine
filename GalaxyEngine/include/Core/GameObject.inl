@@ -101,10 +101,14 @@ namespace GALAXY {
 		m_components.push_back(component);
 		component->p_id = static_cast<uint32_t>(m_components.size() - 1);
 		component->OnCreate();
+
+		if (!m_loaded)
+			return;
 #ifdef WITH_EDITOR 
-		if (Application::IsPlayMode())
+		if (!Application::IsPlayMode())
+			return;
 #endif
-			component->OnStart();
+		component->OnStart();
 	}
 
 	template<typename T>
