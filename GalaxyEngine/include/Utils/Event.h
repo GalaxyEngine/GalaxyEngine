@@ -21,6 +21,11 @@ namespace GALAXY
 				m_callbacks.push_back(callback);
 			}
 
+			virtual void ClearBindings()
+			{
+				m_callbacks.clear();
+			}
+
 			virtual void Invoke(Args... args)
 			{
 				for (auto& callback : m_callbacks)

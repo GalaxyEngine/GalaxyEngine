@@ -553,7 +553,8 @@ namespace GALAXY
                     object.first->SetDebugCollide(true);
                     object.second->SetDebugCollide(true);
 #endif
-
+                    object.first->EOnCollide.Invoke(object.first, object.second, info.point);
+                    object.second->EOnCollide.Invoke(object.second, object.first, info.point);
                     info.framesLeft = m_numCollisionFrames;
                     ResolveCollisions(object.first, object.second, info);
                     m_collisionInfos.push_back(info);

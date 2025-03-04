@@ -1,10 +1,16 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include "IComponent.h"
+#include "Utils/Event.h"
 #include "Physic/AABB.h"
 
 namespace GALAXY 
 {
+    namespace Wrapper::PhysicAPI
+    {
+        struct ContactPoint;
+    }
+
     namespace Component
     {
         class RigidBody;
@@ -59,9 +65,13 @@ namespace GALAXY
             bool GetDebugCollide() const { return p_debugCollide; }
 
             virtual Mat4 GetInverseInertia(float Mass) const { return {}; }
-            
+
+        public:
+            Utils::Event<Collider*, Collider*, const Wrapper::PhysicAPI::ContactPoint&> EOnCollide;
+
         protected:
             Weak<RigidBody> p_attachedRigidbody;
+
 
             float p_restitution = 0.5f;
             float p_friction = 0.5f;
