@@ -142,8 +142,10 @@ target("GalaxyEngine")
 
     -- Print selected physics API after build
     after_build(function (target)
-        print("Physics API selected: ")
-        print(apis)
+        print("Physics APIs selected: ")
+        for k,v in pairs(apis) do
+            print('['..(k-1)..']: '..v)
+        end
     end)
 
     add_installfiles("GalaxyCore/imgui.ini", {prefixdir = "bin/"})
