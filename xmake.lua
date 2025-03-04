@@ -168,4 +168,7 @@ target("GalaxyCore")
     add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
     add_packages("galaxymath", "imgui")
+    if is_plat("windows") then
+        add_files("GalaxyCore/CoreResources/icons/Editor.rc")
+    end
 target_end()

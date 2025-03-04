@@ -105,6 +105,13 @@ namespace GALAXY {
 		windowConfig.name = "Galaxy Engine";
 #else
 		std::string projectName = projectPath.filename().stem().string();
+
+		if (isPackage)
+		{
+			Path binFile = Utils::FileSystem::FindFileWithExtension(std::filesystem::current_path(), BIN_EXT);
+			if (!binFile.empty())
+				projectName = binFile.filename().stem().generic_string();
+		}
 		windowConfig.name = projectName.c_str();
 #endif
 		
