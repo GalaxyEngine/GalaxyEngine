@@ -1,0 +1,41 @@
+add_rules("mode.debug", "mode.release")
+
+if is_plat("windows") then
+    set_runtimes(is_mode("debug") and "MDd" or "MD")
+end
+
+set_languages("c++20")
+
+set_rundir("$(projectdir)")
+set_targetdir("$(projectdir)")
+
+-- Custom repo
+add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
+add_requires("galaxymath")
+
+add_defines("WITH_GAME")
+if is_mode("debug") then
+    add_defines("_DEBUG")
+end
+if is_plat("windows") then
+    add_defines("NOMINMAX")
+end
+
+target("%s")
+    set_kind("shared")
+    set_languages("c++20")
+
+    add_includedirs("%s")
+    add_includedirs("Generate/Headers")
+    
+    add_files("**.cpp")
+    add_headerfiles("**.h")
+
+    add_links("GalaxyEngine")
+    
+    add_packages("galaxymath")
+
+    set_basename("%s")
+    
+    set_prefixname("")
+target_end()

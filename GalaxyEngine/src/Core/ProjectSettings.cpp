@@ -262,6 +262,8 @@ namespace GALAXY
 			return;
 
 		CppSer::Parser parser(projectPath / "project.settings");
+		if (!parser.IsFileOpen())
+			return;
 		m_startScene = parser["Start Scene"].As<std::string>();
 		m_projectIcon = parser["Project Icon"].As<std::string>();
 

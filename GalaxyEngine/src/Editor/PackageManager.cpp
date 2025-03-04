@@ -97,51 +97,9 @@ namespace GALAXY
     {
         
     }
+    
 #define DLL_NAME "GalaxyEngine"
 #define BIN_NAME "GalaxyCore"
-
-    static std::string s_xmakeContent = R"RAW(
-add_rules("mode.debug", "mode.release")
-
-if is_plat("windows") then
-    set_runtimes(is_mode("debug") and "MDd" or "MD")
-end
-
-set_languages("c++20")
-
-set_rundir("$(projectdir)")
-set_targetdir("$(projectdir)")
-
--- Custom repo
-add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
-add_requires("galaxymath")
-
-add_defines("WITH_GAME")
-
-if is_plat("windows") then
-    add_defines("NOMINMAX")
-end
-
-target("%s")
-    set_kind("shared")
-    set_languages("c++20")
-
-    add_includedirs("%s")
-    add_includedirs("Generate/Headers")
-    
-    add_files("**.cpp")
-    add_headerfiles("**.h")
-
-    add_links("GalaxyEngine")
-    
-    add_packages("galaxymath")
-
-    set_basename("Assembly")
-    
-    set_prefixname("")
-target_end()
-)RAW";
-
     
     void Editor::PackageManager::PackageProject(bool forceSetBuildPath)
     {
@@ -206,29 +164,17 @@ target_end()
         Utils::FileSystem::CopyFileTo(fromSettingsPath, toSettingsPath, std::filesystem::copy_options::overwrite_existing);
 
         // Create xmake.lua
-        std::ofstream xmakeFile(packagePath / "xmake.lua");
-
-        // Get the filename without extension
-        std::string filename = Resource::ResourceManager::GetProjectPath().filename().stem().string();
-
-        // Prepare the buffer
-        char xmakeContent[8192];
-        std::size_t lengthToCopy = std::min(s_xmakeContent.size(), sizeof(xmakeContent) - 1);
-        std::copy_n(s_xmakeContent.begin(), lengthToCopy, xmakeContent);
-        xmakeContent[lengthToCopy] = '\0'; // Ensure null-termination
-
-        // Get the project name
-        std::string projectName = Resource::ResourceManager::GetProjectPath().filename().string();
-
-        Path includePath = std::filesystem::current_path().parent_path() / "GalaxyEngine" / "include";
-        
-        // Format the content
-        std::snprintf(xmakeContent, sizeof(xmakeContent), s_xmakeContent.c_str(),
-            projectName.c_str(), includePath.generic_string().c_str());
-
-        // Write to file
-        xmakeFile << xmakeContent;
-        xmakeFile.close();
+        {
+            std::ofstream xmakeFile(packagePath / "xmake.lua");
+            // Get the filename without extension
+            std::string filename = Resource::ResourceManager::GetProjectPath().filename().stem().string();
+            std::string xmakeContent = Utils::FileSystem::ReadFile(Path(ENGINE_RESOURCE_FOLDER_NAME "/package") / "xmakeTemplate.txt");
+            std::string projectName = Resource::ResourceManager::GetProjectPath().filename().string();
+            Path includePath = std::filesystem::current_path().parent_path() / "GalaxyEngine" / "include";
+            xmakeContent = Debug::FormatString(xmakeContent.c_str(), projectName.c_str(), includePath.generic_string().c_str(), PACKAGE_ASSEMBLY_NAME);
+            xmakeFile << xmakeContent;
+            xmakeFile.close();
+        }
 
         std::string command = "xmake f -p";
 
@@ -276,10 +222,12 @@ target_end()
         std::remove((packagePath / "xmake.lua").generic_string().c_str());
         std::filesystem::remove_all((packagePath / ".xmake").generic_string().c_str());
         std::filesystem::remove_all((packagePath / "build").generic_string().c_str());
-        std::remove((packagePath / "Assembly.exp").generic_string().c_str());
-        std::remove((packagePath / "Assembly.ilk").generic_string().c_str());
-        std::remove((packagePath / "Assembly.pdb").generic_string().c_str());
-        std::remove((packagePath / "compile.Assembly.pdb").generic_string().c_str());
+        std::remove((packagePath / PACKAGE_ASSEMBLY_NAME ".exp").generic_string().c_str());
+        std::remove((packagePath / PACKAGE_ASSEMBLY_NAME ".ilk").generic_string().c_str());
+        std::remove((packagePath / PACKAGE_ASSEMBLY_NAME ".lib").generic_string().c_str());
+        std::remove((packagePath / PACKAGE_ASSEMBLY_NAME ".pdb").generic_string().c_str());
+        std::remove((packagePath / "compile." PACKAGE_ASSEMBLY_NAME ".pdb").generic_string().c_str());
+        std::remove((packagePath / DLL_NAME ".lib").generic_string().c_str());
     }
 
     void Editor::PackageManager::DrawSettings()

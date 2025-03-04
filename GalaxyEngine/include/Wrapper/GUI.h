@@ -73,6 +73,8 @@ namespace GALAXY {
 			float GALAXY_API GetScaleFactor();
 
 			void GALAXY_API Test(Component::BaseComponent* component);
+
+			void DisableIniFile(bool value);
 		}
 	}
 }

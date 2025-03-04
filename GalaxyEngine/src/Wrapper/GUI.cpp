@@ -129,7 +129,6 @@ namespace GALAXY {
 		ImGui::NewFrame();
 	}
 
-
 	void Wrapper::GUI::EndFrame(const std::unique_ptr<Wrapper::Window>& window)
 	{
 		ImGui::Render();
@@ -275,6 +274,15 @@ namespace GALAXY {
 	{
 		PrintError("eysy");
 		
+	}
+
+	void Wrapper::GUI::DisableIniFile(bool value)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		if (value)
+			io.IniFilename = nullptr;
+		else
+			io.IniFilename = "imgui.ini";
 	}
 
 	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, const float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
@@ -435,7 +443,7 @@ namespace GALAXY {
 
 	bool Wrapper::GUI::TextureButton(const Resource::Texture* texture, const Vec2f size)
 	{
-		if (!texture->HasBeenSent())
+		if (!texture || !texture->HasBeenSent())
 			return false;
 		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size * GetScaleFactor());
 	}

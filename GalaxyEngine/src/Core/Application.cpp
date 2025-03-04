@@ -47,6 +47,8 @@ namespace GALAXY {
 	void Core::Application::Initialize(std::filesystem::path projectPath)
 	{
 		Debug::Log::LogToFile = true;
+
+		bool isPackage = false;
 		
 		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
 		if (!std::filesystem::exists(logPath))
@@ -68,15 +70,25 @@ namespace GALAXY {
 #else
 		if (projectPath.empty())
 		{
-			// ! Sould only happend in the ide running the engine
-			Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
-			CppSer::Parser parser(settingsPath);
-			std::string defaultProjectPath = parser["Default Project Path"].As<std::string>();
-			if (std::filesystem::is_directory(Path(defaultProjectPath)))
+			auto hasAssembly = !Utils::FileSystem::FindFileWithNameInFolder(std::filesystem::current_path(), PACKAGE_ASSEMBLY_NAME, false, false).empty();
+			if (hasAssembly)
 			{
-				defaultProjectPath = Utils::FileSystem::FindFileWithExtension(Path(defaultProjectPath), ".gProject").generic_string();
+				// On package
+				projectPath = std::filesystem::current_path() / PACKAGE_ASSEMBLY_DLL;
+				isPackage = true;
 			}
-			projectPath = defaultProjectPath;
+			else
+			{
+				// ! Sould only happend in the ide running the engine
+				Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
+				CppSer::Parser parser(settingsPath);
+				std::string defaultProjectPath = parser["Default Project Path"].As<std::string>();
+				if (std::filesystem::is_directory(Path(defaultProjectPath)))
+				{
+					defaultProjectPath = Utils::FileSystem::FindFileWithExtension(Path(defaultProjectPath), ".gProject").generic_string();
+				}
+				projectPath = defaultProjectPath;
+			}
 		}
 #endif
 
@@ -112,6 +124,7 @@ namespace GALAXY {
 
 		// Initialize GUI Lib
 		Wrapper::GUI::Initialize(m_window, "#version 450");
+		Wrapper::GUI::DisableIniFile(isPackage);
 
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
@@ -153,9 +166,6 @@ namespace GALAXY {
 		// Initialize Components
 		Component::ComponentHolder::Initialize();
 		
-		// Initialize Scene
-		m_sceneHolder = Core::SceneHolder::GetInstance();
-		
 #ifdef WITH_EDITOR
 		Editor::EditorSettings::SaveEngineLocation(); // Use project path
 		
@@ -170,7 +180,11 @@ namespace GALAXY {
 		// Load dll scripting
 		if (m_resourceManager->m_projectExists)
 		{
-			const std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
+			std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
+#ifdef WITH_GAME
+			if (!std::filesystem::exists(dllPath.generic_string() + DLL_EXT))
+				dllPath = projectPath.parent_path() / (PACKAGE_ASSEMBLY_NAME);
+#endif
 			bool loaded = m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
 
 #ifdef WITH_EDITOR
@@ -182,6 +196,9 @@ namespace GALAXY {
 #endif
 		}
 		m_scriptEngine->RegisterScriptComponents();
+		
+		// Initialize Scene
+		m_sceneHolder = Core::SceneHolder::GetInstance();
 	}
 
 	void Core::Application::UpdateResources()

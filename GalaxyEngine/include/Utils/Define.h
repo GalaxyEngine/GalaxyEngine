@@ -36,6 +36,8 @@
 #define ENGINE_LOCATION_PATH CACHE_PATH"EngineLocation.txt"
 #define CACHE_PATH "Cache/"
 #define ENGINE_GENERATE_HEADER_PATH "Generate/Headers/"
+#define PACKAGE_ASSEMBLY_NAME "Assembly"
+#define PACKAGE_ASSEMBLY_DLL PACKAGE_ASSEMBLY_NAME DLL_EXT
 
 // -- Misc -- //
 #define NONE_RESOURCE "None"
@@ -49,3 +51,15 @@
 #define BUTTON_RED Vec4f(0.8f, 0.15f, 0.1f, 1.f)
 
 #define UNUSED(x) (void)(x)
+
+//OS Define
+#ifdef _WIN32
+#define DLL_EXT ".dll"
+#define BIN_EXT ".exe"
+#elif defined(__linux__)
+#define DLL_EXT ".so"
+#define BIN_EXT ""
+#elif defined(__APPLE__)
+#define DLL_EXT ".dylib"
+#define BIN_EXT ""
+#endif

@@ -22,13 +22,16 @@ local isDebug = is_mode("debug") or is_mode("gamedbg")
 
 if isDebug then
     add_defines("_DEBUG")
+else
+    if is_plat("windows") or is_plat("mingw") then
+        add_ldflags("-subsystem:windows")
+    end
+    add_defines("NDEBUG")
 end
 
 if is_mode("gamedbg") then
-    add_defines("GAME_DEBUG")
     set_symbols("debug")
 elseif is_mode("game") then
-    add_defines("GAME_RELEASE")
     set_optimize("fastest")
     set_symbols("none")
     set_strip("all")

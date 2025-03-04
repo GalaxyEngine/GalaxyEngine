@@ -55,14 +55,23 @@ void Main(int argc, char** argv, char** envp)
 	application.Destroy();
 }
 
+#if defined(_WIN32) && defined(NDEBUG)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pCmdLine, int nCmdShow)
+#else
 int main(int argc, char** argv, char** envp)
+#endif
 {
 #ifdef _WIN32
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-	//  TODO: Remove Comments To Break on leaks
+	// TODO: Remove Comments To Break on leaks
 	// |
 	// V
 	// _CrtSetBreakAlloc(3344);
+#ifdef NDEBUG
+	int argc = __argc;
+	char** argv = __argv;
+	char** envp = nullptr;
+#endif
 #endif
 	Main(argc, argv, envp);
 	return 0;

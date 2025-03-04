@@ -448,24 +448,12 @@ namespace GALAXY
 
     const char* Utils::OS::GetDLLExtension()
     {
-#if defined(_WIN32)
-        return ".dll";
-#elif defined(__linux__)
-		return ".so";
-#elif defined(__APPLE__)
-		return ".dylib";
-#endif
+        return DLL_EXT;
     }
 
     const char* Utils::OS::GetBinaryExtension()
     {
-#if defined(_WIN32)
-        return ".exe";
-#elif defined(__linux__)
-        return "";
-#elif defined(__APPLE__)
-        return "";
-#endif
+        return BIN_EXT;
     }
     
     struct FindWindowData {
