@@ -168,4 +168,5 @@ target("GalaxyCore")
     add_files("GalaxyCore/**.cpp")
     add_includedirs("GalaxyEngine/include")
     add_packages("galaxymath", "imgui")
+    add_files("GalaxyCore/CoreResources/icons/Editor.rc") -- Add this line to include the resource file
 target_end()

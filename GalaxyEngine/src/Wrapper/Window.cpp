@@ -290,7 +290,7 @@ namespace GALAXY {
 
 			glfwSetWindowIcon(static_cast<GLFWwindow*>(m_window), 1, icons);
 
-				Wrapper::ImageLoader::ImageFree(image);
+			Wrapper::ImageLoader::ImageFree(image);
 		}
 	}
 
