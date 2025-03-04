@@ -71,7 +71,7 @@ namespace GALAXY
 		const auto lockShader = shader.lock();
 		ASSERT(lockShader && lockShader->HasBeenSent() && "Shader not valid or not sent");
 
-		if (lockShader->GetLocation("UseLights") == -1)
+		if (lockShader->GetLocation("directionals[0].ambient") == -1)
 			return;
 
 		// Check if inside the list
