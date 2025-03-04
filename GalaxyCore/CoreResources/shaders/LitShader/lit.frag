@@ -132,6 +132,11 @@ vec4 CalculateDirectionalLight(DirectionalLight directional)
 
     // Ambient
     vec4 ambientColor = material.ambient * vec4(directional.ambient, 1.0);
+	
+	if (material.hasAlbedo) {
+        vec4 textureColor = texture(material.albedo, modUV);
+        ambientColor = textureColor * ambientColor;
+    }
 
     return ambientColor + diffuseColor + specularColor;
 }

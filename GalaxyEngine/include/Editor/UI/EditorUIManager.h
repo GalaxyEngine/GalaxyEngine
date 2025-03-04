@@ -47,10 +47,10 @@ namespace GALAXY::Editor::UI {
 		void SetOnValidatePopupEvent(const std::function<void()>& onValidate);
 		static bool ShouldDisplaySafeClose();
 
-		void AddResourceLoading(const Core::UUID& uuid) { m_loadingResources.insert(uuid);}
-		void RemoveResourceLoading(const Core::UUID& uuid) { m_loadingResources.erase(uuid); }
+		void AddResourceLoading(const Core::UUID& uuid);
+		void RemoveResourceLoading(const Core::UUID& uuid);
 
-		const std::set<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
+		const std::vector<Core::UUID>& GetLoadingResources() { return m_loadingResources; }
 
 		inline MainBar* GetMainBar() const { return m_mainBar.get(); }
 		inline Hierarchy* GetHierarchy() const { return m_hierarchy.get(); }
@@ -78,7 +78,7 @@ namespace GALAXY::Editor::UI {
 		bool m_shouldUpdateDPIScale = true;
 		float m_prevDPIScale = 0.0f;
 
-		std::set<Core::UUID> m_loadingResources;
+		std::vector<Core::UUID> m_loadingResources;
 
 		std::function<void()> m_onValidatePopup;
 	};

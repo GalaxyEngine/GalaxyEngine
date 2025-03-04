@@ -283,6 +283,8 @@ namespace GALAXY {
 		for (size_t i = 0; auto & weakMesh : m_meshes)
 		{
 			const Shared<Mesh> mesh = weakMesh.lock();
+			if (!mesh)
+				continue;
 			mesh->ComputeBoundingBox(positionVertices[i]);
 
 			m_boundingBox.min.x = std::min(m_boundingBox.min.x, mesh->m_boundingBox.min.x);

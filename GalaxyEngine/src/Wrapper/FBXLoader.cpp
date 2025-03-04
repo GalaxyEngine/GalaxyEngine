@@ -64,6 +64,20 @@ namespace GALAXY
 		return { q.x, q.y, q.z, q.w };
 	}
 
+	Vec2f SafeIndex(const ofbx::Vec2Attributes& list, int index)
+	{
+		if (!list.values || list.count < index)
+			return Vec2f(0, 0);
+		return ToVec2f(list.get(index));
+	}
+
+	Vec3f SafeIndex(const ofbx::Vec3Attributes& list, int index)
+	{
+		if (!list.values || list.count < index)
+			return Vec3f(0, 0, 1);
+		return ToVec3f(list.get(index));
+	}
+
 	void Wrapper::FBXLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 	{
 		PROFILE_SCOPE_LOG("FBXLoader::Load(%s)", fullPath.generic_string().c_str());
@@ -272,9 +286,9 @@ namespace GALAXY
 				Vec3f position = ToVec3f(fbxPositions.get(index));
 				position = rotationQuat * position;
 				position += ToVec3f(translation);
-				Vec3f normal = ToVec3f(fbxNormals.get(index));
+				Vec3f normal = SafeIndex(fbxNormals, index);
 				normal = rotationQuat * normal;
-				Vec2f textureUV = ToVec2f(fbxTextureUVs.get(index));
+				Vec2f textureUV = SafeIndex(fbxTextureUVs, index);
 				
 				positions.push_back(position);
 

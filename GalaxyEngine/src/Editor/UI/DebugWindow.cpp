@@ -16,15 +16,15 @@ namespace GALAXY
 			ResetTriangleDrawCount();
 
 			auto editorUiManager = EditorUIManager::GetInstance();
-			const std::set<Core::UUID>& loadingResources = editorUiManager->GetLoadingResources();
+			const std::vector<Core::UUID>& loadingResources = editorUiManager->GetLoadingResources();
 			std::string label = "Loading Resources : " + std::to_string(loadingResources.size());
 			if (!loadingResources.empty())
 			{
 				if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					for (const Core::UUID& resourceUUID : loadingResources)
+					for (int i = 0; i < loadingResources.size(); i++)
 					{
-						auto resource = Resource::ResourceManager::GetResource(resourceUUID);
+						auto resource = Resource::ResourceManager::GetResource(loadingResources[i]);
 						if (!resource.lock())
 							break;
 						ASSERT(resource.lock() && "Resource not found");

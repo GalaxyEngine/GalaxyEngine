@@ -136,6 +136,19 @@ namespace GALAXY {
 		return false;
 	}
 
+	void Editor::UI::EditorUIManager::AddResourceLoading(const Core::UUID& uuid)
+	{
+		if (std::find(m_loadingResources.begin(), m_loadingResources.end(), uuid) == m_loadingResources.end())
+			m_loadingResources.push_back(uuid);
+	}
+
+	void GALAXY::Editor::UI::EditorUIManager::RemoveResourceLoading(const Core::UUID& uuid)
+	{
+		auto v = std::find(m_loadingResources.begin(), m_loadingResources.end(), uuid);
+		if (v != m_loadingResources.end())
+			m_loadingResources.erase(v);
+	}
+
 	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::GetInstance()
 	{
 		return m_instance.get();
