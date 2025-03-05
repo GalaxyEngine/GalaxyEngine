@@ -223,6 +223,7 @@ namespace GALAXY
 			m_lightManager->SendLightData();
 
 			m_root->DrawSelfAndChild(DrawMode::Game);
+			renderer->RenderDebug();
 			
 			renderer->SetRenderingType(Render::RenderType::None);
 			currentCamera->End();

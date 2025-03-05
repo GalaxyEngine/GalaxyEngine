@@ -28,7 +28,8 @@ namespace GALAXY
 		Path projectPath = Resource::ResourceManager::GetProjectPath();
 		m_engine = GS::ScriptEngine::Get();
 #ifdef WITH_EDITOR
-		m_engine->SetCopyToFolder(std::filesystem::current_path() / "ProjectsDLL");
+		m_dllCopyToFolder = std::filesystem::current_path() / "ProjectsDLL";
+		m_engine->SetCopyToFolder(m_dllCopyToFolder);
 #else
 		m_engine->SetCopyToFolder("");
 #endif
@@ -36,8 +37,7 @@ namespace GALAXY
 	}
 
 	Scripting::ScriptEngine::~ScriptEngine()
-	{
-	}
+	= default;
 
 	void Scripting::ScriptEngine::Initialize(const Path& projectPath)
 	{
@@ -71,14 +71,15 @@ namespace GALAXY
 		LoadDLL(dllPath.generic_string().c_str());
 #else
 		bool shouldCompile = false;
-			
-		if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
-		{
-			auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
-			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
-			shouldCompile = dllLastModif < engineLastModif;
-			SetDLLPath(dllPath);
-		}
+		// if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
+		// {
+		// 	auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
+		// 	auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
+		// 	shouldCompile = dllLastModif < engineLastModif;
+		// 	SetDLLPath(dllPath);
+		// 	
+		// 	// DeleteProjectDLL();
+		// }
 		bool loaded = false;
 		if (!shouldCompile)
 		{
@@ -116,7 +117,7 @@ namespace GALAXY
 		if (m_currentTime > m_updateInterval)
 		{
 			std::filesystem::path dllPathExt = m_dllPath.string() + Utils::OS::GetDLLExtension();
-			if (!std::filesystem::exists(dllPathExt))
+			if (!std::filesystem::exists(dllPathExt) || Utils::OS::IsFileLocked(dllPathExt))
 				return;
 			std::filesystem::file_time_type lastWriteTime = std::filesystem::last_write_time(dllPathExt);
 			if (m_lastWriteTime < lastWriteTime || !m_lastWriteTime.has_value())
@@ -139,6 +140,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::ResetLastWriteTime()
 	{
+		
 		m_lastWriteTime.reset();
 	}
 
@@ -260,7 +262,6 @@ namespace GALAXY
 		std::string content = serializer.GetContent();
 
 		FreeDLL();
-
 		LoadDLL(m_dllPath);
 		RegisterScriptComponents();
 
@@ -305,6 +306,17 @@ namespace GALAXY
 
 	}
 
+	void Scripting::ScriptEngine::DeleteProjectDLL() const
+	{
+		if (m_dllPath.empty() || m_dllCopyToFolder.empty())
+			return;
+
+		auto file = m_dllPath.generic_string().append(DLL_EXT);
+		if (file.empty())
+			return;
+		std::remove(file.c_str());
+	}
+
 	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName) const
 	{
 		return m_engine->GetScriptVariable(scriptComponent, scriptName, variableName);
@@ -316,13 +328,14 @@ namespace GALAXY
 	}
 
 #ifdef WITH_EDITOR
-	void Scripting::ScriptEngine::CompileCode(bool force /*= false*/)
+	void Scripting::ScriptEngine::CompileCode(bool force /*= false*/, bool monothread /*= false*/)
 	{
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 
 		ASSERT(projectPath.empty() == false && "Project path is empty");
+		PrintLog("Compiling project %s", projectPath.generic_string().c_str());
 
-		std::string rebuild = "";
+		std::string rebuild;
 		if (force)
 		{
 			rebuild = "xmake clean";
@@ -343,7 +356,10 @@ namespace GALAXY
 		+ " && " + platformSpecific
 		+ " && " + rebuild
 		+ " && xmake";
-		Utils::OS::RunCommandThread(command);
+		if (monothread)
+			Utils::OS::RunCommand(command);
+		else
+			Utils::OS::RunCommandThread(command);
 	}
 
 	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorToolType tool)

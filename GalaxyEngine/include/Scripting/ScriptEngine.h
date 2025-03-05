@@ -29,10 +29,9 @@ namespace GALAXY
 			void UpdateFileWatch();
 
 			void FreeDLL();
-
 			bool LoadDLL(const std::filesystem::path& dllPath);
-
 			void ReloadDLL();
+			void DeleteProjectDLL() const;
 
 			// For file watcher to call
 			void SetDLLPath(const std::filesystem::path& dllPath) { m_dllPath = dllPath; }
@@ -53,7 +52,7 @@ namespace GALAXY
 			}
 
 #ifdef WITH_EDITOR
-			static void CompileCode(bool force = false);
+			static void CompileCode(bool force = false, bool monothread = false);
 
 			static void GenerateSolution(Editor::ScriptEditorToolType tool);
 
@@ -81,6 +80,8 @@ namespace GALAXY
 			float m_currentTime = 0;
 			const float m_updateInterval = 1.f;
 			std::optional<std::filesystem::file_time_type> m_lastWriteTime;
+
+			std::filesystem::path m_dllCopyToFolder;
 
 		};
 	}

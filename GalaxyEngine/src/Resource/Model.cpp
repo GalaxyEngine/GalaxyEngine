@@ -66,7 +66,7 @@ namespace GALAXY {
 
 		BoundingBox globalAABB = Physic::AABB(position, size, true);
 		
-		Wrapper::Renderer::GetInstance()->DrawWireCube(globalAABB.GetCenter(), globalAABB.GetExtents(), Vec4f(1, 0, 0, 1), 5.f);
+		// Wrapper::Renderer::GetInstance()->DrawWireCube(globalAABB.GetCenter(), globalAABB.GetExtents(), Vec4f(1, 0, 0, 1), 5.f);
 
 		bool result = true;
 

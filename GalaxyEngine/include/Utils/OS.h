@@ -58,6 +58,7 @@ namespace GALAXY
 
 		// Show or Hide file with the path of the file
 		void ShowFile(const std::filesystem::path& filePath, bool showFile = true);
+		bool IsFileLocked(const std::filesystem::path& filePath);
 
 		std::string GetLastErrorMessage();
 

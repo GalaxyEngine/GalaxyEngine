@@ -88,6 +88,18 @@ namespace GALAXY {
 		return {};
 	}
 
+	std::vector<std::filesystem::path> Utils::FileSystem::FindFilesWithExtension(const std::filesystem::path& path,
+		const std::string& extension)
+	{
+		std::vector<std::filesystem::path> files;
+		for (const auto& entry : std::filesystem::directory_iterator(path)) {
+			if (entry.is_regular_file() && entry.path().extension() == extension) {
+				files.push_back(entry.path());
+			}
+		}
+		return files;
+	}
+
 	std::filesystem::path Utils::FileSystem::FindFileWithNameInFolder(const std::filesystem::path& folderPath,
 	                                                                  const std::string& filename, bool extensionIncluded, bool searchInSubFolder)
 	{

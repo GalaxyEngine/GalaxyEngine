@@ -644,7 +644,7 @@ namespace GALAXY
         {
             auto aabb = group.GetAABB();
             Vec4f color = color_for_index[group.index % color_for_index.size()];
-            instance->DrawWireCube(aabb.GetCenter(), aabb.GetExtents(), color);
+            instance->DrawWireCube(aabb.GetCenter(), aabb.GetExtents(), color, 10.f);
         }
     }
 

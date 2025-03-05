@@ -26,102 +26,111 @@
 #endif
 
 namespace GALAXY
-{    
+{
 #ifdef _WIN32
 
-    struct VSAppInfo {
+    struct VSAppInfo
+    {
         std::string displayName;
         std::string version;
         std::string productPath;
-        std::string installationPath;  // Example of an extra field
+        std::string installationPath; // Example of an extra field
     };
 
     using VSAppInfos = std::vector<VSAppInfo>;
 
-    VSAppInfos ParseVSWhereResult(const std::string& input) {
+    VSAppInfos ParseVSWhereResult(const std::string& input)
+    {
         VSAppInfos apps;
-        
+
         // Fields to search for
-        std::vector<std::string> fields = { "installationVersion", "productPath",
-    	    "displayName", "installationPath" };
+        std::vector<std::string> fields = {
+            "installationVersion", "productPath",
+            "displayName", "installationPath"
+        };
 
         // Regex pattern for key-value pairs
         std::regex fieldRe(R"((\w+):\s*([^\r\n]+))");
-        
+
         // Find each instance block by detecting "instanceId:" as a separator
         std::regex instanceRe(R"(instanceId:\s*[^\r\n]+)");
         auto instanceStart = std::sregex_iterator(input.begin(), input.end(), instanceRe);
         auto instanceEnd = std::sregex_iterator();
 
-        for (auto it = instanceStart; it != instanceEnd; ++it) {
+        for (auto it = instanceStart; it != instanceEnd; ++it)
+        {
             // Get the substring for this instance
             auto startPos = it->position();
             auto nextPos = (std::next(it) != instanceEnd) ? std::next(it)->position() : input.length();
             std::string instanceBlock = input.substr(startPos, nextPos - startPos);
-            
+
             // Extract fields
             std::unordered_map<std::string, std::string> fieldValues;
             std::sregex_iterator fieldStart(instanceBlock.begin(), instanceBlock.end(), fieldRe);
             std::sregex_iterator fieldEnd;
-            
-            for (auto fit = fieldStart; fit != fieldEnd; ++fit) {
+
+            for (auto fit = fieldStart; fit != fieldEnd; ++fit)
+            {
                 fieldValues[(*fit)[1].str()] = (*fit)[2].str();
             }
 
             // Ensure required fields exist before adding to the result
-            if (fieldValues.count("displayName") && fieldValues.count("installationVersion") && fieldValues.count("productPath")) {
+            if (fieldValues.count("displayName") && fieldValues.count("installationVersion") && fieldValues.count(
+                "productPath"))
+            {
                 apps.emplace_back(VSAppInfo{
                     fieldValues["displayName"],
                     fieldValues["installationVersion"],
                     fieldValues["productPath"],
-                    fieldValues.count("installationPath") ? fieldValues["installationPath"] : ""  // Optional field
+                    fieldValues.count("installationPath") ? fieldValues["installationPath"] : "" // Optional field
                 });
             }
         }
         return apps;
     }
-    
-	std::filesystem::path Utils::FindTool::FindVS()
-	{
-		std::filesystem::path result;
 
-		std::filesystem::path vsPath = OS::GetEnvVar("VSINSTALLDIR");
-		if (vsPath.empty())
-		{
-			vsPath = OS::GetEnvVar("ProgramFiles(x86)");
-			if (vsPath.empty())
-			{
-				vsPath = OS::GetEnvVar("ProgramFiles");
-			}
-			if (!vsPath.empty())
-			{
-				vsPath /= "Microsoft Visual Studio\\Installer";
-			}
-		}
-		
-		if (vsPath.empty())
-		{
-			return result;
-		}
+    std::filesystem::path Utils::FindTool::FindVS()
+    {
+        std::filesystem::path result;
 
-		std::string command = "cmd /C \"" + vsPath.string() + "/vswhere.exe\" -prerelease" ;
-		std::string output = OS::RunCommand(command, false);
+        std::filesystem::path vsPath = OS::GetEnvVar("VSINSTALLDIR");
+        if (vsPath.empty())
+        {
+            vsPath = OS::GetEnvVar("ProgramFiles(x86)");
+            if (vsPath.empty())
+            {
+                vsPath = OS::GetEnvVar("ProgramFiles");
+            }
+            if (!vsPath.empty())
+            {
+                vsPath /= "Microsoft Visual Studio\\Installer";
+            }
+        }
 
-		VSAppInfos apps = ParseVSWhereResult(output);
+        if (vsPath.empty())
+        {
+            return result;
+        }
 
-		//Choose the latest version of Visual Studio
-		std::ranges::sort(apps, [](const VSAppInfo& a, const VSAppInfo& b) {
-			return a.version > b.version;
-		});
+        std::string command = "cmd /C \"" + vsPath.string() + "/vswhere.exe\" -prerelease";
+        std::string output = OS::RunCommand(command, false);
 
-		if (!apps.empty())
-		{
-			result = apps[0].productPath;
-		}
-		
-		return result;
-	}
-    
+        VSAppInfos apps = ParseVSWhereResult(output);
+
+        //Choose the latest version of Visual Studio
+        std::ranges::sort(apps, [](const VSAppInfo& a, const VSAppInfo& b)
+        {
+            return a.version > b.version;
+        });
+
+        if (!apps.empty())
+        {
+            result = apps[0].productPath;
+        }
+
+        return result;
+    }
+
     // Helper function: Enumerate versioned subkeys (ignoring "vAny") and retrieve the "installDir" value.
     inline bool GetRiderInstallLocation(HKEY hKeyRoot, std::string& installLocation)
     {
@@ -129,7 +138,8 @@ namespace GALAXY
         const char* baseSubKeyPath = "SOFTWARE\\JetBrains\\Rider";
         // Open the base key. Use KEY_WOW64_64KEY for the 64-bit registry view.
         LONG result = RegOpenKeyExA(hKeyRoot, baseSubKeyPath, 0, KEY_READ | KEY_WOW64_64KEY, &hKey);
-        if (result != ERROR_SUCCESS) {
+        if (result != ERROR_SUCCESS)
+        {
             return false;
         }
 
@@ -137,17 +147,19 @@ namespace GALAXY
         DWORD index = 0;
         char subKeyName[256];
         DWORD subKeyNameSize = sizeof(subKeyName);
-        
+
         // Enumerate all subkeys under "SOFTWARE\\JetBrains\\Rider"
-        while (RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS)
+        while (RegEnumKeyExA(hKey, index, subKeyName, &subKeyNameSize, nullptr, nullptr, nullptr, nullptr) ==
+            ERROR_SUCCESS)
         {
             // Skip the "vAny" key, which does not contain an installDir value.
-            if (_stricmp(subKeyName, "vAny") == 0) {
+            if (_stricmp(subKeyName, "vAny") == 0)
+            {
                 index++;
                 subKeyNameSize = sizeof(subKeyName);
                 continue;
             }
-            
+
             // Check if the subkey name starts with 'V' (e.g., "V2022.1", "V2023.2", etc.)
             if (subKeyName[0] == 'V' || subKeyName[0] == 'v')
             {
@@ -159,7 +171,8 @@ namespace GALAXY
                     char pathBuffer[MAX_PATH];
                     DWORD bufferSize = sizeof(pathBuffer);
                     // Attempt to retrieve the "installDir" value from the subkey.
-                    result = RegQueryValueExA(hSubKey, "installDir", nullptr, nullptr, reinterpret_cast<LPBYTE>(pathBuffer), &bufferSize);
+                    result = RegQueryValueExA(hSubKey, "installDir", nullptr, nullptr,
+                                              reinterpret_cast<LPBYTE>(pathBuffer), &bufferSize);
                     RegCloseKey(hSubKey);
                     if (result == ERROR_SUCCESS)
                     {
@@ -189,7 +202,7 @@ namespace GALAXY
             {
                 // Search in the PATH env
                 auto envVar = Utils::OS::GetEnvVar("PATH");
-                std::vector paths  = Utils::OS::SplitEnvVar(envVar);
+                std::vector paths = Utils::OS::SplitEnvVar(envVar);
 
                 for (const std::filesystem::path& dir : paths)
                 {
@@ -201,18 +214,18 @@ namespace GALAXY
                 }
             }
         }
-        
+
         // Construct the full path to the Rider executable.
         std::string exePath = installLocation + "\\bin\\rider64.exe";
         return exePath;
     }
 
-	std::filesystem::path Utils::FindTool::FindRider()
-	{
-		return GetRiderExePath();
-	}
+    std::filesystem::path Utils::FindTool::FindRider()
+    {
+        return GetRiderExePath();
+    }
 #endif
-    
+
     std::filesystem::path GALAXY::Utils::OS::GetUserAppDataFolder()
     {
         std::filesystem::path result;
@@ -280,7 +293,8 @@ namespace GALAXY
         }
 
         // show the dialog
-        const nfdresult_t result = NFD::SaveDialog(outPath, filterItems.data(), static_cast<uint32_t>(count), defaultOpenPath.generic_string().c_str());
+        const nfdresult_t result = NFD::SaveDialog(outPath, filterItems.data(), static_cast<uint32_t>(count),
+                                                   defaultOpenPath.generic_string().c_str());
         if (result == NFD_OKAY)
         {
             resultString = std::string(outPath.get());
@@ -318,7 +332,8 @@ namespace GALAXY
 
         // show the dialog
 
-        const nfdresult_t result = NFD::OpenDialog(outPath, filterItems.data(), static_cast<uint32_t>(count), defaultOpenPath.generic_string().c_str());
+        const nfdresult_t result = NFD::OpenDialog(outPath, filterItems.data(), static_cast<uint32_t>(count),
+                                                   defaultOpenPath.generic_string().c_str());
         if (result == NFD_OKAY)
         {
             resultString = std::string(outPath.get());
@@ -338,15 +353,18 @@ namespace GALAXY
     {
         // auto-freeing memory
         NFD::UniquePath outPath;
-        
+
         std::string resultString;
         const nfdresult_t result = NFD::PickFolder(outPath);
-        if (result == NFD_OKAY) {
+        if (result == NFD_OKAY)
+        {
             resultString = std::string(outPath.get());
         }
-        else if (result == NFD_CANCEL) {
+        else if (result == NFD_CANCEL)
+        {
         }
-        else {
+        else
+        {
         }
 
         return resultString;
@@ -455,12 +473,16 @@ namespace GALAXY
     {
         return BIN_EXT;
     }
-    
-    struct FindWindowData {
-        FindWindowData(std::string title) : title(std::move(title)) {}
-        std::string title  = "";  
-        void*       handle = nullptr;
-        bool        found  = false;         
+
+    struct FindWindowData
+    {
+        FindWindowData(std::string title) : title(std::move(title))
+        {
+        }
+
+        std::string title = "";
+        void* handle = nullptr;
+        bool found = false;
     };
 
 #ifdef _WIN32
@@ -486,7 +508,7 @@ namespace GALAXY
     bool Utils::OS::IsWindowOpen(const std::string& windowTitle)
     {
 #ifdef _WIN32
-        FindWindowData data{ windowTitle };
+        FindWindowData data{windowTitle};
 
         EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
 
@@ -500,7 +522,7 @@ namespace GALAXY
     void* Utils::OS::GetWindow(const std::string& windowTitle)
     {
 #ifdef _WIN32
-        FindWindowData data{ windowTitle };
+        FindWindowData data{windowTitle};
 
         EnumWindows(FindWindowProc, reinterpret_cast<LPARAM>(&data));
 
@@ -510,7 +532,7 @@ namespace GALAXY
         return nullptr;
 #endif
     }
-    
+
 #ifdef WITH_EDITOR
     void Utils::OS::OpenWithVSCode(const std::filesystem::path& filePath)
     {
@@ -540,8 +562,9 @@ namespace GALAXY
             " - Microsoft Visual Studio";
         if (!IsWindowOpen(windowName))
         {
-            ShellExecute(nullptr, "open", editorToolPath.generic_string().c_str(), slnPath.c_str(), nullptr, SW_SHOWNORMAL);
-			
+            ShellExecute(nullptr, "open", editorToolPath.generic_string().c_str(), slnPath.c_str(), nullptr,
+                         SW_SHOWNORMAL);
+
             Utils::ElapsedTimer timer;
             while (!IsWindowOpen(windowName))
             {
@@ -551,7 +574,7 @@ namespace GALAXY
                     return;
             }
         }
-    
+
         HWND hwnd = static_cast<HWND>(GetWindow(windowName));
         if (hwnd)
         {
@@ -560,7 +583,7 @@ namespace GALAXY
             SetActiveWindow(hwnd);
 
             std::string command = " /edit ";
-            const std::string env = editorToolPath.generic_string() ;
+            const std::string env = editorToolPath.generic_string();
             const std::string newPath = "\"" + filePath.string() + "\"";
             command += newPath;
 
@@ -573,7 +596,7 @@ namespace GALAXY
     {
         Path editorToolPath = Editor::EditorSettings::GetInstance().GetCurrentScriptEditorToolPath();
         const std::string slnPath = "\"" + Scripting::ScriptEngine::GetSLNPath().generic_string() + "\"";
-        
+
         std::string command = slnPath;
         command += " ";
         const std::string env = editorToolPath.generic_string();
@@ -588,7 +611,8 @@ namespace GALAXY
 #endif
 #endif
 
-    static std::string RemoveColorCodes(const std::string& input) {
+    static std::string RemoveColorCodes(const std::string& input)
+    {
         // Regular expression to match ANSI color codes (like \x1b[32;1m)
         std::regex colorRegex("\x1b\\[[0-9;]*m");
         return std::regex_replace(input, colorRegex, "");
@@ -860,6 +884,43 @@ namespace GALAXY
 				return;
 			}
 		}
+#endif
+    }
+
+    bool Utils::OS::IsFileLocked(const std::filesystem::path& filePath)
+    {
+#ifdef _WIN32
+        HANDLE hFile = CreateFile(
+            filePath.generic_string().c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING,
+            FILE_ATTRIBUTE_NORMAL, nullptr);
+
+        if (hFile == INVALID_HANDLE_VALUE)
+        {
+            DWORD error = GetLastError();
+            return (error == ERROR_SHARING_VIOLATION);
+        }
+
+        CloseHandle(hFile);
+        return false;
+#elif defined(__linux__)
+        int fd = open(filename.c_str(), O_RDONLY);
+        if (fd == -1) {
+            return false; // File doesn't exist or cannot be opened
+        }
+
+        struct flock lock{};
+        lock.l_type = F_WRLCK; // Check for write lock
+        lock.l_whence = SEEK_SET;
+        lock.l_start = 0;
+        lock.l_len = 0;
+
+        if (fcntl(fd, F_GETLK, &lock) == -1) {
+            close(fd);
+            return false;
+        }
+
+        close(fd);
+        return (lock.l_type != F_UNLCK); // If locked, return true
 #endif
     }
 }

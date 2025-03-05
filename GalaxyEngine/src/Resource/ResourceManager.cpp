@@ -247,7 +247,8 @@ namespace GALAXY
                                 currentFiles.begin(), currentFiles.end(),
                                 std::back_inserter(deletedFiles));
 
-            auto checkFile = [](Path& file) {
+            auto checkFile = [](Path& file)
+            {
                 if (file.string().at(file.string().size() - 1) == '~')
                 {
                     auto tmp = file.string();
@@ -605,7 +606,7 @@ namespace GALAXY
             return {};
         default:
             PrintError("Resource %s not handled", fullPath.string().c_str());
-            // ASSERT(false);
+        // ASSERT(false);
             return {};
         }
     }
