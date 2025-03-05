@@ -162,8 +162,14 @@ namespace GALAXY
                                              const CollisionInfo& collisionInfo)
     {
         // Retrieve rigid bodies.
-        auto bodyA = collider1->GetGameObject()->GetComponent<Component::RigidBody>();
-        auto bodyB = collider2->GetGameObject()->GetComponent<Component::RigidBody>();
+        collider1->InternalUpdateRigidbody();
+        collider2->InternalUpdateRigidbody();
+        auto bodyA = collider1->GetAttachedRigidbody().lock();
+        auto bodyB = collider2->GetAttachedRigidbody().lock();
+        if (bodyA == bodyB)
+        {
+            return;
+        }
 
         if (bodyA && !bodyA->IsEnable())
             bodyA = nullptr;

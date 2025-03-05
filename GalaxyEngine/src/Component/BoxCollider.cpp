@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Component/BoxCollider.h"
+#include "Component/RigidBody.h"
 
 #include "Core/GameObject.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -102,7 +103,8 @@ namespace GALAXY
         Vec3f position = GetTransform()->GetWorldPosition();
         Quat rotation = GetTransform()->GetWorldRotation();
         Vec3f scale = GetTransform()->GetWorldScale();
-        Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, rotation, p_debugCollide ? Vec4f(1, 0, 0, 1) : Vec4f(0, 1, 0, 1), 10.f);
+        float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
+        Wrapper::Renderer::GetInstance()->DrawCube(position, m_size * scale * 1.01f, rotation, p_debugCollide ? Vec4f(1, 0, isAsleep, 0.1f) : Vec4f(0, 1, isAsleep, 0.1f));
     }
     
     void Component::BoxCollider::ShowInInspector()

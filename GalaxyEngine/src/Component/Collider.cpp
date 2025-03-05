@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Component/Collider.h"
 #include "Component/RigidBody.h"
+#include "Core/GameObject.h"
 #include "Core/Application.h"
 
 #include "Physic/CollisionLayer.h"
@@ -75,5 +76,13 @@ namespace GALAXY
 	Vec3f Component::Collider::Support(const Vec3f& direction)
 	{
 		return {};
+	}
+
+	void Component::Collider::InternalUpdateRigidbody()
+	{
+		if (!p_attachedRigidbody.expired())
+			return;
+
+		p_attachedRigidbody = GetGameObject()->GetComponent<RigidBody>();
 	}
 }

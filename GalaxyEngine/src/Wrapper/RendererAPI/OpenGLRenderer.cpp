@@ -777,9 +777,82 @@ namespace GALAXY
 
 		// Draw vertices
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_LINES, 0, 6);
+		glDrawArrays(GL_LINES, 0, 2);
 		glBindVertexArray(0);
 
 		glLineWidth(defaultWidth);
+	}
+
+	void GALAXY::Wrapper::RendererAPI::OpenGLRenderer::Internal_DrawTriangles(const std::vector<Vec4f>& triangleData)
+	{
+		static bool initalized = false;
+		static uint32_t bufferSize;
+		static std::weak_ptr<Resource::Shader> unlitColoredShader;
+		static uint32_t VAO;
+		static uint32_t VBO = -1;
+		if (!initalized)
+		{
+			unlitColoredShader = Resource::ResourceManager::GetInstance()->GetUnlitColoredShader();
+			initalized = true;
+		}
+		if (!unlitColoredShader.lock() || !unlitColoredShader.lock()->HasBeenSent())
+		{
+			unlitColoredShader = Resource::ResourceManager::GetInstance()->GetUnlitColoredShader();
+			return;
+		}
+
+		uint32_t size = triangleData.size();
+		if ((size % 6) != 0) // Align to 6 Vec4f which is exactly one triangle
+		{
+			PrintError("Triangle buffer has an invalid size of %d! Remaining data will be discarded", size);
+			size -= size % 6;
+		}
+
+		if (size > bufferSize)
+		{
+			if (VBO != -1)
+			{
+				glDeleteVertexArrays(1, &VAO);
+				glDeleteBuffers(1, &VBO);
+			}
+
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+			glBindVertexArray(VAO);
+
+			bufferSize = size + 6 * 32; // Allocate extra space
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4f) * bufferSize, nullptr, GL_DYNAMIC_DRAW);
+
+			// position attribute
+			glVertexAttribPointer(0U, 3, GL_FLOAT, GL_FALSE, sizeof(Vec4f) * 2, static_cast<float*>(0));
+			glEnableVertexAttribArray(0U);
+
+			// color attribute
+			glVertexAttribPointer(4U, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4f) * 2, static_cast<float*>(0) + 4);
+			glEnableVertexAttribArray(4U);
+		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vec4f) * size, triangleData.data());
+
+		const Shared<Resource::Shader> shader = unlitColoredShader.lock();
+
+		shader->Use();
+
+		const auto& VP = Core::SceneHolder::GetCurrentScene()->GetVP();
+
+		shader->SendMat4("MVP", VP);
+		shader->SendVec4f("material.diffuse", Vec4f(1));
+		shader->SendInt("material.hasAlbedo", false);
+
+		// Draw vertices
+		glBindVertexArray(VAO);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDrawArrays(GL_TRIANGLES, 0, size / 2);
+		glDisable(GL_BLEND);
+		glBindVertexArray(0);
 	}
 }
