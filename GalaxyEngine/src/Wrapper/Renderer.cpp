@@ -40,6 +40,10 @@ namespace GALAXY {
 			Internal_DrawLine(line.posA, line.posB, line.color, line.lineWidth);
 		}
 		p_debugLines.clear();
+
+		if (p_debugTriangles.size())
+			Internal_DrawTriangles(p_debugTriangles);
+		p_debugTriangles.clear();
 	}
 
 	UMap<std::string, Resource::Uniform> Wrapper::Renderer::GetShaderUniforms(Resource::Shader* shader)
@@ -226,5 +230,68 @@ namespace GALAXY {
 		DrawLine(pos + rotation * -Vec3f::Up() * topRadius, pos + rotation * (-Vec3f::Up() * radius + Vec3f::Forward() * h), color, lineWidth);
 		DrawLine(pos + rotation * -Vec3f::Right() * topRadius, pos + rotation * (-Vec3f::Right() * radius + Vec3f::Forward() * h), color, lineWidth);
 		DrawLine(pos + rotation * Vec3f::Right() * topRadius, pos + rotation * (Vec3f::Right() * radius + Vec3f::Forward() * h), color, lineWidth);
+	}
+
+	void Wrapper::Renderer::DrawTriangle(Vec3f pos1, Vec3f pos2, Vec3f pos3, Vec4f color)
+	{
+		p_debugTriangles.push_back(pos1);
+		p_debugTriangles.push_back(color);
+		p_debugTriangles.push_back(pos2);
+		p_debugTriangles.push_back(color);
+		p_debugTriangles.push_back(pos3);
+		p_debugTriangles.push_back(color);
+	}
+
+	void Wrapper::Renderer::DrawCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation /*= Quat::Identity()*/, const Vec4f& color /*= Vec4f(1)*/)
+	{
+		Vec3f vertices[8];
+		vertices[0] = pos + rotation * Vec3f(-size.x, -size.y, -size.z);
+		vertices[1] = pos + rotation * Vec3f(size.x, -size.y, -size.z);
+		vertices[2] = pos + rotation * Vec3f(-size.x, size.y, -size.z);
+		vertices[3] = pos + rotation * Vec3f(size.x, size.y, -size.z);
+		vertices[4] = pos + rotation * Vec3f(-size.x, -size.y, size.z);
+		vertices[5] = pos + rotation * Vec3f(size.x, -size.y, size.z);
+		vertices[6] = pos + rotation * Vec3f(-size.x, size.y, size.z);
+		vertices[7] = pos + rotation * Vec3f(size.x, size.y, size.z);
+
+		DrawTriangle(vertices[0], vertices[2], vertices[1], color);
+		DrawTriangle(vertices[1], vertices[2], vertices[3], color);
+		DrawTriangle(vertices[4], vertices[5], vertices[6], color);
+		DrawTriangle(vertices[5], vertices[7], vertices[6], color);
+
+		DrawTriangle(vertices[1], vertices[7], vertices[5], color);
+		DrawTriangle(vertices[1], vertices[3], vertices[7], color);
+		DrawTriangle(vertices[0], vertices[4], vertices[6], color);
+		DrawTriangle(vertices[0], vertices[6], vertices[2], color);
+
+		DrawTriangle(vertices[2], vertices[7], vertices[3], color);
+		DrawTriangle(vertices[2], vertices[6], vertices[7], color);
+		DrawTriangle(vertices[0], vertices[1], vertices[5], color);
+		DrawTriangle(vertices[0], vertices[5], vertices[4], color);
+	}
+
+	void Wrapper::Renderer::DrawCircle(const Vec3f& pos, const Vec3f& normal, const float radius, const int numSegments /*= 32*/, const Vec4f color /*= Vec4f(1)*/)
+	{
+		float angle = 0.f;
+		Vec3f right = Vec3f::Zero();
+		if (normal == Vec3f::Up() || normal == -Vec3f::Up())
+		{
+			right = Vec3f::Right(); // If direction is up or down, use right as the perpendicular vector
+		}
+		else
+		{
+			right = Vec3f::Up().Cross(normal).GetNormalize(); // vector to the right of the direction
+		}
+		const Vec3f startPoint = pos + right * radius;
+		Vec3f previousPoint = startPoint;
+
+		for (int i = 1; i <= numSegments; i++)
+		{
+			angle = i * 360.f / numSegments;
+			const Vec3f point = pos + Quat::AngleAxis(angle, normal) * (right * radius);
+			DrawTriangle(pos, previousPoint, point, color);
+			previousPoint = point;
+		}
+		DrawTriangle(pos, previousPoint, startPoint, color);
 	}
 }

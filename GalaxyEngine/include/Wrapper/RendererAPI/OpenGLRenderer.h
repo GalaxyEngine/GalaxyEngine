@@ -105,6 +105,7 @@ namespace GALAXY::Wrapper::RendererAPI
 		protected:
 			// Debug
 			void Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) override;
+			void Internal_DrawTriangles(const std::vector<Vec4f>& triangleData) override;
 		private:
 
 		};

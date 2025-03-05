@@ -174,15 +174,20 @@ namespace GALAXY
 			void DrawSimpleWireSphere(const Vec3f& pos, float radius, int numSegments = 32, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 			void DrawWireSphere(const Vec3f& pos, float radius, int numSegments = 16, int numRings = 8, Vec4f color = Vec4f(1), float lineWidth = 1.f);
 			void DrawWireCone(const Vec3f& pos, const Quat& rotation, float topRadius, float angle, float height = 25.f, const Vec4f& color = Vec4f(1), float lineWidth = 1.f);
+			void DrawTriangle(Vec3f pos1, Vec3f pos2, Vec3f pos3, Vec4f color = Vec4f(1));
+			void DrawCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation = Quat::Identity(), const Vec4f& color = Vec4f(1));
+			void DrawCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1));
 
 			virtual int GetErrorCode() {return 0;}
 		protected:
 			virtual void Internal_DrawLine(Vec3f pos1, Vec3f pos2, Vec4f color = Vec4f(1), float lineWidth = 1.f) {}
+			virtual void Internal_DrawTriangles(const std::vector<Vec4f>& triangleData) {}
 		protected:
 			bool p_initalized = false;
 			Render::RenderType p_renderType = Render::RenderType::None;
 
 			std::vector<DebugLine> p_debugLines;
+			std::vector<Vec4f> p_debugTriangles;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};

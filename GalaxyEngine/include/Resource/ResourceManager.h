@@ -85,6 +85,7 @@ namespace GALAXY {
 			static inline Weak<class Material> GetDefaultMaterial();
 			static inline Weak<Shader> GetDefaultShader();
 			static inline Weak<Shader> GetUnlitShader();
+			static inline Weak<Shader> GetUnlitColoredShader();
 			static inline Weak<Shader> GetLitShader();
 
 			void ImportAllFilesInFolder(const Path& folder);
@@ -132,6 +133,7 @@ namespace GALAXY {
 
 			Weak<class Material> m_defaultMaterial;
 			Weak<class Shader> m_unlitShader;
+			Weak<class Shader> m_unlitColoredShader;
 			Weak<class Shader> m_litShader;
 			Weak<class Shader> m_defaultShader;
 

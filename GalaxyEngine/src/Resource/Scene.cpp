@@ -173,10 +173,11 @@ namespace GALAXY
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
-			physics->DrawDebug();
-			
-			renderer->RenderDebug();
 			m_root->DrawSelfAndChild(DrawMode::Editor);
+
+			physics->DrawDebug();
+			renderer->RenderDebug();
+
 			m_gizmo->Draw();
 
 			renderer->SetRenderingType(Render::RenderType::None);

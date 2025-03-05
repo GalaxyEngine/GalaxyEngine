@@ -66,6 +66,9 @@ namespace GALAXY
 
             virtual Mat4 GetInverseInertia(float Mass) const { return {}; }
 
+            void InternalUpdateRigidbody();
+            Weak<RigidBody> GetAttachedRigidbody() { return p_attachedRigidbody; }
+
         public:
             Utils::Event<Collider*, Collider*, const Wrapper::PhysicAPI::ContactPoint&> EOnCollide;
 
