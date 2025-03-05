@@ -211,12 +211,7 @@ namespace GALAXY
 				Vec2f point = Input::GetMousePositionOnWindow();
 				const Physic::Ray ray = currentCamera->ScreenPointToRay(point);
 				cameraPosition2 = ray.origin;
-				Physic::RaycastHit hit;
-				Physic::Raycast(ray, 1000.f, hit);
 				clickPosition2 = ray.origin + ray.direction * 1000.f;
-
-				if (hit.hit)
-					PrintLog("%s", hit.collider->GetGameObject()->GetName().c_str());
 			}
 #endif
 			// Bind Default Framebuffer
@@ -235,13 +230,15 @@ namespace GALAXY
 		
 	}
 
-	void Scene::OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject)
+	void Scene::OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject) const
 	{
 #ifdef WITH_EDITOR 
-		if (Core::Application::IsPlayMode())
+		if (!Core::Application::IsPlayMode())
+			return;
 #endif
-		if (p_loaded)
-			gameObject->StartSelf();
+		if (!p_loaded)
+			return;
+		gameObject->StartSelf();
 	}
 
 	void Scene::SetCurrentCamera(const Weak<Render::Camera>& camera)
@@ -294,7 +291,8 @@ namespace GALAXY
 			m_root->m_scene = this;
 			m_root->Deserialize(parser);
 		}
-		
+
+		p_loaded = true;
 		Send();
 	}
 
