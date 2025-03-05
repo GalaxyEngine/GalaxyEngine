@@ -81,7 +81,7 @@ namespace GALAXY {
 			inline void AddObject(const Shared<Core::GameObject>& gameObject, bool addChild = true);
 			inline void RemoveObject(Core::GameObject* object);
 			inline bool HasObject(Core::UUID uuid) const;
-			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject);
+			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject) const;
 
 			void SetCurrentCamera(const Weak<Render::Camera>& camera);
 
