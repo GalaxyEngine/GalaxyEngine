@@ -43,6 +43,10 @@ namespace GALAXY
 
             void AddContactPoint(const Vec3f& position, const Vec3f& normal, float depth)
             {
+                if (isnan(position.x) || isnan(normal.x))
+                {
+                    DebugBreak();
+                }
                 point.position = position;
                 point.normal = normal;
                 point.depth = depth;
