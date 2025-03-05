@@ -185,23 +185,7 @@ namespace GALAXY {
 #endif
 
 		// Load dll scripting
-		if (m_resourceManager->m_projectExists)
-		{
-			std::filesystem::path dllPath = projectPath.parent_path() / "Generate" / m_resourceManager->m_projectName;
-#ifdef WITH_GAME
-			if (!std::filesystem::exists(dllPath.generic_string() + DLL_EXT))
-				dllPath = projectPath.parent_path() / (PACKAGE_ASSEMBLY_NAME);
-#endif
-			bool loaded = m_scriptEngine->LoadDLL(dllPath.generic_string().c_str());
-
-#ifdef WITH_EDITOR
-			if (!loaded)
-			{
-				m_scriptEngine->ResetLastWriteTime();
-				Scripting::ScriptEngine::CompileCode();
-			}
-#endif
-		}
+		m_scriptEngine->Initialize(projectPath);
 		m_scriptEngine->RegisterScriptComponents();
 		
 		// Initialize Scene

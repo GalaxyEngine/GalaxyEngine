@@ -127,6 +127,8 @@ void Core::SceneHolder::SwitchSceneUpdate()
 			Resource::ResourceManager::ReloadResource<Resource::Scene>(m_currentScene->GetFileInfo().GetFullPath(), false);
 			m_nextScene->Send();
 			m_nextScene->m_editorCamera = editorCamera;
+			if (Core::Application::IsPlayMode() || Core::Application::IsPauseMode())
+				m_nextScene->m_root->StartSelfAndChild();
 		}
 		m_currentScene.reset();
 
@@ -144,6 +146,11 @@ void Core::SceneHolder::SwitchSceneUpdate()
 	if (m_currentScene != m_nextScene) {
 		// Do not unload if the next scene is the same as the current scene
 		Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+	}
+	else
+	{
+		Resource::ResourceManager::ReloadResource<Resource::Scene>(m_currentScene->GetFileInfo().GetFullPath(), false);
+		m_nextScene->Send();
 	}
 	m_currentScene.reset();
 

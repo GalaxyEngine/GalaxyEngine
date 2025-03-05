@@ -26,22 +26,75 @@ namespace GALAXY
 	Scripting::ScriptEngine::ScriptEngine()
 	{
 		Path projectPath = Resource::ResourceManager::GetProjectPath();
-		m_scriptEngine = GS::ScriptEngine::Get();
+		m_engine = GS::ScriptEngine::Get();
 #ifdef WITH_EDITOR
-		m_scriptEngine->SetCopyToFolder(std::filesystem::current_path() / "ProjectsDLL");
+		m_engine->SetCopyToFolder(std::filesystem::current_path() / "ProjectsDLL");
 #else
-		m_scriptEngine->SetCopyToFolder("");
+		m_engine->SetCopyToFolder("");
 #endif
-		m_scriptEngine->SetHeaderGenFolder(projectPath / "Generate" / "Headers");
+		m_engine->SetHeaderGenFolder(projectPath / "Generate" / "Headers");
 	}
 
 	Scripting::ScriptEngine::~ScriptEngine()
 	{
 	}
 
+	void Scripting::ScriptEngine::Initialize(const Path& projectPath)
+	{
+		if (!Resource::ResourceManager::DoesProjectExists())
+			return;
+		String projectName = Resource::ResourceManager::GetProjectName();
+		Path exePath = Core::Application::ExePath;
+
+		Path dllPath = projectPath.parent_path() / "Generate" / projectName;
+
+		Path dllFullPath = dllPath.string().append(DLL_EXT);
+		Path galaxyDll = Utils::FileSystem::FindFileWithNameInFolder(exePath.parent_path(), "GalaxyEngine" DLL_EXT, true, false);
+#ifdef WITH_GAME
+		if (!std::filesystem::exists(dllPath.generic_string() + DLL_EXT))
+		{
+			dllPath = projectPath.parent_path() / (PACKAGE_ASSEMBLY_NAME);
+			dllFullPath = dllPath.string().append(DLL_EXT);
+		}
+		
+		if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
+		{
+			auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
+			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
+#ifdef WITH_PACKAGE
+			ASSERT(engineLastModif < dllLastModif && "Project DLL is older than the engine dll")
+#else
+			PrintError("Project DLL is older than the engine DLL");
+#endif
+		}
+		
+		LoadDLL(dllPath.generic_string().c_str());
+#else
+		bool shouldCompile = false;
+			
+		if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
+		{
+			auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
+			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
+			shouldCompile = dllLastModif < engineLastModif;
+			SetDLLPath(dllPath);
+		}
+		bool loaded = false;
+		if (!shouldCompile)
+		{
+			loaded = LoadDLL(dllPath.generic_string().c_str());
+		}
+		if (!loaded)
+		{
+			ResetLastWriteTime();
+			CompileCode(shouldCompile);
+		}
+#endif
+	}
+
 	void Scripting::ScriptEngine::RegisterScriptComponents()
 	{
-		for (auto& instance : m_scriptEngine->GetAllScriptInstances())
+		for (auto& instance : m_engine->GetAllScriptInstances())
 		{
 			auto scriptComp = static_cast<Component::ScriptComponent*>(instance.second->m_constructor());
 			scriptComp->InitializeVariablesInfo();
@@ -51,7 +104,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::UnregisterScriptComponents()
 	{
-		for (auto& instance : m_scriptEngine->GetAllScriptInstances())
+		for (auto& instance : m_engine->GetAllScriptInstances())
 		{
 			Component::ComponentHolder::UnregisterComponentByName(instance.first);
 		}
@@ -151,10 +204,10 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::FreeDLL()
 	{
-		if (!m_scriptEngine)
+		if (!m_engine)
 			return;
 		UnregisterScriptComponents();
-		m_scriptEngine->FreeDLL();
+		m_engine->FreeDLL();
 
 	}
 
@@ -162,15 +215,19 @@ namespace GALAXY
 	{
 		m_dllPath = dllPath;
 #ifdef WITH_EDITOR
-		if (!m_scriptEngine->LoadDLL(dllPath))
+		if (!m_engine->LoadDLL(dllPath))
 #else
-		if (!m_scriptEngine->LoadDLL(dllPath, false))
+		if (!m_engine->LoadDLL(dllPath, false))
 #endif
 		{
 			// Can happen if the dll is not found, or the dll is not valid (compiled with another compiler)
 			PrintError("Failed to load DLL: %s", dllPath.string().c_str());
 			m_lastWriteTime = std::filesystem::file_time_type::max(); // max value to not spam the reloadDll method
 			return false;
+		}
+		else
+		{
+			PrintLog("Loaded DLL %s successfully", dllPath.string().c_str());
 		}
 		m_lastWriteTime = std::filesystem::last_write_time(m_dllPath.string() + Utils::OS::GetDLLExtension());
 		return true;
@@ -250,29 +307,41 @@ namespace GALAXY
 
 	void* Scripting::ScriptEngine::GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName) const
 	{
-		return m_scriptEngine->GetScriptVariable(scriptComponent, scriptName, variableName);
+		return m_engine->GetScriptVariable(scriptComponent, scriptName, variableName);
 	}
 
 	void Scripting::ScriptEngine::SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value) const
 	{
-		m_scriptEngine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
+		m_engine->SetScriptVariable(scriptComponent, scriptName, variableName, value);
 	}
 
 #ifdef WITH_EDITOR
-	void Scripting::ScriptEngine::CompileCode()
+	void Scripting::ScriptEngine::CompileCode(bool force /*= false*/)
 	{
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 
 		ASSERT(projectPath.empty() == false && "Project path is empty");
 
+		std::string rebuild = "";
+		if (force)
+		{
+			rebuild = "xmake clean";
+		}
+		
+		std::string mode = "debug";
+#ifdef NDEBUG
+		mode = "release";
+#endif
+		
 		std::string platformSpecific;
 #ifdef _MSC_VER
-		platformSpecific = "xmake f -p windows -a x64 -m debug";
+		platformSpecific = "xmake f -p windows -a x64 -m " + mode;
 #elif defined(__linux__)
-		platformSpecific = "xmake f -p linux -a x64 -m debug";
+		platformSpecific = "xmake f -p linux -a x64 -m " + mode;
 #endif
 		std::string command = "cd " + projectPath.generic_string()
 		+ " && " + platformSpecific
+		+ " && " + rebuild
 		+ " && xmake";
 		Utils::OS::RunCommandThread(command);
 	}
@@ -367,7 +436,7 @@ namespace GALAXY
 	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)
 	{
 		std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> variables;
-		for (auto& variable : m_scriptEngine->GetAllScriptVariablesInfo(scriptName))
+		for (auto& variable : m_engine->GetAllScriptVariablesInfo(scriptName))
 		{
 			VariableType variableType = VariableType::Unknown;
 			auto variableTypeName = variable.second.property.type;

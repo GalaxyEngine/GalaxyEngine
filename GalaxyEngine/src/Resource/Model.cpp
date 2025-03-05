@@ -15,11 +15,17 @@
 #endif
 
 #include "Physic/Plane.h"
+#include "Physic/AABB.h"
 
 #include "Wrapper/OBJLoader.h"
 #include "Wrapper/FBXLoader.h"
 
 namespace GALAXY {
+	Resource::BoundingBox::BoundingBox(const Physic::AABB& aabb)
+	{
+		min = aabb.Min;
+		max = aabb.Max;
+	}
 
 	Vec3f Resource::BoundingBox::GetCenter() const
 	{
@@ -31,40 +37,36 @@ namespace GALAXY {
 		return max - GetCenter();
 	}
 
-	bool Resource::BoundingBox::IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform) const
+	bool Resource::BoundingBox::IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform)
 	{
-		auto center = GetCenter();
-		auto extents = GetExtents();
 		auto frustum = camera->GetFrustum();
-		//Get global scale thanks to our transform
-		const Vec3f globalCenter{ objectTransform->GetModelMatrix() * Vec4f(center, 1.f) };
+		Vec3f position = objectTransform->GetWorldPosition();
+		Quat rotation = objectTransform->GetWorldRotation();
+		Vec3f scale = objectTransform->GetWorldScale();
 
-		const Vec3f globalScale{ objectTransform->GetWorldScale() };
+		Vec3f he = scale; // Original half-extents
 
-		// Scaled orientation
-		const Vec3f right = objectTransform->GetRight() * extents.x;
-		const Vec3f up = objectTransform->GetUp() * extents.y;
-		const Vec3f forward = objectTransform->GetForward() * extents.z;
+		Vec3f size = Vec3f();
 
-		const float newIi = 
-			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(right)) +
-			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(up)) +
-			std::abs(Vec3f{ 1.f, 0.f, 0.f }.Dot(forward));
+		for (int i = 0; i < 8; i++)
+		{
+			Vec3f e;
+			e.x = (i & 0x1) ? 1.0f : -1.0f;
+			e.y = (i & 0x2) ? 1.0f : -1.0f;
+			e.z = (i & 0x4) ? 1.0f : -1.0f;
 
-		const float newIj = 
-			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(right)) +
-			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(up)) +
-			std::abs(Vec3f{ 0.f, 1.f, 0.f }.Dot(forward));
+			e *= he;
+			e = rotation * e;
 
-		const float newIk = 
-			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(right)) +
-			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(up)) +
-			std::abs(Vec3f{ 0.f, 0.f, 1.f }.Dot(forward));
+			for (int j = 0; j < 3; j++)
+			{
+				size[j] = fmaxf(fabsf(e[j]), size[j]);
+			}
+		}
 
-		//We not need to divide scale because it's based on the half extension of the AABB
-		Vec3f newExtent = { globalScale.x * newIi, globalScale.y * newIj, globalScale.z * newIk };
-		Vec3f newCenter = globalCenter;
-		const BoundingBox globalAABB = BoundingBox(globalCenter - newExtent, globalCenter + newExtent);
+		BoundingBox globalAABB = Physic::AABB(position, size, true);
+		
+		Wrapper::Renderer::GetInstance()->DrawWireCube(globalAABB.GetCenter(), globalAABB.GetExtents(), Vec4f(1, 0, 0, 1), 5.f);
 
 		bool result = true;
 

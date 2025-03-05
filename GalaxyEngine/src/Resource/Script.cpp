@@ -89,8 +89,8 @@ END_FILE()
 			cppFile.close();
 		}
 
-		Resource::ResourceManager::GetOrLoad<Script>(path.string() + ".cpp");
-		auto scriptHeader = Resource::ResourceManager::GetOrLoad<Script>(path.string() + ".h");
+		ResourceManager::GetOrLoad<Script>(path.string() + ".cpp");
+		auto scriptHeader = ResourceManager::GetOrLoad<Script>(path.string() + ".h");
 		Scripting::ScriptEngine::CompileCode();
 		return scriptHeader;
 	}

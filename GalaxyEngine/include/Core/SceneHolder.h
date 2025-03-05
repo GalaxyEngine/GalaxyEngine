@@ -26,6 +26,8 @@ namespace GALAXY {
 
 			inline void SwitchScene(const Weak<Resource::Scene>& scene);
 
+			static void ReloadCurrentScene();
+
 #ifdef WITH_EDITOR
 			inline void SwitchPlayModeScene();
 #endif

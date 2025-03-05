@@ -7,6 +7,11 @@ namespace GALAXY
 		m_nextScene = scene.lock();
 	}
 
+	inline void Core::SceneHolder::ReloadCurrentScene()
+	{
+		m_instance->m_nextScene = m_instance->m_currentScene;
+	}
+
 #ifdef WITH_EDITOR
 	inline void Core::SceneHolder::SwitchPlayModeScene()
 	{

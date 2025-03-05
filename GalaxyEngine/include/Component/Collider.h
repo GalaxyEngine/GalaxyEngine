@@ -59,6 +59,7 @@ namespace GALAXY
             void SetRestitution(float value) { p_restitution = value; }
 
             virtual Physic::AABB GetAABB() { return {}; }
+
             virtual Vec3f Support(const Vec3f& direction);
 
             void SetDebugCollide(bool value) { p_debugCollide = value; }

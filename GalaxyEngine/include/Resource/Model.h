@@ -8,7 +8,9 @@ namespace GALAXY {
 	namespace Component { class Transform; }
 	namespace Wrapper { class OBJLoader; class FBXLoader; }
 	namespace Core { class GameObject; }
-	namespace Physic { struct Plane; }
+	namespace Physic {
+		struct AABB;
+		struct Plane; }
 	namespace Resource
 	{
 		enum class ModelExtension
@@ -21,6 +23,7 @@ namespace GALAXY {
 		{
 			BoundingBox() : min(FLT_MAX), max(FLT_MIN) {}
 			BoundingBox(Vec3f min, Vec3f max) : min(min), max(max) {}
+			BoundingBox(const Physic::AABB& aabb);
 
 			Vec3f min = Vec3f(FLT_MAX);
 			Vec3f max = Vec3f(FLT_MIN);
@@ -28,7 +31,7 @@ namespace GALAXY {
 			Vec3f GetCenter() const;
 			Vec3f GetExtents() const;
 
-			bool IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform) const;
+			static bool IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform);
 			bool isOnOrForwardPlane(const Physic::Plane& plane) const;
 		};
 		class Material;

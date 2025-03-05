@@ -7,6 +7,7 @@
 #include "Wrapper/GUI.h"
 
 #include "Scripting/VariableInfo.h"
+#include "Utils/FileInfo.h"
 
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
@@ -19,6 +20,9 @@ namespace GALAXY
 		public:
 			ScriptEngine();
 			~ScriptEngine();
+
+			void Initialize(const Path& projectPath);
+			
 			void RegisterScriptComponents();
 			void UnregisterScriptComponents();
 
@@ -29,6 +33,9 @@ namespace GALAXY
 			bool LoadDLL(const std::filesystem::path& dllPath);
 
 			void ReloadDLL();
+
+			// For file watcher to call
+			void SetDLLPath(const std::filesystem::path& dllPath) { m_dllPath = dllPath; }
 
 			void* GetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName) const;
 			void SetScriptVariable(void* scriptComponent, const std::string& scriptName, const std::string& variableName, void* value) const;
@@ -46,7 +53,7 @@ namespace GALAXY
 			}
 
 #ifdef WITH_EDITOR
-			static void CompileCode();
+			static void CompileCode(bool force = false);
 
 			static void GenerateSolution(Editor::ScriptEditorToolType tool);
 
@@ -67,7 +74,7 @@ namespace GALAXY
 		private:
 			static std::unique_ptr<ScriptEngine> s_instance;
 
-			GS::ScriptEngine* m_scriptEngine = nullptr;
+			GS::ScriptEngine* m_engine = nullptr;
 
 			std::filesystem::path m_dllPath;
 

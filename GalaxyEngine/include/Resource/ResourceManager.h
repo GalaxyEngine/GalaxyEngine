@@ -103,6 +103,7 @@ namespace GALAXY {
 
 			static Path GetAssetPath() { return m_instance->m_assetPath; }
 			static Path GetProjectPath() { return m_instance->m_projectPath; }
+			static String GetProjectName() { return m_instance->m_projectName; }
 
 			void ReadCache();
 			void CreateCache();
