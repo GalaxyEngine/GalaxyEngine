@@ -115,6 +115,7 @@ namespace GALAXY
             
         Utils::FileSystem::CopyFileTo(fromBinPath, toBinPath, std::filesystem::copy_options::overwrite_existing);
 
+        // TODO : Fix with lib prefix for compiler that add it
         // copy the galaxy engine dll
         Path fromDLLPath = exeFolder / (std::string(DLL_NAME) + Utils::OS::GetDLLExtension());
         Path toDLLPath = (packagePath / DLL_NAME).string() + Utils::OS::GetDLLExtension();

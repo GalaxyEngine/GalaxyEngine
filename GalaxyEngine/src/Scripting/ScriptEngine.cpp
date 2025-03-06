@@ -51,6 +51,8 @@ namespace GALAXY
 
 		Path dllFullPath = dllPath.string().append(DLL_EXT);
 		Path galaxyDll = Utils::FileSystem::FindFileWithNameInFolder(exePath.parent_path(), "GalaxyEngine" DLL_EXT, true, false);
+		if (galaxyDll.empty())
+			galaxyDll = Utils::FileSystem::FindFileWithNameInFolder(exePath.parent_path(), "libGalaxyEngine" DLL_EXT, true, false);
 #ifdef WITH_GAME
 		if (!std::filesystem::exists(dllPath.generic_string() + DLL_EXT))
 		{

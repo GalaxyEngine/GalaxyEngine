@@ -147,9 +147,6 @@ target("GalaxyEngine")
         remove_files("GalaxyEngine/include/Wrapper/PhysicAPI/CustomPhysics.h", "GalaxyEngine/src/Wrapper/PhysicAPI/CustomPhysics.cpp")
     end
 
-    -- Remove lib prefix
-    set_prefixname("")
-
     -- Print selected physics API after build
     after_build(function (target)
         print("Physics APIs selected: ")
