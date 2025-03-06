@@ -41,22 +41,30 @@
 namespace GALAXY {
 #pragma region static
 	Core::Application Core::Application::m_instance;
-	std::filesystem::path Core::Application::ExePath;
 #pragma endregion
 
-	void Core::Application::Initialize(std::filesystem::path projectPath)
+	void Core::Application::CreateLogDirectory()
 	{
-		Debug::Log::LogToFile = true;
-
-		bool isPackage = false;
-		
 		const auto logPath = Utils::OS::GetEngineDataFolder() / LOG_PATH;
 		if (!std::filesystem::exists(logPath))
 			std::filesystem::create_directories(logPath);
-		
-#ifdef WITH_EDITOR
+	}
+
+	void Core::Application::CreateThumbnailDirectory()
+	{
 		if (!std::filesystem::exists(THUMBNAIL_PATH)) 
 			std::filesystem::create_directories(THUMBNAIL_PATH);// Create also cache folder 
+	}
+
+	void Core::Application::Initialize(std::filesystem::path projectPath, const std::filesystem::path& exePath)
+	{
+		m_executablePath = exePath;
+		Debug::Log::LogToFile = true;
+		
+		CreateLogDirectory();
+		
+#ifdef WITH_EDITOR
+		CreateThumbnailDirectory();
 		
 		m_editorSettings.LoadSettings();
 		if (projectPath.empty())
@@ -71,11 +79,11 @@ namespace GALAXY {
 		if (projectPath.empty())
 		{
 			auto hasAssembly = !Utils::FileSystem::FindFileWithNameInFolder(std::filesystem::current_path(), PACKAGE_ASSEMBLY_NAME, false, false).empty();
+			m_inPackage = hasAssembly;
 			if (hasAssembly)
 			{
 				// On package
 				projectPath = std::filesystem::current_path() / PACKAGE_ASSEMBLY_DLL;
-				isPackage = true;
 			}
 			else
 			{
@@ -106,7 +114,7 @@ namespace GALAXY {
 #else
 		std::string projectName = projectPath.filename().stem().string();
 
-		if (isPackage)
+		if (m_inPackage)
 		{
 			Path binFile = Utils::FileSystem::FindFileWithExtension(std::filesystem::current_path(), BIN_EXT);
 			if (!binFile.empty())
@@ -131,7 +139,7 @@ namespace GALAXY {
 
 		// Initialize GUI Lib
 		Wrapper::GUI::Initialize(m_window, "#version 450");
-		Wrapper::GUI::DisableIniFile(isPackage);
+		Wrapper::GUI::DisableIniFile(m_inPackage);
 
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
@@ -155,7 +163,8 @@ namespace GALAXY {
 		m_resourceManager->m_projectPath = projectPath.parent_path();
 		m_resourceManager->m_assetPath = projectPath.parent_path() / ASSET_FOLDER_NAME;
 		std::string filename = projectPath.filename().generic_string();
-		m_resourceManager->m_projectName = filename = filename.substr(0, filename.find_first_of('.'));
+		filename = filename.substr(0, filename.find_first_of('.'));
+		m_resourceManager->m_projectName = filename;
 
 		// Initialize Scripting
 		m_scriptEngine = Scripting::ScriptEngine::GetInstance();
@@ -185,7 +194,7 @@ namespace GALAXY {
 #endif
 
 		// Load dll scripting
-		m_scriptEngine->Initialize(projectPath);
+		m_scriptEngine->Initialize();
 		m_scriptEngine->RegisterScriptComponents();
 		
 		// Initialize Scene
@@ -210,7 +219,7 @@ namespace GALAXY {
 			}
 			else if (const Shared<Resource::IResource> temporaryResourceFound = m_resourceManager->GetTemporaryResource<Resource::IResource>(resourcePath))
 			{
-				PrintLog("Send temp resource %s", resourcePath.string().c_str());
+				// PrintLog("Send temp resource %s", resourcePath.string().c_str());
 				TrySendResource(temporaryResourceFound, resourcePath);
 			}
 			else

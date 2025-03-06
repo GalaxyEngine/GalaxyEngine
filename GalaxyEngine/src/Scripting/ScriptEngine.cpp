@@ -24,6 +24,12 @@ namespace GALAXY
 	std::unique_ptr<Scripting::ScriptEngine> Scripting::ScriptEngine::s_instance;
 
 	Scripting::ScriptEngine::ScriptEngine()
+	= default;
+
+	Scripting::ScriptEngine::~ScriptEngine()
+	= default;
+
+	void Scripting::ScriptEngine::Initialize()
 	{
 		Path projectPath = Resource::ResourceManager::GetProjectPath();
 		m_engine = GS::ScriptEngine::Get();
@@ -34,26 +40,21 @@ namespace GALAXY
 		m_engine->SetCopyToFolder("");
 #endif
 		m_engine->SetHeaderGenFolder(projectPath / "Generate" / "Headers");
-	}
-
-	Scripting::ScriptEngine::~ScriptEngine()
-	= default;
-
-	void Scripting::ScriptEngine::Initialize(const Path& projectPath)
-	{
+		
 		if (!Resource::ResourceManager::DoesProjectExists())
 			return;
+		
 		String projectName = Resource::ResourceManager::GetProjectName();
-		Path exePath = Core::Application::ExePath;
+		Path exePath = Core::Application::GetExePath();
 
-		Path dllPath = projectPath.parent_path() / "Generate" / projectName;
+		Path dllPath = projectPath / "Generate" / projectName;
 
 		Path dllFullPath = dllPath.string().append(DLL_EXT);
 		Path galaxyDll = Utils::FileSystem::FindFileWithNameInFolder(exePath.parent_path(), "GalaxyEngine" DLL_EXT, true, false);
 #ifdef WITH_GAME
 		if (!std::filesystem::exists(dllPath.generic_string() + DLL_EXT))
 		{
-			dllPath = projectPath.parent_path() / (PACKAGE_ASSEMBLY_NAME);
+			dllPath = projectPath / (PACKAGE_ASSEMBLY_NAME);
 			dllFullPath = dllPath.string().append(DLL_EXT);
 		}
 		
@@ -71,15 +72,15 @@ namespace GALAXY
 		LoadDLL(dllPath.generic_string().c_str());
 #else
 		bool shouldCompile = false;
-		// if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
-		// {
-		// 	auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
-		// 	auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
-		// 	shouldCompile = dllLastModif < engineLastModif;
-		// 	SetDLLPath(dllPath);
-		// 	
-		// 	// DeleteProjectDLL();
-		// }
+		if (!galaxyDll.empty() && std::filesystem::exists(dllFullPath))
+		{
+			auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
+			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
+			shouldCompile = dllLastModif < engineLastModif;
+			SetDLLPath(dllPath);
+			
+			DeleteProjectDLL();
+		}
 		bool loaded = false;
 		if (!shouldCompile)
 		{
@@ -93,7 +94,7 @@ namespace GALAXY
 #endif
 	}
 
-	void Scripting::ScriptEngine::RegisterScriptComponents()
+	void Scripting::ScriptEngine::RegisterScriptComponents() const
 	{
 		for (auto& instance : m_engine->GetAllScriptInstances())
 		{
@@ -334,12 +335,6 @@ namespace GALAXY
 
 		ASSERT(projectPath.empty() == false && "Project path is empty");
 		PrintLog("Compiling project %s", projectPath.generic_string().c_str());
-
-		std::string rebuild;
-		if (force)
-		{
-			rebuild = "xmake clean";
-		}
 		
 		std::string mode = "debug";
 #ifdef NDEBUG
@@ -347,15 +342,25 @@ namespace GALAXY
 #endif
 		
 		std::string platformSpecific;
-#ifdef _MSC_VER
-		platformSpecific = "xmake f -p windows -a x64 -m " + mode;
-#elif defined(__linux__)
-		platformSpecific = "xmake f -p linux -a x64 -m " + mode;
-#endif
+		switch (Editor::GetUserCompiler()) {
+		case Editor::CompilerTool::MSVC:
+			platformSpecific = "xmake f -p windows -a x64 -m " + mode;
+			break;
+		case Editor::CompilerTool::GCC:
+			platformSpecific = "xmake f -p linux -a x64 -m " + mode;
+			break;
+		case Editor::CompilerTool::MINGW:
+			platformSpecific = "xmake f -p mingw -a x64 -m " + mode;
+			break;
+		default:
+			ASSERT(false && "Compiler tool not supported");
+			break;
+		}
 		std::string command = "cd " + projectPath.generic_string()
-		+ " && " + platformSpecific
-		+ " && " + rebuild
-		+ " && xmake";
+		+ " && " + platformSpecific;
+		if (force)
+			command += " && xmake clean";
+		command += " && xmake";
 		if (monothread)
 			Utils::OS::RunCommand(command);
 		else
@@ -449,9 +454,9 @@ namespace GALAXY
 	}
 #endif
 
-	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName)
+	std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> Scripting::ScriptEngine::GetAllScriptVariablesInfo(const std::string& scriptName) const
 	{
-		std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> variables;
+		std::unordered_map<std::string, std::shared_ptr<VariableInfo>> variables;
 		for (auto& variable : m_engine->GetAllScriptVariablesInfo(scriptName))
 		{
 			VariableType variableType = VariableType::Unknown;
@@ -463,43 +468,41 @@ namespace GALAXY
 
 			switch (variableType)
 			{
-			case Scripting::VariableType::None:
+			case VariableType::None:
+			case VariableType::Unknown:
 				variables[variable.first] = std::make_shared<VariableInfo>(variable.second.property);
 				break;
-			case Scripting::VariableType::Unknown:
-				variables[variable.first] = std::make_shared<VariableInfo>(variable.second.property);
-				break;
-			case Scripting::VariableType::Bool:
+			case VariableType::Bool:
 				variables[variable.first] = std::make_shared<VariableInfoT<bool>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Int:
+			case VariableType::Int:
 				variables[variable.first] = std::make_shared<VariableInfoT<int>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Float:
+			case VariableType::Float:
 				variables[variable.first] = std::make_shared<VariableInfoT<float>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Double:
+			case VariableType::Double:
 				variables[variable.first] = std::make_shared<VariableInfoT<double>>(variable.second.property);
 				break;
-			case Scripting::VariableType::String:
+			case VariableType::String:
 				variables[variable.first] = std::make_shared<VariableInfoT<std::string>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Vector2f:
+			case VariableType::Vector2f:
 				variables[variable.first] = std::make_shared<VariableInfoT<Vec2f>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Vector3f:
+			case VariableType::Vector3f:
 				variables[variable.first] = std::make_shared<VariableInfoT<Vec3f>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Vector4f:
+			case VariableType::Vector4f:
 				variables[variable.first] = std::make_shared<VariableInfoT<Vec4f>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Quaternion:
+			case VariableType::Quaternion:
 				variables[variable.first] = std::make_shared<VariableInfoT<Quat>>(variable.second.property);
 				break;
-			case Scripting::VariableType::GameObject:
+			case VariableType::GameObject:
 				variables[variable.first] = std::make_shared<VariableInfoT<Core::GameObject*>>(variable.second.property);
 				break;
-			case Scripting::VariableType::Component:
+			case VariableType::Component:
 				variables[variable.first] = std::make_shared<VariableInfoT<Component::BaseComponent*>>(variable.second.property);
 			default:
 				break;

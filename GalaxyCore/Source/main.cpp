@@ -20,19 +20,11 @@ void Main(int argc, char** argv, char** envp)
 	 * TODO : Fix rotation Gizmo (To test)
 	 * TODO : Implement Shadow Mapping
 	 */
-	/*
-	for (char **env = envp; *env != 0; env++)
-	{
-		char *thisEnv = *env;
-		std::cout << thisEnv << std::endl;
-	}
-	*/
 	
 	std::filesystem::path exePath = std::filesystem::path(argv[0]);
 	// On development			   							exe/	 mode/        architecture/ platform/	  build/		GalaxyEngine/
 	std::filesystem::path workDir = std::filesystem::path(argv[0]).parent_path().parent_path().parent_path().parent_path().parent_path() / "GalaxyCore";
 
-	Core::Application::ExePath = exePath; // the default path
 	if (!std::filesystem::exists(workDir))
 	{
 		// on package
@@ -48,7 +40,7 @@ void Main(int argc, char** argv, char** envp)
 	if (argc > 1)
 		projectPath = std::filesystem::path(argv[1]);
 
-	application.Initialize(projectPath);
+	application.Initialize(projectPath, exePath);
 
 	application.Update();
 

@@ -21,9 +21,9 @@ namespace GALAXY
 			ScriptEngine();
 			~ScriptEngine();
 
-			void Initialize(const Path& projectPath);
+			void Initialize();
 			
-			void RegisterScriptComponents();
+			void RegisterScriptComponents() const;
 			void UnregisterScriptComponents();
 
 			void UpdateFileWatch();
@@ -63,7 +63,7 @@ namespace GALAXY
 			static void OpenSolution(Editor::ScriptEditorToolType tool);
 #endif
 
-			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName);
+			std::unordered_map<std::string, std::shared_ptr<Scripting::VariableInfo>> GetAllScriptVariablesInfo(const std::string& scriptName) const;
 
 			static ScriptEngine* GetInstance();
 

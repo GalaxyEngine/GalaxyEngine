@@ -38,8 +38,12 @@ namespace GALAXY
 			~Application() = default;
 
 			static inline Application& GetInstance();
+			static const Path& GetExePath() { return m_instance.m_executablePath; }
+			static bool IsInPackage() {return m_instance.m_inPackage;}
 
-			void Initialize(std::filesystem::path projectPath);
+			static void CreateLogDirectory();
+			static void CreateThumbnailDirectory();
+			void Initialize(std::filesystem::path projectPath, const std::filesystem::path& exePath);
 			void Update();
 
 			void Destroy() const;
@@ -74,8 +78,6 @@ namespace GALAXY
 			inline ProjectSettings& GetProjectSettings();
 
 			void Exit() const;
-		public:
-			static std::filesystem::path ExePath;
 		private:
 			static Application m_instance;
 
@@ -104,9 +106,12 @@ namespace GALAXY
 
 			Unique<Wrapper::Window> m_window;
 
-			std::deque<std::filesystem::path> m_resourceToSend;
+			std::deque<Path> m_resourceToSend;
 
 			std::string m_clipboard;
+			
+			Path m_executablePath;
+			bool m_inPackage = false;
 		};
 	}
 }

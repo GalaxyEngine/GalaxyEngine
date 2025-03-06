@@ -30,6 +30,9 @@ namespace GALAXY
             MSVC = 0,
             GCC,
             MINGW,
+            CLANG,
+            APPLE_CLANG,
+            INTEL,
 
             Undefined
         };

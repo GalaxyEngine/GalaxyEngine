@@ -122,8 +122,6 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
 
-		PrintLog("Sent resource %s", GetFileInfo().GetFullPath().string().c_str());
-
 		OnLoad.Invoke();
 
 		m_finalVertices.clear();

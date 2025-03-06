@@ -46,14 +46,23 @@ namespace GALAXY
     {
 #ifdef _MSC_VER
         return CompilerTool::MSVC;
+#elif defined(__clang__)
+#ifdef __APPLE__
+        return CompilerTool::APPLE_CLANG;
+#else
+        return CompilerTool::CLANG;
+#endif
+#elif defined(__ICC) || defined(__INTEL_COMPILER)
+        return CompilerTool::INTEL;
 #elif defined(__GNUC__)
         return CompilerTool::GCC;
-#elif defined(__MINGW32__)
+#elif defined(__MINGW32__) || defined(__MINGW64__)
         return CompilerTool::MINGW;
 #else
         return CompilerTool::Undefined;
 #endif
     }
+
 
     const char* Editor::SerializeCompilerToolValue(CompilerTool tool)
     {

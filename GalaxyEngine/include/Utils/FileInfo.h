@@ -2,8 +2,6 @@
 #include "GalaxyAPI.h"
 #include <filesystem>
 
-using Path = std::filesystem::path;
-
 namespace GALAXY
 {
 	namespace Resource

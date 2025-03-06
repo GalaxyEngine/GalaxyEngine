@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include <set>
+#include <filesystem>
 
 template <typename T>
 using Weak = std::weak_ptr<T>;
@@ -19,4 +20,4 @@ using Map = std::map<T, U>;
 template <typename T, typename U>
 using UMap = std::unordered_map<T, U>;
 using String = std::string;
-
+using Path = std::filesystem::path;;

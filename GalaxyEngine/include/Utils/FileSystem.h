@@ -1,24 +1,28 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <filesystem>
+#include "Type.h"
+
 namespace GALAXY::Utils::FileSystem {
-	std::fstream OpenFile(const std::filesystem::path& path);
-	std::string ReadFile(const std::filesystem::path& path);
-	std::ofstream GenerateFile(const std::filesystem::path& path);
-
-	bool RemoveFile(const std::filesystem::path& path);
-
-	bool CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath);
-
-	void CopyFileTo(const std::filesystem::path& sourcePath, const std::filesystem::path& destinationPath, std::filesystem::copy_options options);
-
-	bool FileExistNoExtension(const std::filesystem::path& path);
-
-	std::filesystem::path ToLower(const std::filesystem::path& path);
-
-	std::filesystem::path FindFileWithExtension(const std::filesystem::path& path, const std::string& extension);
-
-	std::vector<std::filesystem::path> FindFilesWithExtension(const std::filesystem::path& path, const std::string& extension);
 	
-	std::filesystem::path FindFileWithNameInFolder(const std::filesystem::path& folderPath, const std::string& filename, bool extensionIncluded = false, bool searchInSubFolder = true);
+	std::fstream OpenFile(const Path& path);
+	std::string ReadFile(const Path& path);
+	std::ofstream GenerateFile(const Path& path);
+
+	bool RemoveFile(const Path& path);
+
+	bool CopyFileTo(const Path& sourcePath, const Path& destinationPath);
+
+	void CopyFileTo(const Path& sourcePath, const Path& destinationPath, std::filesystem::copy_options options);
+
+	bool FileExistNoExtension(const Path& path);
+
+	Path ToLower(const Path& path);
+
+	Path FindFileWithExtension(const Path& path, const std::string& extension);
+
+	std::vector<Path> FindFilesWithExtension(const Path& path, const std::string& extension);
+	
+	Path FindFileWithNameInFolder(const Path& folderPath, const std::string& filename, bool extensionIncluded = false, bool searchInSubFolder = true);
+
 }
