@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Component/SphereCollider.h"
+#include "Component/RigidBody.h"
 
 #include "Core/GameObject.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -19,11 +20,12 @@ namespace GALAXY
         if (!p_gameObject->IsSelected())
             return;
         auto position = p_gameObject->GetTransform()->GetWorldPosition();
+        auto rotation = GetTransform()->GetWorldRotation();
         auto scale = p_gameObject->GetTransform()->GetWorldScale();
         float s = fmaxf(fmaxf(scale.x, scale.y), scale.z) * m_size;
-        Vec4f color = p_debugCollide ? Vec4f(1, 0, 0, 1) : Vec4f(0, 1, 0, 1);
-        Wrapper::Renderer::GetInstance()->DrawSimpleWireSphere(position, s, 32, color, 1.f);
-        // Wrapper::Renderer::GetInstance()->DrawWireSphere(position, s, 16, 8, color, 2.f);
+        float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
+        float isColliding = p_debugCollide ? 1.0f : 0.0f;
+        Wrapper::Renderer::GetInstance()->DrawSphere(position, rotation, m_size * scale.x * 1.01f, 3, Vec4f(1.0f - isColliding, isColliding, isAsleep, 0.2f));
     }
 #endif
 

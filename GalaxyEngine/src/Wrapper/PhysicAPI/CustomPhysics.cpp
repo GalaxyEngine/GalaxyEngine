@@ -281,15 +281,17 @@ namespace GALAXY
         // ----- Positional Correction -----
         const auto& p = collisionInfo.point;
 
+        float factor = (bodyA && bodyB) ? 0.5f : 1.0f;
+
         if (bodyA)
         {
             transformA->SetWorldPosition(transformA->GetWorldPosition() -
-                (p.normal * p.depth * (invMassA / invMassSum)));
+                (p.depth * factor * (invMassA / invMassSum)) * p.normal);
         }
         if (bodyB)
         {
             transformB->SetWorldPosition(transformB->GetWorldPosition() +
-                (p.normal * p.depth * (invMassB / invMassSum)));
+                (p.depth * factor * (invMassB / invMassSum)) * p.normal);
         }
 
         // ----- Impulse Resolution (Normal Impulse) -----
@@ -1287,6 +1289,8 @@ namespace GALAXY
         float d20 = v2.Dot(v0);
         float d21 = v2.Dot(v1);
         float denom = d00 * d11 - d01 * d01;
+        if (denom == 0)
+            denom == 0.00001f;
         v = (d11 * d20 - d01 * d21) / denom;
         w = (d00 * d21 - d01 * d20) / denom;
         u = 1.0f - v - w;

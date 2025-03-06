@@ -111,7 +111,9 @@ target("GalaxyEngine")
         add_links("Advapi32")
         add_syslinks("opengl32")
     elseif is_plat("linux") then
-        add_cflags("-fPIC")
+        add_cflags("-fPIC -Wunknown-pragmas -Wunused-function")
+    else
+        add_cflags("-Wunknown-pragmas -Wunused-function")
     end
 
     add_headerfiles("GalaxyEngine/include/**.h", "GalaxyEngine/include/**.inl")

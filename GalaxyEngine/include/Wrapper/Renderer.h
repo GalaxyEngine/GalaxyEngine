@@ -177,6 +177,7 @@ namespace GALAXY
 			void DrawTriangle(Vec3f pos1, Vec3f pos2, Vec3f pos3, Vec4f color = Vec4f(1));
 			void DrawCube(const Vec3f& pos, const Vec3f& size, const Quat& rotation = Quat::Identity(), const Vec4f& color = Vec4f(1));
 			void DrawCircle(const Vec3f& pos, const Vec3f& normal, float radius, int numSegments = 32, Vec4f color = Vec4f(1));
+			void DrawSphere(const Vec3f pos, const Quat& rotation, float radius, int subdivisions = 2, Vec4f color = Vec4f(1));
 
 			virtual int GetErrorCode() {return 0;}
 		protected:

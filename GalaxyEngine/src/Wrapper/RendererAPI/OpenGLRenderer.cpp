@@ -820,7 +820,7 @@ namespace GALAXY
 			glGenBuffers(1, &VBO);
 			glBindVertexArray(VAO);
 
-			bufferSize = size + 6 * 32; // Allocate extra space
+			bufferSize = size + 6 * 512; // Allocate extra space
 
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4f) * bufferSize, nullptr, GL_DYNAMIC_DRAW);
@@ -851,7 +851,7 @@ namespace GALAXY
 		glBindVertexArray(VAO);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glDrawArrays(GL_TRIANGLES, 0, size / 2);
+		DrawArrays(0, size / 2);
 		glDisable(GL_BLEND);
 		glBindVertexArray(0);
 	}

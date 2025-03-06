@@ -5,6 +5,7 @@
 #include "Wrapper/Window.h"
 
 #include "Core/SceneHolder.h"
+#include "Utils/Geometry.h"
 
 #include "Component/Transform.h"
 
@@ -293,5 +294,28 @@ namespace GALAXY {
 			previousPoint = point;
 		}
 		DrawTriangle(pos, previousPoint, startPoint, color);
+	}
+
+	void Wrapper::Renderer::DrawSphere(const Vec3f pos, const Quat& rotation, float radius, int subdivisions, Vec4f color)
+	{
+		static std::vector<std::vector<Vec4f>> meshData = std::vector<std::vector<Vec4f>>(10);
+		if (subdivisions > 10)
+			subdivisions = 10;
+		if (subdivisions < 1)
+			subdivisions = 1;
+
+
+		if (meshData[subdivisions-1].empty())
+		{
+			meshData[subdivisions-1] = Utils::Geometry::generateIcoSphere(subdivisions);
+		}
+
+		auto& sphere = meshData[subdivisions-1];
+		for (int i = 0; i < sphere.size() / 3; i++)
+		{
+			DrawTriangle(pos + radius * (rotation * Vec3f(sphere[i * 3])),
+				pos + radius * (rotation * Vec3f(sphere[i * 3 + 1])),
+				pos + radius * (rotation * Vec3f(sphere[i * 3 + 2])), color);
+		}
 	}
 }
