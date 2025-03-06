@@ -903,7 +903,7 @@ namespace GALAXY
         CloseHandle(hFile);
         return false;
 #elif defined(__linux__)
-        int fd = open(filename.c_str(), O_RDONLY);
+        int fd = open(filePath.generic_string().c_str(), O_RDONLY);
         if (fd == -1) {
             return false; // File doesn't exist or cannot be opened
         }
