@@ -22,9 +22,9 @@ namespace GALAXY
 			{
 				if (ImGui::TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 				{
-					for (int i = 0; i < loadingResources.size(); i++)
+					for (size_t i = 0; i < loadingResources.size(); i++)
 					{
-						auto resource = Resource::ResourceManager::GetResource(loadingResources[i]);
+						Weak resource = Resource::ResourceManager::GetResource(loadingResources[i]);
 						if (!resource.lock())
 							break;
 						ASSERT(resource.lock() && "Resource not found");

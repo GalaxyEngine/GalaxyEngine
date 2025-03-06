@@ -84,8 +84,8 @@ namespace GALAXY
 					shouldClosePopup = true;
 				}
 				Resource::ResourceType resourceType = m_rightClickedResource->GetFileInfo().GetResourceType();
-				if (resourceType == Resource::ResourceType::Model || resourceType == Resource::ResourceType::Material
-					&& ImGui::MenuItem(m_debugThumbnail ? "Stop Debug Thumbnail" : "Debug Thumbnail"))
+				if (resourceType == Resource::ResourceType::Model || (resourceType == Resource::ResourceType::Material
+					&& ImGui::MenuItem(m_debugThumbnail ? "Stop Debug Thumbnail" : "Debug Thumbnail")))
 				{
 					m_debugThumbnail = !m_debugThumbnail;
 					m_selectedResource = m_rightClickedResource;

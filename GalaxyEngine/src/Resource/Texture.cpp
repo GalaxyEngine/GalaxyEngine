@@ -29,7 +29,7 @@ void Resource::Texture::Load()
 
 	std::string fullPathStr = p_fileInfo.GetFullPath().generic_string();
 	auto image = Wrapper::ImageLoader::Load(fullPathStr.c_str(), 4);
-	if (m_bytes = std::move(image.data)) {
+	if (m_bytes = std::move(image.data); m_bytes) {
 		p_loaded.store(true);
 		m_size = image.size;
 	}

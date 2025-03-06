@@ -97,9 +97,9 @@ namespace GALAXY
 			
 			void ClearSelected();
 
-			void HandleDropFile(int count, const char** paths) const;
+			void HandleDropFile(size_t count, const char** paths) const;
 
-			void DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick);
+			void DrawThumbnail(Shared<File>& file, size_t index, float thumbnailScale, size_t& x, size_t& y, bool& shouldBreak, bool& openRightClick);
 			
 			void LaunchFile(const Shared<File>& file);
 			

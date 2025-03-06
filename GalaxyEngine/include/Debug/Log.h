@@ -35,7 +35,7 @@ namespace GALAXY::Debug
         L_ERROR
     };
 
-    static const char* SerializeLogTypeValue(LogType value)
+    inline const char* SerializeLogTypeValue(LogType value)
     {
         switch (value)
         {

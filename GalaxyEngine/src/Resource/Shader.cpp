@@ -190,10 +190,10 @@ void main()
 			OnLoad.Invoke();
 	}
 
-	void Resource::Shader::Save()
+	void Resource::Shader::Save() const
 	{
 		// Debug
-		ASSERT(GetVertex().lock() || GetFragment().lock() && "Shader not valid");
+		ASSERT((GetVertex().lock() || GetFragment().lock()) && "Shader not valid");
 
 		CppSer::Serializer serializer(p_fileInfo.GetFullPath());
 		serializer <<CppSer::Pair::BeginMap << "Shader";
@@ -436,7 +436,6 @@ void main()
 #ifdef WITH_EDITOR
 	void Resource::BaseShader::ShowInInspector()
 	{
-		size_t i = 0;
 		for (auto& shader : p_shaders)
 		{
 			ImGui::Separator();

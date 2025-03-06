@@ -71,6 +71,7 @@ namespace GALAXY {
 			if (ImGui::BeginDragDropTarget()) {
 				// When Relased
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
+					UNUSED(payload);
 					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
 					auto draggedFiles = fileExplorer->GetDraggedFiles();
 					if (draggedFiles.size() == 1)
@@ -90,6 +91,7 @@ namespace GALAXY {
 				}
 				// When Hovering
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE", ImGuiDragDropFlags_AcceptBeforeDelivery)) {
+					UNUSED(payload);
 					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
 					auto draggedFiles = fileExplorer->GetDraggedFiles();
 					if (draggedFiles.size() == 1)
@@ -148,7 +150,6 @@ namespace GALAXY {
 		auto scene = Core::SceneHolder::GetCurrentScene();
 		
 		const Physic::Ray ray = scene->GetEditorCamera()->ScreenPointToRay(Vec3f(GetMousePosition(), 10.f));
-		auto cameraPosition = ray.origin;
 		auto clickPosition = ray.origin + ray.direction * ray.scale;
 
 		m_dragModelObject->GetTransform()->SetWorldPosition(clickPosition);

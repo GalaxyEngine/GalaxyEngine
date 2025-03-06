@@ -112,7 +112,7 @@ namespace GALAXY
 				const ofbx::DataView& embeddedData = fbxScene->getEmbeddedData(i); // Assuming this function exists.
 
 				const ofbx::u8* textureData = embeddedData.begin + 4;
-				std::size_t textureSize = static_cast<std::size_t>(embeddedData.end - embeddedData.begin - 4);
+				size_t textureSize = static_cast<size_t>(embeddedData.end - embeddedData.begin - 4);
 
 				/*
 				* TODO: Export settings : export texture, if not exporting it,
@@ -223,10 +223,10 @@ namespace GALAXY
 		std::vector<std::vector<Vec3f>> allPositions;
 		outputModel->m_meshes.resize(fbxScene->getMeshCount());
 		for (int i = 0; i < fbxScene->getMeshCount(); i++) {
-			const ofbx::Mesh* fbxMesh = fbxScene->getMesh(i);
+			const ofbx::Mesh* fbxMesh = fbxScene->getMesh(static_cast<int>(i));
 
 			// Load Materials
-			size_t materialCount = fbxMesh->getMaterialCount();
+			int materialCount = fbxMesh->getMaterialCount();
 			for (int j = 0; j < materialCount; j++) {
 				const ofbx::Material* fbxMaterial = fbxMesh->getMaterial(j);
 				const std::filesystem::path& materialFullPath = fullPath.parent_path() / (std::string(fbxMaterial->name) + ".mat");
@@ -275,7 +275,7 @@ namespace GALAXY
 			ofbx::Vec3Attributes fbxPositions = fbxMesh->getGeometryData().getPositions();
 			ofbx::Vec2Attributes fbxTextureUVs = fbxMesh->getGeometryData().getUVs();
 			ofbx::Vec3Attributes fbxNormals = fbxMesh->getGeometryData().getNormals();
-			ofbx::Vec3Attributes fbxTangents = fbxMesh->getGeometryData().getTangents();
+			// ofbx::Vec3Attributes fbxTangents = fbxMesh->getGeometryData().getTangents();
 
 			ofbx::DVec3 rotation = fbxMesh->getLocalRotation();
 			ofbx::DVec3 translation = fbxMesh->getLocalTranslation();
@@ -311,19 +311,20 @@ namespace GALAXY
 			//TODO : Handle tangents
 			//TODO : Fix loading with mix of triangles and quads
 			int totalVertexCount = 0;
-			size_t totalVertexCountSub = 0;
-			auto partitionCount = fbxMesh->getGeometryData().getPartitionCount();
+			int totalVertexCountSub = 0;
+			int partitionCount = fbxMesh->getGeometryData().getPartitionCount();
 			for (int j = 0; j < partitionCount; j++) {
 				Resource::SubMesh subMesh;
 				subMesh.startIndex = totalVertexCount;
 
 				auto currentPartition = fbxMesh->getGeometryData().getPartition(j);
-				int tris = currentPartition.triangles_count;
+				// int tris = currentPartition.triangles_count;
 
-				for (size_t k = 0; k < currentPartition.polygon_count; k++) {
+				for (int k = 0; k < currentPartition.polygon_count; k++) {
 					auto currentPolygon = currentPartition.polygons[k];
+					int vertexCount = currentPolygon.vertex_count;
 					if (currentPolygon.vertex_count == 3) {
-						for (int l = totalVertexCount; l < totalVertexCount + currentPolygon.vertex_count; l++) {
+						for (int l = totalVertexCount; l < totalVertexCount + vertexCount; l++) {
 							pushToVector(l);
 							totalVertexCountSub += 1;
 						}

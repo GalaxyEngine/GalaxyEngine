@@ -307,11 +307,11 @@ namespace GALAXY {
 
 		if (meshData[subdivisions-1].empty())
 		{
-			meshData[subdivisions-1] = Utils::Geometry::generateIcoSphere(subdivisions);
+			meshData[subdivisions-1] = Utils::Geometry::GenerateIcoSphere(subdivisions);
 		}
 
 		auto& sphere = meshData[subdivisions-1];
-		for (int i = 0; i < sphere.size() / 3; i++)
+		for (size_t i = 0; i < sphere.size() / 3; i++)
 		{
 			DrawTriangle(pos + radius * (rotation * Vec3f(sphere[i * 3])),
 				pos + radius * (rotation * Vec3f(sphere[i * 3 + 1])),

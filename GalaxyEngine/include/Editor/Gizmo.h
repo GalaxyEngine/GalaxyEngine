@@ -35,19 +35,19 @@ namespace GALAXY
 			World,
 		};
 
+		inline const char* to_string(Space e)
+		{
+			switch (e)
+			{
+			case Space::Local: return "Local";
+			case Space::World: return "World";
+			default: return "unknown";
+			}
+		}
+
 		inline const char* SerializeSpaceEnum()
 		{
 			return "Local\0World\0";
-		}
-
-		inline const char* SerializeSpaceValue(Space space)
-		{
-			switch (space)
-			{
-			case Space::Local:	return "Local";
-			case Space::World:	return "World";
-			default:			return "Unknown";
-			}
 		}
 
 		enum class GizmoType
@@ -76,9 +76,9 @@ namespace GALAXY
 			void Update();
 			void Draw();
 
-			inline bool IsGizmoClicked() { return m_gizmoClicked; }
+			inline bool IsGizmoClicked() const { return m_gizmoClicked; }
 
-			inline Space GetGizmoMode() { return m_mode; }
+			inline Space GetGizmoMode() const { return m_mode; }
 			inline void SetGizmoMode(Space mode) { m_mode = mode; }
 
 			void SetGameObject(Weak<Core::GameObject> object);

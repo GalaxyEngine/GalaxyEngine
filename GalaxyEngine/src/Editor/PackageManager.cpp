@@ -22,21 +22,6 @@ namespace GALAXY
         }
     }
 
-    const char* Editor::SerializePackagePlatformValue(PackagePlatform platform)
-    {
-        switch (platform)
-        {
-        case PackagePlatform::Windows:
-            return "Windows";
-        case PackagePlatform::Linux:
-            return "Linux";
-        case PackagePlatform::MacOS:
-            return "MacOS";
-        default:
-            return "Undefined";
-        }
-    }
-
     const char* Editor::SerializePackagePlatformEnum()
     {
         return "Windows\0Linux\0MacOS\0";
@@ -64,37 +49,9 @@ namespace GALAXY
     }
 
 
-    const char* Editor::SerializeCompilerToolValue(CompilerTool tool)
-    {
-        switch (tool)
-        {
-        case CompilerTool::MSVC:
-            return "MSVC";
-        case CompilerTool::GCC:
-            return "GCC";
-        case CompilerTool::MINGW:
-            return "MINGW";
-        default:
-            return "Undefined";
-        }
-    }
-
     const char* Editor::SerializeCompilerToolEnum()
     {
         return "MSVC\0GCC\0MINGW\0";
-    }
-
-    const char* Editor::SerializePackageModeValue(Editor::PackageMode package)
-    {
-        switch (package)
-        {
-        case PackageMode::Debug:
-            return "Debug";
-        case PackageMode::Release:
-            return "Release";
-        default:
-            return "Undefined";
-        }
     }
 
     const char* Editor::SerializePackageModeEnum()
@@ -187,25 +144,23 @@ namespace GALAXY
 
         std::string command = "xmake f -p";
 
-        switch (m_platform) {
-        case PackagePlatform::Windows:
-            command += "windows -a x64";
-            break;
-        case PackagePlatform::Linux:
-            command += "linux";
-            break;
-        case PackagePlatform::MacOS:
-            command += "macos";
-            break;
-        case PackagePlatform::Undefined:
-            break;
-        }
-
         switch (m_compiler) {
+        case CompilerTool::MSVC:
+            command += " windows -a x64"; 
+            break;
+        case CompilerTool::GCC:
+            command += " linux -a x64";
+            break;
         case CompilerTool::MINGW:
-            command = "xmake f -p mingw -a x86_64";
+            command += " mingw -a x64";
+            break;
+        case CompilerTool::APPLE_CLANG:
+            command += " macosx -a x64";
             break;
         case CompilerTool::Undefined:
+            break;
+        default:
+            ASSERT(false && "Compiler tool not supported");
             break;
         }
 
@@ -217,7 +172,8 @@ namespace GALAXY
         case PackageMode::Release:
             command += " -m release";
             break;
-        default: ;
+        default:
+            break;
         }
 
         // Package the project
@@ -243,14 +199,14 @@ namespace GALAXY
     {
         if (ImGui::BeginPopupModal("Package Settings"))
         {
-            if (ImGui::BeginCombo("Platform", SerializePackagePlatformValue(m_platform)))
+            if (ImGui::BeginCombo("Platform", to_string(m_platform)))
             {
                 PackagePlatform userPlatform = GetUserPlatform();
                 for (int i = 0; i < static_cast<int>(PackagePlatform::Undefined); i++)
                 {
                     const bool is_selected = (m_platform == static_cast<PackagePlatform>(i));
                     ImGui::BeginDisabled(userPlatform != static_cast<PackagePlatform>(i));
-                    if (ImGui::Selectable(SerializePackagePlatformValue(static_cast<PackagePlatform>(i)), is_selected))
+                    if (ImGui::Selectable(to_string(static_cast<PackagePlatform>(i)), is_selected))
                         m_platform = static_cast<PackagePlatform>(i);
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
@@ -260,14 +216,14 @@ namespace GALAXY
                 ImGui::SetTooltip("Platform used to package the project (only work with the current platform).");
             }
 
-            if (ImGui::BeginCombo("Compiler", SerializeCompilerToolValue(m_compiler)))
+            if (ImGui::BeginCombo("Compiler", to_string(m_compiler)))
             {
                 CompilerTool userCompiler = GetUserCompiler();
                 for (int i = 0; i < static_cast<int>(CompilerTool::Undefined); i++)
                 {
                     const bool is_selected = (m_compiler == static_cast<CompilerTool>(i));
                     ImGui::BeginDisabled(userCompiler != static_cast<CompilerTool>(i));
-                    if (ImGui::Selectable(SerializeCompilerToolValue(static_cast<CompilerTool>(i)), is_selected))
+                    if (ImGui::Selectable(to_string(static_cast<CompilerTool>(i)), is_selected))
                         m_compiler = static_cast<CompilerTool>(i);
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
@@ -277,12 +233,12 @@ namespace GALAXY
                 ImGui::SetTooltip("Compiler used to compile the project (only work with tool use to compile the engine).");
             }
 
-            if (ImGui::BeginCombo("Package Type", SerializePackageModeValue(m_packageMode)))
+            if (ImGui::BeginCombo("Package Type", to_string(m_packageMode)))
             {
                 for (int i = 0; i < static_cast<int>(PackageMode::Undefined); i++)
                 {
                     const bool is_selected = (m_packageMode == static_cast<PackageMode>(i));
-                    if (ImGui::Selectable(SerializePackageModeValue(static_cast<PackageMode>(i)), is_selected))
+                    if (ImGui::Selectable(to_string(static_cast<PackageMode>(i)), is_selected))
                         m_packageMode = static_cast<PackageMode>(i);
                     if (is_selected)
                         ImGui::SetItemDefaultFocus();
@@ -359,7 +315,7 @@ namespace GALAXY
         case PackageMode::Release:
             mode = "game";
             break;
-      break;      
+        default: ;
         }
         return Path("../build") / platform / arch / mode;
     }

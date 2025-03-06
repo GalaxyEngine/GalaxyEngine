@@ -24,7 +24,7 @@ namespace GALAXY
 
 	void Resource::Sound::Unload()
 	{
-		auto audioInstance = Wrapper::Audio::GetInstance();
+		// auto audioInstance = Wrapper::Audio::GetInstance();
 		// audioInstance->UnloadSound(this);
 	}
 

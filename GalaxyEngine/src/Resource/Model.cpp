@@ -194,7 +194,7 @@ namespace GALAXY {
 		IResource::Deserialize(parser);
 		parser.PushDepth();
 		const size_t meshCount = parser["Mesh Count"].As<size_t>();
-		if (meshCount != -1)
+		if (meshCount != std::numeric_limits<size_t>::max())
 		{
 			PrintError("You have a out dated .gdata file");
 			return;

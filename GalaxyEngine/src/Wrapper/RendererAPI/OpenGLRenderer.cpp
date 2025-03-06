@@ -786,7 +786,7 @@ namespace GALAXY
 	void GALAXY::Wrapper::RendererAPI::OpenGLRenderer::Internal_DrawTriangles(const std::vector<Vec4f>& triangleData)
 	{
 		static bool initalized = false;
-		static size_t bufferSize;
+		static uint32_t bufferSize;
 		static std::weak_ptr<Resource::Shader> unlitColoredShader;
 		static uint32_t VAO;
 		static uint32_t VBO = -1;
@@ -801,7 +801,7 @@ namespace GALAXY
 			return;
 		}
 
-		size_t size = triangleData.size();
+		uint32_t size = static_cast<uint32_t>(triangleData.size());
 		if ((size % 6) != 0) // Align to 6 Vec4f which is exactly one triangle
 		{
 			PrintError("Triangle buffer has an invalid size of %d! Remaining data will be discarded", size);
@@ -810,7 +810,7 @@ namespace GALAXY
 
 		if (size > bufferSize)
 		{
-			if (VBO != -1)
+			if (VBO != std::numeric_limits<uint32_t>::max())
 			{
 				glDeleteVertexArrays(1, &VAO);
 				glDeleteBuffers(1, &VBO);

@@ -2,6 +2,8 @@
 #include "GalaxyAPI.h"
 #include <optional>
 #include <functional>
+#include <string>
+
 namespace GS { struct Property; }
 namespace GALAXY
 {
@@ -170,7 +172,7 @@ namespace GALAXY
 					std::vector<T>* vectorValue = (std::vector<T>*)value;
 					vectorValue->clear();
 					size_t size = VariableInfo::BeginDeserializeList(parser, name);
-					if (size == -1)
+					if (size == std::numeric_limits<size_t>::max())
 						return;
 					vectorValue->resize(size);
 					if constexpr (std::is_same_v<T, bool>) {
@@ -198,14 +200,6 @@ namespace GALAXY
 
 			void SerializeT(CppSer::Serializer& serializer, const std::string& name, void* value) const;
 			void DeserializeT(CppSer::Parser& parser, const std::string& name, void* value, Resource::Scene* scene);
-
-			void CheckValues(const std::string& name, void* value) override
-			{
-				T* newValue = static_cast<T*>(value);
-				T realValue = *newValue;
-				if (!newValue)
-					return;
-			}
 		};
 	}
 }

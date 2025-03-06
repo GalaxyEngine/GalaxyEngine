@@ -3,5 +3,5 @@
 
 namespace GALAXY::Utils::Geometry
 {
-	std::vector<Vec4f> generateIcoSphere(int subdivisions);
+	std::vector<Vec4f> GenerateIcoSphere(int subdivisions);
 }

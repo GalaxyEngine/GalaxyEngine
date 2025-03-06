@@ -39,19 +39,19 @@ namespace GALAXY
             EditorInputs,
         };
 
-        inline const char* SerializeEditorSettingsTabValue(EditorSettingsTab tab)
+        inline const char* to_string(EditorSettingsTab e)
         {
-            switch (tab)
+            switch (e)
             {
             case EditorSettingsTab::General: return "General";
-            case EditorSettingsTab::ExternalTool: return "External Tool";
+            case EditorSettingsTab::ExternalTool: return "ExternalTool";
             case EditorSettingsTab::Appearance: return "Appearance";
             case EditorSettingsTab::Benchmark: return "Benchmark";
-            case EditorSettingsTab::EditorInputs: return "Editor Inputs";
-            default: return "Invalid";
+            case EditorSettingsTab::EditorInputs: return "EditorInputs";
+            default: return "unknown";
             }
         }
-
+        
         enum class ScriptEditorToolType
         {
             None = 0,
@@ -64,25 +64,26 @@ namespace GALAXY
             Count
         };
 
-        inline const char* SerializeScriptEditorToolTypeValue(ScriptEditorToolType tool)
+        inline const char* to_string(ScriptEditorToolType e)
         {
-            switch (tool)
+            switch (e)
             {
             case ScriptEditorToolType::None: return "None";
-            case ScriptEditorToolType::VisualStudioCode: return "Visual Studio Code";
+            case ScriptEditorToolType::VisualStudioCode: return "VisualStudioCode";
 #ifdef _WIN32
-            case ScriptEditorToolType::VisualStudio: return "Visual Studio";
+            case ScriptEditorToolType::VisualStudio: return "VisualStudio";
             case ScriptEditorToolType::Rider: return "Rider";
 #endif
             case ScriptEditorToolType::Custom: return "Custom";
-            default: return "Invalid";
+            case ScriptEditorToolType::Count: return "Count";
+            default: return "unknown";
             }
         }
 
         struct ScriptEditorTool
         {
             ScriptEditorTool(ScriptEditorToolType _type = ScriptEditorToolType::None)
-                : type(_type), name(SerializeScriptEditorToolTypeValue(_type)) {}
+                : type(_type), name(to_string(_type)) {}
             
             ScriptEditorToolType type;
             std::string name;
@@ -106,7 +107,7 @@ namespace GALAXY
             std::string name;
             Key key;
 
-            EditorInput(const std::string& name, const Key key) : name(name), key(key)
+            EditorInput(std::string name, const Key key) : name(std::move(name)), key(key)
             {
             }
 
@@ -141,7 +142,7 @@ namespace GALAXY
 
             void DrawTabElement(EditorSettingsTab tab);
 
-            [[nodiscard]] ScriptEditorToolType GetScriptEditorToolType() const { return m_currentScriptEditorToolType; }
+            [[nodiscard]] ScriptEditorToolType GetScriptEditorToolType() const;
             void SetScriptEditorToolType(const ScriptEditorToolType val);
 
             void SaveSettings() const;
@@ -155,14 +156,14 @@ namespace GALAXY
 
             [[nodiscard]] Path GetCurrentScriptEditorToolPath() const;
 
-            Path GetDefaultProjectPath() const { return m_defaultProjectPath; }
+            Path GetDefaultProjectPath() const;
 
-            bool GetShouldUseVSync() const { return m_useVSync; }
-            [[nodiscard]] EditorInputsManager& GetEditorInputsManager() { return m_editorInputsManager; }
+            bool GetShouldUseVSync() const;
+            [[nodiscard]] EditorInputsManager& GetEditorInputsManager();
 
-            PackageManager& GetPackageManager() { return m_packageManager; }
+            PackageManager& GetPackageManager();
 
-            bool FocusGameWindowOnPlay() const { return m_focusGameWindowOnPlay; }
+            bool FocusGameWindowOnPlay() const;
 
         private:
             void DisplayTab(EditorSettingsTab tab);

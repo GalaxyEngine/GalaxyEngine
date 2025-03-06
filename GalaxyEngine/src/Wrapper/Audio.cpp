@@ -134,8 +134,7 @@ namespace GALAXY
 			UnloadSound(uuid);
 		
 		LoadSound(emitter->GetSound()->GetFileInfo().GetFullPath(), uuid);
-		ma_sound* s = m_loadedSounds[uuid];
-
+	
 		SetEmitterPosition(uuid, worldPosition);
 		SetEmitterDirection(uuid, direction);
 		SetEmitterVolume(uuid, emitter->GetVolume());

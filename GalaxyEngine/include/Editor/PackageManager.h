@@ -17,12 +17,22 @@ namespace GALAXY
             Windows = 0,
             Linux,
             MacOS,
-
             Undefined
         };
 
+        inline const char* to_string(PackagePlatform e)
+        {
+            switch (e)
+            {
+            case PackagePlatform::Windows: return "Windows";
+            case PackagePlatform::Linux: return "Linux";
+            case PackagePlatform::MacOS: return "MacOS";
+            case PackagePlatform::Undefined: return "Undefined";
+            default: return "unknown";
+            }
+        }
+
         PackagePlatform PlatformToPackagePlatform(Utils::OS::Platform platform);
-        const char* SerializePackagePlatformValue(PackagePlatform platform);
         const char* SerializePackagePlatformEnum();
 
         enum class CompilerTool
@@ -37,9 +47,23 @@ namespace GALAXY
             Undefined
         };
 
+        inline const char* to_string(CompilerTool e)
+        {
+            switch (e)
+            {
+            case CompilerTool::MSVC: return "MSVC";
+            case CompilerTool::GCC: return "GCC";
+            case CompilerTool::MINGW: return "MINGW";
+            case CompilerTool::CLANG: return "CLANG";
+            case CompilerTool::APPLE_CLANG: return "APPLE_CLANG";
+            case CompilerTool::INTEL: return "INTEL";
+            case CompilerTool::Undefined: return "Undefined";
+            default: return "unknown";
+            }
+        }
+
         CompilerTool GetUserCompiler();
 
-        const char* SerializeCompilerToolValue(CompilerTool tool);
         const char* SerializeCompilerToolEnum();
 
         enum class PackageMode
@@ -48,8 +72,18 @@ namespace GALAXY
             Release,
             Undefined
         };
+
+        inline const char* to_string(PackageMode e)
+        {
+            switch (e)
+            {
+            case PackageMode::Debug: return "Debug";
+            case PackageMode::Release: return "Release";
+            case PackageMode::Undefined: return "Undefined";
+            default: return "unknown";
+            }
+        }
         
-        const char* SerializePackageModeValue(Editor::PackageMode package);
         const char* SerializePackageModeEnum();
 
         class PackageManager

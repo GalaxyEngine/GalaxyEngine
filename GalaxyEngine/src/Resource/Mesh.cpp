@@ -48,7 +48,7 @@ namespace GALAXY {
 		m_positions = positions;
 		p_loaded = true;
 		p_shouldBeLoaded = true;
-		for (int i = 0; i < positions.size(); i++)
+		for (size_t i = 0; i < positions.size(); i++)
 		{
 			m_finalVertices.push_back(positions[i].x);
 			m_finalVertices.push_back(positions[i].y);
@@ -156,7 +156,6 @@ namespace GALAXY {
 			if (shader == nullptr)
 				continue;
 
-			const Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
 			shader->SendMat4("Model", modelMatrix);
 			shader->SendMat4("MVP", scene->GetVP() * modelMatrix);
 			shader->SendVec3f("ViewPos", viewPos);
@@ -182,6 +181,7 @@ namespace GALAXY {
 		auto materials = GetMaterials();
 		size_t index = 0;
 		for (auto& subMesh : m_subMeshes) {
+			UNUSED(subMesh);
 			if (index < materials.size())
 				meshComponent.lock()->AddMaterial(materials[index]);
 			else

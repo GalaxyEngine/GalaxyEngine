@@ -54,7 +54,7 @@ namespace GALAXY {
 
 			virtual void Load() override;
 			void Send() override;
-			void Save();
+			void Save() const;
 
 			const char* GetResourceName() const override { return "Shader"; }
 			

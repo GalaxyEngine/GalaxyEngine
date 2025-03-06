@@ -95,12 +95,16 @@ set_languages("c++20")
 set_rundir("GalaxyCore")
 
 -- Flags
-add_cxflags("/wd4251", { tools = "cl" }) -- Disable "class needs to have dll-interface" warning
-add_cxflags("-Wall") -- Enable all common warnings
+add_cxxflags("/wd4251", { tools = "cl" }) -- Disable "class needs to have dll-interface" warning
+add_cxxflags("-Wall")
+if is_plat("mingw", "linux") then
+    add_cxxflags("-Wno-unknown-pragmas")
+    add_cxxflags("-Wno-unused-function")
+end
+
 
 -- Engine target
 target("GalaxyEngine")
-    set_symbols("debug")
     set_kind("shared")
     set_values("config.physics_api", physics_api)
     add_includedirs("GalaxyEngine/include")
@@ -111,9 +115,7 @@ target("GalaxyEngine")
         add_links("Advapi32")
         add_syslinks("opengl32")
     elseif is_plat("linux") then
-        add_cflags("-fPIC -Wunknown-pragmas -Wunused-function")
-    else
-        add_cflags("-Wunknown-pragmas -Wunused-function")
+        add_cflags("-fPIC")
     end
 
     add_headerfiles("GalaxyEngine/include/**.h", "GalaxyEngine/include/**.inl")

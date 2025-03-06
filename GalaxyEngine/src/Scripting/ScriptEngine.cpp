@@ -78,13 +78,15 @@ namespace GALAXY
 			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
 			shouldCompile = dllLastModif < engineLastModif;
 			SetDLLPath(dllPath);
-			
-			DeleteProjectDLL();
 		}
 		bool loaded = false;
 		if (!shouldCompile)
 		{
 			loaded = LoadDLL(dllPath.generic_string().c_str());
+		}
+		else
+		{
+			DeleteProjectDLL();
 		}
 		if (!loaded)
 		{
@@ -402,7 +404,7 @@ namespace GALAXY
 			break;
 		}
 		default:
-			PrintError("Unsupported script editor tool: %s", Editor::SerializeScriptEditorToolTypeValue(tool));
+			PrintError("Unsupported script editor tool: %s", Editor::to_string(tool));
 			break;
 		}
 	}
@@ -450,6 +452,7 @@ namespace GALAXY
 				PrintError("No script editor tool selected");
 			}
 			break;
+		default:;
 		}
 	}
 #endif

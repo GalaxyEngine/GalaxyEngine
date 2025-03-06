@@ -223,10 +223,11 @@ namespace GALAXY {
 			ImGui::EndGroup();
 
 			if (ImGui::BeginDragDropTarget()) {
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
-
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
+				{
+					UNUSED(payload);
 					auto draggedFiles = explorer->m_draggedFiles;
-					for (int i = 0; i < draggedFiles.size(); ++i) {
+					for (size_t i = 0; i < draggedFiles.size(); ++i) {
 
 						Path oldPath = draggedFiles[i]->m_info.GetFullPath();
 
@@ -257,7 +258,7 @@ namespace GALAXY {
 		for (const Shared<File>& child : m_children)
 		{
 			Path fullPath = child->m_info.GetFullPath();
-			if (fullPath == path || !matchCase && ToLower(path) == ToLower(fullPath))
+			if (fullPath == path || (!matchCase && ToLower(path) == ToLower(fullPath)))
 				return child;
 			if (Shared<File> result = child->GetWithPath(path, matchCase))
 				return result;
@@ -306,9 +307,10 @@ namespace GALAXY {
 	
 	void Editor::UI::FileExplorer::SetDirectory(const Path& directory, bool matchCase)
 	{
+		using namespace Utils::FileSystem;
 		Shared<File> file;
 		Path fullPath = m_mainFile->m_info.GetFullPath();
-		if (fullPath == directory || !matchCase && Utils::FileSystem::ToLower(directory) == Utils::FileSystem::ToLower(fullPath))
+		if (fullPath == directory || (!matchCase && ToLower(directory) == ToLower(fullPath)))
 			file =  m_mainFile;
 		if (Shared<File> result = m_mainFile->GetWithPath(directory, matchCase))
 			file = result;
@@ -362,7 +364,7 @@ namespace GALAXY {
 			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, Vec4f(0, 0, 100, 255));
 			ImGui::BeginChild("Thumbnails");
 			// Iterate through each child of the current file
-			for (int i = 0, x = 0, y = 0; i < m_currentFile->m_children.size(); i++) {
+			for (size_t i = 0, x = 0, y = 0; i < m_currentFile->m_children.size(); i++) {
 				Shared<File>& child = m_currentFile->m_children[i];
 				Utils::FileInfo& info = child->m_info;
 				if (!child || info.GetResourceType() == Resource::ResourceType::Data) {
@@ -370,8 +372,6 @@ namespace GALAXY {
 				}
 
 				ImGui::PushID(static_cast<int>(i));
-
-				auto cursorPos = ImGui::GetCursorPos();
 
 				bool shouldBreak = false;
 				DrawThumbnail(child, i, m_iconSize, x, y, shouldBreak, openRightClick);
@@ -408,7 +408,7 @@ namespace GALAXY {
 				m_iconSize += ImGui::GetIO().MouseWheel * iconDeltaZoom;
 				m_iconSize = std::clamp(m_iconSize, minIconSize, maxIconSize);
 			}
-			if (ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !openRightClick || openRightClick)
+			if ((ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows) && ImGui::IsMouseClicked(ImGuiMouseButton_Right) && !openRightClick) || openRightClick)
 			{
 				if (!openRightClick) {
 					ClearSelected();
@@ -501,15 +501,14 @@ namespace GALAXY {
 			std::string component;
 			const int maxWordLength = 15;
 			while (std::getline(ss, component, '\\')) {
-				components.push_back(std::make_pair(component, component.length() > maxWordLength ?
-					component.substr(0, maxWordLength - 3) + "..." : component));
+				components.emplace_back(component, component.length() > maxWordLength ?
+					                                   component.substr(0, maxWordLength - 3) + "..." : component);
 			}
 
 			float currentSize = 0;
 			float itemSpacingX = ImGui::GetStyle().ItemSpacing.x;
-			int cutAt = 0;
-			float diff;
-			for (int i = static_cast<uint32_t>(components.size() - 1); i >= 0; i--)
+			size_t cutAt = 0;
+			for (size_t i = components.size(); i-- > 0; )
 			{
 				Vec2f textSize = ImGui::CalcTextSize(components[i].second.c_str());
 				float buttonSize = textSize.x + ImGui::GetStyle().FramePadding.x * 2.0f;
@@ -524,13 +523,12 @@ namespace GALAXY {
 
 				if (currentSize > ImGui::GetContentRegionAvail().x)
 				{
-					diff = currentSize - ImGui::GetContentRegionAvail().x;
 					cutAt = i;
 					break;
 				}
 			}
 
-			for (int i = cutAt; i < components.size(); i++)
+			for (size_t i = cutAt; i < components.size(); i++)
 			{
 				if (i > 0)
 				{
@@ -551,7 +549,7 @@ namespace GALAXY {
 				{
 					// add before components to the path
 					Path finalPath = Resource::ResourceManager::GetProjectPath();
-					for (int j = 0; j != i + 1; j++) {
+					for (size_t j = 0; j != i + 1; j++) {
 						finalPath /= components[j].first;
 					}
 					SetDirectory(finalPath);
@@ -594,9 +592,8 @@ namespace GALAXY {
 		
 	}
 
-	void Editor::UI::FileExplorer::HandleDropFile(const int count, const char** paths) const
+	void Editor::UI::FileExplorer::HandleDropFile(const size_t count, const char** paths) const
 	{
-		auto window = Core::Application::GetInstance().GetWindow();
 		if (!p_open || !m_visible)
 			return;
 
@@ -634,7 +631,7 @@ namespace GALAXY {
 	void Editor::UI::FileExplorer::RightClickWindow()
 	{
 		using namespace Resource;
-		if (m_rightClickOpen = ImGui::BeginPopup("RightClickPopup"))
+		if (m_rightClickOpen = ImGui::BeginPopup("RightClickPopup"); m_rightClickOpen)
 		{
 			static auto quitPopup = [this]()
 				{
@@ -956,10 +953,10 @@ namespace GALAXY {
 			m_draggedFiles.clear();
 			if (!child->m_selected)
 				m_draggedFiles.push_back(child);
-			for (int i = 0; i < m_selectedFiles.size(); ++i) {
+			for (size_t i = 0; i < m_selectedFiles.size(); ++i) {
 				m_draggedFiles.push_back(m_selectedFiles[i]);
 			}
-			for (int i = 0; i < m_draggedFiles.size(); i++)
+			for (size_t i = 0; i < m_draggedFiles.size(); i++)
 			{
 				ImGui::TextUnformatted(m_draggedFiles[i]->m_info.GetFileName().c_str());
 			}
@@ -970,8 +967,8 @@ namespace GALAXY {
 		{
 			if (ImGui::BeginDragDropTarget()) {
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
-
-					for (int i = 0; i < m_draggedFiles.size(); ++i) {
+					UNUSED(payload);
+					for (size_t i = 0; i < m_draggedFiles.size(); ++i) {
 						Path oldPath = m_draggedFiles[i]->m_info.GetFullPath();
 						Path newPath = child->m_info.GetFullPath() / oldPath.filename();
 
@@ -985,7 +982,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::FileExplorer::DrawThumbnail(Shared<File>& file, int index, float thumbnailScale, int& x, int& y, bool& shouldBreak, bool& openRightClick)
+	void Editor::UI::FileExplorer::DrawThumbnail(Shared<File>& file, size_t index, float thumbnailScale, size_t& x, size_t& y, bool& shouldBreak, bool& openRightClick)
 	{
 		Vec2f windowSize = ImGui::GetWindowSize();
 		Vec2f windowPos = ImGui::GetWindowPos();
@@ -998,24 +995,21 @@ namespace GALAXY {
 		constexpr Vec2f shadowSize = Vec2f(134.0f, 210.5f);
 		constexpr float bottomRectHeight = 204.5f;
 		constexpr float lineHeight = 1.5f;
-		constexpr int textLength = 20;
 
 		constexpr float cornerRounding = 7.5f;
 		constexpr ImU32 clickedColor = 0x80FF9933;
 		constexpr ImU32 hoveredColor = 0xFF363636;
-		constexpr ImU32 folderThumbColor = 0x00000000;
 
 		const bool isFolder = file->m_info.isDirectory();
 
 		// Common positions
-		Vec2f currentPos = Vec2i(x, y) * thumbnailOffset;
+		Vec2f currentPos = Vec2f(static_cast<float>(x), static_cast<float>(y)) * thumbnailOffset;
 		Vec2f contentMin = regMin + currentPos;
-		const Vec2f rectSize = imageSize * thumbnailScale;
 		if (contentMin.x >= windowSize.x - thumbnailOffset.x + 25.f) {
 			y++;
 			x = 0;
 
-			currentPos = Vec2i(x, y) * thumbnailOffset;
+			currentPos = Vec2f(static_cast<float>(x), static_cast<float>(y)) * thumbnailOffset;
 			contentMin.x = regMin.x;
 			contentMin.y += thumbnailOffset.y;
 		}
@@ -1088,12 +1082,12 @@ namespace GALAXY {
 		if (!file->m_rename)
 		{
 			std::string name = file->m_info.GetFileName();
-			const Vec2f textSize = font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, name.c_str());
+			// const Vec2f textSize = font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, name.c_str());
 			std::string tempName;
 			float maxX = contentRegionStart.x + (imageSize.x - 10.f) * thumbnailScale;
 			float minX = contentRegionStart.x;
 			const float maxWidth = maxX  - minX; 
-			for (int i = 0; i < name.length(); i++) {
+			for (size_t i = 0; i < name.length(); i++) {
 				tempName.push_back(name[i]);
 				if (font->CalcTextSizeA(13 * thumbnailScale, FLT_MAX, 0, (tempName + "...").c_str()).x > maxWidth) {
 					tempName.pop_back();
@@ -1120,7 +1114,6 @@ namespace GALAXY {
 			type = "Folder";
 		else
 			type = SerializeResourceTypeValue(file->m_info.GetResourceType());
-		Vec2f typePos = currentPos + Vec2f(15, 205.f) * thumbnailScale;
 		drawList->AddText(font, 13 * thumbnailScale, Vec2f(contentRegionStart.x + 5.f * thumbnailScale, bottomRectMax.y - 20.f * thumbnailScale), 0xFF808080, type.c_str());
 		ImGui::PopStyleColor(1);
 		ImGui::PopID();
@@ -1171,7 +1164,7 @@ namespace GALAXY {
 
 		if (!file->m_rename && file->m_hovered && !this->m_rightClickOpen)
 		{
-			if (ImGui::IsMouseReleased(0) || ImGui::IsMouseClicked(1) && !file->m_selected)
+			if (ImGui::IsMouseReleased(0) || (ImGui::IsMouseClicked(1) && !file->m_selected))
 			{
 				if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 				{

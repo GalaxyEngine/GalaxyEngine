@@ -63,7 +63,7 @@ namespace GALAXY
         parser.PushDepth();
         if (parser.GetCurrentDepth() < maps.size())
         {
-            for (const StringPair& pair : maps[parser.GetCurrentDepth()])
+            for (const auto& pair : maps[parser.GetCurrentDepth()])
             {
                 func(pair);
             }

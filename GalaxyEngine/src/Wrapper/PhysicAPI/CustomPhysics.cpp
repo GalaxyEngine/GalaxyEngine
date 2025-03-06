@@ -184,7 +184,7 @@ namespace GALAXY
             if (groupA != -1 && groupB == -1)
             {
                 int index = groupA;
-                if (index < m_rigidBodyGroups.size())
+                if (static_cast<size_t>(index) < m_rigidBodyGroups.size())
                 {
                     auto& group = m_rigidBodyGroups[index];
                     group.AddRigidbody(bodyB);
@@ -200,7 +200,7 @@ namespace GALAXY
             else if (groupA == -1 && groupB != -1)
             {
                 int index = groupB;
-                if (index < m_rigidBodyGroups.size())
+                if (static_cast<size_t>(index) < m_rigidBodyGroups.size())
                 {
                     auto& group = m_rigidBodyGroups[index];
                     group.AddRigidbody(bodyA);
@@ -216,7 +216,7 @@ namespace GALAXY
             else if (groupA != groupB && groupA != -1 && groupB != -1)
             {
                 bool merge = true;
-                if (groupA < m_rigidBodyGroups.size())
+                if (static_cast<size_t>(groupA) < m_rigidBodyGroups.size())
                 {
                     // FIX THIS, NEVER SHOULD BE GOING HERE
                     merge = false;
@@ -224,7 +224,7 @@ namespace GALAXY
                     group.AddRigidbody(bodyA);
                     group.AddRigidbody(bodyB);
                 }
-                if (groupB < m_rigidBodyGroups.size())
+                if (static_cast<size_t>(groupB) < m_rigidBodyGroups.size())
                 {
                     // FIX THIS, NEVER SHOULD BE GOING HERE
                     merge = false;
@@ -253,11 +253,11 @@ namespace GALAXY
 
         /*
         // Check Group
-        for (int i = 0; i < m_rigidBodyGroups.size(); i++)
+        for (size_t i = 0; i < m_rigidBodyGroups.size(); i++)
         {
             
             ASSERT(m_rigidBodyGroups[i].index == i);
-            for (int j = 0; j < m_rigidBodyGroups[i].rigidbodies.size(); j++)
+            for (size_t j = 0; j < m_rigidBodyGroups[i].rigidbodies.size(); j++)
             {
                 ASSERT(m_rigidBodyGroups[i].rigidbodies[j].lock()->GetGroupIndex() == i);
             }
@@ -451,7 +451,7 @@ namespace GALAXY
                 const int groupIndex = body->GetGroupIndex();
                 if (groupIndex != -1)
                 {
-                    if (groupIndex >= m_rigidBodyGroups.size())
+                    if (static_cast<size_t>(groupIndex) >= m_rigidBodyGroups.size())
                     {
                         // FIX THIS, NEVER SHOULD BE GOING HERE
                     }
@@ -508,7 +508,7 @@ namespace GALAXY
     */
     int realHZ = idealHZ;
     float realDT = idealDT;
-    int constraintIterationCount = 1;
+    size_t constraintIterationCount = 1;
 
     void CustomPhysicsAPI::Update()
     {
@@ -570,9 +570,9 @@ namespace GALAXY
             }
 
             float constraintDt = realDT / (float)constraintIterationCount;
-            for (int i = 0; i < constraintIterationCount; ++i)
+            for (size_t i = 0; i < constraintIterationCount; ++i)
             {
-                UpdateConstraints(realDT);
+                UpdateConstraints(constraintDt);
             }
 
             IntegrateVelocity(realDT); //update positions from new velocity changes
@@ -811,10 +811,10 @@ namespace GALAXY
         std::vector<Vec3f> convexHullVertices;
         const float tolerance = 1e-6f;
 
-        for (int i = 0; i <= numTheta; ++i)
+        for (size_t i = 0; i <= numTheta; ++i)
         {
             float theta = i * PI / numTheta;
-            for (int j = 0; j < numPhi; ++j)
+            for (size_t j = 0; j < numPhi; ++j)
             {
                 float phi = j * 2.0f * PI / numPhi;
                 Vec3f direction(std::sin(theta) * std::cos(phi),
@@ -854,11 +854,11 @@ namespace GALAXY
 
         // For each combination of 3 vertices, check if they define a hull face.
         // (A face is detected if all other points lie on one side of the plane.)
-        for (int i = 0; i < n; i++)
+        for (size_t i = 0; i < n; i++)
         {
-            for (int j = i + 1; j < n; j++)
+            for (size_t j = i + 1; j < n; j++)
             {
-                for (int k = j + 1; k < n; k++)
+                for (size_t k = j + 1; k < n; k++)
                 {
                     Vec3f edge1 = convexHullVertices[j] - convexHullVertices[i];
                     Vec3f edge2 = convexHullVertices[k] - convexHullVertices[i];
@@ -871,7 +871,7 @@ namespace GALAXY
                     // Check that every other point is on one side of the plane.
                     bool allPositive = true;
                     bool allNegative = true;
-                    for (int m = 0; m < n; m++)
+                    for (size_t m = 0; m < n; m++)
                     {
                         if (m == i || m == j || m == k)
                             continue;
@@ -909,11 +909,11 @@ namespace GALAXY
                     FacePolygon fp;
                     fp.normal = normal;
                     fp.offset = offset;
-                    for (int m = 0; m < n; m++)
+                    for (size_t m = 0; m < n; m++)
                     {
                         float d = fabs(fp.normal.Dot(convexHullVertices[m]) - fp.offset);
                         if (d < tolerance)
-                            fp.indices.push_back(m);
+                            fp.indices.push_back(static_cast<int>(m));
                     }
                     // Remove duplicate indices (if any) and sort them.
                     std::sort(fp.indices.begin(), fp.indices.end());
@@ -922,7 +922,7 @@ namespace GALAXY
                     // Order the vertices around the face.
                     // Compute the face’s centroid.
                     Vec3f faceCentroid(0, 0, 0);
-                    for (int idx : fp.indices)
+                    for (size_t idx : fp.indices)
                         faceCentroid = faceCentroid + convexHullVertices[idx];
                     faceCentroid = faceCentroid / fp.indices.size();
 
@@ -957,7 +957,7 @@ namespace GALAXY
                 continue;
             // Compute the centroid of the face to check orientation.
             Vec3f polyCentroid(0, 0, 0);
-            for (int idx : fp.indices)
+            for (size_t idx : fp.indices)
                 polyCentroid = polyCentroid + convexHullVertices[idx];
             polyCentroid = polyCentroid / fp.indices.size();
             // If the centroid is on the “wrong” side, reverse the ordering.
@@ -1289,8 +1289,8 @@ namespace GALAXY
         float d20 = v2.Dot(v0);
         float d21 = v2.Dot(v1);
         float denom = d00 * d11 - d01 * d01;
-        if (denom == 0)
-            denom == 0.00001f;
+        if (denom == 0.f)
+            denom = 0.00001f;
         v = (d11 * d20 - d01 * d21) / denom;
         w = (d00 * d21 - d01 * d20) / denom;
         u = 1.0f - v - w;
@@ -1323,15 +1323,15 @@ namespace GALAXY
         faces[3][2] = c;
         faces[3][3].point = (d.point - b.point).Cross(c.point - b.point).GetNormalize(); //BDC
 
-        int num_faces = 4;
-        int closest_face;
+        size_t num_faces = 4;
+        size_t closest_face;
 
-        for (int iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
+        for (size_t iterations = 0; iterations < EPA_MAX_NUM_ITERATIONS; iterations++)
         {
             // Find face that's closest to origin
             float min_dist = faces[0][0].point.Dot(faces[0][3].point);
             closest_face = 0;
-            for (int i = 1; i < num_faces; i++)
+            for (size_t i = 1; i < num_faces; i++)
             {
                 float dist = faces[i][0].point.Dot(faces[i][3].point);
                 if (dist < min_dist)
@@ -1378,20 +1378,20 @@ namespace GALAXY
             }
 
             Point loose_edges[EPA_MAX_NUM_LOOSE_EDGES][2]; //keep track of edges we need to fix after removing faces
-            int num_loose_edges = 0;
+            size_t num_loose_edges = 0;
 
             //Find all triangles that are facing p
-            for (int i = 0; i < num_faces; i++)
+            for (size_t i = 0; i < num_faces; i++)
             {
                 if (faces[i][3].point.Dot(p.point - faces[i][0].point) > 0) //triangle i faces p, remove it
                 {
                     //Add removed triangle's edges to loose edge list.
                     //If it's already there, remove it (both triangles it belonged to are gone)
-                    for (int j = 0; j < 3; j++) //Three edges per face
+                    for (size_t j = 0; j < 3; j++) //Three edges per face
                     {
                         Point current_edge[2] = {faces[i][j], faces[i][(j + 1) % 3]};
                         bool found_edge = false;
-                        for (int k = 0; k < num_loose_edges; k++) //Check if current edge is already in list
+                        for (size_t k = 0; k < num_loose_edges; k++) //Check if current edge is already in list
                         {
                             if (loose_edges[k][1].point == current_edge[0].point && loose_edges[k][0].point ==
                                 current_edge[1].point)
@@ -1426,7 +1426,7 @@ namespace GALAXY
             }
 
             //Reconstruct polytope with p added
-            for (int i = 0; i < num_loose_edges; i++)
+            for (size_t i = 0; i < num_loose_edges; i++)
             {
                 // assert(num_faces<EPA_MAX_NUM_FACES);
                 if (num_faces >= EPA_MAX_NUM_FACES) break;
@@ -1451,8 +1451,6 @@ namespace GALAXY
         PrintLog("EPA did not converge");
         //Return most recent closest point
 
-        Vec3f search_dir = faces[closest_face][3].point;
-        Point p = Point(search_dir, coll1, coll2);
         Physic::Plane closestPlane = Physic::Plane::PlaneFromTri(
             faces[closest_face][0].point,
             faces[closest_face][1].point,
@@ -1505,7 +1503,7 @@ namespace GALAXY
         int simp_dim = 2; //simplex dimension
 
         constexpr int GJK_MAX_NUM_ITERATIONS = 64;
-        for (int iterations = 0; iterations < GJK_MAX_NUM_ITERATIONS; iterations++)
+        for (size_t iterations = 0; iterations < GJK_MAX_NUM_ITERATIONS; iterations++)
         {
             a.CalculateSupport(searchDir, coll1, coll2);
             if (a.point.Dot(searchDir) < 0)
@@ -1593,11 +1591,11 @@ namespace GALAXY
     void CustomPhysicsAPI::PrintGroupsState()
     {
         return;
-        for (int i = 0; i < m_rigidBodyGroups.size(); i++)
+        for (size_t i = 0; i < m_rigidBodyGroups.size(); i++)
         {
             std::cout << "Group " << i << ": " << std::endl;
             auto rigidbodies = m_rigidBodyGroups[i].rigidbodies;
-            for (int j = 0; j < rigidbodies.size(); j++)
+            for (size_t j = 0; j < rigidbodies.size(); j++)
             {
                 auto rb = rigidbodies[j].lock();
                 std::cout << "\t[" << j << "] Group ID: " << rb->GetGroupIndex() << std::endl;

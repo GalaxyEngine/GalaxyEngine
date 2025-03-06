@@ -89,13 +89,12 @@ namespace GALAXY
 
 	Vec2f Input::GetMousePositionOnWindow()
 	{
-		Vec2f windowPos = Vec2f();
 #ifdef WITH_EDITOR
 		auto editorUI = Editor::UI::EditorUIManager::GetInstance();
 		if (editorUI->GetSceneWindow()->IsFocused()) return editorUI->GetSceneWindow()->GetMousePosition();
 		if (editorUI->GetGameWindow()->IsFocused()) return editorUI->GetGameWindow()->GetMousePosition();
 #endif
-		return Core::Application::GetInstance().GetWindow()->GetMousePosition(Wrapper::CoordinateSpace::Screen);
+		return Core::Application::GetInstance().GetWindow()->GetMousePosition(Wrapper::CoordinateSpace::Window);
 	}
 
 	bool Input::IsWindowHovered()

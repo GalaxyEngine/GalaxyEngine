@@ -21,7 +21,6 @@ namespace GALAXY
 		auto vertexShader = ResourceManager::GetOrLoad<VertexShader>(VERTEX_PP_PATH);
 		SetVertex(vertexShader.lock(), thisShader, false);
 
-		auto renderer = Wrapper::Renderer::GetInstance();
 		if (std::fstream file = Utils::FileSystem::OpenFile(p_fileInfo.GetFullPath()); file.is_open())
 		{
 			Weak<Shader> this_shader = ResourceManager::GetInstance()->GetResource<Resource::Shader>(p_fileInfo.GetFullPath());

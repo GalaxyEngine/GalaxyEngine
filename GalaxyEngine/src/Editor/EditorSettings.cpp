@@ -114,10 +114,40 @@ namespace GALAXY
 
     void Editor::EditorSettings::DrawTabElement(const EditorSettingsTab tab)
     {
-        if (ImGui::Selectable(SerializeEditorSettingsTabValue(tab)))
+        if (ImGui::Selectable(to_string(tab)))
         {
             m_selectedTab = tab;
         }
+    }
+
+    Editor::ScriptEditorToolType Editor::EditorSettings::GetScriptEditorToolType() const
+    {
+        return m_currentScriptEditorToolType;
+    }
+
+    Path Editor::EditorSettings::GetDefaultProjectPath() const
+    {
+        return m_defaultProjectPath;
+    }
+
+    bool Editor::EditorSettings::GetShouldUseVSync() const
+    {
+        return m_useVSync;
+    }
+
+    Editor::EditorInputsManager& Editor::EditorSettings::GetEditorInputsManager()
+    {
+        return m_editorInputsManager;
+    }
+
+    Editor::PackageManager& Editor::EditorSettings::GetPackageManager()
+    {
+        return m_packageManager;
+    }
+
+    bool Editor::EditorSettings::FocusGameWindowOnPlay() const
+    {
+        return m_focusGameWindowOnPlay;
     }
 
     void Editor::EditorSettings::DisplayTab(const EditorSettingsTab tab)
@@ -144,12 +174,12 @@ namespace GALAXY
         }
     }
 
-	void Editor::EditorSettings::DisplayGeneralTab()
-	{
-		if (ImGui::Checkbox("Enable VSync", &m_useVSync))
-		{
-			Core::Application::GetInstance().GetWindow()->SetVSync(m_useVSync);
-		}
+    void Editor::EditorSettings::DisplayGeneralTab()
+    {
+        if (ImGui::Checkbox("Enable VSync", &m_useVSync))
+        {
+            Core::Application::GetInstance().GetWindow()->SetVSync(m_useVSync);
+        }
 
         std::string tmpPath = m_defaultProjectPath.string();
         if (Wrapper::GUI::InputText("Default project path", &tmpPath))
@@ -159,9 +189,8 @@ namespace GALAXY
 
         if (ImGui::Checkbox("Focus game window on play", &m_focusGameWindowOnPlay))
         {
-            
         }
-	}
+    }
 
     void Editor::EditorSettings::ChangeOtherScriptTool()
     {
@@ -177,7 +206,8 @@ namespace GALAXY
     void Editor::EditorSettings::DisplayExternalToolTab()
     {
         Vec2f buttonSize = {ImGui::GetContentRegionAvail().x, 0};
-        ScriptEditorToolType externalToolID = Core::Application::GetInstance().GetEditorSettings().GetScriptEditorToolType();
+        ScriptEditorToolType externalToolID = Core::Application::GetInstance().GetEditorSettings().
+                                                                               GetScriptEditorToolType();
         ImGui::SetNextItemWidth(buttonSize.x);
         if (ImGui::BeginCombo("Script Editor Tool", m_scriptEditorTools[externalToolID].name.c_str()))
         {
@@ -270,7 +300,7 @@ namespace GALAXY
             ImGui::PushID(index);
             ImGui::TextUnformatted(input.second.name.c_str());
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - buttonSize);
-            std::string keyName = (currentInputChange == index)? "<>": Input::GetKeyName(input.second.key);
+            std::string keyName = (currentInputChange == index) ? "<>" : Input::GetKeyName(input.second.key);
 
             if (ImGui::Button(keyName.c_str(), Vec2f(buttonSize, 0)) && currentInputChange == -1)
             {
@@ -317,7 +347,6 @@ namespace GALAXY
 
     void Editor::EditorSettings::SetScriptEditorToolType(const ScriptEditorToolType val)
     {
-
         ScriptEditorTool& newCurrent = m_scriptEditorTools[val];
         switch (val)
         {
@@ -345,53 +374,58 @@ namespace GALAXY
         m_currentScriptEditorToolType = val;
     }
 
-	void Editor::EditorSettings::SaveSettings() const
+    void Editor::EditorSettings::SaveSettings() const
     {
-		CppSer::Serializer serializer(Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME);
-		serializer << CppSer::Pair::BeginMap << "Editor Settings";
-		serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
-        serializer << CppSer::Pair::Key << "Focus Game Window On Play" << CppSer::Pair::Value << m_focusGameWindowOnPlay;
-		serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(GetScriptEditorToolType());
+        CppSer::Serializer serializer(Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME);
+        serializer << CppSer::Pair::BeginMap << "Editor Settings";
+        serializer << CppSer::Pair::Key << "Use VSync" << CppSer::Pair::Value << static_cast<bool>(m_useVSync);
+        serializer << CppSer::Pair::Key << "Focus Game Window On Play" << CppSer::Pair::Value <<
+            m_focusGameWindowOnPlay;
+        serializer << CppSer::Pair::Key << "Script Editor Tool" << CppSer::Pair::Value << static_cast<int>(
+            GetScriptEditorToolType());
         std::filesystem::path customScriptEditorPath = m_scriptEditorTools.at(ScriptEditorToolType::Custom).path;
-		if (!customScriptEditorPath.empty())
-			serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value << customScriptEditorPath;
-        serializer << CppSer::Pair::Key << "Default Project Path" << CppSer::Pair::Value << m_defaultProjectPath.string();
+        if (!customScriptEditorPath.empty())
+            serializer << CppSer::Pair::Key << "Other Script Editor Tool" << CppSer::Pair::Value <<
+                customScriptEditorPath;
+        serializer << CppSer::Pair::Key << "Default Project Path" << CppSer::Pair::Value << m_defaultProjectPath.
+            string();
         for (auto input : m_editorInputsManager.EditorInputs)
         {
-            serializer << CppSer::Pair::Key << "Key " + input.second.name << CppSer::Pair::Value << (int)input.second.key;
+            serializer << CppSer::Pair::Key << "Key " + input.second.name << CppSer::Pair::Value << (int)input.second.
+                key;
         }
         serializer << CppSer::Pair::EndMap << "Editor Settings";
-	}
+    }
 
-	void Editor::EditorSettings::LoadSettings()
-	{
-		InitializeScriptEditorTools();
+    void Editor::EditorSettings::LoadSettings()
+    {
+        InitializeScriptEditorTools();
         m_editorInputsManager.Initialize();
-        
-		Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
-		CppSer::Parser parser(settingsPath);
-		if (!parser.IsFileOpen())
-		{
-			PrintError("Can't open %s", settingsPath.string().c_str());
-			return;
-		}
-		m_useVSync = parser["Use VSync"].As<bool>();
+
+        Path settingsPath = Utils::OS::GetEngineDataFolder() / EDITOR_SETTINGS_NAME;
+        CppSer::Parser parser(settingsPath);
+        if (!parser.IsFileOpen())
+        {
+            PrintError("Can't open %s", settingsPath.string().c_str());
+            return;
+        }
+        m_useVSync = parser["Use VSync"].As<bool>();
         if (parser.HasKey("Focus Game Window On Play"))
         {
             m_focusGameWindowOnPlay = parser["Focus Game Window On Play"].As<bool>();
         }
-		auto scriptEditorTool = static_cast<ScriptEditorToolType>(parser["Script Editor Tool"].As<int>());
-		
-		if (m_scriptEditorTools.contains(scriptEditorTool))
-			SetScriptEditorToolType(scriptEditorTool);
+        auto scriptEditorTool = static_cast<ScriptEditorToolType>(parser["Script Editor Tool"].As<int>());
 
-		auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
-		if (!otherScriptEditorTool.empty())
-		{
-		    ScriptEditorTool& customEditorTool = m_scriptEditorTools[ScriptEditorToolType::Custom];
-		    customEditorTool.path = otherScriptEditorTool;
-		    customEditorTool.name = Path(otherScriptEditorTool).stem().string();
-		}
+        if (m_scriptEditorTools.contains(scriptEditorTool))
+            SetScriptEditorToolType(scriptEditorTool);
+
+        auto otherScriptEditorTool = parser["Other Script Editor Tool"].As<std::string>();
+        if (!otherScriptEditorTool.empty())
+        {
+            ScriptEditorTool& customEditorTool = m_scriptEditorTools[ScriptEditorToolType::Custom];
+            customEditorTool.path = otherScriptEditorTool;
+            customEditorTool.name = Path(otherScriptEditorTool).stem().string();
+        }
         for (auto& input : m_editorInputsManager.EditorInputs)
         {
             int key = parser["Key " + input.second.name].As<int>();
@@ -404,13 +438,13 @@ namespace GALAXY
         {
             m_defaultProjectPath = defaultProjectPath;
         }
-	}
+    }
 
-	void Editor::EditorSettings::LoadThumbnail()
-	{
-		std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
-		m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
-	}
+    void Editor::EditorSettings::LoadThumbnail()
+    {
+        std::filesystem::path thumbnailPath = Resource::ResourceManager::GetProjectPath() / PROJECT_THUMBNAIL_PATH;
+        m_projectThumbnail = Resource::ResourceManager::GetOrLoad<Resource::Texture>(thumbnailPath);
+    }
 
     void Editor::EditorSettings::SaveEngineLocation()
     {
@@ -428,18 +462,20 @@ namespace GALAXY
 #ifdef _WIN32
     bool IsRiderInstalled()
     {
-		HKEY hKey;
-		const char* subKeyPath = "SOFTWARE\\JetBrains\\Rider";
+        HKEY hKey;
+        const char* subKeyPath = "SOFTWARE\\JetBrains\\Rider";
 
-		LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, subKeyPath, 0, KEY_READ, &hKey);
+        LONG result = RegOpenKeyEx(HKEY_CURRENT_USER, subKeyPath, 0, KEY_READ, &hKey);
 
-		if (result == ERROR_SUCCESS) {
-			RegCloseKey(hKey);
-			return true;
-		}
-		else {
-			return false;
-		}
+        if (result == ERROR_SUCCESS)
+        {
+            RegCloseKey(hKey);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 #endif
 
@@ -453,7 +489,8 @@ namespace GALAXY
             m_scriptEditorTools[ScriptEditorToolType::Rider] = ScriptEditorTool(ScriptEditorToolType::Rider);
         }
 #endif
-        m_scriptEditorTools[ScriptEditorToolType::VisualStudioCode] = ScriptEditorTool(ScriptEditorToolType::VisualStudioCode);
+        m_scriptEditorTools[ScriptEditorToolType::VisualStudioCode] = ScriptEditorTool(
+            ScriptEditorToolType::VisualStudioCode);
         m_scriptEditorTools[ScriptEditorToolType::Custom] = ScriptEditorTool(ScriptEditorToolType::Custom);;
     }
 

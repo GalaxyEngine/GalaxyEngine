@@ -185,8 +185,6 @@ namespace GALAXY {
 		}
 		else
 		{
-			GLFWmonitor* primary = static_cast<GLFWmonitor*>(GetCurrentMonitor());
-			const GLFWvidmode* mode = glfwGetVideoMode(primary);
 			glfwSetWindowMonitor(glfwWindow, nullptr, 0, 0, prevSize.x, prevSize.y, 0);
 			glfwSetWindowPos(glfwWindow, prevPos.x, prevPos.y);
 		}
@@ -241,7 +239,6 @@ namespace GALAXY {
 	void Wrapper::Window::SetMousePosition(const Vec2i& pos, const bool physicalPos /*= false*/) const
 	{
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_window);
-		int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		if (!physicalPos)
 			glfwSetCursorPos(window, pos.x, pos.y);
@@ -278,17 +275,17 @@ namespace GALAXY {
 
 	void Wrapper::Window::SetIcon(const std::filesystem::path& pathToIcon)
 	{
-		int number = 1;
 		Wrapper::Image image = Wrapper::ImageLoader::Load(pathToIcon.string().c_str(), 4);
 
 		if (image.data) {
-			GLFWimage icons[1];
+			constexpr int number = 1;
+			GLFWimage icons[number];
 
 			icons[0].width = image.size.x;
 			icons[0].height = image.size.y;
 			icons[0].pixels = image.data;
 
-			glfwSetWindowIcon(static_cast<GLFWwindow*>(m_window), 1, icons);
+			glfwSetWindowIcon(static_cast<GLFWwindow*>(m_window), number, icons);
 
 			Wrapper::ImageLoader::ImageFree(image);
 		}
