@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Component/SphereCollider.h"
-#include "Component/Rigidbody.h"
+#include "Component/RigidBody.h"
 
 #include "Core/GameObject.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -24,8 +24,8 @@ namespace GALAXY
         auto scale = p_gameObject->GetTransform()->GetWorldScale();
         float s = fmaxf(fmaxf(scale.x, scale.y), scale.z) * m_size;
         float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
-        Vec4f color = p_debugCollide ? Vec4f(1, 0, isAsleep, 0.2f) : Vec4f(0, 1, isAsleep, 0.2f);
-        Wrapper::Renderer::GetInstance()->DrawSphere(position, rotation, m_size * scale.x * 1.01f, 3, color);
+        float isColliding = p_debugCollide ? 1.0f : 0.0f;
+        Wrapper::Renderer::GetInstance()->DrawSphere(position, rotation, m_size * scale.x * 1.01f, 3, Vec4f(1.0f - isColliding, isColliding, isAsleep, 0.2f));
     }
 #endif
 

@@ -104,7 +104,8 @@ namespace GALAXY
         Quat rotation = GetTransform()->GetWorldRotation();
         Vec3f scale = GetTransform()->GetWorldScale();
         float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
-        Wrapper::Renderer::GetInstance()->DrawCube(position, m_size * scale * 1.01f, rotation, Vec4f(1-p_debugCollide, p_debugCollide, isAsleep, 0.2f));
+        float isColliding = p_debugCollide ? 1.0f : 0.0f;
+        Wrapper::Renderer::GetInstance()->DrawCube(position, m_size * scale * 1.01f, rotation, Vec4f(1.0f-isColliding, isColliding, isAsleep, 0.2f));
     }
     
     void Component::BoxCollider::ShowInInspector()

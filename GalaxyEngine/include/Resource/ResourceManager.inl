@@ -364,7 +364,7 @@ namespace GALAXY
 					}
 					if (ImGui::IsItemHovered())
 					{
-						ImGui::SetTooltip(resource->GetFileInfo().GetRelativePath().string().c_str());
+						ImGui::SetTooltip("%s", resource->GetFileInfo().GetRelativePath().string().c_str());
 					}
 					ImGui::SetCursorPos(cursorPos);
 					auto thumbnail = GetOrLoad<Texture>(resource->GetThumbnailPath()).lock();

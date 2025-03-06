@@ -19,7 +19,7 @@ namespace GALAXY
 		auto layers = Physic::CollisionLayerManager::GetLayerNames();
 		if (ImGui::BeginCombo("Layer", layers[p_collisionLayer].c_str()))
 		{
-			for (int i = 0; i < layers.size(); i++)
+			for (uint32_t i = 0; i < layers.size(); i++)
 			{
 				bool isSelected = p_collisionLayer == i;
 				if (ImGui::Selectable(layers[i].c_str(), isSelected))

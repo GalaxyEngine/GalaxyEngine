@@ -21,9 +21,9 @@ namespace GALAXY
             Undefined
         };
 
-        static PackagePlatform PlatformToPackagePlatform(Utils::OS::Platform platform);
-        static const char* SerializePackagePlatformValue(PackagePlatform platform);
-        static const char* SerializePackagePlatformEnum();
+        PackagePlatform PlatformToPackagePlatform(Utils::OS::Platform platform);
+        const char* SerializePackagePlatformValue(PackagePlatform platform);
+        const char* SerializePackagePlatformEnum();
 
         enum class CompilerTool
         {
@@ -36,8 +36,8 @@ namespace GALAXY
 
         CompilerTool GetUserCompiler();
 
-        static const char* SerializeCompilerToolValue(CompilerTool tool);
-        static const char* SerializeCompilerToolEnum();
+        const char* SerializeCompilerToolValue(CompilerTool tool);
+        const char* SerializeCompilerToolEnum();
 
         enum class PackageMode
         {
@@ -46,8 +46,8 @@ namespace GALAXY
             Undefined
         };
         
-        static const char* SerializePackageModeValue(Editor::PackageMode package);
-        static const char* SerializePackageModeEnum();
+        const char* SerializePackageModeValue(Editor::PackageMode package);
+        const char* SerializePackageModeEnum();
 
         class PackageManager
         {

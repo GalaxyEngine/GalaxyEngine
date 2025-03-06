@@ -99,7 +99,7 @@ namespace GALAXY
     {
         if (m_sound.lock())
         {
-            auto audioInstance = Wrapper::Audio::GetInstance();
+            //auto audioInstance = Wrapper::Audio::GetInstance();
             SetPosition(p_gameObject->GetTransform()->GetWorldPosition());
             SetDirection(p_gameObject->GetTransform()->GetForward());
         }

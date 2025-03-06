@@ -801,7 +801,7 @@ namespace GALAXY
 			return;
 		}
 
-		uint32_t size = triangleData.size();
+		uint32_t size = (uint32_t)(triangleData.size());
 		if ((size % 6) != 0) // Align to 6 Vec4f which is exactly one triangle
 		{
 			PrintError("Triangle buffer has an invalid size of %d! Remaining data will be discarded", size);
