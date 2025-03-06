@@ -1290,7 +1290,7 @@ namespace GALAXY
         float d21 = v2.Dot(v1);
         float denom = d00 * d11 - d01 * d01;
         if (denom == 0)
-            denom == 0.00001f;
+            denom = 0.00001f;
         v = (d11 * d20 - d01 * d21) / denom;
         w = (d00 * d21 - d01 * d20) / denom;
         u = 1.0f - v - w;
