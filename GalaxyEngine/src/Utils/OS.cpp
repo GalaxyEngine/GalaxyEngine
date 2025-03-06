@@ -903,24 +903,8 @@ namespace GALAXY
         CloseHandle(hFile);
         return false;
 #elif defined(__linux__)
-        int fd = open(filePath.generic_string().c_str(), O_RDONLY);
-        if (fd == -1) {
-            return false; // File doesn't exist or cannot be opened
-        }
-
-        struct flock lock{};
-        lock.l_type = F_WRLCK; // Check for write lock
-        lock.l_whence = SEEK_SET;
-        lock.l_start = 0;
-        lock.l_len = 0;
-
-        if (fcntl(fd, F_GETLK, &lock) == -1) {
-            close(fd);
-            return false;
-        }
-
-        close(fd);
-        return (lock.l_type != F_UNLCK); // If locked, return true
+        PrintError("Not implemented yet");
+        return false;
 #endif
     }
 }
