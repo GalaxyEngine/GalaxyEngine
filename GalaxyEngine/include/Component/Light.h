@@ -1,9 +1,16 @@
 #pragma once
+#include <Maths.h>
+
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
 #ifdef WITH_EDITOR
 #include "Editor/EditorIcon.h"
 #endif
+namespace GALAXY::Resource
+{
+	class Shader;
+}
+
 namespace GALAXY
 {
 	namespace Component

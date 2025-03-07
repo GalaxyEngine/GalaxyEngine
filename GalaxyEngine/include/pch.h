@@ -2,9 +2,6 @@
 #include <GalaxyAPI.h>
 
 #ifdef _WIN32
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
 #include <Windows.h>
 #endif
 
@@ -18,7 +15,6 @@
 #include <thread>
 
 // Galaxy Headers
-#define IMGUI_IMPLEMENTATION
 #include <galaxymath/Maths.h>
 
 #include "Wrapper/Serializer.h"
@@ -32,7 +28,6 @@
 #include "Utils/Type.h"
 
 // Libs Headers
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_impl_glfw.h>

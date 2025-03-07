@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Core/SceneHolder.h"
+
+#include "Component/CameraComponent.h"
 #include "Core/Application.h"
 
 #include "Resource/ResourceManager.h"
@@ -119,7 +121,7 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_nextScene->m_editorCamera = m_currentScene->m_editorCamera;
 		if (m_currentScene != m_nextScene) {
 			// Do not unload if the next scene is the same as the current scene
-			Resource::ResourceManager::GetInstance()->RemoveResource(m_currentScene);
+			Resource::ResourceManager::RemoveResource(m_currentScene);
 		}
 		else
 		{
@@ -133,12 +135,16 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		m_currentScene.reset();
 
 		m_currentScene = m_nextScene;
+		if (m_currentScene->GetMainCamera())
+			m_currentScene->GetEditorCamera()->SetSkybox(m_nextScene->GetMainCamera()->GetSkybox());
 		m_nextScene.reset();
 	}
 	else
 	{
 		m_loadAfterEndPlay = false;
 		m_currentScene->Load(Resource::ResourceManager::GetProjectPath() / PLAYMODE_SCENE_PATH);
+		if (m_currentScene->GetMainCamera())
+			m_currentScene->GetEditorCamera()->SetSkybox(m_nextScene->GetMainCamera()->GetSkybox());
 	}
 #else
 	if (!m_nextScene || !m_nextScene->IsLoaded())

@@ -131,7 +131,7 @@ namespace GALAXY {
 		m_window->SetVSync(true);
 #endif
 
-		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::Custom);
+		Wrapper::PhysicsWrapper::Initialize(Wrapper::PhysicAPIType::None);
 		m_physicsWrapper = Wrapper::PhysicsWrapper::GetInstance();
 
 		m_audioSystem = Wrapper::Audio::GetInstance();

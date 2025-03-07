@@ -3,14 +3,23 @@
 #include "Utils/Define.h"
 #include <array>
 
+#include "Utils/Type.h"
+
 namespace GALAXY
 {
+	namespace Resource
+	{
+		class Shader;
+	}
+
 	namespace Component
 	{
 		class Light;
 	}
 	namespace Render
 	{
+		class Camera;
+
 		class LightManager
 		{
 		public:
@@ -23,7 +32,7 @@ namespace GALAXY
 			static void RemoveShader(const Weak<Resource::Shader>& shader);
 
 			void SendLightData() const;
-			void SendLightData(Resource::Shader* shader, const Vec3f& cameraPos) const;
+			void SendLightData(Resource::Shader* shader, const Shared<Camera>& camera) const;
 			static void ResetLightData(Component::Light* light);
 
 			void SetDirty() const;

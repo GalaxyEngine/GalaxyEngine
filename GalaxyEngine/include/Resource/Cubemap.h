@@ -110,6 +110,7 @@ namespace GALAXY
             void Save() const;
 
             void Bind(uint32_t index = 0);
+            static void UnBind();
 
             inline uint32_t GetID() const { return m_id; }
 

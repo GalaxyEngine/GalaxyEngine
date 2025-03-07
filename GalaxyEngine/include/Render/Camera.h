@@ -108,8 +108,6 @@ namespace GALAXY
 
             ViewMode GetViewMode() const { return p_viewMode; }
             void SetViewMode(ViewMode mode) { p_viewMode = mode; }
-
-        private:
             void RenderSkybox() const;
 
         protected:

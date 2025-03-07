@@ -92,7 +92,7 @@ namespace GALAXY
 			virtual void DestroyTexture(Resource::Texture* texture) {}
 
 			virtual void BindTexture(Resource::Texture* texture, uint32_t id = 0) {}
-			virtual void UnbindTexture() {}
+			virtual void UnbindTexture(uint32_t index) {}
 
 			// === Cube map === //
 			virtual void CreateCubemap(Resource::Cubemap* cubemap) {}

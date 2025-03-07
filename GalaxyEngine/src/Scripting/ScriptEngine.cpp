@@ -78,7 +78,8 @@ namespace GALAXY
 		{
 			auto engineLastModif = std::filesystem::last_write_time(galaxyDll);
 			auto dllLastModif = std::filesystem::last_write_time(dllFullPath);
-			shouldCompile = dllLastModif < engineLastModif;
+			//TODO: Uncomment
+			// shouldCompile = dllLastModif < engineLastModif;
 			SetDLLPath(dllPath);
 		}
 		bool loaded = false;
@@ -236,7 +237,11 @@ namespace GALAXY
 		{
 			PrintLog("Loaded DLL %s successfully", dllPath.string().c_str());
 		}
-		m_lastWriteTime = std::filesystem::last_write_time(m_dllPath.string() + Utils::OS::GetDLLExtension());
+		auto fullDllPath = m_dllPath.generic_string().append(DLL_EXT);
+		if (std::filesystem::exists(fullDllPath))
+		{
+			m_lastWriteTime = std::filesystem::last_write_time(fullDllPath);
+		}
 		return true;
 	}
 

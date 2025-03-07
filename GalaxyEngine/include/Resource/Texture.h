@@ -73,7 +73,7 @@ namespace GALAXY {
 			const char* GetResourceName() const override { return "Texture"; }
 
 			void Bind(uint32_t index = 0);
-			static void UnBind();
+			static void UnBind(uint32_t index = 0);
 
 			inline Vec2i GetSize() const { return m_size; }
 

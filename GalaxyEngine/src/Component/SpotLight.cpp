@@ -18,8 +18,8 @@ namespace GALAXY
 
 		p_dirty |= GetTransform()->WasDirty();
 
-		if (!dirty && !p_dirty)
-			return;
+		// if (!dirty && !p_dirty)
+			// return;
 
 		m_direction.value = GetTransform()->GetForward();
 		shader->SendVec3f(m_direction.string.c_str(), m_direction.value);

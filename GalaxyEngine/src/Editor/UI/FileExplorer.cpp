@@ -322,9 +322,19 @@ namespace GALAXY {
 
 	void Editor::UI::FileExplorer::NavigateToFile(const Path& filePath)
 	{
-		SetDirectory(filePath.parent_path(), true);
-		if (auto file = m_mainFile->GetWithPath(filePath))
-			AddFileSelected(file);
+		Utils::FileInfo fileInfo(filePath);
+		if (fileInfo.GetResourceDir() == ResourceDir::Project)
+		{
+			SetDirectory(filePath.parent_path(), true);
+			if (auto file = m_mainFile->GetWithPath(filePath))
+				AddFileSelected(file);
+		}
+		else
+		{
+			Shared<File> file = std::make_shared<File>(filePath);
+			this->ClearSelected();
+			this->AddFileSelected(file);
+		}
 	}
 
 	void Editor::UI::FileExplorer::Draw()

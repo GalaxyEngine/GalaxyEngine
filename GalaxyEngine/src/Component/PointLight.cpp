@@ -13,8 +13,8 @@ namespace GALAXY
 
 		p_dirty |= GetTransform()->WasDirty();
 
-		if (!p_dirty)
-			return;
+		// if (!p_dirty)
+			// return;
 
 		p_position.value = GetTransform()->GetWorldPosition();
 		shader->SendVec3f(p_position.string.c_str(), p_position.value);

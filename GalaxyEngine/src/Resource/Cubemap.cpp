@@ -273,6 +273,11 @@ namespace GALAXY
         Renderer::GetInstance()->BindCubemap(this, index);
     }
 
+    void Resource::Cubemap::UnBind()
+    {
+        Renderer::GetInstance()->UnbindCubemap();
+    }
+
     Weak<Resource::Cubemap> Resource::Cubemap::Create(const Path& path)
     {
         auto cubemap = Resource::ResourceManager::AddResource<Cubemap>(path);

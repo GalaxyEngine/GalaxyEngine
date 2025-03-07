@@ -164,7 +164,7 @@ namespace GALAXY
 		
 		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
-		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
+		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), m_camera);
 
 		modelObject->DrawSelfAndChild(DrawMode::Game);
 
@@ -237,7 +237,7 @@ namespace GALAXY
 		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
 
-		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), cameraPosition);
+		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), m_camera);
 
 		meshObject->DrawSelfAndChild(DrawMode::Game);
 
@@ -293,7 +293,7 @@ namespace GALAXY
 		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
 
-		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), cameraPosition);
+		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), m_camera);
 
 		m_sphereMaterialObject->DrawSelfAndChild(DrawMode::Game);
 

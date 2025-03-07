@@ -2,10 +2,8 @@
 #include "GalaxyAPI.h"
 #include "IResource.h"
 
-#include <unordered_map>
-#include <deque>
-
 #include "Utils/Event.h"
+#include "Utils/Type.h"
 
 
 namespace GALAXY {
@@ -43,6 +41,12 @@ namespace GALAXY {
 			std::string displayName;
 			bool shouldDisplay;
 		};
+		struct SubShader
+		{
+			Weak<VertexShader> vertexShader;
+			Weak<GeometryShader> geometryShader;
+			Weak<FragmentShader> fragmentShader;
+		};
 		class Shader : public IResource
 		{
 		public:
@@ -73,9 +77,9 @@ namespace GALAXY {
 			void SetFragment(const Shared<FragmentShader>& fragmentShader, const Weak<Shader>& weak_this);
 			void SetGeometry(const Shared<GeometryShader>& geometryShader, const Weak<Shader>& weak_this);
 
-			Weak<VertexShader> GetVertex() const { return std::get<0>(p_subShaders); }
-			Weak<GeometryShader> GetGeometry() const { return std::get<1>(p_subShaders); }
-			Weak<FragmentShader> GetFragment() const { return std::get<2>(p_subShaders); }
+			Weak<VertexShader> GetVertex() const { return p_subShaders.vertexShader; }
+			Weak<GeometryShader> GetGeometry() const { return p_subShaders.geometryShader; }
+			Weak<FragmentShader> GetFragment() const { return p_subShaders.fragmentShader; }
 
 			void Recompile() const;
 
@@ -112,7 +116,7 @@ namespace GALAXY {
 
 			bool p_isAVariant = false;
 
-			std::tuple<std::weak_ptr<VertexShader>, std::weak_ptr<GeometryShader>, std::weak_ptr<FragmentShader>> p_subShaders = {};
+			SubShader p_subShaders = {};
 		
 		private:
 			friend Wrapper::Renderer;

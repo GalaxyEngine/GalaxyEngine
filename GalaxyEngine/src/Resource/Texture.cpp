@@ -63,9 +63,9 @@ void Resource::Texture::Bind(const uint32_t index /* = 0 */)
 	Wrapper::Renderer::GetInstance()->BindTexture(this, index);
 }
 
-void Resource::Texture::UnBind()
+void Resource::Texture::UnBind(const uint32_t index)
 {
-	Wrapper::Renderer::GetInstance()->UnbindTexture();
+	Wrapper::Renderer::GetInstance()->UnbindTexture(index);
 }
 
 void Resource::Texture::Serialize(CppSer::Serializer& serializer) const

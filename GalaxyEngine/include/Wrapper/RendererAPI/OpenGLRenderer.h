@@ -29,7 +29,7 @@ namespace GALAXY::Wrapper::RendererAPI
 			void DestroyTexture(Resource::Texture* texture) override;
 
 			void BindTexture(Resource::Texture* texture, uint32_t id = 0) override;
-			void UnbindTexture() override;
+			void UnbindTexture(uint32_t index) override;
 			
 			// === Cubemap === //
 			void CreateCubemap(Resource::Cubemap* cubemap) override;

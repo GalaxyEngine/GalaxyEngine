@@ -21,6 +21,7 @@ namespace GALAXY
         if (p_shouldBeLoaded)
             return;
         p_shouldBeLoaded = true;
+        StartLoading();
         if (p_fileInfo.GetResourceType() == Resource::ResourceType::Materials)
         {
         }
@@ -35,6 +36,7 @@ namespace GALAXY
         if (!std::filesystem::exists(GetDataFilePath()))
             CreateDataFile();
 
+        FinishLoading();
 #ifdef WITH_EDITOR
         if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
             return;
@@ -58,7 +60,7 @@ namespace GALAXY
     typedef std::vector<StringsMap> StringMaps;
 
     template <typename Func>
-    void ProcessDepth(CppSer::Parser& parser, const StringMaps& maps,  Func func)
+    static void ProcessDepth(CppSer::Parser& parser, const StringMaps& maps,  Func func)
     {
         parser.PushDepth();
         if (parser.GetCurrentDepth() < maps.size())
@@ -77,27 +79,8 @@ namespace GALAXY
             return false;
         SetShader(ResourceManager::GetOrLoad<Shader>(parser["Shader"].As<uint64_t>()));
         if (!m_shader.lock())
-            SetShader(Resource::ResourceManager::GetDefaultShader());
-
-        /*
-        if (parser.GetVersion() != "1.0")
-        {
-            ASSERT(false); // Debug
-            PrintError("Invalid .mat file (maybe a previous version) : %s", p_fileInfo.GetFullPath().string().c_str());
-
-            // Convert old .mat file to new one
-            SetAlbedo(ResourceManager::GetOrLoad<Texture>(parser["Albedo"].As<uint64_t>()));
-            SetNormalMap(ResourceManager::GetOrLoad<Texture>(parser["Normal"].As<uint64_t>()));
-            SetParallaxMap(ResourceManager::GetOrLoad<Texture>(parser["Parallax"].As<uint64_t>()));
-            SetHeightScale(parser["Height_Scale"].As<float>());
-            SetAmbient(parser["Ambient"].As<Vec4f>());
-            SetDiffuse(parser["Diffuse"].As<Vec4f>());
-            SetSpecular(parser["Specular"].As<Vec4f>());
-            Save();
-            return true;
-        }
-        */
-
+            SetShader(ResourceManager::GetDefaultShader());
+        
         parser.PushDepth();
         StringMaps maps = parser.GetValueMap();
         ProcessDepth(parser, maps, [this](const StringPair& pair) {SetBool(pair.first, pair.second.As<bool>()); });
@@ -174,28 +157,13 @@ namespace GALAXY
 #ifdef WITH_EDITOR
     void Resource::Material::ShowInInspector()
     {
-        if (ImGui::CollapsingHeader(GetName().c_str()))
+        if (ImGui::CollapsingHeader(GetName().c_str(), ImGuiTreeNodeFlags_DefaultOpen))
         {
-            if (Resource::ResourceManager::ResourceField(m_shader, "Shader"))
+            auto shader = m_shader;
+            if (ResourceManager::ResourceField(shader, "Shader"))
             {
-                SetShader(m_shader);
+                SetShader(shader);
             }
-            /*
-            ImGui::ColorEdit4("Ambient", &m_ambient.x);
-            ImGui::ColorEdit4("Diffuse", &m_diffuse.x);
-            ImGui::ColorEdit4("Specular", &m_specular.x);
-
-            Resource::ResourceManager::ResourceField(m_albedo, "Albedo");
-            Resource::ResourceManager::ResourceField(m_normalMap, "Normal Map");
-            Resource::ResourceManager::ResourceField(m_parallaxMap, "Parallax Map");
-            // DisplayTexture("Set Albedo", m_albedo);
-            // DisplayTexture("Set Normal Map", m_normalMap);
-            // DisplayTexture("Set Parallax Map", m_parallaxMap);
-            if (m_parallaxMap.lock())
-            {
-                ImGui::DragFloat("Height Scale", &m_heightScale, 0.1f);
-            }
-            */
 
             for (auto& boolUniform : m_data.m_bools)
             {
@@ -221,12 +189,19 @@ namespace GALAXY
             {
                 if (ResourceManager::ResourceField(textureUniform.second, textureUniform.first))
                 {
+                    bool value = !textureUniform.second.expired();
                     if (textureUniform.first == "albedo")
-                        SetBool("hasAlbedo", true);
+                        SetBool("hasAlbedo", value);
                     else if (textureUniform.first == "normalMap")
-                        SetBool("hasNormalMap", true);
+                        SetBool("hasNormalMap", value);
                     else if (textureUniform.first == "parallaxMap")
-                        SetBool("hasParallaxMap", true);
+                        SetBool("hasParallaxMap", value);
+                    else if (textureUniform.first == "metallicMap")
+                        SetBool("hasMetallicMap", value);
+                    else if (textureUniform.first == "roughnessMap")
+                        SetBool("hasRoughnessMap", value);
+                    else if (textureUniform.first == "occlusionMap")
+                        SetBool("hasOcclusionMap", value);
                 }
             }
 
@@ -287,28 +262,6 @@ namespace GALAXY
             shader->SendInt(("material." + cubemapUniform.first).c_str(), i);
             i++;
         }
-
-        /*
-        shader->SendInt("material.hasAlbedo", m_albedo.lock() ? true : false);
-        if (const Shared<Texture> texture = m_albedo.lock()) {
-            texture->Bind(0);
-            shader->SendInt("material.albedo", 0);
-        }
-        shader->SendInt("material.hasNormalMap", m_normalMap.lock() ? true : false);
-        if (const Shared<Texture> texture = m_normalMap.lock()) {
-            texture->Bind(1);
-            shader->SendInt("material.normalMap", 1);
-        }
-        shader->SendInt("material.hasParallaxMap", m_parallaxMap.lock() ? true : false);
-        if (const Shared<Texture> texture = m_parallaxMap.lock()) {
-            texture->Bind(2);
-            shader->SendInt("material.parallaxMap", 2);
-            shader->SendFloat("material.heightScale", m_heightScale);
-        }
-        shader->SendVec4f("material.ambient", m_ambient);
-        shader->SendVec4f("material.diffuse", m_diffuse);
-        shader->SendVec4f("material.specular", m_specular);
-        */
     }
 
     Weak<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const

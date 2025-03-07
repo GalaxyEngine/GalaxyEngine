@@ -3,6 +3,7 @@
 #include <optional>
 #include <map>
 #include <string>
+#include <atomic>
 
 #include "PackageManager.h"
 #include "Core/Input.h"

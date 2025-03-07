@@ -119,7 +119,8 @@ namespace GALAXY
 
 	bool OpenGLRenderer::LinkShaders(Resource::Shader* shader)
 	{
-		auto& [vertex, geometry, fragment] = shader->p_subShaders;
+		auto vertex = shader->GetVertex();
+		auto fragment = shader->GetFragment();
 		if (!vertex.lock() || !vertex.lock()->HasBeenSent() || !fragment.lock() || !fragment.lock()->HasBeenSent())
 			return false;
 		// link shaders
@@ -566,9 +567,9 @@ namespace GALAXY
 		glBindTexture(GL_TEXTURE_2D, texture->GetID());
 	}
 
-	void OpenGLRenderer::UnbindTexture()
+	void OpenGLRenderer::UnbindTexture(uint32_t index)
 	{
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + index);
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 

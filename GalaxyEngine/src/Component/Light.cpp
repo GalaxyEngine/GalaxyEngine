@@ -65,12 +65,13 @@ namespace GALAXY
 	void Component::Light::SendLightValues(Resource::Shader* shader)
 	{
 		p_dirty = true; // Force dirty (Reason: when creating thumbnail, the values are updated,
-		// but no recompute after, i need to do a LightManagerHolder, that will set dirty every other lights 
+		// but no recompute after, i need to do a LightManagerHolder, that will set dirty every other lights
+		
 		// Always send boolean "is enable"
 		shader->SendInt(p_enableString.c_str(), IsEnable());
 
-		if (!p_dirty)
-			return;
+		// if (!p_dirty)
+			// return;
 
 		shader->SendVec3f(p_ambient.string.c_str(), p_ambient.value);
 		shader->SendVec3f(p_diffuse.string.c_str(), p_diffuse.value);

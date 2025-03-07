@@ -60,6 +60,8 @@ add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true 
 add_requires("glad", { configs = { debug = isDebug, extensions = "GL_KHR_debug" }})
 add_requires("stb", "nativefiledialog-extended", "openfbx", "miniaudio")
 
+add_defines("IMGUI_DEFINE_MATH_OPERATORS", "IMGUI_IMPLEMENTATION", "NOMINMAX") -- libraries
+
 -- Detect and configure physics API
 local use_physx = false
 local use_jolt = false

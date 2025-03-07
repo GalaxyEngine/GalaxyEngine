@@ -7,6 +7,7 @@
 
 #include "Component/Light.h"
 #include "Core/GameObject.h"
+#include "Resource/Cubemap.h"
 /*
 * TODO:
 *	Parallax mapping with normal mapping
@@ -100,7 +101,6 @@ namespace GALAXY
 		Shared<Render::Camera> currentCamera = Render::Camera::GetCurrentCamera();
 		if (!currentCamera)
 			return;
-		const Vec3f viewPos = currentCamera->GetTransform()->GetLocalPosition();
 
 		for (const Weak<Resource::Shader>& shader : m_shaders)
 		{
@@ -110,18 +110,20 @@ namespace GALAXY
 				RemoveShader(shader);
 				continue;
 			}
-			SendLightData(lockShader.get(), viewPos);
+			SendLightData(lockShader.get(), currentCamera);
 		}
 	}
 
-	void Render::LightManager::SendLightData(Resource::Shader* shader, const Vec3f& cameraPos) const
+	void Render::LightManager::SendLightData(Resource::Shader* shader, const Shared<Camera>& camera) const
 	{
 		if (!shader->HasBeenSent())
 			return;
 
 		shader->Use();
 
-		shader->SendVec3f("camera.viewPos", cameraPos);
+		shader->SendVec3f("camera.viewPos", camera->GetTransform()->GetWorldPosition());
+		if (Shared<Resource::Cubemap> skybox = camera->GetSkybox().lock())
+			shader->SendInt("camera.skybox", skybox->GetID());
 
 		std::string prefix;
 		for (size_t i = 0; i < m_lights.size(); i++)

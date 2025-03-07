@@ -160,6 +160,7 @@ namespace GALAXY
 					inspector->ClearSelected();
 
 				renderer->ClearColorAndBuffer(currentCamera->GetClearColor());
+				currentCamera->RenderSkybox();
 
 				const Physic::Ray ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
 				cameraPosition = ray.origin;
@@ -167,8 +168,6 @@ namespace GALAXY
 			}
 
 			m_lightManager->SendLightData();
-
-			// renderer->DrawLine(cameraPosition, clickPosition, Vec4f(0, 1, 0, 1), 4.f);
 
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
@@ -303,6 +302,11 @@ namespace GALAXY
 			m_mainCamera.lock()->m_isMainCamera = false;
 		camera.lock()->m_isMainCamera = true;
 		m_mainCamera = camera;
+		if  (m_editorCamera)
+		{
+			Weak<Cubemap> skybox = m_mainCamera.lock()->GetSkybox();
+			m_editorCamera->SetSkybox(skybox);
+		}
 	}
 
 	void Scene::AddCamera(const Weak<Component::CameraComponent>& camera)
