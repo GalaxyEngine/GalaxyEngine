@@ -188,6 +188,7 @@ namespace GALAXY {
 		// Initialize Editor::UI
 		m_editorUI->Initialize();
 
+		m_editorSettings.Initialize();
 		m_editorSettings.LoadThumbnail();
 #else
 		m_window->SetIcon(Resource::ResourceManager::GetProjectPath() / m_projectSettings.GetProjectIconPath());

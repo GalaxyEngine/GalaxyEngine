@@ -31,6 +31,7 @@ namespace GALAXY
 						ImGui::Text("%s", resource.lock()->GetFileInfo().GetRelativePath().string().c_str());
 					}
 				}
+				Wrapper::GUI::Spinner("##Resource Spinner", 5.f, 1.5f, IM_COL32_WHITE, 5.f);
 			}
 		}
 		ImGui::End();

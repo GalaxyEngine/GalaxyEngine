@@ -34,17 +34,38 @@ namespace GALAXY
         EditorInputs[InputAction::FastMode] = EditorInput("Fast Mode", Key::LEFT_SHIFT);
     }
 
-    Editor::EditorSettings::EditorSettings()
-    {
-    }
-
-    Editor::EditorSettings::~EditorSettings()
-    {
-    }
-
     Editor::EditorSettings& Editor::EditorSettings::GetInstance()
     {
         return Core::Application::GetInstance().GetEditorSettings();
+    }
+
+    void Editor::EditorSettings::Initialize()
+    {
+        Scripting::ScriptEngine* scriptEngine = Scripting::ScriptEngine::GetInstance();
+        scriptEngine->EOnStartCompilation.Bind([this]()
+        {
+            m_externalToolSettings.isCompiling = true;
+        });
+        scriptEngine->EOnEndCompilation.Bind([this]()
+        {
+            m_externalToolSettings.isCompiling = false;
+        });
+        scriptEngine->EOnStartReloadLib.Bind([this]()
+        {
+            m_externalToolSettings.isReloading = true;
+        });
+        scriptEngine->EOnEndReloadLib.Bind([this]()
+        {
+            m_externalToolSettings.isReloading = false;
+        });
+        scriptEngine->EOnStartGenerateSolution.Bind([this]()
+        {
+            m_externalToolSettings.isGenSolution = true;
+        });
+        scriptEngine->EOnEndGenerateSolution.Bind([this]()
+        {
+            m_externalToolSettings.isGenSolution = false;
+        });
     }
 
     void Editor::EditorSettings::Display()
@@ -52,7 +73,7 @@ namespace GALAXY
         if (ImGui::BeginPopupModal("Editor Settings", nullptr/*, ImGuiWindowFlags_NoResize*/))
         {
             constexpr float buttonSizeY = 30;
-            static Editor::EditorSettings copySettings = *this;
+            static EditorSettings copySettings = *this;
             static float leftSize = 100.f * Wrapper::GUI::GetScaleFactor();
             static float rightSize;
             static Vec2f previousSize = Vec2f(0);
@@ -205,7 +226,9 @@ namespace GALAXY
 
     void Editor::EditorSettings::DisplayExternalToolTab()
     {
-        Vec2f buttonSize = {ImGui::GetContentRegionAvail().x, 0};
+        constexpr float spinnerRadius = 7.5f;
+        float textWidth = ImGui::CalcTextSize("Script Editor Tool").x;
+        Vec2f buttonSize = {ImGui::GetContentRegionAvail().x - textWidth - 2.5f, 0};
         ScriptEditorToolType externalToolID = Core::Application::GetInstance().GetEditorSettings().
                                                                                GetScriptEditorToolType();
         ImGui::SetNextItemWidth(buttonSize.x);
@@ -236,13 +259,28 @@ namespace GALAXY
         {
             Scripting::ScriptEngine::CompileCode();
         }
+        if (m_externalToolSettings.isCompiling)
+        {
+            ImGui::SameLine();
+            Wrapper::GUI::LineFadeSpinner("##Compile", spinnerRadius);
+        }
         if (ImGui::Button("Reload Project DLL", buttonSize))
         {
             Scripting::ScriptEngine::GetInstance()->ReloadDLL();
         }
+        if (m_externalToolSettings.isReloading)
+        {
+            ImGui::SameLine();
+            Wrapper::GUI::LineFadeSpinner("##Reloading", spinnerRadius);
+        }
         if (ImGui::Button("Generate solution", buttonSize))
         {
             Scripting::ScriptEngine::GenerateSolution(GetScriptEditorToolType());
+        }
+        if (m_externalToolSettings.isGenSolution)
+        {
+            ImGui::SameLine();
+            Wrapper::GUI::LineFadeSpinner("##GenSolution", spinnerRadius);
         }
         if (ImGui::Button("Open solution", buttonSize))
         {
@@ -343,6 +381,42 @@ namespace GALAXY
         delete[] imageData.data;
 
         m_projectThumbnail = Resource::ResourceManager::ReloadResource<Resource::Texture>(thumbnailPath);
+    }
+
+    Editor::ExternalToolSettings::ExternalToolSettings() = default;
+
+    Editor::ExternalToolSettings::ExternalToolSettings(const ExternalToolSettings& other): isCompiling(other.isCompiling.load()),
+        isGenSolution(other.isGenSolution.load()),
+        isReloading(other.isReloading.load())
+    {
+    }
+
+    Editor::ExternalToolSettings::ExternalToolSettings(ExternalToolSettings&& other) noexcept: isCompiling(other.isCompiling.load()),
+        isGenSolution(other.isGenSolution.load()),
+        isReloading(other.isReloading.load())
+    {
+    }
+
+    Editor::ExternalToolSettings& Editor::ExternalToolSettings::operator=(
+        const ExternalToolSettings& other)
+    {
+        if (this == &other)
+            return *this;
+        isCompiling = other.isCompiling.load();
+        isGenSolution = other.isGenSolution.load();
+        isReloading = other.isReloading.load();
+        return *this;
+    }
+
+    Editor::ExternalToolSettings& Editor::ExternalToolSettings::operator=(
+        ExternalToolSettings&& other) noexcept
+    {
+        if (this == &other)
+            return *this;
+        isCompiling = other.isCompiling.load();
+        isGenSolution = other.isGenSolution.load();
+        isReloading = other.isReloading.load();
+        return *this;
     }
 
     void Editor::EditorSettings::SetScriptEditorToolType(const ScriptEditorToolType val)

@@ -69,9 +69,9 @@ namespace GALAXY
             switch (e)
             {
             case ScriptEditorToolType::None: return "None";
-            case ScriptEditorToolType::VisualStudioCode: return "VisualStudioCode";
+            case ScriptEditorToolType::VisualStudioCode: return "Visual Studio Code";
 #ifdef _WIN32
-            case ScriptEditorToolType::VisualStudio: return "VisualStudio";
+            case ScriptEditorToolType::VisualStudio: return "Visual Studio";
             case ScriptEditorToolType::Rider: return "Rider";
 #endif
             case ScriptEditorToolType::Custom: return "Custom";
@@ -126,15 +126,32 @@ namespace GALAXY
 
             void Initialize();
         };
+        
+        struct ExternalToolSettings
+        {
+            ExternalToolSettings();
+            ExternalToolSettings(const ExternalToolSettings& other);
 
+            ExternalToolSettings(ExternalToolSettings&& other) noexcept;
+
+            ExternalToolSettings& operator=(const ExternalToolSettings& other);
+
+            ExternalToolSettings& operator=(ExternalToolSettings&& other) noexcept;
+
+            std::atomic_bool isCompiling = false;
+            std::atomic_bool isGenSolution = false;
+            std::atomic_bool isReloading = false;
+        };
 
         class EditorSettings
         {
         public:
-            EditorSettings();
-            ~EditorSettings();
+            EditorSettings() = default;
+            ~EditorSettings() = default;
 
             static EditorSettings& GetInstance();
+
+            void Initialize();
 
             void Display();
 
@@ -205,6 +222,7 @@ namespace GALAXY
             Weak<Resource::Texture> m_projectThumbnail = {};
 
             PackageManager m_packageManager;
+            ExternalToolSettings m_externalToolSettings;
         };
     }
 }

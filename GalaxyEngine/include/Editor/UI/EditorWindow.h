@@ -16,10 +16,13 @@ namespace GALAXY::Editor::UI {
 
 		virtual bool Begin(const char* name);
 
+		inline void* GetWindowPtr() const {return p_window;}
+
 		inline bool IsVisible() const { return p_visible; }
 		inline bool IsHovered() const { return p_isHovered; }
 		inline bool IsFocused() const { return p_isFocused; }
 	protected:
+		void* p_window = nullptr;
 		bool p_open = true;
 
 		bool p_visible = true;

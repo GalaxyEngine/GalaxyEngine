@@ -245,6 +245,7 @@ namespace GALAXY
 	{
 		if (m_dllPath.empty())
 			return;
+		EOnStartReloadLib.Invoke();
 
 		auto rootGameObject = Core::SceneHolder::GetCurrentScene()->GetRootGameObject();
 
@@ -308,7 +309,7 @@ namespace GALAXY
 
 			parser.PushDepth();
 		} while (parser.GetCurrentDepth() < parser.GetValueMap().size());
-
+		EOnEndReloadLib.Invoke();
 	}
 
 	void Scripting::ScriptEngine::DeleteProjectDLL() const
@@ -336,6 +337,7 @@ namespace GALAXY
 	void Scripting::ScriptEngine::CompileCode(bool force /*= false*/, bool monothread /*= false*/)
 	{
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
+		s_instance->EOnStartCompilation.Invoke();
 
 		ASSERT(projectPath.empty() == false && "Project path is empty");
 		PrintLog("Compiling project %s", projectPath.generic_string().c_str());
@@ -366,13 +368,14 @@ namespace GALAXY
 			command += " && xmake clean";
 		command += " && xmake";
 		if (monothread)
-			Utils::OS::RunCommand(command);
+			Utils::OS::RunCommand(command, true, s_instance->EOnEndCompilation);
 		else
-			Utils::OS::RunCommandThread(command);
+			Utils::OS::RunCommandThread(command, true, s_instance->EOnEndCompilation);
 	}
 
 	void Scripting::ScriptEngine::GenerateSolution(Editor::ScriptEditorToolType tool)
 	{
+		s_instance->EOnStartGenerateSolution.Invoke();
 		const Path projectPath = Resource::ResourceManager::GetProjectPath();
 		switch (tool)
 		{
@@ -383,7 +386,7 @@ namespace GALAXY
 				std::string command = "cd " + projectPath.generic_string()
 					+ " && xmake f -p windows -a x64 -m debug"
 					+ " && xmake project -k vsxmake";
-				Utils::OS::RunCommandThread(command);
+				Utils::OS::RunCommandThread(command, true, s_instance->EOnEndGenerateSolution);
 			break;
 		}
 #endif
@@ -393,7 +396,7 @@ namespace GALAXY
 				{
 					std::string command = "cd " + projectPath.generic_string()
 						+ " && xmake project -k compile_commands .vscode";
-					Utils::OS::RunCommand(command);
+					Utils::OS::RunCommand(command, true, s_instance->EOnEndGenerateSolution);
 					std::ofstream file(projectPath / ".vscode/c_cpp_properties.json");
 					if (file.is_open()) {
 						std::string c_cpp_properties("{\n\t\"configurations\": [\n\t\t {\n\t\t\t\"compileCommands\":\".vscode/compile_commands.json\",\n\t\t\t\"includePath\": [\"%s\"]\n\t\t }\n\t],\n\t\"version\": 4\n}");
@@ -407,6 +410,7 @@ namespace GALAXY
 		}
 		default:
 			PrintError("Unsupported script editor tool: %s", Editor::to_string(tool));
+			s_instance->EOnEndGenerateSolution;
 			break;
 		}
 	}

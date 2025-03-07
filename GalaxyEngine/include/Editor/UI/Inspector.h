@@ -15,7 +15,7 @@ namespace GALAXY {
 			Asset
 		};
 
-		class Inspector : public EditorWindow
+		class GALAXY_API Inspector : public EditorWindow
 		{
 		public:
 			~Inspector() override {}

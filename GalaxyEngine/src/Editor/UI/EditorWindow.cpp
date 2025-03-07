@@ -23,6 +23,7 @@ bool Editor::UI::EditorWindow::Begin(const char* name)
     {
         p_isFocused = ImGui::IsWindowFocused();
         p_isHovered = ImGui::IsWindowHovered();
+        p_window = ImGui::GetCurrentWindow();
     }
 
     return value;

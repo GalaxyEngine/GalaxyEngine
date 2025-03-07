@@ -1,6 +1,9 @@
 #pragma once
 #include <filesystem>
+
 #include "GalaxyAPI.h"
+#include "Event.h"
+#include "Core/Application.h"
 
 namespace GALAXY 
 {
@@ -86,8 +89,8 @@ namespace GALAXY
 		EDITOR_ONLY void OpenWithRider(const std::filesystem::path& filePath);
 #endif
 #endif
-		std::string RunCommand(const std::string& command, bool print = true);
-		void RunCommandThread(const std::string& command);
+		std::string RunCommand(const std::string& command, bool print = true, const Utils::Event<>& callback = {});
+		void RunCommandThread(const std::string& command, bool print = true, const Utils::Event<>& callback = {});
 
 		void DisplayImageInPopup(const std::filesystem::path& imagePath, int windowWidth = 400, int windowHeight = 400);
 		void DisplayImageInPopup(Render::Framebuffer* framebuffer, int windowWidth = 400, int windowHeight = 400);

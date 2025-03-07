@@ -26,7 +26,7 @@ namespace GALAXY
 				m_callbacks.clear();
 			}
 
-			virtual void Invoke(Args... args)
+			virtual void Invoke(Args... args) const
 			{
 				for (auto& callback : m_callbacks)
 				{

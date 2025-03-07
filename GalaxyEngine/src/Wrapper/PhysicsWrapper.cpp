@@ -39,12 +39,15 @@ namespace GALAXY
 #ifdef USE_CUSTOM_PHYSICS
                 p_instance = new Wrapper::PhysicAPI::CustomPhysicsAPI();
 #else
-                ASSERT(false || "You need to enable Custom Physics API when compiling using --physic_api=custom");
+                ASSERT(false && "You need to enable Custom Physics API when compiling using --physic_api=custom");
 #endif
                 break;
             }
             default:
-                break;
+                {
+                    p_instance = new Wrapper::NoPhysics();
+                    break;
+                }
         }
         p_instance->p_collisionLayerManager.AddLayer("Default");
         p_instance->p_collisionLayerManager.AddLayer("Layer 1");

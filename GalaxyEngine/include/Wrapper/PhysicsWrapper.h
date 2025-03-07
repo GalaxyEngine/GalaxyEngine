@@ -46,9 +46,10 @@ namespace GALAXY
         
         enum class PhysicAPIType
         {
+            None,
             Jolt,
             PhysX,
-            Custom
+            Custom,
         };
 
         
@@ -71,21 +72,21 @@ namespace GALAXY
             virtual void SetSleepThreshold(float value) { p_sleepThreshold = value; }
             virtual float GetSleepThreshold() const { return p_sleepThreshold;}
 
-            virtual void CreateRigidBody(Weak<Component::RigidBody> body) = 0;
-            virtual void DestroyRigidBody(Weak<Component::RigidBody> body) = 0;
-            virtual void CreateBoxCollider(Weak<Component::BoxCollider> collider) = 0;
-            virtual void DestroyBoxCollider(Weak<Component::BoxCollider> collider) = 0;
-            virtual void CreateSphereCollider(Weak<Component::SphereCollider> collider) = 0;
-            virtual void DestroySphereCollider(Weak<Component::SphereCollider> collider) = 0;
-            virtual void CreateMeshCollider(Weak<Component::MeshCollider> collider) = 0;
-            virtual void DestroyMeshCollider(Weak<Component::MeshCollider> collider) = 0;
+            virtual void CreateRigidBody(Weak<Component::RigidBody> body) {}
+            virtual void DestroyRigidBody(Weak<Component::RigidBody> body) {}
+            virtual void CreateBoxCollider(Weak<Component::BoxCollider> collider) {}
+            virtual void DestroyBoxCollider(Weak<Component::BoxCollider> collider) {}
+            virtual void CreateSphereCollider(Weak<Component::SphereCollider> collider) {}
+            virtual void DestroySphereCollider(Weak<Component::SphereCollider> collider) {}
+            virtual void CreateMeshCollider(Weak<Component::MeshCollider> collider) {}
+            virtual void DestroyMeshCollider(Weak<Component::MeshCollider> collider) {}
 
             virtual void AddForce(Weak<Component::RigidBody> rigidbody, const Vec3f& force) {}
             virtual void AddForceAtPosition(const Weak<Component::RigidBody>& weak, const Vec3f& force, const Vec3f& position) {}
             virtual void AddTorque(const Weak<Component::RigidBody>& weak, const Vec3f& torque) {}
             virtual void WakeUpRigidBody(Component::RigidBody* rigidbody) {}
             
-            virtual void SetDefaultGravity(const Vec3f& value) = 0;
+            virtual void SetDefaultGravity(const Vec3f& value) {}
             virtual Weak<Resource::Mesh> GetConvexMesh(Shared<Resource::Mesh> mesh) {return {};}
             virtual void ComputeConvexVertices(Shared<Resource::Mesh> mesh) {}
 
@@ -101,6 +102,13 @@ namespace GALAXY
             float p_sleepThreshold = 0.005f;
 
             Physic::CollisionLayerManager p_collisionLayerManager;
+        };
+
+        class NoPhysics : public PhysicsWrapper
+        {
+        public:
+            bool InitializeAPI() override { return false; }
+            void Update() override {}
         };
     }
     

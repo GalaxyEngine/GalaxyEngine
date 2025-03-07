@@ -618,7 +618,7 @@ namespace GALAXY
         return std::regex_replace(input, colorRegex, "");
     }
 
-    std::string Utils::OS::RunCommand(const std::string& command, bool print /* = true*/)
+    std::string Utils::OS::RunCommand(const std::string& command, bool print /* = true*/, const Event<>& callback /*= {}*/)
     {
         // Open a pipe to read the command's output
         std::array<char, MAX_LOG_SIZE> buffer;
@@ -646,12 +646,13 @@ namespace GALAXY
         // Print the result
         if (print)
             PrintLog(result.c_str());
+        callback.Invoke();
         return result;
     }
 
-    void Utils::OS::RunCommandThread(const std::string& command)
+    void Utils::OS::RunCommandThread(const std::string& command, bool print /* = true*/, const Event<>& callback /*= {}*/)
     {
-        Core::ThreadManager::GetInstance()->AddTask(([command] { RunCommand(command); }));
+        Core::ThreadManager::GetInstance()->AddTask(([command, print, callback] { RunCommand(command, print, callback); }));
     }
 
 #ifdef _WIN32

@@ -61,6 +61,8 @@ namespace GALAXY::Editor::UI {
 		inline FileExplorer* GetFileExplorer() const { return m_fileExplorer.get(); }
 		inline ResourceWindow* GetResourceWindow() const { return m_resourceWindow.get(); }
 		inline DebugWindow* GetDebugWindow() const { return m_debugWindow.get(); }
+
+		void* GetContext();
 	private:
 		static Unique<EditorUIManager> m_instance;
 		Unique<MainBar> m_mainBar;
@@ -72,6 +74,8 @@ namespace GALAXY::Editor::UI {
 		Unique<FileExplorer> m_fileExplorer;
 		Unique<ResourceWindow> m_resourceWindow;
 		Unique<DebugWindow> m_debugWindow;
+
+		void* m_context = nullptr;
 
 		std::optional<bool> s_shouldDisplayClosePopup;
 

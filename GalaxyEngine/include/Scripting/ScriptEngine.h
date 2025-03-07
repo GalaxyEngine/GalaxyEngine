@@ -7,6 +7,7 @@
 #include "Wrapper/GUI.h"
 
 #include "Scripting/VariableInfo.h"
+#include "Utils/Event.h"
 #include "Utils/FileInfo.h"
 
 namespace GS { class ScriptEngine; struct Property; }
@@ -70,6 +71,13 @@ namespace GALAXY
 			void ResetLastWriteTime();
 
 			static std::filesystem::path GetFilePathForScript(const std::string& scriptClassName);
+
+			Utils::Event<> EOnStartCompilation;
+			Utils::Event<> EOnEndCompilation;
+			Utils::Event<> EOnStartReloadLib;
+			Utils::Event<> EOnEndReloadLib;
+			Utils::Event<> EOnStartGenerateSolution;
+			Utils::Event<> EOnEndGenerateSolution;
 		private:
 			static std::unique_ptr<ScriptEngine> s_instance;
 

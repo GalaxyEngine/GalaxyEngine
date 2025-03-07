@@ -21,9 +21,8 @@
 
 void Editor::UI::Inspector::Draw()
 {
-	if (!p_open)
-		return;
-	if (ImGui::Begin("Inspector"))
+	EditorWindow::Draw();
+	if (Begin("Inspector"))
 	{
 		if (m_mode == InspectorMode::Scene && m_selectedGameObject.size() == 1)
 		{

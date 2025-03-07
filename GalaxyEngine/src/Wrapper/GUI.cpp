@@ -276,6 +276,197 @@ namespace GALAXY {
 		
 	}
 
+	void Wrapper::GUI::Spinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + radius, pos.y + radius);
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+    
+		const int num_segments = 12;
+		const float two_pi = 2.0f * IM_PI;
+		float start = fmodf(time, two_pi);
+    
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    
+		ImVec4 base_color = ImGui::ColorConvertU32ToFloat4(color);
+    
+		for (int i = 0; i < num_segments; i++)
+		{
+			float angle = start + (static_cast<float>(i) / num_segments) * two_pi;
+			ImVec2 p(center.x + cosf(angle) * radius, center.y + sinf(angle) * radius);
+        
+			float fade = (static_cast<float>(i) / num_segments);
+			ImVec4 seg_color = base_color;
+			seg_color.w *= fade;
+			ImU32 seg_color_u32 = ImGui::GetColorU32(seg_color);
+        
+			draw_list->AddCircleFilled(p, thickness, seg_color_u32);
+		}
+    
+		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
+	}
+
+	void Wrapper::GUI::ArcSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + radius, pos.y + radius);
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+    
+		const float arc_span = 270.0f * (IM_PI / 180.0f);
+		float start_angle = fmodf(time, 2.0f * IM_PI); 
+		float end_angle = start_angle + arc_span;
+    
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		draw_list->PathArcTo(center, radius, start_angle, end_angle, 32);
+		draw_list->PathStroke(color, false, thickness);
+    
+		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
+	}
+
+	void Wrapper::GUI::LinesSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + radius, pos.y + radius);
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+    
+		const int num_lines = 12;
+		const float two_pi = 2.0f * IM_PI;
+		float start = fmodf(time, two_pi);
+    
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		ImVec4 base_color = ImGui::ColorConvertU32ToFloat4(color);
+    
+		for (int i = 0; i < num_lines; i++)
+		{
+			float angle = start + (static_cast<float>(i) / num_lines) * two_pi;
+			float inner_radius = radius * 0.5f;
+			float outer_radius = radius;
+			ImVec2 start_point(center.x + cosf(angle) * inner_radius, center.y + sinf(angle) * inner_radius);
+			ImVec2 end_point(center.x + cosf(angle) * outer_radius, center.y + sinf(angle) * outer_radius);
+        
+			float fade = (static_cast<float>(i) / num_lines);
+			ImVec4 line_color = base_color;
+			line_color.w *= fade;
+			ImU32 line_color_u32 = ImGui::GetColorU32(line_color);
+        
+			draw_list->AddLine(start_point, end_point, line_color_u32, thickness);
+		}
+    
+		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
+	}
+
+	void Wrapper::GUI::PulsatingDotsSpinner(const char* label, float radius, float dot_radius, uint32_t color,
+		float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + radius, pos.y + radius);
+    
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+		const int num_dots = 8;
+		const float two_pi = 2.0f * IM_PI;
+    
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    
+		for (int i = 0; i < num_dots; i++)
+		{
+			float angle = time + (static_cast<float>(i) / num_dots) * two_pi;
+			ImVec2 dot_center(center.x + cosf(angle) * radius, center.y + sinf(angle) * radius);
+        
+			float phase = (static_cast<float>(i) / num_dots) * two_pi;
+			float scale = 0.75f + 0.25f * sinf(time + phase);
+			float current_dot_radius = dot_radius * scale;
+        
+			draw_list->AddCircleFilled(dot_center, current_dot_radius, color);
+		}
+    
+		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
+	}
+
+	void Wrapper::GUI::ConcentricSpinners(const char* label, float outer_radius, float thickness, uint32_t color,
+		float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + outer_radius, pos.y + outer_radius);
+    
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    
+		const float outer_arc_span = 270.0f * (IM_PI / 180.0f);
+		float outer_start_angle = fmodf(time, 2.0f * IM_PI);
+		float outer_end_angle = outer_start_angle + outer_arc_span;
+    
+		draw_list->PathArcTo(center, outer_radius, outer_start_angle, outer_end_angle, 32);
+		draw_list->PathStroke(color, false, thickness);
+    
+		float inner_radius = outer_radius * 0.6f;
+		const float inner_arc_span = 180.0f * (IM_PI / 180.0f);
+		float inner_start_angle = fmodf(-time * 1.5f, 2.0f * IM_PI);
+		float inner_end_angle = inner_start_angle + inner_arc_span;
+    
+		draw_list->PathArcTo(center, inner_radius, inner_start_angle, inner_end_angle, 24);
+		draw_list->PathStroke(color, false, thickness * 0.8f);
+    
+		ImGui::InvisibleButton(label, ImVec2(outer_radius * 2, outer_radius * 2));
+	}
+
+	void Wrapper::GUI::LineFadeSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return;
+    
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 center(pos.x + radius, pos.y + radius);
+		float time = static_cast<float>(ImGui::GetTime()) * speed;
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+		const float arcSpan = 360.f * (IM_PI / 180.0f);
+		float startAngle = fmodf(time, 2.0f * IM_PI);
+		const int numSegments = 32;
+
+		ImVec4 baseColor = ImGui::ColorConvertU32ToFloat4(color);
+
+		for (int i = 0; i < numSegments; i++)
+		{
+			float t0 = static_cast<float>(i) / numSegments;
+			float t1 = static_cast<float>(i + 1) / numSegments;
+			float angle0 = startAngle + t0 * arcSpan;
+			float angle1 = startAngle + t1 * arcSpan;
+        
+			ImVec2 p0(center.x + cosf(angle0) * radius, center.y + sinf(angle0) * radius);
+			ImVec2 p1(center.x + cosf(angle1) * radius, center.y + sinf(angle1) * radius);
+			
+			float fade = t0;
+			ImVec4 segColor = baseColor;
+			segColor.w *= fade;
+			ImU32 segColorU32 = ImGui::GetColorU32(segColor);
+        
+			draw_list->AddLine(p0, p1, segColorU32, thickness);
+		}
+    
+		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
+	}
+
 	void Wrapper::GUI::DisableIniFile(bool value)
 	{
 		ImGuiIO& io = ImGui::GetIO();

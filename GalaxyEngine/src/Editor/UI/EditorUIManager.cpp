@@ -28,6 +28,7 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::Initialize()
 	{
+		m_context = ImGui::GetCurrentContext();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
 		m_instance->BindEvents();
@@ -138,13 +139,13 @@ namespace GALAXY {
 
 	void Editor::UI::EditorUIManager::AddResourceLoading(const Core::UUID& uuid)
 	{
-		if (std::find(m_loadingResources.begin(), m_loadingResources.end(), uuid) == m_loadingResources.end())
+		if (std::ranges::find(m_loadingResources, uuid) == m_loadingResources.end())
 			m_loadingResources.push_back(uuid);
 	}
 
-	void GALAXY::Editor::UI::EditorUIManager::RemoveResourceLoading(const Core::UUID& uuid)
+	void Editor::UI::EditorUIManager::RemoveResourceLoading(const Core::UUID& uuid)
 	{
-		auto v = std::find(m_loadingResources.begin(), m_loadingResources.end(), uuid);
+		auto v = std::ranges::find(m_loadingResources, uuid);
 		if (v != m_loadingResources.end())
 			m_loadingResources.erase(v);
 	}
@@ -238,5 +239,8 @@ namespace GALAXY {
 		io.Fonts->AddFontFromFileTTF(ENGINE_RESOURCE_FOLDER_NAME"/fonts/Calibri.ttf", 13 * curDPIScale);
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
-
+	void* Editor::UI::EditorUIManager::GetContext()
+	{
+		return m_instance->m_context;
+	}
 }
