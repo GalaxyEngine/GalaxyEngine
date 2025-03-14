@@ -123,7 +123,9 @@ namespace GALAXY
 
 		shader->SendVec3f("camera.viewPos", camera->GetTransform()->GetWorldPosition());
 		if (Shared<Resource::Cubemap> skybox = camera->GetSkybox().lock())
-			shader->SendInt("camera.skybox", skybox->GetID());
+		{
+			shader->SendCubeMap("camera.skybox", skybox.get());
+		}
 
 		std::string prefix;
 		for (size_t i = 0; i < m_lights.size(); i++)
@@ -159,6 +161,28 @@ namespace GALAXY
 		{
 			shader.lock()->Use();
 			light->ResetLightValues(shader.lock().get());
+		}
+	}
+
+	void Render::LightManager::RenderShadowMaps() const
+	{
+		auto renderer = Wrapper::Renderer::GetInstance();
+		for (auto& _light : m_lights)
+		{
+			Shared<Component::Light> light = _light.lock();
+			if (!light)
+				continue;
+			Resource::Scene* scene = light->GetGameObject()->GetScene();
+			Shared<Core::GameObject> root = scene->GetRootGameObject();
+			scene->SetCurrentLight(_light);
+			
+			light->p_shadowMap.Begin();
+			renderer->SetRenderingType(RenderType::Shadow);
+			
+			root->DrawSelfAndChild(DrawMode::Game);
+			
+			renderer->SetRenderingType(RenderType::Default);
+			light->p_shadowMap.End();
 		}
 	}
 

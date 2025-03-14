@@ -95,7 +95,7 @@ namespace GALAXY
 			Editor::EditorSettings m_editorSettings;
 			Editor::ThumbnailCreator* m_thumbnailCreator = nullptr;
 			Editor::Benchmark m_benchmark;
-			bool m_drawGrid = true;
+			bool m_drawGrid = false;
 
 			Editor::ApplicationMode m_applicationMode = Editor::ApplicationMode::Editor;
 			bool m_moveOnFrame = false;

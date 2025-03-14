@@ -20,6 +20,7 @@
 
 #include "Component/CameraComponent.h"
 #include "Component/Collider.h"
+#include "Component/Light.h"
 
 #include "Wrapper/Window.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -92,6 +93,8 @@ namespace GALAXY
 
 #ifdef WITH_EDITOR
 		m_actionManager->Update();
+		
+		m_lightManager->RenderShadowMaps();
 
 		renderer->SetRenderingType(Render::RenderType::Default);
 		if (m_editorCamera->IsVisible()) {
@@ -251,6 +254,18 @@ namespace GALAXY
 		m_cameraRight = sharedCamera->GetTransform()->GetRight();
 		m_view = sharedCamera->GetViewMatrix();
 		m_projection = sharedCamera->GetProjectionMatrix();
+	}
+
+	void Scene::SetCurrentLight(const Weak<Component::Light>& _light)
+	{
+		Shared<Component::Light> light = _light.lock();
+		m_VP = light->GetViewProjectionMatrix();
+		m_cameraUp = light->GetTransform()->GetUp();
+		m_cameraRight = light->GetTransform()->GetRight();
+		m_view = light->GetViewMatrix();
+		m_projection = light->GetProjectionMatrix();
+
+		m_currentLight = _light;
 	}
 
 #pragma region Resource Methods

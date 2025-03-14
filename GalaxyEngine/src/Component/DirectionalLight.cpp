@@ -54,5 +54,4 @@ namespace GALAXY
 
 		m_direction.string = prefixString + "].direction";
 	}
-
 }

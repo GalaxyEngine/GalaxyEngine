@@ -267,6 +267,11 @@ void main()
         {
             Save();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Recompile"))
+        {
+            Recompile();
+        }
     }
 #endif
 
@@ -572,6 +577,26 @@ void main()
         if (locationID == -1)
             return;
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, value);
+    }
+
+    void Resource::Shader::SendTexture(const char* locationName, Texture* value)
+    {
+        const int locationID = GetLocation(locationName);
+        if (locationID == -1)
+            return;
+        uint8_t bind = p_uniforms[locationName].bind.value_or(0);
+        value->Bind(bind);
+        Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
+    }
+
+    void Resource::Shader::SendCubeMap(const char* locationName, Cubemap* value)
+    {
+        const int locationID = GetLocation(locationName);
+        if (locationID == -1)
+            return;
+        uint8_t bind = p_uniforms[locationName].bind.value_or(0);
+        value->Bind(bind);
+        Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
     }
 
     void Resource::Shader::SendFloat(const char* locationName, const float value)

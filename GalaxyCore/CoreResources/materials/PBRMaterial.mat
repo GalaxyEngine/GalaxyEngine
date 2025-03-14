@@ -4,26 +4,26 @@ v1.0
  ------------- Uniforms ------------- 
    ------------- Bools ------------- 
   [hasNormalMap] : 1
-  [hasOcclusionMap] : 1
-  [hasAlbedo] : 1
+  [hasOcclusionMap] : 0
+  [hasAlbedo] : 0
   [hasMetallicMap] : 1
   [hasRoughnessMap] : 1
    ============= Bools ============= 
    ------------- Ints ------------- 
    ============= Ints ============= 
    ------------- Floats ------------- 
-  [roughness] : 0.000000
-  [metallic] : 0.000000
+  [roughness] : 1.000000
+  [metallic] : 1.000000
    ============= Floats ============= 
    ------------- Float4s ------------- 
   [diffuse] : 1.000000, 1.000000, 1.000000, 1.000000
    ============= Float4s ============= 
    ------------- Textures ------------- 
   [roughnessMap] : 12323391204243548493
-  [albedo] : 7750222392441694251
-  [metallicMap] : 1979064796642881164
   [occlusionMap] : 18446744073709551615
   [normalMap] : 15553554052668871476
+  [albedo] : 7750222392441694251
+  [metallicMap] : 1979064796642881164
    ============= Textures ============= 
    ------------- Cubemaps ------------- 
    ============= Cubemaps ============= 

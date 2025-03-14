@@ -85,6 +85,7 @@ namespace GALAXY {
 			static inline Weak<class Material> GetDefaultMaterial();
 			static inline Weak<Shader> GetDefaultShader();
 			static inline Weak<Shader> GetUnlitShader();
+			static inline Weak<Shader> GetShadowShader();
 			static inline Weak<Shader> GetUnlitColoredShader();
 			static inline Weak<Shader> GetLitShader();
 
@@ -132,11 +133,12 @@ namespace GALAXY {
 			ResourceMap m_resources;
 			UMap<Path, Weak<IResource>> m_temporaryResources;
 
-			Weak<class Material> m_defaultMaterial;
-			Weak<class Shader> m_unlitShader;
-			Weak<class Shader> m_unlitColoredShader;
-			Weak<class Shader> m_litShader;
-			Weak<class Shader> m_defaultShader;
+			Weak<Material> m_defaultMaterial;
+			Weak<Shader> m_unlitShader;
+			Weak<Shader> m_shadowShader;
+			Weak<Shader> m_unlitColoredShader;
+			Weak<Shader> m_litShader;
+			Weak<Shader> m_defaultShader;
 
 			Path m_assetPath;
 			Path m_projectPath;

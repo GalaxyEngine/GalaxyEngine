@@ -8,9 +8,11 @@ out vec3 pos;
 out vec2 uv;
 out vec3 normal;
 out vec3 tangent;
+out vec4 posLightSpace;
 
 uniform mat4 MVP;
 uniform mat4 Model;
+uniform mat4 LSM;
 
 void main()
 {
@@ -18,5 +20,6 @@ void main()
     pos = vec3(Model * vec4(aPos, 1.0f)); 
 	normal = vec3(Model * vec4(aNor, 0.0f));
     tangent = vec3(Model * vec4(aTan, 0.0f));
+    posLightSpace = LSM * vec4(pos, 1.0f); 
     uv = aTex;
 }

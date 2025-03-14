@@ -4,6 +4,11 @@
 #include "Utils/Event.h"
 
 namespace GALAXY {
+	namespace Render
+	{
+		class ShadowMap;
+	}
+
 	namespace Wrapper { 
 		class Renderer;
 
@@ -89,6 +94,7 @@ namespace GALAXY {
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;
 			friend Wrapper::Window;
+			friend Render::ShadowMap;
 
 			uint32_t m_id = -1;
 

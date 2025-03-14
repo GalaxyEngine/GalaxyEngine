@@ -33,7 +33,8 @@ namespace GALAXY
 			None,
 			Default,
 			Picking,
-			Outline
+			Outline,
+			Shadow
 		};
 	}
 	namespace Component

@@ -15,11 +15,14 @@
 #include "Editor/ThumbnailCreator.h"
 #endif
 
+#include "Component/Light.h"
 #include "Component/MeshComponent.h"
 #include "Core/Application.h"
 #include "Wrapper/Renderer.h"
 
 #include "Render/Camera.h"
+#include "Render/LightManager.h"
+
 namespace GALAXY {
 
 	Resource::Mesh::Mesh(const Path& fullPath) : IResource(fullPath)
@@ -147,7 +150,7 @@ namespace GALAXY {
 		if (!scene)
 			scene = Core::SceneHolder::GetCurrentScene();
 
-		const Vec3f viewPos = scene->GetCurrentCamera()->GetTransform()->GetLocalPosition();
+		const Vec3f viewPos = scene->GetCurrentCamera() ? scene->GetCurrentCamera()->GetTransform()->GetWorldPosition() : Vec3f::Zero();
 
 		for (size_t i = 0; i < materials.size(); i++) {
 			if (!materials[i].lock() || i >= m_subMeshes.size())
@@ -158,6 +161,9 @@ namespace GALAXY {
 
 			shader->SendMat4("Model", modelMatrix);
 			shader->SendMat4("MVP", scene->GetVP() * modelMatrix);
+			Shared<Component::Light> firstDir = scene->GetLightManager()->GetLight(0).lock();
+			if (firstDir)
+				shader->SendMat4("LSM", firstDir->GetViewProjectionMatrix());
 			shader->SendVec3f("ViewPos", viewPos);
 			shader->SendVec3f("CamUp", scene->GetCameraUp());
 			shader->SendVec3f("CamRight", scene->GetCameraRight());

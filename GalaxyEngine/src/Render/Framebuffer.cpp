@@ -15,16 +15,10 @@
 
 namespace GALAXY {
 
-	static std::set<size_t> s_indexArray = {};
+	std::set<uint32_t> Render::Framebuffer::IndexArray = {};
 	Render::Framebuffer::Framebuffer(const Vec2i& size) : m_size(size)
 	{
-		// Check for free index in list of indices
-		int freeIndex = 0;
-		while (s_indexArray.contains(freeIndex)) {
-			freeIndex++;
-		}
-		m_index = freeIndex;
-		s_indexArray.emplace(m_index);
+		m_index = GetFreeIndex();
 
 		m_renderTexture = std::make_shared<Resource::Texture>("Framebuffer_" + std::to_string(m_index) + ".png");
 		Resource::ResourceManager::AddResource(m_renderTexture);
@@ -37,7 +31,7 @@ namespace GALAXY {
 	{
 		if (auto renderer = Wrapper::Renderer::GetInstance()) {
 			renderer->DeleteRenderBuffer(this);
-			s_indexArray.erase(m_index);
+			IndexArray.erase(m_index);
 			Resource::ResourceManager::RemoveResource(m_renderTexture->GetFileInfo().GetFullPath());
 			m_renderTexture.reset();
 		}
@@ -138,4 +132,14 @@ namespace GALAXY {
 		m_postProcess->m_shader = postProcessShader;
 	}
 
+	uint32_t Render::Framebuffer::GetFreeIndex()
+	{
+		// Check for free index in list of indices
+		int freeIndex = 0;
+		while (IndexArray.contains(freeIndex)) {
+			freeIndex++;
+		}
+		IndexArray.emplace(freeIndex);
+		return freeIndex;
+	}
 }

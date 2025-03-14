@@ -118,6 +118,11 @@ namespace GALAXY
 		return m_currentCamera.lock();
 	}
 
+	inline Shared<Component::Light> Resource::Scene::GetCurrentLight() const
+	{
+		return m_currentLight.lock();
+	}
+
 	inline Shared<Component::CameraComponent> Resource::Scene::GetMainCamera() const
 	{
 		return m_mainCamera.lock();

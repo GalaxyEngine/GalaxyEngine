@@ -2,6 +2,7 @@
 #include "Component/CameraComponent.h"
 
 #include "Core/Application.h"
+#include "Editor/EditorCamera.h"
 
 #include "Resource/Scene.h"
 #include "Resource/ResourceManager.h"
@@ -90,7 +91,22 @@ namespace GALAXY
 	
 	void Component::CameraComponent::ShowInInspector()
 	{
+		Core::UUID prevSkybox = UUID_NULL;
+		if (Shared skybox = p_skybox.lock())
+		{
+			prevSkybox = skybox->GetUUID();
+		}
 		DisplayCameraSettings();
+		Core::UUID newSkybox = UUID_NULL;
+		if (Shared skybox = p_skybox.lock())
+		{
+			prevSkybox = skybox->GetUUID();
+		}
+		if (m_isMainCamera && prevSkybox != newSkybox)
+		{
+			Shared<Render::EditorCamera> editorCamera = GetEditorCamera();
+			editorCamera->SetSkybox(p_skybox);
+		}
 		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, Vec2f(0));
 		if (ImGui::Begin("##CameraPreview", 0, ImGuiWindowFlags_NoTitleBar))
 		{

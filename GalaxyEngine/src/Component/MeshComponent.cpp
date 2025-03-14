@@ -129,10 +129,12 @@ namespace GALAXY {
 			return;
 		
 		const Shared<Render::Camera>& currentCamera = gameObject->GetScene()->GetCurrentCamera();
-		if (currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
+		const Shared<Component::Light>& currentLight = gameObject->GetScene()->GetCurrentLight();
+		bool testFrustum = Wrapper::Renderer::GetInstance()->GetRenderType() != Render::RenderType::Shadow;
+		if (testFrustum && currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
 			return;
 		
-		m_mesh.lock()->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
+		mesh->Render(gameObject->GetTransform()->GetModelMatrix(), m_materials, gameObject->GetScene(), gameObject->GetSceneGraphID());
 	}
 
 	void Component::MeshComponent::Serialize(CppSer::Serializer& serializer)

@@ -3,9 +3,15 @@
 
 #include "GalaxyAPI.h"
 #include "Component/IComponent.h"
+#include "Render/ShadowMap.h"
 #ifdef WITH_EDITOR
 #include "Editor/EditorIcon.h"
 #endif
+namespace GALAXY::Render
+{
+	class LightManager;
+}
+
 namespace GALAXY::Resource
 {
 	class Shader;
@@ -81,7 +87,13 @@ namespace GALAXY
 
 			inline bool IsDirty() const { return p_dirty; }
 			inline void SetDirty() { p_dirty = true; }
+
+
+			virtual Mat4 GetProjectionMatrix() const;
+			Mat4 GetViewMatrix() const;
+			Mat4 GetViewProjectionMatrix() const;
 		protected:
+			friend Render::LightManager;
 			size_t p_lightIndex = -1;
 
 			LightData<Vec3f> p_ambient = Vec3f(0);
@@ -92,8 +104,9 @@ namespace GALAXY
 
 			bool p_dirty = true;
 
+			Render::ShadowMap p_shadowMap;
 #ifdef WITH_EDITOR
-			Editor::EditorIcon m_editorIcon;
+			Editor::EditorIcon p_editorIcon;
 #endif
 		};
 	}

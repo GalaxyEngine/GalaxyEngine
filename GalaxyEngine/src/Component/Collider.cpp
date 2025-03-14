@@ -17,6 +17,11 @@ namespace GALAXY
 	void Component::Collider::ShowInInspector()
 	{
 		auto layers = Physic::CollisionLayerManager::GetLayerNames();
+		if (layers.empty())
+		{
+			ImGui::TextColored({1, 0, 0, 0}, "Error : No layers");
+			return;
+		}
 		if (ImGui::BeginCombo("Layer", layers[p_collisionLayer].c_str()))
 		{
 			for (uint32_t i = 0; i < layers.size(); i++)

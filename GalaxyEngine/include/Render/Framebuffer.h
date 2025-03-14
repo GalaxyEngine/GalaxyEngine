@@ -44,6 +44,9 @@ namespace GALAXY
 			void SetPostProcessShader(const Weak<Resource::PostProcessShader>& postProcessShader);
 
 			inline Vec2i GetSize() const {return m_size;}
+
+			static std::set<uint32_t> IndexArray;
+			static uint32_t GetFreeIndex();
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;

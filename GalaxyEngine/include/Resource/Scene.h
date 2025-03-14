@@ -84,6 +84,7 @@ namespace GALAXY {
 			void OnAddObject(const std::shared_ptr<Core::GameObject>& gameObject) const;
 
 			void SetCurrentCamera(const Weak<Render::Camera>& camera);
+			void SetCurrentLight(const Weak<Component::Light>& light);
 
 			// Call when the window should close to prevent unsaved scene
 			bool WasModified() const;
@@ -103,6 +104,7 @@ namespace GALAXY {
 			inline const Vec3f& GetCameraUp() const;
 			inline const Vec3f& GetCameraRight() const;
 			inline Shared<Render::Camera> GetCurrentCamera() const;
+			inline Shared<Component::Light> GetCurrentLight() const;
 			inline Shared<Component::CameraComponent> GetMainCamera() const;
 
 #ifdef WITH_EDITOR
@@ -123,6 +125,7 @@ namespace GALAXY {
 
 			List<Weak<Component::CameraComponent>> m_cameras;
 			Weak<Render::Camera> m_currentCamera;
+			Weak<Component::Light> m_currentLight; // For shadow mapping
 			Weak<Component::CameraComponent> m_mainCamera;
 			Shared<Render::LightManager> m_lightManager = nullptr;
 

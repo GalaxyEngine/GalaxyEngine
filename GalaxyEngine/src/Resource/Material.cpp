@@ -245,22 +245,16 @@ namespace GALAXY
             shader->SendVec4f(("material." + float4Uniform.first).c_str(), float4Uniform.second);
         }
 
-        uint32_t i = 0;
         for (auto& textureUniform : m_data.m_textures)
         {
             if (!textureUniform.second.lock()) continue;
-            textureUniform.second.lock()->Bind(i);
-            shader->SendInt(("material." + textureUniform.first).c_str(), i);
-            i++;
+            shader->SendTexture(("material." + textureUniform.first).c_str(), textureUniform.second.lock().get());
         }
 
-        i = 0;
         for (auto& cubemapUniform : m_data.m_cubemaps)
         {
             if (!cubemapUniform.second.lock()) continue;
-            cubemapUniform.second.lock()->Bind(i);
-            shader->SendInt(("material." + cubemapUniform.first).c_str(), i);
-            i++;
+            shader->SendCubeMap(("material." + cubemapUniform.first).c_str(), cubemapUniform.second.lock().get());
         }
     }
 
@@ -295,7 +289,7 @@ namespace GALAXY
             break;
         case Render::RenderType::Outline:
             {
-                auto unlitShader = Resource::ResourceManager::GetInstance()->GetUnlitShader().lock();
+                auto unlitShader = ResourceManager::GetInstance()->GetUnlitShader().lock();
                 if (!unlitShader || !unlitShader->HasBeenSent())
                     return {};
                 unlitShader->Use();
@@ -305,6 +299,14 @@ namespace GALAXY
                 return unlitShader;
             }
             break;
+        case Render::RenderType::Shadow:
+        {
+            auto shadowShader = ResourceManager::GetInstance()->GetShadowShader().lock();
+            if (!shadowShader || !shadowShader->HasBeenSent())
+                return {};
+            shadowShader->Use();
+            return shadowShader;
+        }
         default:
             break;
         }

@@ -40,6 +40,7 @@ namespace GALAXY {
 			UniformType type;
 			std::string displayName;
 			bool shouldDisplay;
+			std::optional<uint8_t> bind;
 		};
 		struct SubShader
 		{
@@ -88,6 +89,8 @@ namespace GALAXY {
 			const UMap<std::string, Uniform>& GetUniforms() const { return p_uniforms; }
 
 			void SendInt(const char* locationName, int value);
+			void SendTexture(const char* locationName, Texture* value);
+			void SendCubeMap(const char* locationName, Cubemap* value);
 			void SendFloat(const char* locationName, float value);
 			void SendDouble(const char* locationName, double value);
 			void SendVec2f(const char* locationName, const Vec2f& value);
@@ -117,7 +120,7 @@ namespace GALAXY {
 			bool p_isAVariant = false;
 
 			SubShader p_subShaders = {};
-		
+
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;

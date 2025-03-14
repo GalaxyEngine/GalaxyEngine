@@ -477,6 +477,13 @@ namespace GALAXY
 		return m_instance->m_unlitShader;
 	}
 
+	inline Weak<Resource::Shader> Resource::ResourceManager::GetShadowShader()
+	{
+		if (!m_instance->m_shadowShader.lock())
+			m_instance->m_shadowShader = GetOrLoad<Resource::Shader>(ENGINE_RESOURCE_FOLDER_NAME"/shaders/ShadowShader/shadow.shader");
+		return m_instance->m_shadowShader;
+	}
+
 	inline Weak<Resource::Shader> Resource::ResourceManager::GetUnlitColoredShader()
 	{
 		if (!m_instance->m_unlitColoredShader.lock())

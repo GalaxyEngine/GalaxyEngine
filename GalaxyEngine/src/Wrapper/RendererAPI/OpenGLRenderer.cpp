@@ -358,6 +358,8 @@ namespace GALAXY
 		GLint numUniforms = 0;
 		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
+		uint8_t textureBind = 0;
+		uint8_t cubeMapBind = 0;
 		for (GLint i = 0; i < numUniforms; ++i) {
 			constexpr GLsizei bufSize = 256; // Maximum name length
 			GLchar name[bufSize];
@@ -371,6 +373,19 @@ namespace GALAXY
 			Resource::Uniform uniform = {};
 			uniform.location = location;
 			uniform.type = UniformTypeFromAPI(type);
+
+			switch (uniform.type)
+			{
+			case Resource::UniformType::Texture2D:
+				uniform.bind = textureBind++;
+				break;
+			case Resource::UniformType::CubeMap:
+				uniform.bind = cubeMapBind++;
+				break;
+			default: ;
+			}
+			
+			ASSERT(uniform.bind.value_or(0) < 32 && "Too many textures");
 			
 			std::string uniformName(name);
 			if (size_t pos = uniformName.find("material."); pos != std::string::npos)

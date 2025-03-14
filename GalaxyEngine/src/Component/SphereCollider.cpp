@@ -25,7 +25,10 @@ namespace GALAXY
         float s = fmaxf(fmaxf(scale.x, scale.y), scale.z) * m_size;
         float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
         float isColliding = p_debugCollide ? 1.0f : 0.0f;
+        /*
         Wrapper::Renderer::GetInstance()->DrawSphere(position, rotation, s * 1.01f, 3, Vec4f(1.0f - isColliding, isColliding, isAsleep, 0.2f));
+        */
+        Wrapper::Renderer::GetInstance()->DrawSimpleWireSphere(position, s, 16, Vec4f(1.0f - isColliding, isColliding, isAsleep, 0.2f));
     }
 #endif
 
