@@ -103,9 +103,15 @@ namespace GALAXY
         Vec3f position = GetTransform()->GetWorldPosition();
         Quat rotation = GetTransform()->GetWorldRotation();
         Vec3f scale = GetTransform()->GetWorldScale();
-        float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
-        float isColliding = p_debugCollide ? 1.0f : 0.0f;
-        Wrapper::Renderer::GetInstance()->DrawCube(position, m_size * scale * 1.01f, rotation, Vec4f(1.0f-isColliding, isColliding, isAsleep, 0.2f));
+        Vec4f color = Vec4f(0.0f, 1.0f, 0.0f, 1.0f);
+        if (!Core::Application::IsEditorMode())
+        {
+            float isColliding = p_debugCollide ? 1.0f : 0.0f;
+            float isAsleep = (!GetAttachedRigidbody().expired() && GetAttachedRigidbody().lock()->IsSleeping()) ? 1.0f : 0.0f;
+            color = Vec4f(1.0f-isColliding, isColliding, isAsleep, 1.f);
+        }
+        // Wrapper::Renderer::GetInstance()->DrawCube(position, m_size * scale * 1.01f, rotation, Vec4f(1.0f-isColliding, isColliding, isAsleep, 0.2f));
+        Wrapper::Renderer::GetInstance()->DrawWireCube(position, m_size * scale, rotation, color, 2.f);
     }
     
     void Component::BoxCollider::ShowInInspector()

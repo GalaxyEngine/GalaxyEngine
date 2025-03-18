@@ -161,15 +161,30 @@ namespace GALAXY {
 
 			shader->SendMat4("Model", modelMatrix);
 			shader->SendMat4("MVP", scene->GetVP() * modelMatrix);
-			Shared<Component::Light> firstDir = scene->GetLightManager()->GetLight(0).lock();
-			if (firstDir)
-				shader->SendMat4("LSM", firstDir->GetViewProjectionMatrix());
+			Shared<Component::Light> light = scene->GetCurrentLight();
+			if (light)
+				shader->SendMat4("LSM", light->GetViewProjectionMatrix());
 			shader->SendVec3f("ViewPos", viewPos);
 			shader->SendVec3f("CamUp", scene->GetCameraUp());
 			shader->SendVec3f("CamRight", scene->GetCameraRight());
 
 			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
+			renderer->UnbindTexture(0);
+
+			/*
+			for (auto uniform : shader->GetUniforms())
+			{
+				if (uniform.second.bind.has_value())
+				{
+					if (uniform.second.type == UniformType::Texture2D)
+						renderer->UnbindTexture(uniform.second.bind.value());
+					else if (uniform.second.type == UniformType::CubeMap)
+						renderer->UnbindCubemap();
+				}
+			}
+			*/
 		}
+		
 		renderer->UnbindVertexArray();
 	}
 

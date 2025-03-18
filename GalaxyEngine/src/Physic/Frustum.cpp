@@ -35,7 +35,7 @@ namespace GALAXY
 		planes[4] = Physic::Plane(camPos, (camPos + frontMultFar - camUp * halfVSide).Cross(camRight)); // Bottom plane
 		planes[5] = Physic::Plane(camPos, camRight.Cross(camPos + frontMultFar + camUp * halfVSide)); // Top plane
 	}
-
+	
 	void Physic::Frustum::DebugDraw() const
 	{
 		for (int i = 0; i < 6; i++)

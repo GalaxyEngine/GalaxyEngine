@@ -36,6 +36,13 @@ namespace GALAXY
 			Outline,
 			Shadow
 		};
+
+		enum class CullFace
+		{
+			Front,
+			Back,
+			FrontAndBack
+		};
 	}
 	namespace Component
 	{
@@ -77,6 +84,7 @@ namespace GALAXY
 			inline bool IsInitalized() const { return p_initalized; }
 
 			virtual void EnableWireframe(bool active = true) {}
+			virtual void EnableCulling(bool active = true) {}
 
 			virtual void RenderDebug();
 
@@ -85,6 +93,7 @@ namespace GALAXY
 
 			virtual void Viewport(const Vec2i& pos, const Vec2i& size) {}
 			virtual void ClearColorAndBuffer(const Vec4f& color) {}
+			virtual void SetCullFace(Render::CullFace face) {}
 
 			// === Texture === //
 			virtual void CreateTexture(Resource::Texture* texture) {}

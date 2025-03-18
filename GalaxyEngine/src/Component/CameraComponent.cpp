@@ -56,18 +56,7 @@ namespace GALAXY
 		if (game_object->IsSelected())
 		{
 			auto instance = Wrapper::Renderer::GetInstance();
-			Vec2f screenResolution = GetScreenResolution(); // Assuming this doesn't change often
-			std::vector<Vec3f> points(8);
-
-			// Calculate all points
-			points[0] = UnProject(Vec3f{ 0, 0, p_near });
-			points[1] = UnProject(Vec3f{ screenResolution.x, 0, p_near });
-			points[2] = UnProject(Vec3f{ 0, screenResolution.y, p_near });
-			points[3] = UnProject(Vec3f{ screenResolution, p_near });
-			points[4] = UnProject(Vec3f{ 0, 0, p_far });
-			points[5] = UnProject(Vec3f{ screenResolution.x, 0, p_far });
-			points[6] = UnProject(Vec3f{ 0, screenResolution.y, p_far });
-			points[7] = UnProject(Vec3f{ screenResolution, p_far });
+			auto points = GetFrustumCorners();
 
 			// Draw near plane
 			instance->DrawLine(points[0], points[1]);
@@ -97,6 +86,7 @@ namespace GALAXY
 			prevSkybox = skybox->GetUUID();
 		}
 		DisplayCameraSettings();
+		
 		Core::UUID newSkybox = UUID_NULL;
 		if (Shared skybox = p_skybox.lock())
 		{

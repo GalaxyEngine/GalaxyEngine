@@ -18,9 +18,11 @@ namespace GALAXY::Wrapper::RendererAPI
 			void EnableDebugOutput() override;
 
 			void EnableWireframe(bool active) override;
+			void EnableCulling(bool active) override;
 
 			void Viewport(const Vec2i& pos, const Vec2i& size) override;
 			void ClearColorAndBuffer(const Vec4f& color) override;
+			void SetCullFace(Render::CullFace face) override;
 
 			// === Texture === //
 			void CreateTexture(Resource::Texture* texture) override;

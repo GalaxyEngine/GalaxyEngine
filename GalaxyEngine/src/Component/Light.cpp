@@ -7,6 +7,7 @@
 #include "Render/LightManager.h"
 
 #include "Core/GameObject.h"
+#include "Render/Camera.h"
 
 #include "Utils/Define.h"
 
@@ -43,6 +44,8 @@ namespace GALAXY
 		p_dirty |= ImGui::ColorEdit3("Ambient", p_ambient.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Diffuse", p_diffuse.value.Data());
 		p_dirty |= ImGui::ColorEdit3("Specular", p_specular.value.Data());
+
+		p_shadowMap.ShowInInspector();
 	}
 #endif
 
@@ -76,7 +79,15 @@ namespace GALAXY
 		shader->SendVec3f(p_ambient.string.c_str(), p_ambient.value);
 		shader->SendVec3f(p_diffuse.string.c_str(), p_diffuse.value);
 		shader->SendVec3f(p_specular.string.c_str(), p_specular.value);
-		shader->SendTexture("camera.depthMap", p_shadowMap.GetRenderTexture().get());
+		if (p_shadowMap.IsEnabled())
+		{
+			shader->SendInt("camera.hasDepthMap", true);
+			shader->SendTexture("camera.depthMap", p_shadowMap.GetRenderTexture().get());
+		}
+		else
+		{
+			shader->SendInt("camera.hasDepthMap", false);
+		}
 	}
 
 	void Component::Light::ResetLightValues(Resource::Shader* shader)
@@ -91,51 +102,43 @@ namespace GALAXY
 
 	Mat4 Component::Light::GetProjectionMatrix() const
 	{
-        float near_plane = 0.03f, far_plane = 1000.0f;
-		return Mat4::CreateOrthographicMatrix(-10.f, 10.f, -10.f, 10.f, near_plane, far_plane);
+		auto currentCamera = Render::Camera::GetCurrentCamera();
+		// if (!currentCamera)
+		{
+			return Mat4::CreateOrthographicMatrix(-10.f, 10.f, -10.f, 10.f,
+												   p_shadowMap.GetNear(), p_shadowMap.GetFar());
+		}
 
+		// Retrieve the camera's frustum corners in world space
+		std::array<Vec3f, 8> frustumCorners = currentCamera->GetFrustumCorners();
 
-        Vec2i size = p_shadowMap.GetRenderTexture()->GetSize();
-		float p_far = 1000.f;
-		float p_near = 0.03f;
-		const float width = static_cast<float>(size.x) / 2.f;
-		const float height = static_cast<float>(size.y) / 2.f;
+		// Get the light's view matrix (world-to-light-space transform)
+		Mat4 lightView = GetViewMatrix();
 
-		Mat4 orthographicMatrix = Mat4();
-		orthographicMatrix[0][0] = 2.0f / (width - -width);
-		orthographicMatrix[1][1] = 2.0f / (height - -height);
-		orthographicMatrix[2][2] = -2.0f / (p_far - p_near);
-		orthographicMatrix[3][0] = -(width + -width) / (width - -width);
-		orthographicMatrix[3][1] = -(height + -height) / (height - -height);
-		orthographicMatrix[3][2] = -(p_far + p_near) / (p_far - p_near);
-		orthographicMatrix[3][3] = 1.0f;
-		return orthographicMatrix;
-		
+		// Initialize the bounding box in light space
+		Vec3f minPoint(FLT_MAX, FLT_MAX, FLT_MAX);
+		Vec3f maxPoint(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+		// Transform each frustum corner to light space and expand the bounding box
+		for (const auto& corner : frustumCorners)
+		{
+			Vec3f lightSpaceCorner = lightView * corner; // Assuming operator* applies the transformation
+
+			minPoint.x = std::min(minPoint.x, lightSpaceCorner.x);
+			minPoint.y = std::min(minPoint.y, lightSpaceCorner.y);
+			minPoint.z = std::min(minPoint.z, lightSpaceCorner.z);
+
+			maxPoint.x = std::max(maxPoint.x, lightSpaceCorner.x);
+			maxPoint.y = std::max(maxPoint.y, lightSpaceCorner.y);
+			maxPoint.z = std::max(maxPoint.z, lightSpaceCorner.z);
+		}
+
+		// Create an orthographic projection matrix that encloses the light-space bounding box.
+		// The order of parameters is: left, right, bottom, top, near, far.
+		return Mat4::CreateOrthographicMatrix(minPoint.x, maxPoint.x,
+											   minPoint.y, maxPoint.y,
+											   minPoint.z, maxPoint.z);
 	}
-
-	Mat4 lookAt(Vec3f  const & eye, Vec3f  const & center, Vec3f  const & up)
-	{
-		Vec3f  f = -Vec3f::Normalize(center - eye);
-		Vec3f  u = Vec3f::Normalize(up);
-		Vec3f  s = Vec3f::Normalize(Vec3f::Cross(f, u));
-		u = Vec3f::Cross(s, f);
-
-		Mat4 Result(1);
-		Result[0][0] = s.x;
-		Result[1][0] = s.y;
-		Result[2][0] = s.z;
-		Result[0][1] = u.x;
-		Result[1][1] = u.y;
-		Result[2][1] = u.z;
-		Result[0][2] =-f.x;
-		Result[1][2] =-f.y;
-		Result[2][2] =-f.z;
-		Result[3][0] =-Vec3f::Dot(s, eye);
-		Result[3][1] =-Vec3f::Dot(u, eye);
-		Result[3][2] = Vec3f::Dot(f, eye);
-		return Result;
-	}
-
 	Mat4 Component::Light::GetViewMatrix() const
 	{
 		// return lookAt(GetTransform()->GetWorldPosition(), GetTransform()->GetForward(), GetTransform()->GetUp());

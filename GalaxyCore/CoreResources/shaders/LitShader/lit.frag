@@ -54,6 +54,7 @@ struct SpotLight {
 
 struct Camera {
     vec3 viewPos;
+    bool hasDepthMap;
     sampler2D depthMap;
 };
 
@@ -110,25 +111,39 @@ vec3 CalculateNormal(mat3 TBN)
 //
 // ShadowCalculation: computes a shadow factor using the light's depth map
 //
-float ShadowCalculation(vec4 fragPosLightSpace)
+float ShadowCalculation(DirectionalLight directional, vec4 fragPosLightSpace)
 {
-    // Perform perspective divide
+    // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    // Transform to [0,1] range
+    // transform to [0,1] range
     projCoords = projCoords * 0.5 + 0.5;
-    
-    // If the fragment is outside the light's frustum, return no shadow.
-    if(projCoords.z > 1.0)
-        return 0.0;
-    
-    // Sample the closest depth from the shadow map.
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
     float closestDepth = texture(camera.depthMap, projCoords.xy).r;
-    // Current depth in light space.
+    // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
-    // Compute a bias to reduce shadow acne.
+    // calculate bias (based on depth map resolution and slope)
+    vec3 normal = normalize(finalNormal);
+    vec3 lightDir = normalize(directional.direction);
     float bias = max(0.05 * (1.0 - dot(finalNormal, normalize(-directionals[0].direction))), 0.005);
-    // If the current fragment is in shadow, return 1.0; otherwise, 0.0.
-    float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;
+    // check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(camera.depthMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(camera.depthMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;
+        }
+    }
+    shadow /= 9.0;
+
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0)
+    shadow = 0.0;
+
     return shadow;
 }
 
@@ -164,8 +179,8 @@ vec4 CalculateDirectionalLight(DirectionalLight directional, bool applyShadow)
     }
 
     // Apply shadow factor only to diffuse and specular
-    if (applyShadow) {
-        float shadow = ShadowCalculation(posLightSpace);
+    if (applyShadow && camera.hasDepthMap) {
+        float shadow = ShadowCalculation(directional, posLightSpace);
         return ambientColor + (1.0 - shadow) * (diffuseColor + specularColor);
     } else {
         return ambientColor + diffuseColor + specularColor;

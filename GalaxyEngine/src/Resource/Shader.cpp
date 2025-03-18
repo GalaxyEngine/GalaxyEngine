@@ -584,7 +584,8 @@ void main()
         const int locationID = GetLocation(locationName);
         if (locationID == -1)
             return;
-        uint8_t bind = p_uniforms[locationName].bind.value_or(0);
+        ASSERT(p_uniforms[locationName].bind.has_value());
+        uint8_t bind = p_uniforms[locationName].bind.value();
         value->Bind(bind);
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
     }
@@ -594,7 +595,8 @@ void main()
         const int locationID = GetLocation(locationName);
         if (locationID == -1)
             return;
-        uint8_t bind = p_uniforms[locationName].bind.value_or(0);
+        ASSERT(p_uniforms[locationName].bind.has_value());
+        uint8_t bind = p_uniforms[locationName].bind.value();
         value->Bind(bind);
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
     }

@@ -101,6 +101,14 @@ namespace GALAXY
 		glPolygonMode(GL_FRONT_AND_BACK, active ? GL_LINE : GL_FILL);
 	}
 
+	void OpenGLRenderer::EnableCulling(bool active)
+	{
+		if (active)
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
+	}
+
 	void OpenGLRenderer::UseShader(Resource::Shader* shader)
 	{
 		glUseProgram(shader->p_id);
@@ -115,6 +123,24 @@ namespace GALAXY
 	{
 		glClearColor(color.x, color.y, color.z, color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+
+	void OpenGLRenderer::SetCullFace(Render::CullFace face)
+	{
+		int faceID = GL_FRONT;
+		switch (face) {
+		case Render::CullFace::Front:
+			faceID = GL_FRONT;
+			break;
+		case Render::CullFace::Back:
+			faceID = GL_BACK;
+			break;
+		case Render::CullFace::FrontAndBack:
+			faceID = GL_FRONT_AND_BACK;
+			break;
+		default: ;
+		}
+		glCullFace(faceID);
 	}
 
 	bool OpenGLRenderer::LinkShaders(Resource::Shader* shader)
@@ -358,8 +384,8 @@ namespace GALAXY
 		GLint numUniforms = 0;
 		glGetProgramiv(shaderProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
 
-		uint8_t textureBind = 0;
-		uint8_t cubeMapBind = 0;
+		uint8_t textureBind = 1;
+		uint8_t cubeMapBind = 1;
 		for (GLint i = 0; i < numUniforms; ++i) {
 			constexpr GLsizei bufSize = 256; // Maximum name length
 			GLchar name[bufSize];

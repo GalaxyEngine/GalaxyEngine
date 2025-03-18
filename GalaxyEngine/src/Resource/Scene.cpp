@@ -317,11 +317,13 @@ namespace GALAXY
 			m_mainCamera.lock()->m_isMainCamera = false;
 		camera.lock()->m_isMainCamera = true;
 		m_mainCamera = camera;
+#ifdef WITH_EDITOR
 		if  (m_editorCamera)
 		{
 			Weak<Cubemap> skybox = m_mainCamera.lock()->GetSkybox();
 			m_editorCamera->SetSkybox(skybox);
 		}
+#endif
 	}
 
 	void Scene::AddCamera(const Weak<Component::CameraComponent>& camera)

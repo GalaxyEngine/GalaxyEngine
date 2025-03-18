@@ -15,6 +15,7 @@
 #define SCRIPT_CPP_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/script_cpp.png"
 #define SCRIPT_H_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/script_h.png"
 #define SHADER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/shader.png"
+#define SCENE_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/scene.png"
 
 #define PLAYMODE_SCENE_PATH CACHE_PATH "playmode_scene.galaxy"
 #define THUMBNAIL_PATH CACHE_PATH "thumbnail/"

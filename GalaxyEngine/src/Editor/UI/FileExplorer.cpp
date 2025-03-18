@@ -83,6 +83,11 @@ namespace GALAXY {
 			m_icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(SHADER_ICON_PATH);
 			break;
 		}
+		case ResourceType::Scene:
+		{
+			m_icon = ResourceManager::GetOrLoad<Texture>(SCENE_ICON_PATH);
+			break;
+		}
 		/*
 		case ResourceType::VertexShader:
 		{

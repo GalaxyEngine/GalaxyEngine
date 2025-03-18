@@ -105,6 +105,7 @@ namespace GALAXY
             void CreateFrustum();
 
             Physic::Frustum& GetFrustum() { return p_frustum; }
+            std::array<Vec3f, 8> GetFrustumCorners() const;
 
             ViewMode GetViewMode() const { return p_viewMode; }
             void SetViewMode(ViewMode mode) { p_viewMode = mode; }

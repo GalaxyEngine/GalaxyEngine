@@ -27,16 +27,8 @@ namespace GALAXY
 	{
 		const float width = static_cast<float>(p_framebufferSize.x) / 2.f;
 		const float height = static_cast<float>(p_framebufferSize.y) / 2.f;
-
-		Mat4 orthographicMatrix = Mat4();
-		orthographicMatrix[0][0] = 2.0f / (width - -width);
-		orthographicMatrix[1][1] = 2.0f / (height - -height);
-		orthographicMatrix[2][2] = -2.0f / (p_far - p_near);
-		orthographicMatrix[3][0] = -(width + -width) / (width - -width);
-		orthographicMatrix[3][1] = -(height + -height) / (height - -height);
-		orthographicMatrix[3][2] = -(p_far + p_near) / (p_far - p_near);
-		orthographicMatrix[3][3] = 1.0f;
-		return orthographicMatrix;
+		// return Mat4::CreateOrthographicMatrix(-width, width, -height, height, p_near, p_far);
+		return Mat4::CreateOrthographicMatrix(-10.f, 10.f, -10.f, 10.f, p_near, p_far);
 	}
 
 	inline Mat4 Render::Camera::GetViewProjectionMatrix() const
@@ -55,5 +47,22 @@ namespace GALAXY
 		const Mat4 invVP = GetViewProjectionMatrix().CreateInverseMatrix();
 		const Vec3f position = GetTransform()->GetWorldPosition();
 		return position + (invVP * mousePosition) * point.z;
+	}
+
+	inline std::array<Vec3f, 8> Render::Camera::GetFrustumCorners() const
+	{
+		std::array<Vec3f, 8> points;
+		Vec2f screenResolution = GetScreenResolution();
+		// Calculate all points
+		points[0] = UnProject(Vec3f{ 0, 0, p_near });
+		points[1] = UnProject(Vec3f{ screenResolution.x, 0, p_near });
+		points[2] = UnProject(Vec3f{ 0, screenResolution.y, p_near });
+		points[3] = UnProject(Vec3f{ screenResolution, p_near });
+		points[4] = UnProject(Vec3f{ 0, 0, p_far });
+		points[5] = UnProject(Vec3f{ screenResolution.x, 0, p_far });
+		points[6] = UnProject(Vec3f{ 0, screenResolution.y, p_far });
+		points[7] = UnProject(Vec3f{ screenResolution, p_far });
+
+		return points;
 	}
 }

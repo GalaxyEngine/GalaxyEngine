@@ -172,15 +172,19 @@ namespace GALAXY
 			Shared<Component::Light> light = _light.lock();
 			if (!light)
 				continue;
+			if (!light->IsEnable() || !light->p_shadowMap.IsEnabled())
+				continue;
 			Resource::Scene* scene = light->GetGameObject()->GetScene();
 			Shared<Core::GameObject> root = scene->GetRootGameObject();
 			scene->SetCurrentLight(_light);
 			
 			light->p_shadowMap.Begin();
 			renderer->SetRenderingType(RenderType::Shadow);
+			renderer->EnableCulling(false);
 			
 			root->DrawSelfAndChild(DrawMode::Game);
 			
+			renderer->EnableCulling(true);
 			renderer->SetRenderingType(RenderType::Default);
 			light->p_shadowMap.End();
 		}
