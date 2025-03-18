@@ -21,6 +21,7 @@
 #include "Wrapper/Renderer.h"
 
 #include "Render/Camera.h"
+#include "Render/Command.h"
 #include "Render/LightManager.h"
 
 namespace GALAXY {
@@ -144,8 +145,6 @@ namespace GALAXY {
 	{
 		if (!HasBeenSent() || !IsLoaded())
 			return;
-		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
-		renderer->BindVertexArray(m_vertexArrayIndex);
 
 		if (!scene)
 			scene = Core::SceneHolder::GetCurrentScene();
@@ -153,39 +152,25 @@ namespace GALAXY {
 		const Vec3f viewPos = scene->GetCurrentCamera() ? scene->GetCurrentCamera()->GetTransform()->GetWorldPosition() : Vec3f::Zero();
 
 		for (size_t i = 0; i < materials.size(); i++) {
-			if (!materials[i].lock() || i >= m_subMeshes.size())
-				continue;
-			auto shader = materials[i].lock()->SendValues(id).lock();
-			if (shader == nullptr)
+			Shared<Material> material = materials[i].lock();
+			if (!material || i >= m_subMeshes.size())
 				continue;
 
-			shader->SendMat4("Model", modelMatrix);
-			shader->SendMat4("MVP", scene->GetVP() * modelMatrix);
-			Shared<Component::Light> light = scene->GetCurrentLight();
-			if (light)
-				shader->SendMat4("LSM", light->GetViewProjectionMatrix());
-			shader->SendVec3f("ViewPos", viewPos);
-			shader->SendVec3f("CamUp", scene->GetCameraUp());
-			shader->SendVec3f("CamRight", scene->GetCameraRight());
+			Render::DrawCommandData data;
+			data.key = material->GetUUID();
+			data.vertexArrayID = m_vertexArrayIndex;
+			data.material = material.get();
+			data.subMesh = m_subMeshes[i];
+			data.modelMatrix = modelMatrix;
+			data.MVP = scene->GetVP() * modelMatrix;
+			if (Shared<Component::Light> currLight = scene->GetCurrentLight())
+				data.LSM = currLight->GetViewProjectionMatrix();
+			data.ViewPos = viewPos;
+			data.CamUp = scene->GetCameraUp();
+			data.CamRight = scene->GetCameraRight();
 
-			renderer->DrawArrays(m_subMeshes[i].startIndex, m_subMeshes[i].count);
-			renderer->UnbindTexture(0);
-
-			/*
-			for (auto uniform : shader->GetUniforms())
-			{
-				if (uniform.second.bind.has_value())
-				{
-					if (uniform.second.type == UniformType::Texture2D)
-						renderer->UnbindTexture(uniform.second.bind.value());
-					else if (uniform.second.type == UniformType::CubeMap)
-						renderer->UnbindCubemap();
-				}
-			}
-			*/
+			Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawCommand>(data));
 		}
-		
-		renderer->UnbindVertexArray();
 	}
 
 	Path Resource::Mesh::CreateMeshPath(const Path& modelPath, const Path& fileName)

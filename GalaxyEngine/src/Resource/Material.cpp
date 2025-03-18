@@ -258,7 +258,7 @@ namespace GALAXY
         }
     }
 
-    Weak<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const
+    Shared<Resource::Shader> Resource::Material::SendValues(const uint64_t id /*= -1*/) const
     {
         auto renderer = Wrapper::Renderer::GetInstance();
         const auto renderType = renderer->GetRenderType();

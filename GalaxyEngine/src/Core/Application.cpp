@@ -33,6 +33,7 @@
 
 #include <cpp_serializer/CppSerializer.h>
 
+#include "Render/Command.h"
 #include "Render/Skybox.h"
 #include "Wrapper/PhysicsWrapper.h"
 
@@ -144,6 +145,7 @@ namespace GALAXY {
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
 		m_renderer = Wrapper::Renderer::GetInstance();
+		m_commandBuffer = new Render::CommandBuffer();
 		m_window->SetSize(m_window->GetSize() * m_window->GetScreenScale());
 
 		// Initialize Thread Manager
@@ -483,6 +485,8 @@ namespace GALAXY {
 		// Window
 		if (m_window)
 			m_window->Destroy();
+
+		delete m_commandBuffer;
 
 		Wrapper::Window::UnInitialize();
 

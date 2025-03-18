@@ -55,7 +55,7 @@ namespace GALAXY
 
 			void SendForDefault(Shared<Resource::Shader> shader) const;
 
-			Weak<Shader> SendValues(uint64_t id = -1) const;
+			Shared<Resource::Shader> SendValues(uint64_t id = -1) const;
 
 			static inline ResourceType GetResourceType() { return ResourceType::Material; }
 

@@ -202,6 +202,6 @@ namespace GALAXY
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};
-
+		
 	}
 }

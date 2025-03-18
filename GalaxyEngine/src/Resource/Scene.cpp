@@ -26,6 +26,7 @@
 #include "Wrapper/PhysicsWrapper.h"
 
 #include "Core/Input.h"
+#include "Render/Command.h"
 
 using namespace Resource;
 namespace GALAXY
@@ -177,6 +178,8 @@ namespace GALAXY
 
 			m_root->DrawSelfAndChild(DrawMode::Editor);
 
+			Render::CommandBuffer::Get()->ExecuteCommands();
+			
 			physics->DrawDebug();
 			renderer->RenderDebug();
 

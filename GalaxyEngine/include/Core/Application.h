@@ -27,7 +27,9 @@ namespace GALAXY
 	namespace Editor::UI { class EditorUIManager; }
 #endif
 	namespace Scripting { class ScriptEngine; }
-	namespace Render { class LightManager; }
+	namespace Render {
+		class CommandBuffer;
+		class LightManager; }
 	namespace Core
 	{
 		class ThreadManager;
@@ -77,12 +79,15 @@ namespace GALAXY
 #endif
 			inline ProjectSettings& GetProjectSettings();
 
+			Render::CommandBuffer* GetCommandBuffer() const { return m_commandBuffer; }
+
 			void Exit() const;
 		private:
 			static Application m_instance;
 
 			Resource::ResourceManager* m_resourceManager = nullptr;
 			Wrapper::Renderer* m_renderer = nullptr;
+			Render::CommandBuffer* m_commandBuffer = nullptr;
 			Wrapper::Audio* m_audioSystem = nullptr;
 			Wrapper::PhysicsWrapper* m_physicsWrapper = nullptr;
 
