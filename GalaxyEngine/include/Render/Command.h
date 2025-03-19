@@ -21,7 +21,7 @@ namespace GALAXY
         {
         public:
             virtual ~RenderCommand() = default;
-            virtual void BeforeExecute() {}
+            virtual bool BeforeExecute() { return false; }
             virtual void AfterExecute() {}
             virtual void Execute(RenderCommand* prevCommand) = 0;
 
@@ -57,7 +57,6 @@ namespace GALAXY
             uint64_t key;
             int vertexArrayID;
             Resource::Material* material = nullptr;
-            Shared<Resource::Shader> shader = nullptr;
             Resource::SubMesh subMesh;
             Mat4 modelMatrix;
             Mat4 MVP;
@@ -73,10 +72,39 @@ namespace GALAXY
         public:
             DrawCommand(const DrawCommandData& _data);
 
-            void BeforeExecute() override;
+            bool BeforeExecute() override;
             void Execute(RenderCommand* prevCommand) override;
-        private:
+
+            const DrawCommandData& GetData() const { return data; }
+        protected:
             DrawCommandData data;
+        };
+
+        class GALAXY_API DrawPickingCommand : public DrawCommand
+        {
+        public:
+            DrawPickingCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
+
+            bool BeforeExecute() override { return true; }
+            void Execute(RenderCommand* prevCommand) override;
+        };
+
+        class GALAXY_API DrawOutlineCommand : public DrawCommand
+        {
+        public:
+            DrawOutlineCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
+
+            bool BeforeExecute() override;
+            void Execute(RenderCommand* prevCommand) override;
+        };
+
+        class GALAXY_API DrawPostProcessCommand : public DrawCommand
+        {
+        public:
+            DrawPostProcessCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
+
+            bool BeforeExecute() override;
+            void Execute(RenderCommand* prevCommand) override;
         };
     }
 }

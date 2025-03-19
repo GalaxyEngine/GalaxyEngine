@@ -13,6 +13,8 @@
 
 #include <set>
 
+#include "Render/Command.h"
+
 namespace GALAXY {
 
 	std::set<uint32_t> Render::Framebuffer::IndexArray = {};
@@ -69,7 +71,11 @@ namespace GALAXY {
 
 		renderer->ClearColorAndBuffer(clearColor);
 
+		auto prevType = renderer->GetRenderType(); 
+		renderer->SetRenderingType(RenderType::PostProcess);
 		m_plane.lock()->Render(Mat4(), { m_renderMaterial });
+		CommandBuffer::ExecuteCommands();
+		renderer->SetRenderingType(prevType);
 
 		renderer->UnbindRenderBuffer(postProcessFramebuffer);
 #else

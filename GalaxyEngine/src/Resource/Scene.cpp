@@ -21,6 +21,7 @@
 #include "Component/CameraComponent.h"
 #include "Component/Collider.h"
 #include "Component/Light.h"
+#include "Component/MeshComponent.h"
 
 #include "Wrapper/Window.h"
 #include "Wrapper/PhysicsWrapper.h"
@@ -48,6 +49,32 @@ namespace GALAXY
 		m_grid->Initialize();
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
+
+		Weak<Mesh> mesh = ResourceManager::GetOrLoad<Mesh>(SUZANNE_PATH);
+		std::string name = mesh.lock()->GetMeshName();
+
+		const int number = 1000;
+		int gridSize = static_cast<int>(std::cbrt(number)); // Approximate cube root for a roughly cubic shape
+		const float spacing = 2.5f; // Distance between objects
+
+		for (int i = 0; i < number; i++)
+		{
+			int x = i % gridSize;
+			int y = (i / gridSize) % gridSize;
+			int z = i / (gridSize * gridSize);
+
+			Vec3f position = Vec3i(x, y, z) * spacing; // Scale position with spacing
+
+			Shared<Core::GameObject> object = CreateObject(name + std::to_string(i)).lock();
+			object->GetTransform()->SetLocalPosition(position);
+
+			Shared<Component::MeshComponent> meshComp = object->AddComponent<Component::MeshComponent>().lock();
+			meshComp->SetMesh(mesh);
+			meshComp->AddMaterial(ResourceManager::GetDefaultMaterial());
+
+			m_root->AddChild(object);
+		}
+
 #endif
 	}
 
@@ -68,6 +95,12 @@ namespace GALAXY
 		const std::string newContent = serializer.GetContent();
 
 		return content != newContent;
+	}
+
+	void Scene::RenderObjects(DrawMode drawMode) const
+	{
+		m_root->DrawSelfAndChild(drawMode);
+		Render::CommandBuffer::ExecuteCommands();
 	}
 
 	void Scene::Update()
@@ -120,6 +153,7 @@ namespace GALAXY
 				{
 					selected.lock()->DrawSelfAndChild(DrawMode::Editor);
 				}
+				Render::CommandBuffer::ExecuteCommands();
 				renderer->SetRenderingType(Render::RenderType::Default);
 				outlineFrameBuffer->End(windowSize, clearColor);
 				if (selectedGameObjects.empty())
@@ -141,7 +175,7 @@ namespace GALAXY
 				renderer->ClearColorAndBuffer(Vec4f(1));
 
 				renderer->SetRenderingType(Render::RenderType::Picking);
-				m_root->DrawSelfAndChild(DrawMode::Editor);
+				RenderObjects(DrawMode::Editor);
 				renderer->SetRenderingType(Render::RenderType::Default);
 
 				// Calculate Mouse Position
@@ -176,9 +210,7 @@ namespace GALAXY
 			if (*Core::Application::GetInstance().GetDrawGridPtr())
 				m_grid->Draw();
 
-			m_root->DrawSelfAndChild(DrawMode::Editor);
-
-			Render::CommandBuffer::Get()->ExecuteCommands();
+			RenderObjects(DrawMode::Editor);
 			
 			physics->DrawDebug();
 			renderer->RenderDebug();

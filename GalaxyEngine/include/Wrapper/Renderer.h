@@ -33,6 +33,7 @@ namespace GALAXY
 			None,
 			Default,
 			Picking,
+			PostProcess,
 			Outline,
 			Shadow
 		};

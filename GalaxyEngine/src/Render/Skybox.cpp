@@ -84,7 +84,7 @@ namespace GALAXY
         renderer->EnableDepth(false);
 
         skyboxShader->SendMat4("VP", vp);
-        skyboxShader->SendCubeMap("skybox", sharedCubemap.get());
+        skyboxShader->SendCubeMap("material.skybox", sharedCubemap.get());
 
         renderer->BindVertexArray(m_instance->skyboxVAO);
         renderer->DrawArrays(0, 36);

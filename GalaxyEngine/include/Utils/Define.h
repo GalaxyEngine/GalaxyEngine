@@ -25,6 +25,7 @@
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Plane.obj:Plane"
 #define CUBE_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Cube.obj:Cube"
 #define SPHERE_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Sphere.obj:Sphere"
+#define SUZANNE_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Monkey.fbx:Suzanne"
 
 // -- Cubemaps -- //
 #define CUBE_MAP_EXTENSION ".cubemap"

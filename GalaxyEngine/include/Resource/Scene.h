@@ -88,6 +88,7 @@ namespace GALAXY {
 
 			// Call when the window should close to prevent unsaved scene
 			bool WasModified() const;
+			void RenderObjects(DrawMode drawMode) const;
 
 			void AddCamera(const Weak<Component::CameraComponent>& camera);
 			void RemoveCamera(const Component::CameraComponent* camera);

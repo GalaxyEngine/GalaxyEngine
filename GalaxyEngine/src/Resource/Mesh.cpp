@@ -151,6 +151,9 @@ namespace GALAXY {
 
 		const Vec3f viewPos = scene->GetCurrentCamera() ? scene->GetCurrentCamera()->GetTransform()->GetWorldPosition() : Vec3f::Zero();
 
+		Render::RenderType renderType = Wrapper::Renderer::GetInstance()->GetRenderType();
+
+		const Mat4 MVP = scene->GetVP() * modelMatrix;
 		for (size_t i = 0; i < materials.size(); i++) {
 			Shared<Material> material = materials[i].lock();
 			if (!material || i >= m_subMeshes.size())
@@ -162,14 +165,34 @@ namespace GALAXY {
 			data.material = material.get();
 			data.subMesh = m_subMeshes[i];
 			data.modelMatrix = modelMatrix;
-			data.MVP = scene->GetVP() * modelMatrix;
+			data.MVP = MVP;
 			if (Shared<Component::Light> currLight = scene->GetCurrentLight())
 				data.LSM = currLight->GetViewProjectionMatrix();
 			data.ViewPos = viewPos;
 			data.CamUp = scene->GetCameraUp();
 			data.CamRight = scene->GetCameraRight();
+			data.sceneID = id;
 
-			Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawCommand>(data));
+			switch (renderType)
+			{
+			case Render::RenderType::None:
+				break;
+			case Render::RenderType::Default:
+				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawCommand>(data));
+				break;
+			case Render::RenderType::Picking:
+				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawPickingCommand>(data));
+				break;
+			case Render::RenderType::Outline:
+				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawOutlineCommand>(data));
+				break;
+			case Render::RenderType::PostProcess:
+				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawPostProcessCommand>(data));
+				break;
+			case Render::RenderType::Shadow:
+				break;
+			default: ;
+			}
 		}
 	}
 
