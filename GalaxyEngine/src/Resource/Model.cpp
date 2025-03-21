@@ -37,50 +37,50 @@ namespace GALAXY {
 		return max - GetCenter();
 	}
 
-	bool Resource::BoundingBox::IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform)
+	bool Resource::BoundingBox::IsOnFrustum(Render::Camera* camera, const Component::Transform* objectTransform) const
 	{
 		auto frustum = camera->GetFrustum();
+
 		Vec3f position = objectTransform->GetWorldPosition();
 		Quat rotation = objectTransform->GetWorldRotation();
 		Vec3f scale = objectTransform->GetWorldScale();
 
-		Vec3f he = scale; // Original half-extents
+		Vec3f localCenter = (min + max) * 0.5f;
+		Vec3f localExtents = (max - min) * 0.5f;
 
-		Vec3f size = Vec3f();
+		Vec3f worldCenter = position + rotation * (localCenter * scale);
 
+		Vec3f worldExtents(0.0f);
 		for (int i = 0; i < 8; i++)
 		{
-			Vec3f e;
-			e.x = (i & 0x1) ? 1.0f : -1.0f;
-			e.y = (i & 0x2) ? 1.0f : -1.0f;
-			e.z = (i & 0x4) ? 1.0f : -1.0f;
+			Vec3f corner;
+			corner.x = (i & 0x1) ? localExtents.x : -localExtents.x;
+			corner.y = (i & 0x2) ? localExtents.y : -localExtents.y;
+			corner.z = (i & 0x4) ? localExtents.z : -localExtents.z;
 
-			e *= he;
-			e = rotation * e;
+			corner = rotation * (corner * scale);
 
 			for (int j = 0; j < 3; j++)
 			{
-				size[j] = fmaxf(fabsf(e[j]), size[j]);
+				worldExtents[j] = fmaxf(worldExtents[j], fabsf(corner[j]));
 			}
 		}
 
-		BoundingBox globalAABB = Physic::AABB(position, size, true);
-		
+		BoundingBox globalAABB = Physic::AABB(worldCenter, worldExtents, true);
+    
 		// Wrapper::Renderer::GetInstance()->DrawWireCube(globalAABB.GetCenter(), globalAABB.GetExtents(), Vec4f(1, 0, 0, 1), 5.f);
 
-		bool result = true;
-
+		// Check if the global AABB is on or in front of each frustum plane.
 		for (const auto& plane : frustum.planes)
 		{
 			if (!globalAABB.isOnOrForwardPlane(plane))
 			{
-				result = false;
-				break;
+				return false;
 			}
 		}
-
-		return result;
+		return true;
 	}
+
 
 	bool Resource::BoundingBox::isOnOrForwardPlane(const Physic::Plane& plane) const
 	{

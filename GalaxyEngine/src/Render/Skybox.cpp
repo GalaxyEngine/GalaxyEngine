@@ -79,7 +79,7 @@ namespace GALAXY
         Mat4 mat = view;
         mat[3] = Vec3f(0); // Remove translation
         Mat4 vp = projection * mat;
-
+        
         skyboxShader->Use();
         renderer->EnableDepth(false);
 

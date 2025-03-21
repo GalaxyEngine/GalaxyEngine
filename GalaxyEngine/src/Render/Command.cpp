@@ -19,23 +19,26 @@ namespace GALAXY
 
     void Render::CommandBuffer::SortCommands()
     {
-        std::ranges::sort(commands, [](const auto& a, const auto& b)
-        {
-            return a->sortKey < b->sortKey;
-        });
+        std::sort(commands.begin(), commands.end(),
+            [](const Unique<RenderCommand>& a, const Unique<RenderCommand>& b)
+            {
+                if (a->sortKey.materialKey == b->sortKey.materialKey)
+                    return a->sortKey.meshKey < b->sortKey.meshKey;
+                return a->sortKey.materialKey < b->sortKey.materialKey;
+            });
     }
 
     void Render::CommandBuffer::ExecuteCommands()
     {
         auto instance = Get();
         instance->SortCommands();
-        uint64_t prevKey = UUID_NULL;
+        SortKey prevKey;
         RenderCommand* prevCommand = nullptr;
         bool success = false;
         for (size_t i = 0; i < instance->commands.size(); i++)
         {
             auto& cmd = instance->commands[i];
-            uint64_t currentKey = cmd->sortKey;
+            SortKey currentKey = cmd->sortKey;
             if (currentKey != prevKey)
             {
                 if (prevCommand)
@@ -43,10 +46,10 @@ namespace GALAXY
                     prevCommand->AfterExecute();
                 }
                 prevKey = currentKey;
-                success = cmd->BeforeExecute();
+                success = cmd->BeforeExecute(prevCommand);
 
                 if (success)
-                    cmd->Execute(nullptr);
+                    cmd->Execute(prevCommand);
             }
             else
             {
@@ -61,16 +64,22 @@ namespace GALAXY
     Render::DrawCommand::DrawCommand(const DrawCommandData& _data)
     {
         data = _data;
-        sortKey = _data.key;
+        sortKey = data.sortKey;
     }
 
-    bool Render::DrawCommand::BeforeExecute()
+    bool Render::DrawCommand::BeforeExecute(RenderCommand* prevCommand)
     {
+        using namespace Wrapper;
         Resource::Material* material = data.material;
         Shared<Resource::Shader> shader = material->GetShader();
         if (!shader || !shader->HasBeenSent())
             return false;
         material->SendForDefault(shader);
+        if (!prevCommand || prevCommand->sortKey.meshKey != sortKey.meshKey)
+        {
+            Renderer* renderer = Renderer::GetInstance();
+            renderer->BindVertexArray(data.vertexArrayID);
+        }
         return true;
     }
     
@@ -86,12 +95,40 @@ namespace GALAXY
         shader->SendVec3f("CamRight", data.CamRight);
         shader->SendMat4("Model", data.modelMatrix);
         shader->SendMat4("MVP", data.MVP);
-        // shader->SendMat4("LSM", data.LSM);
+        if (data.hasLSM)
+            shader->SendMat4("LSM", data.LSM);
         //todo : Handle picking
 
-        renderer->BindVertexArray(data.vertexArrayID);
         renderer->DrawArrays(data.subMesh.startIndex, data.subMesh.count);
+    }
+
+    void Render::DrawCommand::AfterExecute()
+    {
+        Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+        Shared<Resource::Shader> shader = data.material->GetShader();
+        for (const auto& val : shader->GetUniforms() | std::views::values)
+        {
+            if (val.type == Resource::UniformType::Texture2D && val.bind.has_value())
+            {
+                renderer->UnbindTexture(val.bind.value());
+            }
+        }
         renderer->UnbindVertexArray();
+    }
+
+    bool Render::DrawPickingCommand::BeforeExecute(RenderCommand* prevCommand)
+    {
+        auto material = data.material;
+        auto shader = material->GetShader()->GetPickingVariant().lock();
+        if (!shader || !shader->HasBeenSent())
+            return false;
+        shader->Use();
+        if (!prevCommand || prevCommand->sortKey.meshKey != sortKey.meshKey)
+        {
+            Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+            renderer->BindVertexArray(data.vertexArrayID);
+        }
+        return true;
     }
 
     void Render::DrawPickingCommand::Execute(RenderCommand* prevCommand)
@@ -100,7 +137,6 @@ namespace GALAXY
         auto shader = material->GetShader()->GetPickingVariant().lock();
         if (!shader || !shader->HasBeenSent())
             return;
-        shader->Use();
 
         const int r = (data.sceneID & 0x000000FF) >> 0;
         const int g = (data.sceneID & 0x0000FF00) >> 8;
@@ -110,7 +146,7 @@ namespace GALAXY
         DrawCommand::Execute(prevCommand);
     }
 
-    bool Render::DrawOutlineCommand::BeforeExecute()
+    bool Render::DrawOutlineCommand::BeforeExecute(RenderCommand* prevCommand)
     {
         using namespace Resource;
         auto unlitShader = ResourceManager::GetUnlitShader().lock();
@@ -137,9 +173,9 @@ namespace GALAXY
         renderer->UnbindVertexArray();
     }
 
-    bool Render::DrawPostProcessCommand::BeforeExecute()
+    bool Render::DrawPostProcessCommand::BeforeExecute(RenderCommand* prevCommand)
     {
-        return DrawCommand::BeforeExecute();
+        return DrawCommand::BeforeExecute(prevCommand);
     }
 
     void Render::DrawPostProcessCommand::Execute(RenderCommand* prevCommand)
@@ -150,8 +186,33 @@ namespace GALAXY
 
         auto shader = data.material->GetShader();
         
-        renderer->BindVertexArray(data.vertexArrayID);
         renderer->DrawArrays(data.subMesh.startIndex, data.subMesh.count);
-        renderer->UnbindVertexArray();
+    }
+
+    bool Render::DrawShadowCommand::BeforeExecute(RenderCommand* prevCommand)
+    {
+       Shared<Resource::Shader> shadowShader = Resource::ResourceManager::GetInstance()->GetShadowShader().
+            lock();
+        if (!shadowShader || !shadowShader->HasBeenSent())
+            return false;
+        shadowShader->Use();
+        
+        if (!prevCommand || prevCommand->sortKey.meshKey != sortKey.meshKey)
+        {
+            Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
+            renderer->BindVertexArray(data.vertexArrayID);
+        }
+        return true;
+    }
+
+    void Render::DrawShadowCommand::Execute(RenderCommand* prevCommand)
+    {
+        using namespace Wrapper;
+        using namespace Resource;
+        Renderer* renderer = Renderer::GetInstance();
+        std::shared_ptr<Shader> shader = Resource::ResourceManager::GetInstance()->GetShadowShader().lock();
+        shader->SendMat4("MVP", data.MVP);
+        
+        renderer->DrawArrays(data.subMesh.startIndex, data.subMesh.count);
     }
 }

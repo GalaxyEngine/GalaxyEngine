@@ -183,6 +183,7 @@ namespace GALAXY
 			renderer->EnableCulling(false);
 			
 			root->DrawSelfAndChild(DrawMode::Game);
+			scene->RenderObjects(DrawMode::Game);
 			
 			renderer->EnableCulling(true);
 			renderer->SetRenderingType(RenderType::Default);

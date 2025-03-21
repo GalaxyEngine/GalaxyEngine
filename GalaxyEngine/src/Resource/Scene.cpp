@@ -20,6 +20,7 @@
 
 #include "Component/CameraComponent.h"
 #include "Component/Collider.h"
+#include "Component/DirectionalLight.h"
 #include "Component/Light.h"
 #include "Component/MeshComponent.h"
 
@@ -50,10 +51,12 @@ namespace GALAXY
 
 		m_actionManager = std::make_shared<Editor::ActionManager>();
 
+		/*
 		Weak<Mesh> mesh = ResourceManager::GetOrLoad<Mesh>(SUZANNE_PATH);
+		Weak<Mesh> mesh2 = ResourceManager::GetOrLoad<Mesh>(SPHERE_PATH);
 		std::string name = mesh.lock()->GetMeshName();
 
-		const int number = 1000;
+		const int number = 3375;
 		int gridSize = static_cast<int>(std::cbrt(number)); // Approximate cube root for a roughly cubic shape
 		const float spacing = 2.5f; // Distance between objects
 
@@ -69,12 +72,15 @@ namespace GALAXY
 			object->GetTransform()->SetLocalPosition(position);
 
 			Shared<Component::MeshComponent> meshComp = object->AddComponent<Component::MeshComponent>().lock();
-			meshComp->SetMesh(mesh);
+			meshComp->SetMesh(i % 2 == 0 ? mesh2 : mesh);
 			meshComp->AddMaterial(ResourceManager::GetDefaultMaterial());
 
 			m_root->AddChild(object);
 		}
-
+		Shared<Core::GameObject> directionalLight = CreateObject("Directional Light").lock();
+		Shared<Component::DirectionalLight> light = directionalLight->AddComponent<Component::DirectionalLight>().lock();
+		m_root->AddChild(directionalLight);
+	*/
 #endif
 	}
 

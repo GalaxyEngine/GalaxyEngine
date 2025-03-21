@@ -17,16 +17,25 @@ namespace GALAXY
 {
     namespace Render
     {
+        struct SortKey
+        {
+            uint64_t materialKey = UUID_NULL;
+            uint64_t meshKey = UUID_NULL;
+            bool operator!=(const SortKey& sortKey) const
+            {
+                return materialKey != sortKey.materialKey || meshKey != sortKey.meshKey;
+            }
+        };
         class GALAXY_API RenderCommand
         {
         public:
             virtual ~RenderCommand() = default;
-            virtual bool BeforeExecute() { return false; }
+            virtual bool BeforeExecute(RenderCommand* prevCommand) { return false; }
             virtual void AfterExecute() {}
             virtual void Execute(RenderCommand* prevCommand) = 0;
 
         public:
-            uint64_t sortKey;
+            SortKey sortKey;
         };
 
         class GALAXY_API CommandBuffer
@@ -51,15 +60,15 @@ namespace GALAXY
         };
 
         
-
         struct DrawCommandData
         {
-            uint64_t key;
+            SortKey sortKey;
             int vertexArrayID;
             Resource::Material* material = nullptr;
             Resource::SubMesh subMesh;
             Mat4 modelMatrix;
             Mat4 MVP;
+            bool hasLSM = false;
             Mat4 LSM;
             Vec3f ViewPos;
             Vec3f CamUp;
@@ -72,8 +81,9 @@ namespace GALAXY
         public:
             DrawCommand(const DrawCommandData& _data);
 
-            bool BeforeExecute() override;
+            bool BeforeExecute(RenderCommand* prevCommand) override;
             void Execute(RenderCommand* prevCommand) override;
+            void AfterExecute() override;
 
             const DrawCommandData& GetData() const { return data; }
         protected:
@@ -85,7 +95,7 @@ namespace GALAXY
         public:
             DrawPickingCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
 
-            bool BeforeExecute() override { return true; }
+            bool BeforeExecute(RenderCommand* prevCommand) override;
             void Execute(RenderCommand* prevCommand) override;
         };
 
@@ -94,7 +104,7 @@ namespace GALAXY
         public:
             DrawOutlineCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
 
-            bool BeforeExecute() override;
+            bool BeforeExecute(RenderCommand* prevCommand) override;
             void Execute(RenderCommand* prevCommand) override;
         };
 
@@ -103,7 +113,16 @@ namespace GALAXY
         public:
             DrawPostProcessCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
 
-            bool BeforeExecute() override;
+            bool BeforeExecute(RenderCommand* prevCommand) override;
+            void Execute(RenderCommand* prevCommand) override;
+        };
+
+        class GALAXY_API DrawShadowCommand : public DrawCommand
+        {
+        public:
+            DrawShadowCommand(const DrawCommandData& _data) : DrawCommand(_data) {}
+
+            bool BeforeExecute(RenderCommand* prevCommand) override;
             void Execute(RenderCommand* prevCommand) override;
         };
     }

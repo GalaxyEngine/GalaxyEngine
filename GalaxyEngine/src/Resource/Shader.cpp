@@ -586,7 +586,8 @@ void main()
             return;
         ASSERT(p_uniforms[locationName].bind.has_value());
         uint8_t bind = p_uniforms[locationName].bind.value();
-        value->Bind(bind);
+        if (value)
+            value->Bind(bind);
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
     }
 
@@ -597,7 +598,8 @@ void main()
             return;
         ASSERT(p_uniforms[locationName].bind.has_value());
         uint8_t bind = p_uniforms[locationName].bind.value();
-        value->Bind(bind);
+        if (value)
+         value->Bind(bind);
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);
     }
 

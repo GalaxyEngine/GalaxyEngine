@@ -17,9 +17,13 @@ namespace GALAXY
 
 		auto endMaterial = [&](const std::shared_ptr<Resource::Material>& material)
 			{
-				if (material && !material->p_fileInfo.Exist())
+				if (material && material->IsShaderValid() && !material->p_fileInfo.Exist())
 				{
 					material->Save();
+				}
+				else if (material && !material->p_fileInfo.Exist())
+				{
+					material->GetShader()->OnLoad.Bind(std::bind(&Resource::Material::Save, material));
 				}
 			};
 
@@ -53,21 +57,21 @@ namespace GALAXY
 			}
 			if (token == "Ka")
 			{
-				Vec3f ambient;
+				Vec4f ambient(1.f);
 				iss >> ambient.x >> ambient.y >> ambient.z;
 				currentMaterial->SetAmbient(ambient);
 			}
 			// Diffuse
 			else if (token == "Kd")
 			{
-				Vec3f diffuse;
+				Vec4f diffuse(1.f);
 				iss >> diffuse.x >> diffuse.y >> diffuse.z;
 				currentMaterial->SetDiffuse(diffuse);
 			}
 			// Specular
 			else if (token == "Ks")
 			{
-				Vec3f specular;
+				Vec4f specular(1.f);
 				iss >> specular.x >> specular.y >> specular.z;
 				currentMaterial->SetSpecular(specular);
 			}

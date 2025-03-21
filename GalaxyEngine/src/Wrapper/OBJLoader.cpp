@@ -100,7 +100,7 @@ bool Wrapper::OBJLoader::Parse()
 		std::string token;
 		iss >> token;
 
-		if (token == "o" || token == "g")
+		if (token == "o")
 		{
 			lastSize = lastSize + Vec3i{ (int)currentMesh.positions.size(), (int)currentMesh.textureUVs.size(), (int)currentMesh.normals.size() };
 			endSubMesh(currentMesh);
@@ -248,6 +248,7 @@ bool AreVerticesSimilar(const Vec3f& v1, const Vec2f& uv1, const Vec3f& n1,
 
 void Wrapper::OBJLoader::ComputeVertices(OBJMesh& mesh)
 {
+	ASSERT(!mesh.positions.empty() && "OBJLoader::ComputeVertices: Positions are empty");
 	mesh.tangents.resize(mesh.indices.size());
 
 	for (size_t k = 0; k < mesh.indices.size(); k += 3)

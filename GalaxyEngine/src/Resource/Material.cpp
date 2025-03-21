@@ -100,6 +100,7 @@ namespace GALAXY
 
     void Resource::Material::Save()
     {
+        ASSERT(IsShaderValid());
         CppSer::Serializer serializer(p_fileInfo.GetFullPath());
         serializer.SetVersion("1.0");
         serializer << CppSer::Pair::BeginMap << "Material";
@@ -109,37 +110,37 @@ namespace GALAXY
         serializer << CppSer::Pair::BeginMap << "Uniforms";
         serializer << CppSer::Pair::BeginTab;
         serializer << CppSer::Pair::BeginMap << "Bools";
-        for (auto& pair : m_data.m_bools)
+        for (auto& pair : IsShaderValid() ? m_data.m_bools : m_tempData.m_bools)
         {
             serializer << CppSer::Pair::Key << pair.first << CppSer::Pair::Value << pair.second;
         }
         serializer << CppSer::Pair::EndMap << "Bools";
         serializer << CppSer::Pair::BeginMap << "Ints";
-        for (auto& pair : m_data.m_ints)
+        for (auto& pair : IsShaderValid() ? m_data.m_ints : m_tempData.m_ints)
         {
             serializer << CppSer::Pair::Key << pair.first << CppSer::Pair::Value << pair.second;
         }
         serializer << CppSer::Pair::EndMap << "Ints";
         serializer << CppSer::Pair::BeginMap << "Floats";
-        for (auto& pair : m_data.m_floats)
+        for (auto& pair : IsShaderValid() ? m_data.m_floats : m_tempData.m_floats)
         {
             serializer << CppSer::Pair::Key << pair.first << CppSer::Pair::Value << pair.second;
         }
         serializer << CppSer::Pair::EndMap << "Floats";
         serializer << CppSer::Pair::BeginMap << "Float4s";
-        for (auto& pair : m_data.m_float4)
+        for (auto& pair : IsShaderValid() ? m_data.m_float4 : m_tempData.m_float4)
         {
             serializer << CppSer::Pair::Key << pair.first << CppSer::Pair::Value << pair.second;
         }
         serializer << CppSer::Pair::EndMap << "Float4s";
         serializer << CppSer::Pair::BeginMap << "Textures";
-        for (auto& pair : m_data.m_textures)
+        for (auto& pair : IsShaderValid() ? m_data.m_textures : m_tempData.m_textures)
         {
             SerializeResource(serializer, pair.first.c_str(), pair.second);
         }
         serializer << CppSer::Pair::EndMap << "Textures";
         serializer << CppSer::Pair::BeginMap << "Cubemaps";
-        for (auto& pair : m_data.m_cubemaps)
+        for (auto& pair : IsShaderValid() ? m_data.m_cubemaps : m_tempData.m_cubemaps)
         {
             SerializeResource(serializer, pair.first.c_str(), pair.second);
         }
@@ -247,13 +248,11 @@ namespace GALAXY
 
         for (auto& textureUniform : m_data.m_textures)
         {
-            if (!textureUniform.second.lock()) continue;
             shader->SendTexture(("material." + textureUniform.first).c_str(), textureUniform.second.lock().get());
         }
 
         for (auto& cubemapUniform : m_data.m_cubemaps)
         {
-            if (!cubemapUniform.second.lock()) continue;
             shader->SendCubeMap(("material." + cubemapUniform.first).c_str(), cubemapUniform.second.lock().get());
         }
     }
@@ -359,7 +358,7 @@ namespace GALAXY
                 mat->m_data.m_floats[uniformPair.second.displayName] = 0.0f;
                 break;
             case UniformType::Float4:
-                mat->m_data.m_float4[uniformPair.second.displayName] = Vec4f(0.0f, 0.0f, 0.0f, 0.0f);
+                mat->m_data.m_float4[uniformPair.second.displayName] = Vec4f(1.f);
                 break;
             case UniformType::Int:
                 mat->m_data.m_ints[uniformPair.second.displayName] = 0;

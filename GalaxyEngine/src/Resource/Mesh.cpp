@@ -160,14 +160,21 @@ namespace GALAXY {
 				continue;
 
 			Render::DrawCommandData data;
-			data.key = material->GetUUID();
+			
+			Render::SortKey& sortKey = data.sortKey;
+			sortKey.materialKey = material->GetUUID();
+			sortKey.meshKey = GetUUID();
+			
 			data.vertexArrayID = m_vertexArrayIndex;
 			data.material = material.get();
 			data.subMesh = m_subMeshes[i];
 			data.modelMatrix = modelMatrix;
 			data.MVP = MVP;
 			if (Shared<Component::Light> currLight = scene->GetCurrentLight())
+			{
+				data.hasLSM = true;
 				data.LSM = currLight->GetViewProjectionMatrix();
+			}
 			data.ViewPos = viewPos;
 			data.CamUp = scene->GetCameraUp();
 			data.CamRight = scene->GetCameraRight();
@@ -190,6 +197,7 @@ namespace GALAXY {
 				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawPostProcessCommand>(data));
 				break;
 			case Render::RenderType::Shadow:
+				Render::CommandBuffer::AddCommand(std::make_unique<Render::DrawShadowCommand>(data));
 				break;
 			default: ;
 			}

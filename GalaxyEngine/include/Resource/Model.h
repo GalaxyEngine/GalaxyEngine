@@ -31,7 +31,7 @@ namespace GALAXY {
 			Vec3f GetCenter() const;
 			Vec3f GetExtents() const;
 
-			static bool IsOnFrustum(Render::Camera* camera, Component::Transform* objectTransform);
+			bool IsOnFrustum(Render::Camera* camera, const Component::Transform* objectTransform) const;
 			bool isOnOrForwardPlane(const Physic::Plane& plane) const;
 		};
 		class Material;
