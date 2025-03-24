@@ -53,10 +53,14 @@ namespace GALAXY {
 			}
 			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
-				ImGui::Checkbox("Draw Grid", Core::Application::GetInstance().GetDrawGridPtr());
+				ImGui::Checkbox("Draw Grid", &m_drawGrid);
+				if (ImGui::Checkbox("Wireframe", &m_wireframe))
+				{
+					Wrapper::Renderer::GetInstance()->EnableWireframe(m_wireframe);
+				}
 				const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 				int value = static_cast<int>(gizmo->GetGizmoMode());
-				if (ImGui::Combo("Gizmo Mode", &value, Editor::SerializeSpaceEnum()))
+				if (ImGui::Combo("Gizmo Mode", &value, SerializeSpaceEnum()))
 				{
 					gizmo->SetGizmoMode(static_cast<Space>(value));
 				}

@@ -138,6 +138,8 @@ namespace GALAXY
 
 		renderer->SetRenderingType(Render::RenderType::Default);
 		if (m_editorCamera->IsVisible()) {
+			bool wireframe = renderer->IsWireframeEnabled();
+			renderer->EnableWireframe(false);
 			static bool shouldClearOutline = false;
 			m_editorCamera->Update();
 			SetCurrentCamera(m_editorCamera);
@@ -209,11 +211,13 @@ namespace GALAXY
 				const Physic::Ray ray = m_editorCamera->ScreenPointToRay(sceneWindow->GetMousePosition());
 				cameraPosition = ray.origin;
 				clickPosition = ray.origin + ray.direction * ray.scale;
+				
 			}
+			renderer->EnableWireframe(wireframe);
 
 			m_lightManager->SendLightData();
 
-			if (*Core::Application::GetInstance().GetDrawGridPtr())
+			if (editorUIManager->GetSceneWindow()->ShouldDrawGrid())
 				m_grid->Draw();
 
 			RenderObjects(DrawMode::Editor);

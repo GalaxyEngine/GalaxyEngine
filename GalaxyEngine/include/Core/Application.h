@@ -65,7 +65,6 @@ namespace GALAXY
 			inline Editor::EditorSettings& GetEditorSettings();
 			inline Editor::Benchmark& GetBenchmark();
 			Editor::ThumbnailCreator* GetThumbnailCreator() const { return m_thumbnailCreator; }
-			inline bool* GetDrawGridPtr();
 
 			static bool IsEditorMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Editor; }
 			static bool IsPlayMode() { return m_instance.m_applicationMode == Editor::ApplicationMode::Play; }

@@ -44,10 +44,5 @@ namespace GALAXY
 	{
 		return m_benchmark;
 	}
-
-	bool* Core::Application::GetDrawGridPtr()
-	{
-		return &m_drawGrid;
-	}
 #endif
 }

@@ -98,6 +98,7 @@ namespace GALAXY
 
 	void OpenGLRenderer::EnableWireframe(bool active)
 	{
+		Renderer::EnableWireframe(active);
 		glPolygonMode(GL_FRONT_AND_BACK, active ? GL_LINE : GL_FILL);
 	}
 

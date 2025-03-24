@@ -34,6 +34,7 @@ namespace GALAXY
 #ifdef WITH_EDITOR
             void UpdateDragModel();
             void OnModelLoaded(Weak<Resource::Model> model);
+            bool ShouldDrawGrid() const { return m_drawGrid;}
 #endif
 
         private:
@@ -50,6 +51,9 @@ namespace GALAXY
 #ifdef WITH_EDITOR
             Weak<Resource::Model> m_dragModel;
             Shared<Core::GameObject> m_dragModelObject = nullptr;
+
+            bool m_drawGrid = true;
+            bool m_wireframe = false;
 #endif
         };
     }

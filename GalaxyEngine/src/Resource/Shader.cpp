@@ -556,21 +556,6 @@ void main()
         Wrapper::Renderer::GetInstance()->UseShader(this);
     }
 
-    int Resource::Shader::GetLocation(const char* locationName)
-    {
-        ASSERT(HasBeenSent() && "Shader not sent");
-        const auto it = p_uniforms.find(locationName);
-        if (it != p_uniforms.end())
-        {
-            return it->second.location;
-        }
-        else
-        {
-            p_uniforms[locationName] = {};
-            return -1;
-        }
-    }
-
     void Resource::Shader::SendInt(const char* locationName, const int value)
     {
         const int locationID = GetLocation(locationName);
@@ -581,11 +566,21 @@ void main()
 
     void Resource::Shader::SendTexture(const char* locationName, Texture* value)
     {
-        const int locationID = GetLocation(locationName);
+        int locationID;
+        const auto it = p_uniforms.find(locationName);
+        if (it != p_uniforms.end())
+        {
+            locationID = it->second.location;
+        }
+        else
+        {
+            p_uniforms[locationName] = {};
+            locationID = -1;
+        }
         if (locationID == -1)
             return;
-        ASSERT(p_uniforms[locationName].bind.has_value());
-        uint8_t bind = p_uniforms[locationName].bind.value();
+        // ASSERT(p_uniforms[locationName].bind.has_value());
+        uint8_t bind = it->second.bind.value();
         if (value)
             value->Bind(bind);
         Wrapper::Renderer::GetInstance()->ShaderSendInt(locationID, bind);

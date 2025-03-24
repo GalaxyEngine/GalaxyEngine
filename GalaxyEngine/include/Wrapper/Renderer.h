@@ -84,7 +84,8 @@ namespace GALAXY
 			virtual void EnableDebugOutput() {}
 			inline bool IsInitalized() const { return p_initalized; }
 
-			virtual void EnableWireframe(bool active = true) {}
+			virtual void EnableWireframe(bool active = true) { p_wireframe = active;}
+			virtual bool IsWireframeEnabled() const { return p_wireframe; }
 			virtual void EnableCulling(bool active = true) {}
 
 			virtual void RenderDebug();
@@ -200,6 +201,8 @@ namespace GALAXY
 
 			std::vector<DebugLine> p_debugLines;
 			std::vector<Vec4f> p_debugTriangles;
+
+			bool p_wireframe = false;
 		private:
 			static std::unique_ptr<Renderer> m_instance;
 		};

@@ -85,7 +85,18 @@ namespace GALAXY {
 			void Recompile() const;
 
 			void Use();
-			int GetLocation(const char* locationName);
+			inline int GetLocation(const char* locationName)
+			{
+				ASSERT(HasBeenSent() && "Shader not sent");
+				const auto it = p_uniforms.find(locationName);
+				if (it != p_uniforms.end())
+				{
+					return it->second.location;
+				}
+				p_uniforms[locationName] = {};
+				return -1;
+			}
+			
 			const UMap<std::string, Uniform>& GetUniforms() const { return p_uniforms; }
 
 			void SendInt(const char* locationName, int value);

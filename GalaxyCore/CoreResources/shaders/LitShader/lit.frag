@@ -156,15 +156,17 @@ vec4 CalculateDirectionalLight(DirectionalLight directional, bool applyShadow)
     vec3 lightDir = normalize(-directional.direction);
     vec3 viewDir = normalize(camera.viewPos - pos);
 
+    // Fetch texture color and determine alpha
+    float alpha = 1.0;
+    vec4 baseColor = vec4(1.0);
+    if (material.hasAlbedo) {
+        baseColor = texture(material.albedo, modUV);
+        alpha = baseColor.a;
+    }
+
     // Diffuse component (Lambertian)
     float diff = max(dot(finalNormal, lightDir), 0.0);
-    vec4 diffuseColor;
-    if (material.hasAlbedo) {
-        vec4 textureColor = texture(material.albedo, modUV);
-        diffuseColor = textureColor * vec4(directional.diffuse, 1.0) * diff;
-    } else {
-        diffuseColor = material.diffuse * vec4(directional.diffuse, 1.0) * diff;
-    }
+    vec4 diffuseColor = baseColor * vec4(directional.diffuse, 1.0) * diff;
 
     // Specular component
     vec3 reflectDir = reflect(-lightDir, finalNormal);
@@ -174,18 +176,24 @@ vec4 CalculateDirectionalLight(DirectionalLight directional, bool applyShadow)
     // Ambient component
     vec4 ambientColor = material.ambient * vec4(directional.ambient, 1.0);
     if (material.hasAlbedo) {
-        vec4 textureColor = texture(material.albedo, modUV);
-        ambientColor = textureColor * ambientColor;
+        ambientColor = baseColor * ambientColor;
     }
 
     // Apply shadow factor only to diffuse and specular
+    vec4 resultColor;
     if (applyShadow && camera.hasDepthMap) {
         float shadow = ShadowCalculation(directional, posLightSpace);
-        return ambientColor + (1.0 - shadow) * (diffuseColor + specularColor);
+        resultColor = ambientColor + (1.0 - shadow) * (diffuseColor + specularColor);
     } else {
-        return ambientColor + diffuseColor + specularColor;
+        resultColor = ambientColor + diffuseColor + specularColor;
     }
+
+    // Set the alpha channel to the texture's alpha (or 1.0 if no texture)
+    resultColor.a = alpha;
+
+    return resultColor;
 }
+
 
 vec4 CalculatePointLight(PointLight point)
 {

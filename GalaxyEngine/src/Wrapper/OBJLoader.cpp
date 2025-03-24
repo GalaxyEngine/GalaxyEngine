@@ -87,9 +87,9 @@ bool Wrapper::OBJLoader::Parse()
 
 	auto endSubMesh = [&](OBJMesh& mesh) {
 		std::vector<OBJSubMesh>& subMeshes = mesh.subMeshes;
-		if (subMeshes.size() > 0) {
-			subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
-		}
+			if (!subMeshes.empty()) {
+				subMeshes.back().count = mesh.indices.size() - subMeshes.back().startIndex;
+			}
 		};
 
 	OBJMesh currentMesh;
@@ -100,7 +100,7 @@ bool Wrapper::OBJLoader::Parse()
 		std::string token;
 		iss >> token;
 
-		if (token == "o")
+		if (token == "o" || token == "g")
 		{
 			lastSize = lastSize + Vec3i{ (int)currentMesh.positions.size(), (int)currentMesh.textureUVs.size(), (int)currentMesh.normals.size() };
 			endSubMesh(currentMesh);
@@ -204,6 +204,7 @@ bool Wrapper::OBJLoader::Parse()
 
 	return true;
 }
+
 
 void Wrapper::OBJLoader::ParseFaceIndex(Vec3i& indices, const std::string& indexStr)
 {
