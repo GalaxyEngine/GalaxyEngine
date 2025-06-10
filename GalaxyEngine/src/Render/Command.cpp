@@ -113,7 +113,7 @@ namespace GALAXY
                 renderer->UnbindTexture(val.bind.value());
             }
         }
-        renderer->UnbindVertexArray();
+        // renderer->UnbindVertexArray();
     }
 
     bool Render::DrawPickingCommand::BeforeExecute(RenderCommand* prevCommand)

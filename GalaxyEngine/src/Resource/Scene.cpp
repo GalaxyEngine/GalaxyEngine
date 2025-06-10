@@ -271,6 +271,7 @@ namespace GALAXY
 
 			m_root->DrawSelfAndChild(DrawMode::Game);
 			renderer->RenderDebug();
+			Render::CommandBuffer::ExecuteCommands();
 			
 			renderer->SetRenderingType(Render::RenderType::None);
 			currentCamera->End();

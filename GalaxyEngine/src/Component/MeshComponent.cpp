@@ -129,7 +129,6 @@ namespace GALAXY {
 			return;
 		
 		const Shared<Render::Camera>& currentCamera = gameObject->GetScene()->GetCurrentCamera();
-		const Shared<Component::Light>& currentLight = gameObject->GetScene()->GetCurrentLight();
 		bool testFrustum = Wrapper::Renderer::GetInstance()->GetRenderType() != Render::RenderType::Shadow;
 		if (testFrustum && currentCamera && !mesh->GetBoundingBox().IsOnFrustum(currentCamera.get(), GetTransform()))
 			return;

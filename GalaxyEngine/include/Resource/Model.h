@@ -21,12 +21,12 @@ namespace GALAXY {
 
 		struct BoundingBox
 		{
-			BoundingBox() : min(FLT_MAX), max(FLT_MIN) {}
+			BoundingBox() : min(FLT_MAX), max(-FLT_MAX) {}
 			BoundingBox(Vec3f min, Vec3f max) : min(min), max(max) {}
 			BoundingBox(const Physic::AABB& aabb);
 
-			Vec3f min = Vec3f(FLT_MAX);
-			Vec3f max = Vec3f(FLT_MIN);
+			Vec3f min;
+			Vec3f max;
 
 			Vec3f GetCenter() const;
 			Vec3f GetExtents() const;
@@ -59,7 +59,7 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			EDITOR_ONLY Path GetThumbnailPath() const override;
 			
-			EDITOR_ONLY void CreateThumbnail();
+			EDITOR_ONLY void CreateThumbnail() override;
 #endif
 			
 			void DrawBoundingBox(const Component::Transform* transform) const;

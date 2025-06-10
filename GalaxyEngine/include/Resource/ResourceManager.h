@@ -46,8 +46,10 @@ namespace GALAXY {
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Path& fullPath, bool async = true);
 
+
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
+			static inline Weak<IResource> GetOrLoad(const Core::UUID& uuid);
 
 			static Weak<IResource> GetOrLoad(const Path& fullPath, bool async = true);
 

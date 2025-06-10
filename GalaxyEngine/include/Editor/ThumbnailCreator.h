@@ -3,10 +3,16 @@
 #include <filesystem>
 #include <queue>
 
+namespace GALAXY::Resource
+{
+	struct BoundingBox;
+}
+
 namespace GALAXY
 {
 	namespace Component
 	{
+		class DirectionalLight;
 		class CameraComponent;
 	}
 
@@ -37,6 +43,8 @@ namespace GALAXY
 
 			void CreateMeshThumbnail(const Weak<Resource::Mesh>& mesh);
 
+			void SetCameraPosition(Resource::BoundingBox boundingBox, Component::Transform* objectTransform) const;
+
 			auto CreateMaterialThumbnail(const Weak<Resource::Material>& material) -> void;
 
 			void Update();
@@ -57,6 +65,9 @@ namespace GALAXY
 			Shared<Core::GameObject> m_cameraObject = nullptr;
 			Shared<Component::CameraComponent> m_camera;
 			Shared<Resource::Scene> m_scene;
+			
+			Shared<Core::GameObject> m_lightObject;
+			Shared<Component::DirectionalLight> m_light;
 		};
 	}
 }

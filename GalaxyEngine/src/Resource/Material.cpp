@@ -332,7 +332,11 @@ namespace GALAXY
         if (val.lock()->HasBeenSent())
             OnShaderLoaded(shared_from_this(), val);
         else
+        {
+            Core::ThreadManager::Lock();
             val.lock()->OnLoad.Bind(std::bind(&Material::OnShaderLoaded, shared_from_this(), val));
+            Core::ThreadManager::Unlock();
+        }
     }        
 
     

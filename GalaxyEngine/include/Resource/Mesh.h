@@ -28,7 +28,7 @@ namespace GALAXY
 
 #ifdef WITH_EDITOR
 			EDITOR_ONLY Path GetThumbnailPath() const override;
-			EDITOR_ONLY void CreateThumbnail();
+			EDITOR_ONLY void CreateThumbnail() override;
 #endif
 
 			void SetMeshPosition(const std::vector<Vec3f>& positions);

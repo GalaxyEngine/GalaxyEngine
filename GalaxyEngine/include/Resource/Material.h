@@ -119,7 +119,7 @@ namespace GALAXY
 			void SetHeightScale(const float val) { SetFloat("heightScale", val); }
 
 #ifdef WITH_EDITOR
-			EDITOR_ONLY void CreateThumbnail();
+			EDITOR_ONLY void CreateThumbnail() override;
 #endif
 
 			static void OnShaderLoaded(const Weak<IResource>& material, const Weak<Shader>& shader);

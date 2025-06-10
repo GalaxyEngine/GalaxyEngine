@@ -155,6 +155,27 @@ namespace GALAXY
 
 		return GetOrLoad<T>(resource->first);
 	}
+	
+	Weak<Resource::IResource> Resource::ResourceManager::GetOrLoad(const Core::UUID& uuid)
+	{
+		if (uuid == UUID_NULL)
+			return {};
+
+		auto resource = std::find_if(m_instance->m_resources.begin(), m_instance->m_resources.end(), [&](const std::pair<Path, Shared<IResource>>& _resource)
+			{
+				return _resource.second->GetUUID() == uuid;
+			});
+		if (resource == m_instance->m_resources.end())
+		{
+			// Not found
+			PrintWarning("Resource with UUID %llu not found", uuid);
+			return {};
+		}
+
+		auto result = GetOrLoad(resource->first);
+		return result;
+	}
+	
 	template <typename T>
 	inline Shared<T> Resource::ResourceManager::TemporaryLoad(const Path& fullPath)
 	{

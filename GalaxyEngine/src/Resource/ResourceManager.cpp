@@ -566,12 +566,24 @@ namespace GALAXY
         m_instance.reset();
     }
 
-    Weak<GALAXY::Resource::IResource> Resource::ResourceManager::GetOrLoad(
+    Weak<Resource::IResource> Resource::ResourceManager::GetOrLoad(
         const Path& fullPath, bool async /* = true */)
     {
         if (std::filesystem::is_directory(fullPath))
             return {};
+        
         auto type = Utils::FileInfo::GetTypeFromExtension(fullPath.extension());
+        
+        if (auto it = fullPath.string().find_last_of(':'); it != std::string::npos)
+        {
+            if (auto it2 = fullPath.string().find_last_of('.'); it2 != std::string::npos)
+            {
+                if (it > it2)
+                {
+                    type = Resource::ResourceType::Mesh;
+                }
+            }
+        }
         switch (type)
         {
         case ResourceType::Shader:

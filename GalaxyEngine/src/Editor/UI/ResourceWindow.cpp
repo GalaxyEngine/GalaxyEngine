@@ -92,6 +92,15 @@ namespace GALAXY
 
 					shouldClosePopup = true;
 				}
+				if (ImGui::MenuItem("Reload thumbnail"))
+				{
+					String uuidString = m_rightClickedResource->GetFileInfo().GetFileNameNoExtension();
+					Core::UUID uuid = std::stoull(uuidString);
+					auto resourceLink = Resource::ResourceManager::GetOrLoad(uuid).lock();
+					if (resourceLink)
+						resourceLink->CreateThumbnail();
+					shouldClosePopup = true;
+				}
 				if (shouldClosePopup)
 				{
 					ImGui::CloseCurrentPopup();

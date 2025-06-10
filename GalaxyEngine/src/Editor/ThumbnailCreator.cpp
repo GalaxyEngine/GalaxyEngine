@@ -21,6 +21,7 @@
 #include "Wrapper/ImageLoader.h"
 
 //Debug
+#include "Render/Command.h"
 #include "Render/Skybox.h"
 #include "Utils/OS.h"
 
@@ -52,9 +53,10 @@ namespace GALAXY
 		m_sphereMaterialObject = std::make_shared<Core::GameObject>("Sphere");
 		m_scene->AddObject(m_sphereMaterialObject);
 
-		auto lightObject = std::make_shared<Core::GameObject>("Directional");
-		m_scene->AddObject(lightObject);
-		lightObject->AddComponent<Component::DirectionalLight>();
+		m_lightObject = std::make_shared<Core::GameObject>("Directional");
+		m_scene->AddObject(m_lightObject);
+		m_light = m_lightObject->AddComponent<Component::DirectionalLight>().lock();
+		m_light->SetDirection(Vec3f::One().GetNormalize());
 
 		auto sphere = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(SPHERE_PATH);
 
@@ -144,18 +146,8 @@ namespace GALAXY
 		auto modelObject = modelShared->ToGameObject();
 		modelObject->SetScene(m_scene.get());
 
-		float max = FLT_MIN;
-		for (int i = 0; i < 3; i++)
-		{
-			max = std::max(max, modelShared->GetBoundingBox().max[i]);
-		}
-
-		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
-		auto lookAt = Quat::LookRotation((cameraPosition - modelShared->GetBoundingBox().GetCenter()).GetNormalize(), Vec3f(0, -1, 0));
-		const Quat cameraRotation = lookAt;
-
-		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
-		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+		
+		SetCameraPosition(modelShared->GetBoundingBox(), modelObject->GetTransform());
 		m_cameraObject->UpdateSelfAndChild();
 
 		m_camera->SetSize(m_thumbnailSize);
@@ -164,9 +156,10 @@ namespace GALAXY
 		
 		renderer->SetRenderingType(Render::RenderType::Default);
 		m_camera->Begin();
+		
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), m_camera);
-
 		modelObject->DrawSelfAndChild(DrawMode::Game);
+		Render::CommandBuffer::ExecuteCommands();
 
 		m_camera->End();
 		renderer->SetRenderingType(Render::RenderType::None);
@@ -217,18 +210,7 @@ namespace GALAXY
 		auto meshObject = meshShared->ToGameObject();
 		meshObject->SetScene(m_scene.get());
 
-		float max = FLT_MIN;
-		for (int i = 0; i < 3; i++)
-		{
-			max = std::max(max, meshShared->GetBoundingBox().max[i]);
-		}
-
-		Vec3f cameraPosition = Vec3f(-max, max * 1.f, max * 2.5f);
-		auto lookAt = Quat::LookRotation((cameraPosition - meshShared->GetBoundingBox().GetCenter()).GetNormalize(), Vec3f(0, -1, 0));
-		const Quat cameraRotation = lookAt;
-
-		m_cameraObject->GetTransform()->SetLocalRotation(cameraRotation);
-		m_cameraObject->GetTransform()->SetLocalPosition(cameraPosition);
+		SetCameraPosition(meshShared->GetBoundingBox(), meshObject->GetTransform());
 		m_cameraObject->UpdateSelfAndChild();
 
 		m_camera->SetSize(m_thumbnailSize);
@@ -238,8 +220,8 @@ namespace GALAXY
 		m_camera->Begin();
 
 		m_scene->GetLightManager()->SendLightData(Resource::ResourceManager::GetDefaultShader().lock().get(), m_camera);
-
 		meshObject->DrawSelfAndChild(DrawMode::Game);
+		Render::CommandBuffer::ExecuteCommands();
 
 		m_camera->End();
 		renderer->SetRenderingType(Render::RenderType::None);
@@ -253,6 +235,31 @@ namespace GALAXY
 		const Path thumbnailPath = GetThumbnailPath(meshShared);
 
 		SaveThumbnail(thumbnailPath, m_thumbnailSize);
+	}
+	
+	void Editor::ThumbnailCreator::SetCameraPosition(Resource::BoundingBox boundingBox,
+		Component::Transform* objectTransform) const
+	{
+		Vec3f worldMin = objectTransform->TransformPoint(boundingBox.min);
+		Vec3f worldMax = objectTransform->TransformPoint(boundingBox.max);
+
+		Vec3f center = (worldMin + worldMax) * 0.5f;
+		float radius = (worldMax - center).Length();
+
+		Vec3f isoDir = Vec3f(-1.0f, -1.0f, 1.0f).GetNormalize();
+    
+		float fovY  = m_camera->GetFOV() * DegToRad;
+		float halfFovSin = std::sin(fovY * 0.5f);
+		float distance = (radius / halfFovSin); 
+
+		Vec3f camPos = center - isoDir * distance;
+
+		Vec3f forward = -(center - camPos).GetNormalize();
+		Quat lookRot = Quat::LookRotation(forward, -Vec3f::Up());
+		m_cameraObject->GetTransform()->SetLocalPosition(camPos);
+		m_cameraObject->GetTransform()->SetLocalRotation(lookRot);
+
+		m_lightObject->GetTransform()->SetWorldRotation(lookRot);
 	}
 
 	void Editor::ThumbnailCreator::CreateMaterialThumbnail(const Weak<Resource::Material>& material)
@@ -294,9 +301,9 @@ namespace GALAXY
 		m_camera->Begin();
 
 		m_scene->GetLightManager()->SendLightData(materialShared->GetShader().get(), m_camera);
-
 		m_sphereMaterialObject->DrawSelfAndChild(DrawMode::Game);
-
+		Render::CommandBuffer::ExecuteCommands();
+		
 		m_camera->End();
 		renderer->SetRenderingType(Render::RenderType::None);
 

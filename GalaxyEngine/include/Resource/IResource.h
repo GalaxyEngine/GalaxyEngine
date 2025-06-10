@@ -115,6 +115,8 @@ namespace GALAXY::Resource {
 		EDITOR_ONLY virtual void ShowInInspector() {}
 		
 		EDITOR_ONLY virtual Path GetThumbnailPath() const {return "";}
+
+		EDITOR_ONLY virtual void CreateThumbnail() {}
 #endif
 		// Called when the resource is removed from the resourceManager
 		virtual void Unload() {}
