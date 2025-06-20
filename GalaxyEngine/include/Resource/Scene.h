@@ -17,7 +17,6 @@ namespace GALAXY {
 	namespace Render {
 		class LightManager;
 		class Camera;
-		class EditorCamera;
 		class Grid;
 	}
 #ifdef WITH_EDITOR
@@ -25,6 +24,7 @@ namespace GALAXY {
 	{
 		class Gizmo;
 		class ActionManager;
+		class EditorCamera;
 	}
 #endif
 	namespace Component
@@ -53,7 +53,7 @@ namespace GALAXY {
 			~Scene() override;
 
 #pragma region Resource Methods
-			void Load() override;
+			bool Load() override;
 			// Load a scene from a file without changing the path of the scene
 			void Load(const Path& path);
 			void Unload() override;
@@ -111,7 +111,7 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			inline void RevertObject(size_t number = 1);
 
-			inline Shared<Render::EditorCamera> GetEditorCamera() const; 
+			inline Shared<Editor::EditorCamera> GetEditorCamera() const; 
 			inline Shared<Editor::Gizmo> GetGizmo() const;
 			inline Shared<Editor::ActionManager> GetActionManager() const;
 #endif
@@ -143,7 +143,7 @@ namespace GALAXY {
 			UMap<Core::UUID, Shared<Core::GameObject>> m_objectList;
 
 #ifdef WITH_EDITOR
-			Shared<Render::EditorCamera> m_editorCamera;
+			Shared<Editor::EditorCamera> m_editorCamera;
 			Shared<Editor::ActionManager> m_actionManager;
 
 			Shared<Render::Grid> m_grid;

@@ -18,7 +18,7 @@
 
 #ifdef WITH_EDITOR
 #include "Editor/EditorCamera.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/Gizmo.h"
 #endif
 
@@ -82,7 +82,7 @@ namespace GALAXY
 	Vec2i Render::Camera::GetScreenResolution() const
 	{
 #ifdef WITH_EDITOR
-		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->GetImageSize();
+		return Editor::UI::Manager::GetInstance()->GetSceneWindow()->GetImageSize();
 #else
 		return Core::Application::GetInstance().GetWindow()->GetSize();
 #endif
@@ -141,7 +141,7 @@ namespace GALAXY
 	}
 
 #ifdef WITH_EDITOR
-	Shared<Render::EditorCamera> Render::Camera::GetEditorCamera()
+	Shared<Editor::EditorCamera> Render::Camera::GetEditorCamera()
 	{
 		return Core::SceneHolder::GetCurrentScene()->GetEditorCamera();
 	}
@@ -160,7 +160,7 @@ namespace GALAXY
 	bool Render::Camera::IsVisible() const
 	{
 #ifdef WITH_EDITOR
-		return Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsVisible();
+		return Editor::UI::Manager::GetInstance()->GetSceneWindow()->IsVisible();
 #else
 		return true;
 #endif

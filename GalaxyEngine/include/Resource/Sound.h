@@ -19,7 +19,7 @@ namespace GALAXY
 			Sound(Sound&&) noexcept = default;
 			~Sound() override {}
 
-			void Load() override;
+			bool Load() override;
 			void Unload() override;
 
 			void Play();

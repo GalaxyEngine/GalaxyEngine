@@ -6,11 +6,8 @@
 
 namespace GALAXY
 {
-    void Resource::Prefab::Load()
-    {
-        if (p_shouldBeLoaded)
-            return;
-        
+    bool Resource::Prefab::Load()
+    {        
         Scene::Load();
 
         for (const auto& pair : m_waitingObjects)
@@ -18,6 +15,8 @@ namespace GALAXY
             InstantiateInternal(pair.second, pair.first);
         }
         m_waitingObjects.clear();
+
+        return true;
     }
 
     void Resource::Prefab::Send()

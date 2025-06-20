@@ -10,7 +10,7 @@
 
 #include "Core/SceneHolder.h"
 
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 #include "Render/Framebuffer.h"
 #include "Render/LightManager.h"
@@ -246,7 +246,7 @@ namespace GALAXY
 		Vec3f center = (worldMin + worldMax) * 0.5f;
 		float radius = (worldMax - center).Length();
 
-		Vec3f isoDir = Vec3f(-1.0f, -1.0f, 1.0f).GetNormalize();
+		Vec3f isoDir = Vec3f(1.0f, -1.0f, -1.0f).GetNormalize();
     
 		float fovY  = m_camera->GetFOV() * DegToRad;
 		float halfFovSin = std::sin(fovY * 0.5f);
@@ -414,7 +414,7 @@ namespace GALAXY
 		Core::ThreadManager::GetInstance()->AddTask(&SaveThumb, imageData, thumbnailPath);
 
 		if (m_thumbnailQueue.empty())
-			Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->ReloadContent();
+			Editor::UI::Manager::GetInstance()->GetFileExplorer()->ReloadContent();
 	}
 
 }

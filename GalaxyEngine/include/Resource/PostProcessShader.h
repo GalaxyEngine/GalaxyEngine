@@ -14,7 +14,7 @@ namespace GALAXY
 			PostProcessShader(PostProcessShader&&) noexcept = default;
 			~PostProcessShader() override = default;
 
-			void Load() override;
+			bool Load() override;
 
 			const char* GetResourceName() const override { return "Post Process Shader"; }
 

@@ -28,7 +28,7 @@ namespace GALAXY
             Prefab(Prefab&&) noexcept = default;
             virtual ~Prefab() {}
 
-            void Load() override;
+            bool Load() override;
             void Send() override;
             void Save(const Path& fullPath = "") const override;
 

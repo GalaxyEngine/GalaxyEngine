@@ -255,8 +255,6 @@ namespace GALAXY
 
 					material->Save();
 					material->Load();
-
-					material->p_hasBeenSent = true;
 				}
 				outputModel->m_materials.push_back(material);
 			}
@@ -358,12 +356,9 @@ namespace GALAXY
 
 			mesh->m_model = outputModel;
 
-			auto bind = [outputModel] { outputModel->OnMeshLoaded(); };
-			mesh->OnLoad.Bind(bind);
-
 			mesh->SendRequest();
 		}
 		outputModel->ComputeBoundingBox(allPositions);
-		outputModel->p_hasBeenSent = true;
+		outputModel->m_meshesAdded = true;
 	}
 }

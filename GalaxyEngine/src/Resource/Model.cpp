@@ -103,13 +103,8 @@ namespace GALAXY {
 		m_meshes.shrink_to_fit();
 	}
 
-	void Resource::Model::Load()
-	{
-		if (p_shouldBeLoaded)
-			return;
-		p_shouldBeLoaded = true;
-		StartLoading();
-		
+	bool Resource::Model::Load()
+	{		
 		if (p_fileInfo.GetExtension() == ".fbx")
 		{
 			m_modelType = Resource::ModelExtension::FBX;
@@ -132,14 +127,28 @@ namespace GALAXY {
 				mesh.lock()->CreateThumbnail();
 		}
 #endif
+		return true;
 	}
 
 	void Resource::Model::Unload()
 	{
 		for (auto& mesh : m_meshes)
 		{
-			Resource::ResourceManager::GetInstance()->RemoveResource(mesh.lock()->GetFileInfo().GetFullPath());
+			ResourceManager::RemoveResource(mesh.lock()->GetFileInfo().GetFullPath());
 		}
+	}
+
+	void Resource::Model::Send()
+	{
+		if (!m_meshesAdded)
+			return;
+		for (auto& mesh : m_meshes)
+		{
+			if (!mesh.lock()->HasBeenSent())
+				return;
+		}
+		p_loaded.store(true);
+		p_hasBeenSent.store(true);
 	}
 
 #ifdef WITH_EDITOR
@@ -217,22 +226,6 @@ namespace GALAXY {
 		}
 	}
 #endif
-
-	void Resource::Model::OnMeshLoaded()
-	{
-		// The has been sent is set true when all meshes have been added to the list
-		if (!p_hasBeenSent)
-			return;
-		for (auto& mesh : m_meshes)
-		{
-			if (!mesh.lock()->HasBeenSent())
-				return;
-		}
-		p_loaded.store(true);
-		EOnLoad.Invoke();
-		
-		FinishLoading();
-	}
 
 #ifdef WITH_EDITOR
 	void Resource::Model::CreateThumbnail()

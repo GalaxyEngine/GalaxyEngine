@@ -98,7 +98,7 @@ namespace GALAXY
 		{
 			static Vec3f previousPosition;
 			static bool previousTrue = false;
-			if (Wrapper::GUI::DrawVec3Control("Position", &position.x))
+			if (Wrapper::UI::DrawVec3Control("Position", &position.x))
 			{
 				if (!previousTrue)
 					previousPosition = m_localPosition;
@@ -125,7 +125,7 @@ namespace GALAXY
 		{
 			static Vec3f previousRotation;
 			static bool previousTrue = false;
-			if (Wrapper::GUI::DrawVec3Control("Rotation", &rotation.x))
+			if (Wrapper::UI::DrawVec3Control("Rotation", &rotation.x))
 			{
 				if (!previousTrue)
 					previousRotation = m_localEulerRotation;
@@ -152,7 +152,7 @@ namespace GALAXY
 		{
 			static Vec3f previousScale;
 			static bool previousTrue = false;
-			if (Wrapper::GUI::DrawVec3Control("Scale", &scale.x, 1.f, true))
+			if (Wrapper::UI::DrawVec3Control("Scale", &scale.x, 1.f, true))
 			{
 				if (!previousTrue)
 					previousScale = m_localScale;

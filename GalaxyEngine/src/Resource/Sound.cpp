@@ -11,15 +11,11 @@ namespace GALAXY
 
 	}
 
-	void Resource::Sound::Load()
+	bool Resource::Sound::Load()
 	{
-		if (p_shouldBeLoaded)
-			return;
-		p_shouldBeLoaded = true;
-		p_loaded = true;
-
 		CreateDataFile();
-		SendRequest();
+
+		return true;
 	}
 
 	void Resource::Sound::Unload()

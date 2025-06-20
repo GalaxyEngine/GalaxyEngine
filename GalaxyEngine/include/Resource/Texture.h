@@ -65,7 +65,7 @@ namespace GALAXY {
 
 			inline uint32_t GetID() const { return m_id; }
 
-			void Load() override;
+			bool Load() override;
 			void Send() override;
 
 			void Save() const;
@@ -90,6 +90,7 @@ namespace GALAXY {
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
 		public:
+			
 		private:
 			friend Wrapper::Renderer;
 			friend Wrapper::RendererAPI::OpenGLRenderer;

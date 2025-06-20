@@ -84,18 +84,15 @@ namespace GALAXY {
 		return meshName;
 	}
 
-	void Resource::Mesh::Load()
+	bool Resource::Mesh::Load()
 	{
-		if (p_shouldBeLoaded)
-			return;
 		ASSERT(HasModel() && "Model for mesh not found");
-		p_shouldBeLoaded = true;
 
 		const std::string fullPathString = GetFileInfo().GetFullPath().string();
 		const std::string modelPath = fullPathString.substr(0, fullPathString.find_last_of(':'));
 		Resource::ResourceManager::GetOrLoad<Model>(modelPath);
-		
-		p_loaded = true;
+
+		return true;
 	}
 
 	void Resource::Mesh::Send()
@@ -126,14 +123,11 @@ namespace GALAXY {
 		renderer->UnbindVertexArray();
 		renderer->UnbindVertexBuffer();
 
-		OnLoad.Invoke();
-
 		m_finalVertices.clear();
 		m_finalVertices.shrink_to_fit();
 
 		m_indices.clear();
 		m_indices.shrink_to_fit();
-		FinishLoading();
 	}
 
 	void Resource::Mesh::Render(const Mat4& modelMatrix, const std::vector<Weak<Resource::Material>>& materials, uint64_t id /*= -1*/) const

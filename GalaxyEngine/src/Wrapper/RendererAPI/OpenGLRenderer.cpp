@@ -18,7 +18,7 @@
 #include "Resource/Shader.h"
 
 #if WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/UI/DebugWindow.h"
 #endif
 
@@ -585,7 +585,7 @@ namespace GALAXY
 		glDrawArrays(GL_TRIANGLES, static_cast<GLsizei>(start), static_cast<GLsizei>(count));
 
 #if WITH_EDITOR
-		Editor::UI::EditorUIManager::GetInstance()->GetDebugWindow()->AddTriangleDraw(count / 3);
+		Editor::UI::Manager::GetInstance()->GetDebugWindow()->AddTriangleDraw(count / 3);
 #endif
 	}
 

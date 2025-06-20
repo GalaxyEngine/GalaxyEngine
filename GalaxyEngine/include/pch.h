@@ -22,7 +22,7 @@
 #include "Debug/Log.h"
 #include "Debug/TimeProfiler.h"
 #include "Wrapper/Renderer.h"
-#include "Wrapper/GUI.h"
+#include "Wrapper/UI.h"
 #include "Wrapper/Reflection.h"
 #include "Utils/FileSystem.h"
 #include "Utils/Type.h"

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/ResourceWindow.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Model.h"
@@ -58,7 +58,7 @@ namespace GALAXY
 				}
 				if (ImGui::IsItemClicked())
 				{
-					auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+					auto fileExplorer = Editor::UI::Manager::GetInstance()->GetFileExplorer();
 					Shared<File> file = std::make_shared<File>(resource.second->GetFileInfo().GetFullPath());
 					fileExplorer->ClearSelected();
 					fileExplorer->AddFileSelected({ file });

@@ -120,17 +120,11 @@ void main()
 )";
 #pragma endregion
 
-    void Resource::Shader::Load()
+    bool Resource::Shader::Load()
     {
-        if (p_shouldBeLoaded)
-            return;
-        p_shouldBeLoaded = true;
-
         if (GetVertex().lock() || GetGeometry().lock() || GetFragment().lock())
         {
-            p_loaded = true;
-            SendRequest();
-            return;
+            return true;
         }
         StartLoading();
 
@@ -165,8 +159,7 @@ void main()
                 SetFragment(fragmentShader.lock(), thisShader);
             }
         }
-        p_loaded = true;
-        SendRequest();
+        return true;
     }
 
     void Resource::Shader::Send()
@@ -188,10 +181,7 @@ void main()
             Render::LightManager::AddShader(weak_this);
             if (!std::filesystem::exists(GetDataFilePath()))
                 CreateDataFile();
-            FinishLoading();
         }
-        if (p_hasBeenSent.load())
-            OnLoad.Invoke();
     }
 
     void Resource::Shader::Save() const
@@ -482,7 +472,7 @@ void main()
         p_hasBeenSent = false;
         p_content = "";
 
-        Core::ThreadManager::GetInstance()->AddTask([this] { Load(); });
+        ResourceManager::GetOrLoad(this->GetUUID());
 
         for (const Weak<Shader>& shader : p_shaders)
         {
@@ -502,13 +492,9 @@ void main()
         p_shaders.erase(new_end, p_shaders.end());
     }
 
-    void Resource::BaseShader::Load()
+    bool Resource::BaseShader::Load()
     {
-        if (p_shouldBeLoaded)
-            return;
-        p_shouldBeLoaded = true;
         p_content = Utils::FileSystem::ReadFile(p_fileInfo.GetFullPath());
-        p_loaded = true;
 
         if (!std::filesystem::exists(GetDataFilePath()))
             CreateDataFile();
@@ -522,7 +508,7 @@ void main()
                 shader.lock()->SendRequest();
             }
         }
-        SendRequest();
+        return true;
     }
 
     void Resource::BaseShader::OnAdd()

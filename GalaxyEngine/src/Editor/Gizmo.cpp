@@ -17,7 +17,7 @@
 #include "Render/Camera.h"
 #include "Editor/EditorCamera.h"
 
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/UI/SceneWindow.h"
 
 #include "Physic/Plane.h"
@@ -157,7 +157,7 @@ namespace GALAXY
         if (!m_object.lock() || !m_object.lock()->GetParent())
             return;
 
-        Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
+        Editor::UI::SceneWindow* sceneWindow = Editor::UI::Manager::GetInstance()->GetSceneWindow();
 
         if (!Render::Camera::GetEditorCamera()->IsLooking() && sceneWindow->IsHovered())
         {

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/FileExplorer.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 #include "Core/Application.h"
 #include "Core/SceneHolder.h"
@@ -192,12 +192,12 @@ namespace GALAXY {
 
 	void Editor::UI::File::DisplayOnExplorer()
 	{
-		FileExplorer* explorer = EditorUIManager::GetInstance()->GetFileExplorer();
+		FileExplorer* explorer = Manager::GetInstance()->GetFileExplorer();
 		if (m_info.isDirectory())
 		{
 			ImGui::BeginGroup();
 			if (m_icon.lock()) {
-				Wrapper::GUI::TextureImage(m_icon.lock().get(), Vec2f(16));
+				Wrapper::UI::TextureImage(m_icon.lock().get(), Vec2f(16));
 				ImGui::SameLine();
 			}
 			bool clicked = false;
@@ -305,9 +305,9 @@ namespace GALAXY {
 
 		m_currentFile = m_mainFile;
 
-		m_iconSize = m_iconSize * Wrapper::GUI::GetScaleFactor();
+		m_iconSize = m_iconSize * Wrapper::UI::GetScaleFactor();
 
-		EditorUIManager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
+		Manager::GetInstance()->GetInspector()->SetFileSelected(&m_selectedFiles);
 	}
 	
 	void Editor::UI::FileExplorer::SetDirectory(const Path& directory, bool matchCase)
@@ -362,7 +362,7 @@ namespace GALAXY {
 			m_rect.max = vMax + windowPos - Core::Application::GetInstance().GetWindow()->GetPosition();
 
 			static float size1 = 200, size2 = ImGui::GetContentRegionAvail().x;
-			Wrapper::GUI::Splitter(true, 2, &size1, &size2, 10, 10);
+			Wrapper::UI::Splitter(true, 2, &size1, &size2, 10, 10);
 
 			ImGui::BeginChild("Folder", Vec2f(size1, ImGui::GetContentRegionAvail().y));
 			m_mainFile->DisplayOnExplorer();
@@ -481,7 +481,7 @@ namespace GALAXY {
 				shouldFocus = false;
 			}
 			ImGui::SetNextItemAllowOverlap();
-			if (Wrapper::GUI::InputText("Folder path", &in, ImGuiInputTextFlags_EnterReturnsTrue)) {
+			if (Wrapper::UI::InputText("Folder path", &in, ImGuiInputTextFlags_EnterReturnsTrue)) {
 				in = (Resource::ResourceManager::GetProjectPath() / in).generic_string();
 				if (std::filesystem::exists(in) && std::filesystem::is_directory(in))
 				{
@@ -580,7 +580,7 @@ namespace GALAXY {
 			return;
 		child->m_selected = true;
 		m_selectedFiles.push_back(child);
-		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
+		Manager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::RemoveFileSelected(const Shared<File>& child)
@@ -592,7 +592,7 @@ namespace GALAXY {
 				break;
 			}
 		}
-		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
+		Manager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::SelectRange(size_t startIndex, size_t endIndex)
@@ -634,7 +634,7 @@ namespace GALAXY {
 			selectedFile->m_selected = false;
 		}
 		m_selectedFiles.clear();
-		EditorUIManager::GetInstance()->GetInspector()->UpdateFileSelected();
+		Manager::GetInstance()->GetInspector()->UpdateFileSelected();
 	}
 
 	void Editor::UI::FileExplorer::SetCurrentFile(const Shared<File>& file)
@@ -871,7 +871,7 @@ namespace GALAXY {
 				if (ImGui::BeginPopupModal("Create Script"))
 				{
 					static std::string scriptName;
-					Wrapper::GUI::InputText("Script Name", &scriptName);
+					Wrapper::UI::InputText("Script Name", &scriptName);
 					if (ImGui::Button("Create") && !scriptName.empty())
 					{
 						Resource::Script::Create(m_currentFile->m_info.GetFullPath() / scriptName);
@@ -902,7 +902,7 @@ namespace GALAXY {
 				if (ImGui::BeginPopupModal("Create Shader"))
 				{
 					static std::string shaderName;
-					Wrapper::GUI::InputText("	Shader Name", &shaderName);
+					Wrapper::UI::InputText("	Shader Name", &shaderName);
 					if (ImGui::Button("Create") && !shaderName.empty())
 					{
 						Resource::Shader::Create(m_currentFile->m_info.GetFullPath() / shaderName);
@@ -1064,7 +1064,7 @@ namespace GALAXY {
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		std::shared_ptr<Resource::Texture> texture = file->m_icon.lock();
-		const ImTextureID textureID = texture ? Wrapper::GUI::GetTextureID(texture.get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
+		const ImTextureID textureID = texture ? Wrapper::UI::GetTextureID(texture.get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
 		const bool shouldDrawImage = texture && texture->IsLoaded() && texture->HasBeenSent();
 		if (!isFolder || file->m_selected || file->m_hovered) {
 			// Draw Shadow behind the thumbnail
@@ -1149,7 +1149,7 @@ namespace GALAXY {
 			{
 				ImGui::SetKeyboardFocusHere();
 			}
-			bool enter = Wrapper::GUI::InputText("##Input", &this->m_renameFileName, ImGuiInputTextFlags_EnterReturnsTrue);
+			bool enter = Wrapper::UI::InputText("##Input", &this->m_renameFileName, ImGuiInputTextFlags_EnterReturnsTrue);
 			if (m_renameFile && !m_openRename && enter)
 			{
 				const Path oldPath = m_renameFile->m_info.GetFullPath();

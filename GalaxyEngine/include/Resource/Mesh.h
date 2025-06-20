@@ -35,7 +35,7 @@ namespace GALAXY
 
 			std::string GetMeshName();
 
-			void Load() override;
+			bool Load() override;
 			void Send() override;
 
 			void Render(const Mat4& modelMatrix, const std::vector<Weak<class Material>>& materials, uint64_t id = -1) const;
@@ -56,8 +56,6 @@ namespace GALAXY
 			List<Weak<Material>> GetMaterials() const;
 
 			bool HasModel() const { return !m_model; }
-
-			Utils::Event<> OnLoad;
 
 			uint32_t GetVertexArrayIndex() const { return m_vertexArrayIndex; }
 			uint32_t GetVertexBufferIndex() const { return m_vertexBufferIndex; }

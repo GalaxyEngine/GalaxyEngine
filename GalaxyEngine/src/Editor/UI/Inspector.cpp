@@ -15,7 +15,7 @@
 
 
 #include "Editor/Gizmo.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Resource/Script.h"
 #include "Utils/OS.h"
 
@@ -37,6 +37,11 @@ void Editor::UI::Inspector::Draw()
 	ImGui::End();
 }
 
+bool CollapsingHeader(const char* label, ImTextureID icon, bool* open, bool* checked, bool* destroyed)
+{
+	
+}
+
 void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 {
 	if (!object->GetParent())
@@ -51,7 +56,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	//TODO: Add tag & layer
 	ImGui::Checkbox("##", &object->m_active);
 	ImGui::SameLine();
-	Wrapper::GUI::InputText("##InputName", &object->m_name);
+	Wrapper::UI::InputText("##InputName", &object->m_name);
 	if (ImGui::IsItemHovered())
 	{
 		ImGui::SetTooltip("%llu", object->GetSceneGraphID());
@@ -76,14 +81,20 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		ImGui::PushID(i);
 
 		bool enable = object->m_components[i]->IsSelfEnable();
+		/*
 		if (ImGui::Checkbox("##", &enable))
 		{
 			object->m_components[i]->SetSelfEnable(enable);
 		}
 		ImGui::SameLine();
+		*/
+		
 
 		bool destroy = true;
-		const bool open = ImGui::CollapsingHeader(object->m_components[i]->GetComponentName(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
+		bool open = true;
+		/*
+		std::string label = "          " + std::string(object->m_components[i]->GetComponentName());
+		const bool open = ImGui::CollapsingHeader(label.c_str(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
 		if (ImGui::IsItemHovered())
 		{
 			ImGui::BeginTooltip();
@@ -95,6 +106,17 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 			openPopup = true;
 			m_rightClicked = object->m_components[i];
 		}
+
+		ImGui::SameLine(ImGui::GetFrameHeight() + ImGui::GetStyle().ItemSpacing.x * 2.F);
+		
+		if (ImGui::Checkbox("##", &enable))
+		{
+			object->m_components[i]->SetSelfEnable(enable);
+		}
+		*/
+		bool a = true;
+		CollapsingHeader(object->m_components[i]->GetComponentName(), IconManager::InfoIcon, &open, &enable, &destroy);
+		
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -113,9 +135,9 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		// Content of the Collapsing Header
 		if (open) {
 			ImGui::BeginDisabled(!enable);
-			ImGui::TreePush(object->m_components[i]->GetComponentName());
+			// ImGui::TreePush(object->m_components[i]->GetComponentName());
 			object->m_components[i]->ShowInInspector();
-			ImGui::TreePop();
+			// ImGui::TreePop();
 			ImGui::EndDisabled();
 		}
 
@@ -141,7 +163,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	{
 		ImGui::OpenPopup("ComponentPopup");
 	}
-	if (const std::shared_ptr<Component::BaseComponent> component = Wrapper::GUI::ComponentPopup())
+	if (const std::shared_ptr<Component::BaseComponent> component = Wrapper::UI::ComponentPopup())
 	{
 		object->AddComponent(component);
 	}
@@ -155,7 +177,7 @@ void Editor::UI::Inspector::ShowFile(const File* file) const
 	constexpr Vec2f iconSizeXY = Vec2f{ iconSize };
 	const auto resource = file->m_resource.lock();
 
-	Wrapper::GUI::TextureImage(file->m_icon.lock().get(), iconSizeXY);
+	Wrapper::UI::TextureImage(file->m_icon.lock().get(), iconSizeXY);
 	ImGui::SameLine();
 	ImGui::BeginGroup();
 	ImGui::TextUnformatted(file->m_info.GetFileName().c_str());
@@ -242,7 +264,7 @@ void Editor::UI::Inspector::ClearSelected()
 {
 	ClearSelectedGameObjects();
 
-	EditorUIManager::GetInstance()->GetFileExplorer()->ClearSelected();
+	Manager::GetInstance()->GetFileExplorer()->ClearSelected();
 
 	m_mode = InspectorMode::None;
 }

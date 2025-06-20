@@ -168,7 +168,7 @@ namespace GALAXY
 	template<>
 	void Scripting::VariableInfoT<std::string>::DisplayValue(const std::string& name, void* value)
 	{
-		Wrapper::GUI::InputText(name.c_str(), (std::string*)value);
+		Wrapper::UI::InputText(name.c_str(), (std::string*)value);
 	}
 
 	template<>

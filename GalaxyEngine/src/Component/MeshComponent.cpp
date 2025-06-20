@@ -10,6 +10,7 @@
 #include "Component/CameraComponent.h"
 
 #include "Core/GameObject.h"
+#include "Editor/UI/IconManager.h"
 
 #if WITH_EDITOR
 #include "Editor/EditorCamera.h"
@@ -34,45 +35,23 @@ namespace GALAXY {
 	
 	void Component::MeshComponent::ShowInInspector()
 	{
-		ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
-		ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
+		// ImGui::Checkbox("Draw bounding box", &m_drawBoundingBox);
+		// ImGui::Checkbox("Draw model bounding box", &m_drawModelBoundingBox);
 		Resource::ResourceManager::ResourceField(m_mesh, "Mesh");
 		static uint32_t selected = -1;
-		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen)) {
+		bool clearSelected = ImGui::IsMouseReleased(ImGuiMouseButton_Left);
+		if (ImGui::TreeNodeEx("Materials", ImGuiTreeNodeFlags_DefaultOpen |  ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_NoTreePushOnOpen)) {
 			for (uint32_t i = 0; i < m_materials.size(); i++)
 			{
 				ImGui::PushID(i);
 				ImGui::Separator();
-				ImGui::BeginGroup();
-				const Vec2f size = Vec2f(0, 64 * Wrapper::GUI::GetScaleFactor());
-				const Vec2f prevPos = ImGui::GetCursorPos();
-				if (i != 0 && m_materials.size() > 1 && ImGui::ArrowButton("Up", ImGuiDir_Up))
-				{
-					// Move up
-					auto material = m_materials[i];
-					m_materials.erase(m_materials.begin() + i);
-					m_materials.insert(m_materials.begin() + i - 1, material);
-				}
-				else
-				{
-					ImGui::InvisibleButton("Up", Vec2f(0, ImGui::GetFrameHeight()));
-				}
-				ImGui::SetCursorPosY(prevPos.y + size.y - ImGui::GetFrameHeight());
-				if (i != m_materials.size() - 1 && m_materials.size() > 1 && ImGui::ArrowButton("Down", ImGuiDir_Down))
-				{
-					// Move down
-					auto material = m_materials[i];
-					m_materials.erase(m_materials.begin() + i);
-					m_materials.insert(m_materials.begin() + i + 1, material);
-				}
-				else
-				{
-					ImGui::InvisibleButton("Down", Vec2f(0, ImGui::GetFrameHeight()));
-				}
-				ImGui::EndGroup();
-				ImGui::SameLine();
 				bool wasSelected = i == selected;
-				Resource::ResourceManager::ResourceField(m_materials[i], "Element " + std::to_string(i), &wasSelected);
+				Vec2f cursorPos;
+				Resource::ResourceManager::ResourceField(m_materials[i], "Element " + std::to_string(i), &wasSelected, &cursorPos);
+				if (wasSelected && i != selected)
+				{
+					clearSelected = false;
+				}
 				if (wasSelected != (i == selected))
 				{
 					selected = i;
@@ -92,30 +71,45 @@ namespace GALAXY {
 					}
 					ImGui::EndDragDropTarget();
 				}
+				auto prevCursorPos = ImGui::GetCursorPos();
+				ImGui::SetCursorPos(cursorPos);
+				ImGui::SetCursorPos(cursorPos + Vec2f(ImGui::GetContentRegionAvail().x - ImGui::GetFrameHeight(), 0.f));
+				if (i != 0 && m_materials.size() > 1 && ImGui::ArrowButton("Up", ImGuiDir_Up))
+				{
+					// Move up
+					auto material = m_materials[i];
+					m_materials.erase(m_materials.begin() + i);
+					m_materials.insert(m_materials.begin() + i - 1, material);
+				}
+				ImGui::SetCursorPos(cursorPos);
+				ImGui::SetCursorPos(cursorPos + Vec2f(ImGui::GetContentRegionAvail().x - ImGui::GetFrameHeight() * 2.f - ImGui::GetStyle().ItemSpacing.x, 0.f));
+				if (i != m_materials.size() - 1 && m_materials.size() > 1 && ImGui::ArrowButton("Down", ImGuiDir_Down))
+				{
+					// Move down
+					auto material = m_materials[i];
+					m_materials.erase(m_materials.begin() + i);
+					m_materials.insert(m_materials.begin() + i + 1, material);
+				}
+				ImGui::SetCursorPos(prevCursorPos);
+				ImGui::PopID();
 			}
-			ImGui::PushStyleColor(ImGuiCol_Button, Vec4f(0.15f, 0.8f, 0.1f, 1.f));
-			if (ImGui::Button("Add"))
+			ImGui::Separator();
+
+			Vec2f buttonSize = Vec2f(100.f, ImGui::GetFrameHeight() + 2.5f);
+			if (UI::IconButton("Add", Editor::UI::IconManager::AddIcon, Vec2f(14), 4.f, buttonSize))
 			{
 				m_materials.push_back(std::weak_ptr<Resource::Material>());
 			}
-			ImGui::PopStyleColor();
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Button, BUTTON_RED);
-			if (ImGui::Button("Remove"))
+			if (selected >= 0 && selected < m_materials.size())
 			{
-				if (selected >= 0 && selected < m_materials.size())
+				ImGui::SameLine();
+				if (UI::IconButton("Remove", Editor::UI::IconManager::RemoveIcon, Vec2f(14), 4.f, buttonSize))
+				{
 					m_materials.erase(m_materials.begin() + selected);
+				}
 			}
-			ImGui::PopStyleColor();
-			ImGui::TreePop();
-		}
-		
-		// Debug
-		if (ImGui::Button("Create Object"))
-		{
-			auto object = m_mesh.lock()->ToGameObject();
-			object->SetName("New Object");
-			p_gameObject->AddChild(object);
+			if (clearSelected)
+				selected = -1;
 		}
 	}
 #endif

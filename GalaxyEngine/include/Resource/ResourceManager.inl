@@ -14,7 +14,9 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <Wrapper/GUI.h>
+#include <Wrapper/UI.h>
+
+#include "Editor/UI/IconManager.h"
 
 namespace GALAXY
 {
@@ -117,14 +119,7 @@ namespace GALAXY
 			// Load the resource if not loaded.
 			if (!resource->second->p_shouldBeLoaded.load())
 			{
-				if (async)
-				{
-					Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.get());
-				}
-				else
-				{
-					resource->second->Load();
-				}
+				Load(resource->second.get(), async);
 				return std::dynamic_pointer_cast<T>(resource->second);
 			}
 			else
@@ -134,6 +129,34 @@ namespace GALAXY
 		}
 
 		return Weak<T>{};
+	}
+
+	template <typename T>
+	void Resource::ResourceManager::Load(T* resource, bool async)
+	{
+		ASSERT(resource);
+
+		if (resource->ShouldBeLoaded() || resource->IsLoaded())
+			return;
+		resource->p_shouldBeLoaded.store(true);
+
+		auto loadFunc = [](T* resource)
+		{
+			resource->StartLoading();
+			if (resource->Load())
+			{
+				resource->p_loaded.store(true);
+				resource->SendRequest();
+			}
+		};
+		if (async)
+		{
+			Core::ThreadManager::GetInstance()->AddTask(loadFunc, resource);
+		}
+		else
+		{
+			loadFunc(resource);
+		}
 	}
 
 	template <typename T>
@@ -177,7 +200,7 @@ namespace GALAXY
 	}
 	
 	template <typename T>
-	inline Shared<T> Resource::ResourceManager::TemporaryLoad(const Path& fullPath)
+	inline Shared<T> Resource::ResourceManager::TemporaryLoad(const Path& fullPath, bool async)
 	{
 		if (fullPath.empty())
 			return {};
@@ -204,12 +227,8 @@ namespace GALAXY
 			// Load the resource if not loaded.
 			if (!resource->second.lock()->p_shouldBeLoaded)
 			{
-#ifdef ENABLE_MULTI_THREAD
-				Core::ThreadManager::GetInstance()->AddTask(&IResource::Load, resource->second.lock().get());
-#else
-				resource->second.lock()->Load();
-#endif // ENABLE_MULTI_THREAD
-
+				Load(resource->second.lock().get(), async);
+				
 				return std::dynamic_pointer_cast<T>(resource->second.lock());
 			}
 			else
@@ -338,7 +357,7 @@ namespace GALAXY
 			constexpr int maxButtonDisplay = 5;
 			const float regionAvailX = ImGui::GetContentRegionAvail().x;
 			ImVec2 buttonSize = Vec2f(regionAvailX, 0);
-			const ImVec2 imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
+			const ImVec2 imageSize = Vec2f(64, 64) * Wrapper::UI::GetScaleFactor();
 			const ImVec2 selectableSize(buttonSize.x, imageSize.y);
 			if (ImGui::Button("Cancel", buttonSize)) {
 				result = true;
@@ -423,14 +442,14 @@ namespace GALAXY
 	}
 
 	template <typename T>
-	inline bool Resource::ResourceManager::ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected)
+	inline bool Resource::ResourceManager::ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected, Vec2f* cursorPos)
 	{
 		// TODO ? Make a struct to check for rightclick
 		ImGui::PushID(fieldName.c_str());
 		const std::string resourceName = SerializeResourceTypeValue(T::GetResourceType());
 		const std::string label = outResource.lock() ? outResource.lock()->GetName() : "None";
 
-		const ImVec2 imageSize = Vec2f(64, 64) * Wrapper::GUI::GetScaleFactor();
+		const ImVec2 imageSize = Vec2f(68, 68) * Wrapper::UI::GetScaleFactor();
 		uint32_t id = 0;
 		if (auto resource = outResource.lock())
 		{
@@ -464,6 +483,9 @@ namespace GALAXY
 			}
 		}
 		ImGui::SetCursorPos(prevPos);
+		Vec2f borderSize = Vec2f(2, 2);
+		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
+		windowDrawList->AddRectFilled(ImGui::GetCursorScreenPos() - borderSize, ImGui::GetCursorScreenPos() + imageSize + borderSize, IM_COL32(32, 32, 32, 255));
 		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), imageSize);
 		ImGui::SameLine();
 		ImGui::BeginGroup();
@@ -472,9 +494,14 @@ namespace GALAXY
 		{
 			ImGui::OpenPopup(fieldName.c_str());
 		}
+		if (cursorPos)
+		{
+			// even if the resource is not valid, shift the cursor to the right to keep the same visual
+			*cursorPos = ImGui::GetCursorPos() + Vec2f(16.f + ImGui::GetStyle().ItemSpacing.x * 2.f, 0.f);
+		}
 		if (outResource.lock())
 		{
-			if (ImGui::Button("Find"))
+			if (UI::TextureButton(Editor::UI::IconManager::SearchIcon, Vec2f(16.f)))
 			{
 				auto path = outResource.lock()->GetFileInfo().GetFullPath();
 				ShowFileInInternExplorer(path);

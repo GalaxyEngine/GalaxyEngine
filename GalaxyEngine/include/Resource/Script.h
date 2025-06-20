@@ -15,7 +15,7 @@ namespace GALAXY
 			Script(Script&&) noexcept = default;
 			~Script() override {}
 
-			void Load() override;
+			bool Load() override;
 			void Unload() override;
 
 			const char* GetResourceName() const override { return "Script"; }

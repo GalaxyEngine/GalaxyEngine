@@ -1,6 +1,8 @@
 #include "pch.h"
 
 #include "Editor/EditorCamera.h"
+#include "Editor/UI/Manager.h"
+
 #include "Render/Framebuffer.h"
 
 #include "Utils/Define.h"
@@ -9,8 +11,6 @@
 #include "Core/SceneHolder.h"
 #include "Core/Input.h"
 
-#include "Editor/UI/EditorUIManager.h"
-
 #include "Resource/ResourceManager.h"
 #include "Resource/PostProcessShader.h"
 #include "Resource/Scene.h"
@@ -18,7 +18,7 @@
 
 namespace GALAXY
 {
-	Render::EditorCamera::EditorCamera()
+	Editor::EditorCamera::EditorCamera()
 	{
 		m_transform = std::make_unique<Component::Transform>();
 
@@ -26,13 +26,13 @@ namespace GALAXY
 		m_outlineFramebuffer->SetPostProcessShader(Resource::ResourceManager::GetOrLoad<Resource::PostProcessShader>(OUTLINE_PATH));
 	}
 
-	Render::EditorCamera::~EditorCamera()
+	Editor::EditorCamera::~EditorCamera()
 	{
 		delete m_outlineFramebuffer;
 	}
 
 	Vec2f prevMousePos;
-	void Render::EditorCamera::Update()
+	void Editor::EditorCamera::Update()
 	{
 		auto& inputManager = Core::Application::GetInstance().GetEditorSettings().GetEditorInputsManager();
 		if (IsLooking() && Input::IsMouseButtonReleased(MouseButton::BUTTON_2))
@@ -40,7 +40,7 @@ namespace GALAXY
 			StopLooking();
 		}
 
-		if (!Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow()->IsHovered())
+		if (!Editor::UI::Manager::GetInstance()->GetSceneWindow()->IsHovered())
 			return;
 
 		if (Input::IsMouseButtonPressed(MouseButton::BUTTON_2))
@@ -115,13 +115,13 @@ namespace GALAXY
 		GetTransform()->OnUpdate();
 	}
 
-	void Render::EditorCamera::DisplayCameraSettings()
+	void Editor::EditorCamera::DisplayCameraSettings()
 	{
 		Camera::DisplayCameraSettings();
 		ImGui::DragFloat("Speed Multiplier", &m_multiplierSpeed, 0.1f);
 	}
 
-	void Render::EditorCamera::StartLooking()
+	void Editor::EditorCamera::StartLooking()
 	{
 		m_looking = true;
 		const Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
@@ -129,7 +129,7 @@ namespace GALAXY
 		window->SetCursorMode(Wrapper::CursorMode::Hidden);
 	}
 
-	void Render::EditorCamera::StopLooking()
+	void Editor::EditorCamera::StopLooking()
 	{
 		m_looking = false;
 		const Wrapper::Window* window = Core::Application::GetInstance().GetWindow();

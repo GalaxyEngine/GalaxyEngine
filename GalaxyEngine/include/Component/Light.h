@@ -5,7 +5,7 @@
 #include "Component/IComponent.h"
 #include "Render/ShadowMap.h"
 #ifdef WITH_EDITOR
-#include "Editor/EditorIcon.h"
+#include "Editor/BillboardIcon.h"
 #endif
 namespace GALAXY::Render
 {
@@ -106,7 +106,7 @@ namespace GALAXY
 
 			Render::ShadowMap p_shadowMap;
 #ifdef WITH_EDITOR
-			Editor::EditorIcon p_editorIcon;
+			Editor::BillboardIcon p_editorIcon;
 #endif
 		};
 	}

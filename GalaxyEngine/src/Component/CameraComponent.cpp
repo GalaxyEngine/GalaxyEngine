@@ -11,7 +11,7 @@
 #include "Render/Framebuffer.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #endif
 
 namespace GALAXY
@@ -94,14 +94,14 @@ namespace GALAXY
 		}
 		if (m_isMainCamera && prevSkybox != newSkybox)
 		{
-			Shared<Render::EditorCamera> editorCamera = GetEditorCamera();
+			Shared<Editor::EditorCamera> editorCamera = GetEditorCamera();
 			editorCamera->SetSkybox(p_skybox);
 		}
 		//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, Vec2f(0));
 		if (ImGui::Begin("##CameraPreview", 0, ImGuiWindowFlags_NoTitleBar))
 		{
 			auto startPos = ImGui::GetWindowContentRegionMin();
-			Wrapper::GUI::TextureImage(p_framebuffer->GetRenderTexture().lock().get(), ImGui::GetWindowSize() - startPos * 2, { 0, 1 }, { 1, 0 });
+			Wrapper::UI::TextureImage(p_framebuffer->GetRenderTexture().lock().get(), ImGui::GetWindowSize() - startPos * 2, { 0, 1 }, { 1, 0 });
 		}
 		//ImGui::PopStyleVar();
 		ImGui::End();
@@ -142,7 +142,7 @@ namespace GALAXY
 	bool Component::CameraComponent::IsVisible() const
 	{
 #ifdef WITH_EDITOR
-		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->IsVisible() || GetGameObject()->IsSelected();
+		return Editor::UI::Manager::GetInstance()->GetGameWindow()->IsVisible() || GetGameObject()->IsSelected();
 #else
 		return m_isMainCamera;
 #endif
@@ -151,7 +151,7 @@ namespace GALAXY
 	Vec2i Component::CameraComponent::GetScreenResolution() const
 	{
 #ifdef WITH_EDITOR
-		return Editor::UI::EditorUIManager::GetInstance()->GetGameWindow()->GetImageSize();
+		return Editor::UI::Manager::GetInstance()->GetGameWindow()->GetImageSize();
 #else
 		return Core::Application::GetInstance().GetWindow()->GetSize();
 #endif

@@ -45,8 +45,10 @@ namespace GALAXY {
 			Model(Model&&) noexcept = default;
 			~Model() override;
 
-			void Load() override;
+			bool Load() override;
 			void Unload() override;
+
+			void Send() override;
 
 			const char* GetResourceName() const override { return "Default Resource"; }
 
@@ -68,8 +70,7 @@ namespace GALAXY {
 			
 			const std::vector<Weak<Material>>& GetMaterials() const { return m_materials; }
 			const std::vector<Weak<Mesh>>& GetMeshes() const { return m_meshes; }
-		public:
-			Utils::Event<> EOnLoad;
+			
 		private:
 			void ComputeBoundingBox(const std::vector<std::vector<Vec3f>>& positionVertices);
 
@@ -79,8 +80,6 @@ namespace GALAXY {
 #ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
 #endif
-
-			void OnMeshLoaded();
 		private:
 			// Note : the model is set to loaded only if all the mesh are loaded
 
@@ -93,6 +92,8 @@ namespace GALAXY {
 			BoundingBox m_boundingBox;
 
 			ModelExtension m_modelType = ModelExtension::OBJ;
+
+			std::atomic_bool m_meshesAdded = false;
 		};
 	}
 }

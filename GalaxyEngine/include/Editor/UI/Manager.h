@@ -15,18 +15,18 @@
 
 namespace GALAXY::Editor::UI {
 	// Manager for all the UI
-	class GALAXY_API EditorUIManager
+	class GALAXY_API Manager
 	{
 	public:
-		EditorUIManager();
-		EditorUIManager& operator=(const EditorUIManager& other) = default;
-		EditorUIManager(const EditorUIManager&) = default;
-		EditorUIManager(EditorUIManager&&) noexcept = default;
-		virtual ~EditorUIManager() {}
+		Manager();
+		Manager& operator=(const Manager& other) = default;
+		Manager(const Manager&) = default;
+		Manager(Manager&&) noexcept = default;
+		virtual ~Manager() {}
 
-		static EditorUIManager* GetInstance();
+		static Manager* GetInstance();
 
-		static EditorUIManager* CreateInstance();
+		static Manager* CreateInstance();
 		void Initialize();
 		void BindEvents();
 
@@ -64,7 +64,7 @@ namespace GALAXY::Editor::UI {
 
 		void* GetContext();
 	private:
-		static Unique<EditorUIManager> m_instance;
+		static Unique<Manager> m_instance;
 		Unique<MainBar> m_mainBar;
 		Unique<Hierarchy> m_hierarchy;
 		Unique<Inspector> m_inspector;

@@ -91,7 +91,7 @@ namespace GALAXY
             if (ImGui::TreeNodeEx("Texture", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 float imageSize = ImGui::GetContentRegionAvail().x * 0.5f;
-                Wrapper::GUI::TextureImage(m_renderTexture.get(), Vec2f(imageSize), Vec2f(0, 1), Vec2f(1, 0));
+                Wrapper::UI::TextureImage(m_renderTexture.get(), Vec2f(imageSize), Vec2f(0, 1), Vec2f(1, 0));
                 ImGui::TreePop();
             }
             ImGui::TreePop();

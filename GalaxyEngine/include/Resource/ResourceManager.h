@@ -46,6 +46,8 @@ namespace GALAXY {
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Path& fullPath, bool async = true);
 
+			template <typename T>
+			static inline void Load(T* resource,  bool async = true);
 
 			template <typename T>
 			static inline Weak<T> GetOrLoad(const Core::UUID& uuid);
@@ -73,7 +75,7 @@ namespace GALAXY {
 			static inline Shared<T> TemporaryAdd(const Path& fullPath);
 
 			template <typename T>
-			static inline Shared<T> TemporaryLoad(const Path& fullPath);
+			static inline Shared<T> TemporaryLoad(const Path& fullPath, bool async = true);
 
 			// Get The Resource, return null if the type is wrong
 			template <typename T>
@@ -102,7 +104,7 @@ namespace GALAXY {
 			EDITOR_ONLY static inline bool ResourcePopup(const char* popupName, Weak<T>& outResource);
 
 			template <typename T>
-			EDITOR_ONLY static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected = nullptr);
+			EDITOR_ONLY static inline bool ResourceField(Weak<T>& outResource, const std::string& fieldName, bool* selected = nullptr, Vec2f* cursorPos = nullptr);
 #endif
 
 			static Path GetAssetPath() { return m_instance->m_assetPath; }

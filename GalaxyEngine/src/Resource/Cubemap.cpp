@@ -213,24 +213,18 @@ namespace GALAXY
     }
 #endif
 
-    void Resource::Cubemap::Load()
+    bool Resource::Cubemap::Load()
     {
-        if (p_loaded)
-            return;
-        p_loaded = true;
-
         CppSer::Parser parser(p_fileInfo.GetFullPath());
         if (!parser.IsFileOpen())
         {
             PrintError("Cubemap file not found : %s", p_fileInfo.GetFullPath().string().c_str());
-            p_loaded = false;
-            return;
+            return false;
         }
         if (parser.GetVersion() != "1.0")
         {
             PrintError("Cubemap version %s not supported : %s", parser.GetVersion().c_str(),  p_fileInfo.GetFullPath().string().c_str());
-            p_loaded = false;
-            return;
+            return false;
         }
 
         m_type = static_cast<CubemapType>(parser["Type"].As<int>());
@@ -240,8 +234,7 @@ namespace GALAXY
         if (!std::filesystem::exists(GetDataFilePath()))
             CreateDataFile();
 
-        SendRequest();
-        FinishLoading();
+        return true;        
     }
 
     void Resource::Cubemap::Send()

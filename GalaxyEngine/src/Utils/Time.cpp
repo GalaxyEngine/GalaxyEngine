@@ -57,7 +57,7 @@ namespace GALAXY::Utils
 
 	void Time::UpdateDeltaTime()
 	{
-		s_deltaTime = Wrapper::GUI::DeltaTime();
+		s_deltaTime = Wrapper::UI::DeltaTime();
 	}
 
 	std::string Time::FormatTimeSeconds(float seconds, const std::string& format)

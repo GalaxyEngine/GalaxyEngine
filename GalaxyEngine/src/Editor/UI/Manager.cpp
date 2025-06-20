@@ -1,8 +1,10 @@
 #include "pch.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 #include "Editor/UI/SceneWindow.h"
 #include "Editor/UI/Hierarchy.h"
+
+#include "Editor/UI/IconManager.h"
 
 #include "Core/Application.h"
 
@@ -11,9 +13,9 @@
 #include "Utils/OS.h"
 
 namespace GALAXY {
-	Unique<Editor::UI::EditorUIManager> Editor::UI::EditorUIManager::m_instance;
+	Unique<Editor::UI::Manager> Editor::UI::Manager::m_instance;
 
-	Editor::UI::EditorUIManager::EditorUIManager()
+	Editor::UI::Manager::Manager()
 	{
 		m_mainBar = std::make_unique<MainBar>();
 		m_sceneWindow = std::make_unique<SceneWindow>();
@@ -26,21 +28,23 @@ namespace GALAXY {
 		m_debugWindow = std::make_unique<DebugWindow>();
 	}
 
-	void Editor::UI::EditorUIManager::Initialize()
+	void Editor::UI::Manager::Initialize()
 	{
+		IconManager::Initialize();
+		
 		m_context = ImGui::GetCurrentContext();
 		m_instance->m_fileExplorer->Initialize();
 		m_instance->m_resourceWindow->Initialize();
 		m_instance->BindEvents();
 	}
 
-	void Editor::UI::EditorUIManager::BindEvents()
+	void Editor::UI::Manager::BindEvents()
 	{
-		std::function<void(const Vec2i&)> bind = std::bind(&EditorUIManager::DPIChangeCallback, this, std::placeholders::_1);
+		std::function<void(const Vec2i&)> bind = std::bind(&Manager::DPIChangeCallback, this, std::placeholders::_1);
 		Core::Application::GetInstance().GetWindow()->EOnDPIChange.Bind(bind);
 	}
 
-	void Editor::UI::EditorUIManager::DrawUI()
+	void Editor::UI::Manager::DrawUI()
 	{
 		// ImGui::ShowDemoWindow();
 		DrawMainDock();
@@ -61,58 +65,83 @@ namespace GALAXY {
 		}
 	}
 
-	void Editor::UI::EditorUIManager::DisplayClosePopup()
+	void Editor::UI::Manager::DisplayClosePopup()
 	{
-		static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
-		if (ImGui::BeginPopupModal("Are you sure ?")) {
-			if (ImGui::Button("Yes"))
-			{
-				m_onValidatePopup();
-				m_onValidatePopup = nullptr;
-				s_shouldDisplayClosePopup.reset();
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Yes and save")) {
-				Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
-				if (currentScene->GetFileInfo().Exist())
-				{
-					currentScene->Save(currentScene->GetFileInfo().GetFullPath());
-					m_onValidatePopup();
-					m_onValidatePopup = nullptr;
-					s_shouldDisplayClosePopup.reset();
-				}
-				else
-				{
-					if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
-					{
-						MainBar::SaveScene(path);
-						m_onValidatePopup();
-						m_onValidatePopup = nullptr;
-						s_shouldDisplayClosePopup.reset();
-					}
-				}
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Cancel"))
-			{
-				Core::Application::GetInstance().GetWindow()->CancelClose();
-				m_onValidatePopup = nullptr;
-				s_shouldDisplayClosePopup.reset();
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-		}
+	    static std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
+		ImVec2 windowSize = ImGui::GetMainViewport()->Size;
+		ImVec2 popupSize(500.0f, 0.0f);
+		ImVec2 center = ImVec2(windowSize.x * 0.5f, windowSize.y * 0.5f);
+		ImVec2 pos = ImVec2(center.x - popupSize.x * 0.5f, center.y * 0.5f);
+
+		ImGui::SetNextWindowPos(pos, ImGuiCond_Appearing);
+		ImGui::SetNextWindowSize(popupSize, ImGuiCond_Appearing);
+
+	    if (ImGui::BeginPopupModal("Are you sure ?", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings))
+	    {
+	        ImGui::TextWrapped("Do you really want to close the scene? Unsaved changes will be lost if you don't save.");
+
+	        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+	        ImGui::Separator();
+	        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
+	        float buttonWidth = 120.0f;
+	        float spacing = ImGui::GetStyle().ItemSpacing.x;
+	        float totalWidth = buttonWidth * 3 + spacing * 2;
+	        float cursorX = (ImGui::GetContentRegionAvail().x - totalWidth) * 0.5f;
+	        ImGui::SetCursorPosX(cursorX);
+
+	        if (ImGui::Button("Yes", ImVec2(buttonWidth, 0)))
+	        {
+	            m_onValidatePopup();
+	            m_onValidatePopup = nullptr;
+	            s_shouldDisplayClosePopup.reset();
+	            ImGui::CloseCurrentPopup();
+	        }
+
+	        ImGui::SameLine();
+	        if (ImGui::Button("Yes and Save", ImVec2(buttonWidth, 0)))
+	        {
+	            Resource::Scene* currentScene = Core::SceneHolder::GetCurrentScene();
+	            if (currentScene->GetFileInfo().Exist())
+	            {
+	                currentScene->Save(currentScene->GetFileInfo().GetFullPath());
+	                m_onValidatePopup();
+	                m_onValidatePopup = nullptr;
+	                s_shouldDisplayClosePopup.reset();
+	            }
+	            else
+	            {
+	                if (const std::string path = Utils::OS::SaveDialog(filters); !path.empty())
+	                {
+	                    MainBar::SaveScene(path);
+	                    m_onValidatePopup();
+	                    m_onValidatePopup = nullptr;
+	                    s_shouldDisplayClosePopup.reset();
+	                }
+	            }
+	            ImGui::CloseCurrentPopup();
+	        }
+
+	        ImGui::SameLine();
+	        if (ImGui::Button("Cancel", ImVec2(buttonWidth, 0)))
+	        {
+	            Core::Application::GetInstance().GetWindow()->CancelClose();
+	            m_onValidatePopup = nullptr;
+	            s_shouldDisplayClosePopup.reset();
+	            ImGui::CloseCurrentPopup();
+	        }
+
+	        ImGui::EndPopup();
+	    }
 	}
 
-	void Editor::UI::EditorUIManager::SetOnValidatePopupEvent(const std::function<void()>& onValidate)
+	void Editor::UI::Manager::SetOnValidatePopupEvent(const std::function<void()>& onValidate)
 	{
 		m_onValidatePopup = onValidate;
 		s_shouldDisplayClosePopup = true;
 	}
 
-	bool Editor::UI::EditorUIManager::ShouldDisplaySafeClose()
+	bool Editor::UI::Manager::ShouldDisplaySafeClose()
 	{
 		if (m_instance->s_shouldDisplayClosePopup.has_value())
 			return m_instance->s_shouldDisplayClosePopup.value();
@@ -137,31 +166,31 @@ namespace GALAXY {
 		return false;
 	}
 
-	void Editor::UI::EditorUIManager::AddResourceLoading(const Core::UUID& uuid)
+	void Editor::UI::Manager::AddResourceLoading(const Core::UUID& uuid)
 	{
 		if (std::ranges::find(m_loadingResources, uuid) == m_loadingResources.end())
 			m_loadingResources.push_back(uuid);
 	}
 
-	void Editor::UI::EditorUIManager::RemoveResourceLoading(const Core::UUID& uuid)
+	void Editor::UI::Manager::RemoveResourceLoading(const Core::UUID& uuid)
 	{
 		auto v = std::ranges::find(m_loadingResources, uuid);
 		if (v != m_loadingResources.end())
 			m_loadingResources.erase(v);
 	}
 
-	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::GetInstance()
+	Editor::UI::Manager* Editor::UI::Manager::GetInstance()
 	{
 		return m_instance.get();
 	}
 
-	Editor::UI::EditorUIManager* Editor::UI::EditorUIManager::CreateInstance()
+	Editor::UI::Manager* Editor::UI::Manager::CreateInstance()
 	{
-		m_instance = std::make_unique<EditorUIManager>();
+		m_instance = std::make_unique<Manager>();
 		return m_instance.get();
 	}
 
-	void Editor::UI::EditorUIManager::DrawMainDock()
+	void Editor::UI::Manager::DrawMainDock()
 	{
 		static bool opt_fullscreen = true;
 		static bool opt_padding = false;
@@ -208,18 +237,20 @@ namespace GALAXY {
 		ImGui::End();
 	}
 
-	void Editor::UI::EditorUIManager::Release()
+	void Editor::UI::Manager::Release()
 	{
 		m_instance.reset();
 	}
 
-	void Editor::UI::EditorUIManager::DPIChangeCallback(const Vec2f& pos)
+	void Editor::UI::Manager::DPIChangeCallback(const Vec2f& pos)
 	{
 		m_shouldUpdateDPIScale = true;
 	}
 
-	void Editor::UI::EditorUIManager::UpdateDPIScale()
+	void Editor::UI::Manager::UpdateDPIScale()
 	{
+		Wrapper::FontManager::AddFonts();
+		
 		if (!m_shouldUpdateDPIScale)
 			return;
 		m_shouldUpdateDPIScale = false;
@@ -234,12 +265,11 @@ namespace GALAXY {
 		else
 			ImGui::GetStyle().ScaleAllSizes(curDPIScale);
 
-		ImGuiIO& io = ImGui::GetIO();
-		io.Fonts->Clear();
-		io.Fonts->AddFontFromFileTTF(ENGINE_RESOURCE_FOLDER_NAME"/fonts/Calibri.ttf", 13 * curDPIScale);
+		Wrapper::FontManager::RecreateFonts(curDPIScale);
+		
 		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
-	void* Editor::UI::EditorUIManager::GetContext()
+	void* Editor::UI::Manager::GetContext()
 	{
 		return m_instance->m_context;
 	}

@@ -16,12 +16,17 @@ namespace GALAXY
 
 			using Callback = std::function<void(Args...)>;
 
+			void operator+=(Callback callback)
+			{
+				Bind(callback);
+			}
+
 			virtual void Bind(Callback callback)
 			{
 				m_callbacks.push_back(callback);
 			}
 
-			virtual void ClearBindings()
+			virtual void Clear()
 			{
 				m_callbacks.clear();
 			}

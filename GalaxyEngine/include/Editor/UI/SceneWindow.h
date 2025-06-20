@@ -25,8 +25,6 @@ namespace GALAXY
 
             void Draw() override;
 
-            void SetResources();
-
             Vec2f GetMousePosition() const;
 
             inline Vec2f GetImageSize() const { return m_imageSize; }
@@ -44,9 +42,6 @@ namespace GALAXY
 
             Vec2i m_imagePosition = Vec2i(0);
             Vec2i m_imageSize = Vec2i(0);
-
-            std::weak_ptr<Resource::Texture> m_settingsIcon;
-            std::weak_ptr<Resource::Texture> m_menuIcon;
 
 #ifdef WITH_EDITOR
             Weak<Resource::Model> m_dragModel;

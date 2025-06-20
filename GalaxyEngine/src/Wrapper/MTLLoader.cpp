@@ -23,7 +23,7 @@ namespace GALAXY
 				}
 				else if (material && !material->p_fileInfo.Exist())
 				{
-					material->GetShader()->OnLoad.Bind(std::bind(&Resource::Material::Save, material));
+					material->GetShader()->EOnLoad.Bind(std::bind(&Resource::Material::Save, material));
 				}
 			};
 

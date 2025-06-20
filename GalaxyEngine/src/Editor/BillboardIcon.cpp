@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Editor/EditorIcon.h"
+#include "Editor/BillboardIcon.h"
 
 #include "Resource/ResourceManager.h"
 
@@ -11,7 +11,7 @@
 namespace GALAXY
 {
 
-	Editor::EditorIcon::EditorIcon()
+	Editor::BillboardIcon::BillboardIcon()
 	{
 		// TODO : Only one editor icon per icon
 		m_material = std::make_shared<Resource::Material>("Icon Material");
@@ -23,12 +23,12 @@ namespace GALAXY
 		m_plane = Resource::ResourceManager::GetOrLoad<Resource::Mesh>(PLANE_PATH);
 	}
 
-	void Editor::EditorIcon::SetIconTexture(const Weak<Resource::Texture>& iconTexture) const
+	void Editor::BillboardIcon::SetIconTexture(const Weak<Resource::Texture>& iconTexture) const
 	{
 		m_material->SetAlbedo(iconTexture);
 	}
 
-	void Editor::EditorIcon::SetPosition(const Vec3f& position)
+	void Editor::BillboardIcon::SetPosition(const Vec3f& position)
 	{
 		if (m_currentPosition == position)
 			return;
@@ -36,7 +36,7 @@ namespace GALAXY
 		m_translationMatrix = Mat4::CreateTranslationMatrix(m_currentPosition);
 	}
 
-	void Editor::EditorIcon::Render(uint64_t id/*= -1*/)
+	void Editor::BillboardIcon::Render(uint64_t id/*= -1*/)
 	{
 		Wrapper::Renderer* renderer = Wrapper::Renderer::GetInstance();
 

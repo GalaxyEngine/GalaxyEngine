@@ -12,7 +12,7 @@
 #include "Render/LightManager.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/EditorCamera.h"
 #include "Editor/Gizmo.h"
 #include "Editor/ActionManager.h"
@@ -115,9 +115,9 @@ namespace GALAXY
 		renderer->SetRenderingType(Render::RenderType::None);
 		Wrapper::Window* window = Core::Application::GetInstance().GetWindow();
 #ifdef WITH_EDITOR
-		Editor::UI::Inspector* inspector = Editor::UI::EditorUIManager::GetInstance()->GetInspector();
-		Editor::UI::SceneWindow* sceneWindow = Editor::UI::EditorUIManager::GetInstance()->GetSceneWindow();
-		Editor::UI::EditorUIManager* editorUIManager = Editor::UI::EditorUIManager::GetInstance();
+		Editor::UI::Inspector* inspector = Editor::UI::Manager::GetInstance()->GetInspector();
+		Editor::UI::SceneWindow* sceneWindow = Editor::UI::Manager::GetInstance()->GetSceneWindow();
+		Editor::UI::Manager* editorUIManager = Editor::UI::Manager::GetInstance();
 
 		editorUIManager->DrawUI();
 #endif
@@ -321,11 +321,8 @@ namespace GALAXY
 		Unload();
 	}
 
-	void Resource::Scene::Load()
+	bool Resource::Scene::Load()
 	{
-		if (p_shouldBeLoaded)
-			return;
-		p_shouldBeLoaded = true;
 		{
 			const Path& path = GetFileInfo().GetFullPath();
 			PROFILE_SCOPE_LOG("Scene::Load(%s)", path.generic_string().c_str());
@@ -334,8 +331,7 @@ namespace GALAXY
 			m_root->Deserialize(parser);
 		}
 
-		p_loaded = true;
-		SendRequest();
+		return true;
 	}
 
 	void Scene::Load(const Path& path)

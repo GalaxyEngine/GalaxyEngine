@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 #include "Core/SceneHolder.h"
 #include "Core/GameObject.h"
@@ -16,7 +16,7 @@ using namespace Core;
 void Editor::UI::Hierarchy::Draw()
 {
     if (!m_inspector)
-        m_inspector = EditorUIManager::GetInstance()->GetInspector();
+        m_inspector = Manager::GetInstance()->GetInspector();
     if (!p_open)
         return;
     if (ImGui::Begin("Hierarchy"))
@@ -123,7 +123,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         {
             ImGui::SetKeyboardFocusHere();
         }
-        Wrapper::GUI::InputText("##InputText", &name);
+        Wrapper::UI::InputText("##InputText", &name);
         if (m_renameObject && !m_openRename && !ImGui::IsItemActive())
         {
             m_renameObject->m_name = name;
@@ -199,7 +199,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
             m_inspector->ClearSelected();
         }
     }
-    if ((ImGui::IsWindowFocused() || EditorUIManager::GetInstance()->GetSceneWindow()->IsFocused()) &&
+    if ((ImGui::IsWindowFocused() || Manager::GetInstance()->GetSceneWindow()->IsFocused()) &&
         ImGui::IsKeyPressed(ImGuiKey_Delete))
     {
         for (const Weak<GameObject>& object : m_inspector->GetSelectedGameObjects())
@@ -260,7 +260,7 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE"))
         {
             UNUSED(payload);
-            const auto explorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+            const auto explorer = Editor::UI::Manager::GetInstance()->GetFileExplorer();
             const auto draggedFiles = explorer->m_draggedFiles;
             for (size_t i = 0; i < draggedFiles.size(); ++i)
             {
@@ -297,10 +297,10 @@ void Editor::UI::Hierarchy::DisplayGameObject(const Weak<GameObject>& weakGO, ui
         if (display)
             drawList->AddLine(cursorPos, cursorPos + Vec2f(centerX, 0), white);
         
-        Wrapper::GUI::TreePush(child->m_name.c_str(), ImGui::GetFrameHeight());
+        Wrapper::UI::TreePush(child->m_name.c_str(), ImGui::GetFrameHeight());
         index++;
         DisplayGameObject(child, index, display);
-        Wrapper::GUI::TreePop(ImGui::GetFrameHeight());
+        Wrapper::UI::TreePop(ImGui::GetFrameHeight());
     }        
 
     if (!gameobject->m_children.empty() && gameobject->m_open)

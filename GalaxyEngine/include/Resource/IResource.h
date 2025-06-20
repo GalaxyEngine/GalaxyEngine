@@ -5,6 +5,7 @@
 #include <atomic>
 #include <memory>
 #include "Core/UUID.h"
+#include "Utils/Event.h"
 
 #include "Utils/FileInfo.h"
 
@@ -109,7 +110,7 @@ namespace GALAXY::Resource {
 		IResource(IResource&&) noexcept = default;
 		virtual ~IResource();
 
-		virtual void Load() {}
+		virtual bool Load() { return false;}
 		virtual void Send() {}
 #ifdef WITH_EDITOR
 		EDITOR_ONLY virtual void ShowInInspector() {}
@@ -149,7 +150,7 @@ namespace GALAXY::Resource {
 		//Editor Only!
 		void SetUUID(const Core::UUID& uuid);
 		// ! this will only rename the internal resource full path, relative path and name, not the file on disk
-		void Rename(const Path& newFullPath);
+		void Rename(const Path& newFullPath) const;
 
 		inline std::string GetName() const { return p_fileInfo.GetFileName(); }
 		inline Utils::FileInfo& GetFileInfo() { return p_fileInfo; }
@@ -164,10 +165,12 @@ namespace GALAXY::Resource {
 	protected:
 		virtual void Serialize(CppSer::Serializer& serializer) const;
 		virtual void Deserialize(CppSer::Parser& parser);
-
 	private:
 		bool ShouldDisplayOnInspector() const { return (p_status & ResourceStatus::DisplayOnInspector) != ResourceStatus::None; }
 		bool ShouldCreateDataFile() const { return (p_status & ResourceStatus::CreateDataFile) != ResourceStatus::None; }
+
+	public:
+		Utils::Event<> EOnLoad;
 	protected:
 		friend class ResourceManager;
 

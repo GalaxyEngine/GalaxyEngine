@@ -74,7 +74,7 @@ namespace GALAXY
         {
             constexpr float buttonSizeY = 30;
             static EditorSettings copySettings = *this;
-            static float leftSize = 100.f * Wrapper::GUI::GetScaleFactor();
+            static float leftSize = 100.f * Wrapper::UI::GetScaleFactor();
             static float rightSize;
             static Vec2f previousSize = Vec2f(0);
             const Vec2f newSize = ImGui::GetContentRegionAvail();
@@ -90,7 +90,7 @@ namespace GALAXY
                 previousSize = newSize;
             }
 
-            Wrapper::GUI::Splitter(true, 2, &leftSize, &rightSize, 10, 10);
+            Wrapper::UI::Splitter(true, 2, &leftSize, &rightSize, 10, 10);
 
             ImGui::BeginChild("List", Vec2f(leftSize, ImGui::GetContentRegionAvail().y - buttonSizeY), false);
             DrawTabElement(EditorSettingsTab::General);
@@ -108,7 +108,7 @@ namespace GALAXY
 
             ImGui::EndChild();
 
-            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 100.f * Wrapper::GUI::GetScaleFactor());
+            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 100.f * Wrapper::UI::GetScaleFactor());
 
             if (ImGui::Button("Cancel"))
             {
@@ -203,7 +203,7 @@ namespace GALAXY
         }
 
         std::string tmpPath = m_defaultProjectPath.string();
-        if (Wrapper::GUI::InputText("Default project path", &tmpPath))
+        if (Wrapper::UI::InputText("Default project path", &tmpPath))
         {
             m_defaultProjectPath = tmpPath;
         }
@@ -262,7 +262,7 @@ namespace GALAXY
         if (m_externalToolSettings.isCompiling)
         {
             ImGui::SameLine();
-            Wrapper::GUI::LineFadeSpinner("##Compile", spinnerRadius);
+            Wrapper::UI::LineFadeSpinner("##Compile", spinnerRadius);
         }
         if (ImGui::Button("Reload Project DLL", buttonSize))
         {
@@ -271,7 +271,7 @@ namespace GALAXY
         if (m_externalToolSettings.isReloading)
         {
             ImGui::SameLine();
-            Wrapper::GUI::LineFadeSpinner("##Reloading", spinnerRadius);
+            Wrapper::UI::LineFadeSpinner("##Reloading", spinnerRadius);
         }
         if (ImGui::Button("Generate solution", buttonSize))
         {
@@ -280,7 +280,7 @@ namespace GALAXY
         if (m_externalToolSettings.isGenSolution)
         {
             ImGui::SameLine();
-            Wrapper::GUI::LineFadeSpinner("##GenSolution", spinnerRadius);
+            Wrapper::UI::LineFadeSpinner("##GenSolution", spinnerRadius);
         }
         if (ImGui::Button("Open solution", buttonSize))
         {
@@ -292,7 +292,7 @@ namespace GALAXY
     {
         ImGui::TextUnformatted("Project Thumbnail");
         ImGui::TreePush("Project Thumbnail");
-        Wrapper::GUI::TextureImage(m_projectThumbnail.lock().get(), Vec2f(128, 128), {0, 1}, {1, 0});
+        Wrapper::UI::TextureImage(m_projectThumbnail.lock().get(), Vec2f(128, 128), {0, 1}, {1, 0});
         if (ImGui::Button("Take Screenshot to set Project Thumbnail"))
             TakeScreenShot();
         ImGui::TreePop();

@@ -7,7 +7,7 @@
 #include "Core/Input.h"
 #include "Core/GameObject.h"
 
-#include "Wrapper/GUI.h"
+#include "Wrapper/UI.h"
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Audio.h"
@@ -18,7 +18,7 @@
 #include "Render/LightManager.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/ThumbnailCreator.h"
 #endif
 
@@ -138,9 +138,9 @@ namespace GALAXY {
 		m_audioSystem = Wrapper::Audio::GetInstance();
 		m_audioSystem->Initialize();
 
-		// Initialize GUI Lib
-		Wrapper::GUI::Initialize(m_window, "#version 450");
-		Wrapper::GUI::DisableIniFile(m_inPackage);
+		// Initialize UI Lib
+		Wrapper::UI::Initialize(m_window, "#version 450");
+		Wrapper::UI::DisableIniFile(m_inPackage);
 
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
@@ -153,7 +153,7 @@ namespace GALAXY {
 		m_threadManager->Initialize();
 
 #ifdef WITH_EDITOR
-		m_editorUI = Editor::UI::EditorUIManager::CreateInstance();
+		m_editorUI = Editor::UI::Manager::CreateInstance();
 
 		// Create Thumbnail Creator before ResourceManager
 		m_thumbnailCreator = new Editor::ThumbnailCreator();
@@ -236,10 +236,20 @@ namespace GALAXY {
 	void Core::Application::TrySendResource(const Shared<Resource::IResource>& resource, const std::filesystem::path& resourcePath)
 	{
 		if (!resource->HasBeenSent())
+		{
 			resource->Send();
+		}
 		m_resourceToSend.pop_front();
 		if (!resource->HasBeenSent())
+		{
 			m_resourceToSend.push_back(resourcePath);
+		}
+		else
+		{
+			resource->EOnLoad.Invoke();
+			resource->EOnLoad.Clear();
+			resource->FinishLoading();
+		}
 	}
 
 	void Core::Application::Update()
@@ -253,7 +263,7 @@ namespace GALAXY {
 #endif
 
 			Wrapper::Window::PollEvent();
-			Wrapper::GUI::NewFrame();
+			Wrapper::UI::NewFrame();
 
 			if (Input::IsKeyPressed(Key::F11))
 			{
@@ -298,7 +308,7 @@ namespace GALAXY {
 #endif
 
 			// Rendering
-			Wrapper::GUI::EndFrame(m_window);
+			Wrapper::UI::EndFrame(m_window);
 
 			// Update Inputs
 			Input::Update();
@@ -471,8 +481,8 @@ namespace GALAXY {
 
 		Component::ComponentHolder::Release();
 
-		// GUI
-		Wrapper::GUI::UnInitalize();
+		// UI
+		Wrapper::UI::UnInitalize();
 
 		// Audio Wrapper
 		if (m_audioSystem)

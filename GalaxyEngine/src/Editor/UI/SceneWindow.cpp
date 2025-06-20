@@ -11,7 +11,8 @@
 #include "Render/Framebuffer.h"
 
 #include "Editor/Gizmo.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/IconManager.h"
+#include "Editor/UI/Manager.h"
 #include "Resource/Model.h"
 
 #include "Resource/Texture.h"
@@ -31,14 +32,17 @@ namespace GALAXY {
 		EditorWindow::Draw();
 		if (Begin("Scene"))
 		{
-			SetResources();
 			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;
-			if (Wrapper::GUI::TextureButton(m_settingsIcon.lock() ? m_settingsIcon.lock().get() : nullptr, Vec2f(16)))
+			if (Wrapper::UI::TextureButton(IconManager::SettingsIcon, Vec2f(16)))
 			{
 				ImGui::OpenPopup("Camera settings");
 			}
+			Vec2f cursorPos = ImGui::GetCursorScreenPos();
 			if (ImGui::BeginPopup("Camera settings", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
+				ImGui::SetWindowPos(cursorPos);
+				Wrapper::UI::TextFont(FONT_TITLE_1, "Camera Settings");
+				ImGui::Separator();
 				Core::SceneHolder::GetCurrentScene()->GetEditorCamera()->DisplayCameraSettings();
 				ImGui::EndPopup();
 			}
@@ -46,24 +50,40 @@ namespace GALAXY {
 			ImGui::SameLine();
 			ImGui::Text("FPS %f", 1.f / Utils::Time::DeltaTime());
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(windowAvailableWidth - 16 * Wrapper::GUI::GetScaleFactor());
-			if (Wrapper::GUI::TextureButton(m_menuIcon.lock() ? m_menuIcon.lock().get() : nullptr, Vec2f(16)))
+			ImGui::SetCursorPosX(windowAvailableWidth - 16 * Wrapper::UI::GetScaleFactor());
+			if (Wrapper::UI::TextureButton(IconManager::MenuIcon, Vec2f(16)))
 			{
 				ImGui::OpenPopup("Menu Icons");
 			}
+			Vec2f windowPos = ImGui::GetWindowPos();
+			cursorPos = ImGui::GetCursorScreenPos();
+			Vec2f windowSize = ImGui::GetWindowSize();
+			
+			float popupWidth = 250 * Wrapper::UI::GetScaleFactor();
+			ImGui::SetNextWindowSize({ popupWidth, 0 });
 			if (ImGui::BeginPopup("Menu Icons", ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoMove))
 			{
-				ImGui::Checkbox("Draw Grid", &m_drawGrid);
-				if (ImGui::Checkbox("Wireframe", &m_wireframe))
+				float itemWidth = 120 * Wrapper::UI::GetScaleFactor();
+				
+				Wrapper::UI::TextFont(FONT_TITLE_1, "General");
+				ImGui::Separator();
+
+				Wrapper::UI::Checkbox("Draw Grid", &m_drawGrid);
+				if (Wrapper::UI::Checkbox("Wireframe", &m_wireframe))
 				{
 					Wrapper::Renderer::GetInstance()->EnableWireframe(m_wireframe);
 				}
 				const Shared<Gizmo> gizmo = Core::SceneHolder::GetCurrentScene()->GetGizmo();
 				int value = static_cast<int>(gizmo->GetGizmoMode());
-				if (ImGui::Combo("Gizmo Mode", &value, SerializeSpaceEnum()))
+				ImGui::TextUnformatted("Gizmo Mode");
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x - itemWidth);
+				ImGui::SetNextItemWidth(itemWidth);
+				if (ImGui::Combo("##GizmoMode", &value, SerializeSpaceEnum()))
 				{
 					gizmo->SetGizmoMode(static_cast<Space>(value));
 				}
+				
+				ImGui::SetWindowPos(Vec2f(windowPos.x + windowSize.x - ImGui::GetWindowSize().x - 8 * Wrapper::UI::GetScaleFactor(), cursorPos.y));
 				ImGui::EndPopup();
 			}
 			ImGui::Separator();
@@ -73,10 +93,10 @@ namespace GALAXY {
 			UpdateDragModel();
 			
 			if (ImGui::BeginDragDropTarget()) {
-				// When Relased
+				// When Released
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE")) {
 					UNUSED(payload);
-					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
+					FileExplorer* fileExplorer = Manager::GetInstance()->GetFileExplorer();
 					auto draggedFiles = fileExplorer->GetDraggedFiles();
 					if (draggedFiles.size() == 1)
 					{
@@ -96,7 +116,7 @@ namespace GALAXY {
 				// When Hovering
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FILE", ImGuiDragDropFlags_AcceptBeforeDelivery)) {
 					UNUSED(payload);
-					FileExplorer* fileExplorer = EditorUIManager::GetInstance()->GetFileExplorer();
+					FileExplorer* fileExplorer = Manager::GetInstance()->GetFileExplorer();
 					auto draggedFiles = fileExplorer->GetDraggedFiles();
 					if (draggedFiles.size() == 1)
 					{
@@ -125,18 +145,6 @@ namespace GALAXY {
 
 		}
 		ImGui::End();
-	}
-
-	void Editor::UI::SceneWindow::SetResources()
-	{
-		if (!m_settingsIcon.lock())
-		{
-			m_settingsIcon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/settings.png");
-		}
-		if (!m_menuIcon.lock())
-		{
-			m_menuIcon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(ENGINE_RESOURCE_FOLDER_NAME"/icons/menu.png");
-		}
 	}
 
 	Vec2f Editor::UI::SceneWindow::GetMousePosition() const
@@ -233,9 +241,9 @@ namespace GALAXY {
 
 		Vec2f bottomRight = Vec2f(topLeft.x + width, topLeft.y + height);
 
-		Wrapper::GUI::TextureImage(renderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
+		Wrapper::UI::TextureImage(renderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
 		ImGui::SetCursorPos(cursorPos + Vec2f(xPos, yPos));
-		Wrapper::GUI::TextureImage(outlineRenderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
+		Wrapper::UI::TextureImage(outlineRenderTexture, Vec2f(width, height), { 0, 1 }, { 1, 0 });
 		if (drawBorder) {
 			auto drawList = ImGui::GetWindowDrawList();
 			drawList->AddRect(topLeft, bottomRight, IM_COL32(50, 50, 50, 255), 2.0f, 0, 5.0f); // Gray border

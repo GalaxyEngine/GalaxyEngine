@@ -782,7 +782,7 @@ namespace GALAXY
         if (mesh->HasBeenSent())
             ComputeConvexVertices(mesh);
         else
-            mesh->OnLoad.Bind([this, mesh] { ComputeConvexVertices(mesh); });
+            mesh->EOnLoad.Bind([this, mesh] { ComputeConvexVertices(mesh); });
 
         return convexMesh;
     }

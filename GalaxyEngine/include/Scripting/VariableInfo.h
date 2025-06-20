@@ -95,24 +95,24 @@ namespace GALAXY
 						if (!list)
 							return
 
-							Wrapper::GUI::SetNextItemOpen();
-						if (Wrapper::GUI::TreeNode(name.c_str())) {
+							Wrapper::UI::SetNextItemOpen();
+						if (Wrapper::UI::TreeNode(name.c_str())) {
 							for (size_t i = 0; i < list->size(); i++) {
-								Wrapper::GUI::PushID(static_cast<int>(i));
+								Wrapper::UI::PushID(static_cast<int>(i));
 								T valueList = (*list)[i];
 
 								DisplayValue(name, &valueList);
 								(*list)[i] = valueList;
-								Wrapper::GUI::PopID();
+								Wrapper::UI::PopID();
 							}
-							if (Wrapper::GUI::Button("+")) {
+							if (Wrapper::UI::Button("+")) {
 								list->push_back({});
 							}
-							Wrapper::GUI::SameLine();
-							if (Wrapper::GUI::Button("-") && !list->empty()) {
+							Wrapper::UI::SameLine();
+							if (Wrapper::UI::Button("-") && !list->empty()) {
 								list->pop_back();
 							}
-							Wrapper::GUI::TreePop();
+							Wrapper::UI::TreePop();
 						}
 						};
 				}

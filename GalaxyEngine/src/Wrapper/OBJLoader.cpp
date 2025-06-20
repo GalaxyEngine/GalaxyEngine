@@ -12,7 +12,7 @@
 
 void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::Model* outputModel)
 {
-	PROFILE_SCOPE_LOG("OBJLoader::Load(%s)", fullPath.string().c_str());
+	PROFILE_SCOPE_LOG(fullPath.string().c_str())
 	
 	OBJLoader model;
 	model.m_path = fullPath;
@@ -65,13 +65,10 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 
 		mesh->m_model = outputModel;
 
-		auto bind = [outputModel] { outputModel->OnMeshLoaded(); };
-		mesh->OnLoad.Bind(bind);
-
 		mesh->SendRequest();
 	}
-	outputModel->p_hasBeenSent = true;
 	outputModel->ComputeBoundingBox(positionVertices);
+	outputModel->m_meshesAdded = true;
 
 	PrintLog("Successfully Loaded Model %s", fullPath.string().c_str());
 }

@@ -8,7 +8,7 @@
 #include "Resource/Scene.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/UI/Inspector.h"
 #include "Editor/EditorCamera.h"
 #endif
@@ -26,7 +26,7 @@ Core::SceneHolder* Core::SceneHolder::GetInstance()
 		m_instance = std::make_unique<Core::SceneHolder>();
 #ifdef WITH_EDITOR
 		m_instance->m_currentScene = std::make_unique<Resource::Scene>("Scene");
-		m_instance->m_currentScene->m_editorCamera = std::make_unique<Render::EditorCamera>();
+		m_instance->m_currentScene->m_editorCamera = std::make_unique<Editor::EditorCamera>();
 		m_instance->m_currentScene->Initialize();
 #else
 		auto scenePath = Core::Application::GetInstance().GetProjectSettings().GetStartScene();
@@ -47,10 +47,10 @@ void Core::SceneHolder::Update()
 void Core::SceneHolder::OpenScene(const std::filesystem::path& path)
 {
 #ifdef WITH_EDITOR
-	if (m_instance->first && Core::Application::IsEditorMode() && Editor::UI::EditorUIManager::ShouldDisplaySafeClose())
+	if (m_instance->first && Core::Application::IsEditorMode() && Editor::UI::Manager::ShouldDisplaySafeClose())
 	{
 		auto onValidateEvent = [&, path]() { OpenScene(path); };
-		Editor::UI::EditorUIManager::GetInstance()->SetOnValidatePopupEvent(onValidateEvent);
+		Editor::UI::Manager::GetInstance()->SetOnValidatePopupEvent(onValidateEvent);
 		m_instance->first = false;
 		return;
 	}
@@ -91,7 +91,7 @@ void Core::SceneHolder::NewScene()
 {
 	m_instance->m_nextScene = std::make_shared<Resource::Scene>("Scene");
 #ifdef WITH_EDITOR
-	m_instance->m_nextScene->m_editorCamera = std::make_unique<Render::EditorCamera>();
+	m_instance->m_nextScene->m_editorCamera = std::make_unique<Editor::EditorCamera>();
 #endif
 	m_instance->m_nextScene->Initialize();
 	m_instance->m_nextScene->p_loaded = true;
@@ -117,7 +117,7 @@ void Core::SceneHolder::SwitchSceneUpdate()
 		return;
 	if (!m_loadAfterEndPlay)
 	{
-		Editor::UI::EditorUIManager::GetInstance()->GetInspector()->ClearSelected();
+		Editor::UI::Manager::GetInstance()->GetInspector()->ClearSelected();
 		m_nextScene->m_editorCamera = m_currentScene->m_editorCamera;
 		if (m_currentScene != m_nextScene) {
 			// Do not unload if the next scene is the same as the current scene

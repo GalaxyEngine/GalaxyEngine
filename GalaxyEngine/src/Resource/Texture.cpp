@@ -14,13 +14,8 @@ Resource::Texture::~Texture()
 		Wrapper::ImageLoader::ImageFree(m_bytes);
 }
 
-void Resource::Texture::Load()
+bool Resource::Texture::Load()
 {
-	if (p_shouldBeLoaded.load())
-		return;
-	p_shouldBeLoaded.store(true);
-	StartLoading();
-
 	if (p_fileInfo.GetExtension() == ".tmb") {
 		this->SetDisplayOnInspector(false);
 		this->SetCreateDataFile(false);
@@ -29,21 +24,19 @@ void Resource::Texture::Load()
 
 	std::string fullPathStr = p_fileInfo.GetFullPath().generic_string();
 	auto image = Wrapper::ImageLoader::Load(fullPathStr.c_str(), 4);
-	if (m_bytes = std::move(image.data); m_bytes) {
-		p_loaded.store(true);
+	if (m_bytes = image.data; m_bytes) {
 		m_size = image.size;
 	}
 	else
 	{
 		PrintError("Failed to load Image %s", p_fileInfo.GetFullPath().string().c_str());
-		return;
+		return false;
 	}
 
 	if (!std::filesystem::exists(GetDataFilePath()))
 		CreateDataFile();
-	SendRequest();
 
-	FinishLoading();
+	return true;
 }
 
 void Resource::Texture::Send()

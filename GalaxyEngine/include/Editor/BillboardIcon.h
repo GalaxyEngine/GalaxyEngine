@@ -11,14 +11,14 @@ namespace GALAXY
 	}
 	namespace Editor
 	{
-		class EditorIcon
+		class BillboardIcon
 		{
 		public:
-			EditorIcon();
-			EditorIcon& operator=(const EditorIcon& other) = default;
-			EditorIcon(const EditorIcon&) = default;
-			EditorIcon(EditorIcon&&) noexcept = default;
-			virtual ~EditorIcon() = default;
+			BillboardIcon();
+			BillboardIcon& operator=(const BillboardIcon& other) = default;
+			BillboardIcon(const BillboardIcon&) = default;
+			BillboardIcon(BillboardIcon&&) noexcept = default;
+			virtual ~BillboardIcon() = default;
 
 			void SetIconTexture(const Weak<Resource::Texture>& iconTexture) const;
 

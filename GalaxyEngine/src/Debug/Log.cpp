@@ -42,11 +42,11 @@ void Debug::Log::CloseFile()
 }
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 void Debug::Log::AddTextToConsole(const LogType type, const std::string& text)
 {
-	if (const auto EditorUIManager = Editor::UI::EditorUIManager::GetInstance())
+	if (const auto EditorUIManager = Editor::UI::Manager::GetInstance())
 		EditorUIManager->GetConsole()->AddText(type, text);
 }
 #endif

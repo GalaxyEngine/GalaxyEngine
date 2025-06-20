@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Editor/UI/DebugWindow.h"
 
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 
 namespace GALAXY 
 {
@@ -15,7 +15,7 @@ namespace GALAXY
 			ImGui::Text("Triangle draw count: %zu", m_triangleDrawCount);
 			ResetTriangleDrawCount();
 
-			auto editorUiManager = EditorUIManager::GetInstance();
+			auto editorUiManager = Manager::GetInstance();
 			const std::vector<Core::UUID>& loadingResources = editorUiManager->GetLoadingResources();
 			std::string label = "Loading Resources : " + std::to_string(loadingResources.size());
 			if (!loadingResources.empty())
@@ -31,7 +31,7 @@ namespace GALAXY
 						ImGui::Text("%s", resource.lock()->GetFileInfo().GetRelativePath().string().c_str());
 					}
 				}
-				Wrapper::GUI::Spinner("##Resource Spinner", 5.f, 1.5f, IM_COL32_WHITE, 5.f);
+				Wrapper::UI::Spinner("##Resource Spinner", 5.f, 1.5f, IM_COL32_WHITE, 5.f);
 			}
 		}
 		ImGui::End();

@@ -24,7 +24,7 @@ namespace GALAXY
 		class PhysicsWrapper;
 		class Window; class Renderer; class Audio; }
 #ifdef WITH_EDITOR
-	namespace Editor::UI { class EditorUIManager; }
+	namespace Editor::UI { class Manager; }
 #endif
 	namespace Scripting { class ScriptEngine; }
 	namespace Render {
@@ -95,7 +95,7 @@ namespace GALAXY
 			Core::ProjectSettings m_projectSettings;
 
 #ifdef WITH_EDITOR
-			Editor::UI::EditorUIManager* m_editorUI = nullptr;
+			Editor::UI::Manager* m_editorUI = nullptr;
 			Editor::EditorSettings m_editorSettings;
 			Editor::ThumbnailCreator* m_thumbnailCreator = nullptr;
 			Editor::Benchmark m_benchmark;

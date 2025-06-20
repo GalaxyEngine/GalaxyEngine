@@ -33,7 +33,8 @@ namespace GALAXY
 			Material(Material&&) noexcept = default;
 			~Material() override {}
 
-			void Load() override;
+			bool Load() override;
+			void Send() override;
 
 			void OnAdd() override;
 

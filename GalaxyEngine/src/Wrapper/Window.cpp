@@ -13,7 +13,7 @@
 #include "Core/Application.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #endif
 
 #include "Wrapper/ImageLoader.h"
@@ -131,9 +131,9 @@ namespace GALAXY {
 		GLFWwindow* glfwWindow = static_cast<GLFWwindow*>(m_window);
 		bool shouldClose = glfwWindowShouldClose(glfwWindow);
 #ifdef WITH_EDITOR
-		if (shouldClose && Editor::UI::EditorUIManager::ShouldDisplaySafeClose()) {
+		if (shouldClose && Editor::UI::Manager::ShouldDisplaySafeClose()) {
 			auto eventOnValidate = [this] { ForceClose(); };
-			Editor::UI::EditorUIManager::GetInstance()->SetOnValidatePopupEvent(eventOnValidate);
+			Editor::UI::Manager::GetInstance()->SetOnValidatePopupEvent(eventOnValidate);
 			return shouldClose && m_forceClose;
 		}
 		else
@@ -208,7 +208,7 @@ namespace GALAXY {
 	void Wrapper::Window::DropCallback(GLFWwindow* window, const int count, const char** paths)
 	{
 #ifdef WITH_EDITOR
-		Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer()->HandleDropFile(count, paths);
+		Editor::UI::Manager::GetInstance()->GetFileExplorer()->HandleDropFile(count, paths);
 #endif
 	}
 

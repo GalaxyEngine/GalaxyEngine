@@ -119,7 +119,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::UpdateFileWatch()
 	{
-		m_currentTime += Wrapper::GUI::DeltaTime();
+		m_currentTime += Wrapper::UI::DeltaTime();
 		if (m_currentTime > m_updateInterval)
 		{
 			std::filesystem::path dllPathExt = m_dllPath.string() + Utils::OS::GetDLLExtension();

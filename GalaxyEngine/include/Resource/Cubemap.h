@@ -105,7 +105,7 @@ namespace GALAXY
 #endif
             static inline ResourceType GetResourceType() { return ResourceType::Cubemap; }
 
-            void Load() override;
+            bool Load() override;
             void Send() override;
             void Save() const;
 

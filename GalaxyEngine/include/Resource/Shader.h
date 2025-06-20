@@ -57,7 +57,7 @@ namespace GALAXY {
 			Shader(Shader&&) noexcept = default;
 			~Shader() override = default;
 
-			virtual void Load() override;
+			virtual bool Load() override;
 			void Send() override;
 			void Save() const;
 
@@ -120,8 +120,6 @@ namespace GALAXY {
 		protected:
 			void Serialize(CppSer::Serializer& serializer) const override;
 			void Deserialize(CppSer::Parser& parser) override;
-		public:
-			Utils::Event<> OnLoad;
 
 		protected:
 			UMap<std::string, Resource::Uniform> p_uniforms;
@@ -145,7 +143,7 @@ namespace GALAXY {
 		public:
 			explicit BaseShader(const Path& fullPath) : IResource(fullPath) {}
 
-			virtual void Load() override;
+			virtual bool Load() override;
 			virtual void OnAdd() override;
 			void AddShader(const Weak<Shader>& shader);
 

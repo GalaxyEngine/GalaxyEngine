@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Editor/UI/MainBar.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #include "Editor/EditorSettings.h"
 #include "Editor/PackageManager.h"
 
@@ -29,7 +29,7 @@ namespace GALAXY
 	{
 		PackageManager& packageManager = EditorSettings::GetInstance().GetPackageManager();
 		const std::vector filters = { Utils::OS::Filter("Galaxy", "galaxy") };
-		const EditorUIManager* editorInstance = EditorUIManager::GetInstance();
+		const Manager* editorInstance = Manager::GetInstance();
 		Core::Application& application = Core::Application::GetInstance();
 		EditorSettings& editorSettings = application.GetEditorSettings();
 		Core::ProjectSettings& projectSettings = application.GetProjectSettings();
@@ -71,6 +71,7 @@ namespace GALAXY
 						}
 					}
 				}
+				ImGui::Separator();
 				if (ImGui::MenuItem("Exit"))
 				{
 					application.Exit();
@@ -270,7 +271,7 @@ namespace GALAXY
 				// do not add the variable inside the [] for smart ptr, it will cause a memory leak
 				int index = static_cast<int>(m_waitingModels.size());
 				m_waitingModels[index] = std::make_pair(model.lock(), parent);
-				std::function bind = [index]()
+				std::function<void()> bind = [index]()
 				{
 					Shared<Resource::Model> modelShared = m_waitingModels[index].first;
 					Core::GameObject* parent = m_waitingModels[index].second;

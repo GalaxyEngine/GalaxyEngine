@@ -33,7 +33,7 @@ namespace GALAXY
 				previousSize = newSize;
 			}
 
-			Wrapper::GUI::Splitter(true, 2, &leftSize, &rightSize, 10, 10);
+			Wrapper::UI::Splitter(true, 2, &leftSize, &rightSize, 10, 10);
 			
 			ImGui::BeginChild("List", Vec2f(leftSize, ImGui::GetContentRegionAvail().y - buttonSizeY), false);
 			DrawTabElement(ProjectSettingsTab::General);
@@ -48,7 +48,7 @@ namespace GALAXY
 
 			ImGui::EndChild();
 
-			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 100.f * Wrapper::GUI::GetScaleFactor());
+			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 100.f * Wrapper::UI::GetScaleFactor());
 
 			if (ImGui::Button("Cancel"))
 			{
@@ -102,7 +102,7 @@ namespace GALAXY
 			m_projectIconTexture = Resource::ResourceManager::GetOrLoad<Resource::Texture>(m_projectIcon);
 		}
 
-		Wrapper::GUI::TextureImage(m_projectIconTexture.lock().get(), Vec2f(64.f, 64.f), Vec2i(0, 0), Vec2i(1, 1));
+		Wrapper::UI::TextureImage(m_projectIconTexture.lock().get(), Vec2f(64.f, 64.f), Vec2i(0, 0), Vec2i(1, 1));
 
 	}
 
@@ -188,7 +188,7 @@ namespace GALAXY
 		{
 			ImGui::PushID(i);
 			std::string name = m_collisionLayerManager.GetLayerName(i);
-			if (Wrapper::GUI::InputText("##layer", &name, ImGuiInputTextFlags_EnterReturnsTrue))
+			if (Wrapper::UI::InputText("##layer", &name, ImGuiInputTextFlags_EnterReturnsTrue))
 			{
 				m_collisionLayerManager.ChangeLayerName(i, name);
 			}

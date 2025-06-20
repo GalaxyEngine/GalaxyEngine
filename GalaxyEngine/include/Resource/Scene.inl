@@ -156,7 +156,7 @@ namespace GALAXY
 		}
 	}
 
-	inline Shared<Render::EditorCamera> Resource::Scene::GetEditorCamera() const
+	inline Shared<Editor::EditorCamera> Resource::Scene::GetEditorCamera() const
 	{
 		return m_editorCamera;
 	}

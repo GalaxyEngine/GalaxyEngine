@@ -5,7 +5,7 @@
 #include "Render/Camera.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/EditorIcon.h"
+#include "Editor/BillboardIcon.h"
 #endif
 
 namespace GALAXY
@@ -56,7 +56,7 @@ namespace GALAXY
 
 			bool m_isMainCamera = false;
 #ifdef WITH_EDITOR
-			Editor::EditorIcon m_editorIcon;
+			Editor::BillboardIcon m_editorIcon;
 
 #endif
 			uint64_t m_postprocessID = -1;

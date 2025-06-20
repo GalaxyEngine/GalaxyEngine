@@ -27,8 +27,6 @@ namespace GALAXY
 
 			void DisplayText(size_t i);
 
-			void SetResources();
-
 			void AddText(Debug::LogType type, const std::string& text);
 
 			void Clear();
@@ -43,10 +41,6 @@ namespace GALAXY
 			std::deque<Debug::LogText*> m_displayText;
 			size_t m_textSelected = -1;
 
-			Weak<Resource::Texture> m_infoTexture;
-			Weak<Resource::Texture> m_warningTexture;
-			Weak<Resource::Texture> m_errorTexture;
-
 			size_t m_infoNumber = 0;
 			size_t m_warningNumber = 0;
 			size_t m_errorNumber = 0;
@@ -54,8 +48,6 @@ namespace GALAXY
 			bool m_infoCheckbox = true;
 			bool m_warningCheckbox = true;
 			bool m_errorCheckbox = true;
-
-			bool m_resourcesLoaded = false;
 
 			bool m_scrollToBottom = false;
 		};

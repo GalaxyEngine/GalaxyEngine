@@ -6,7 +6,7 @@
 #include "Core/Application.h"
 
 #ifdef WITH_EDITOR
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #endif
 
 #include "Utils/OS.h"
@@ -15,9 +15,9 @@ namespace GALAXY {
 	Resource::IResource::IResource(const Path& fullPath) : p_fileInfo(fullPath)
 	{
 		ASSERT(!fullPath.empty() && "Path is empty");
-		p_shouldBeLoaded = false;
-		p_loaded = false;
-		p_hasBeenSent = false;
+		p_shouldBeLoaded.store(false);
+		p_loaded.store(false);
+		p_hasBeenSent.store(false);
 	}
 
 	Resource::IResource& Resource::IResource::operator=(const Resource::IResource& other)
@@ -72,7 +72,7 @@ namespace GALAXY {
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
 		ASSERT(p_shouldBeLoaded && "Resource should be loaded value need to be true");
-		auto editorUiManager = Editor::UI::EditorUIManager::GetInstance();
+		auto editorUiManager = Editor::UI::Manager::GetInstance();
 		ASSERT(editorUiManager && "Editor UI Manager is null");
 		editorUiManager->AddResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
@@ -84,7 +84,7 @@ namespace GALAXY {
 #if WITH_EDITOR
 		Core::ThreadManager::Lock();
 		ASSERT(p_loaded && "Resource should be loaded");
-		Editor::UI::EditorUIManager::GetInstance()->RemoveResourceLoading(this->p_uuid);
+		Editor::UI::Manager::GetInstance()->RemoveResourceLoading(this->p_uuid);
 		Core::ThreadManager::Unlock();
 #endif
 	}
@@ -118,7 +118,7 @@ namespace GALAXY {
 		Core::Application::GetInstance().AddResourceToSend(p_fileInfo.GetFullPath());
 	}
 
-	void Resource::IResource::Rename(const Path& newFullPath)
+	void Resource::IResource::Rename(const Path& newFullPath) const
 	{
 		Resource::ResourceManager::RenameSingle(p_fileInfo.GetFullPath(), newFullPath);
 	}

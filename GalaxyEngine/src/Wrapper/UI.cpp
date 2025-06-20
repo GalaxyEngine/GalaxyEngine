@@ -1,5 +1,8 @@
 #include "pch.h"
-#include "Wrapper/GUI.h"
+#include "Wrapper/UI.h"
+
+#include <ranges>
+
 #include "Wrapper/Window.h"
 #include "Component/ComponentHolder.h"
 #include "Component/IComponent.h"
@@ -12,8 +15,76 @@
 #include <set>
 
 namespace GALAXY {
+
+	Wrapper::FontManager* Wrapper::FontManager::s_instance = {};
+    
+	void Wrapper::FontManager::Initialize()
+	{
+		s_instance = new FontManager();
+
+		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->Clear();
+		
+		CreateFontGUI(FONT_DEFAULT_NAME, FONT_DEFAULT_PATH, 16.0f);
+		CreateFontGUI(FONT_DEFAULT_BOLD_NAME, FONT_DEFAULT_BOLD_PATH, 16.0f);
+		CreateFontGUI(FONT_DEFAULT_ITALIC_NAME, FONT_DEFAULT_ITALIC_PATH, 16.0f);
+		CreateFontGUI(FONT_DEFAULT_BOLD_ITALIC_NAME, FONT_DEFAULT_BOLD_ITALIC_PATH, 16.0f);
+
+		CreateFontGUI(FONT_TITLE_1, FONT_DEFAULT_BOLD_PATH, 20.0f);
+	}
+
+	void Wrapper::FontManager::Destroy()
+	{
+		delete s_instance;
+	}
+
+	void Wrapper::FontManager::AddFonts()
+	{
+		if (s_instance->m_fontsNotSent.empty())
+			return;
+		ImGuiIO& io = ImGui::GetIO();
+		for (const auto& fontName : s_instance->m_fontsNotSent)
+		{
+			FontData& font = s_instance->m_fonts[fontName];
+			font.handle = io.Fonts->AddFontFromFileTTF(font.path.generic_string().c_str(), font.size);
+		}
+		s_instance->m_fontsNotSent.clear();
+		
+		ImGui_ImplOpenGL3_CreateFontsTexture();
+	}
+
+	void Wrapper::FontManager::RecreateFonts(float dpiScale)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->Clear();
+
+		for (auto& font : s_instance->m_fonts | std::views::values)
+		{
+			font.handle = io.Fonts->AddFontFromFileTTF(font.path.generic_string().c_str(),  font.size * dpiScale);
+		}
+	}
+
+	void Wrapper::FontManager::CreateFontGUI(const std::string& name, const std::filesystem::path& fontPath,
+												float size)
+	{
+		if (s_instance->m_fonts.contains(name))
+		{
+			PrintError("Font %s already exists!", name.c_str());
+			return;
+		}
+		s_instance->m_fonts[name] = {.name = name, .path = fontPath, .size = size};
+		s_instance->m_fontsNotSent.push_back(name);
+	}
+
+	ImFont* Wrapper::FontManager::GetFont(const std::string& name)
+	{
+		if (s_instance->m_fonts.contains(name))
+			return s_instance->m_fonts[name].handle;
+		return nullptr;
+	}
+	
 	static bool s_initialized = false;
-	void Wrapper::GUI::Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
+	void Wrapper::UI::Initialize(const std::unique_ptr<Wrapper::Window>& window, const char* glsl_version)
 	{
 		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
@@ -34,21 +105,25 @@ namespace GALAXY {
 
 		SetTheme();
 
+		FontManager::Initialize();
+
 		PrintLog("Initalized ImGui %s", IMGUI_VERSION);
 		s_initialized = true;
 	}
 
-	void Wrapper::GUI::UnInitalize()
+	void Wrapper::UI::UnInitalize()
 	{
 		if (!s_initialized)
 			return;
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
+
+		FontManager::Destroy();
 	}
 
 	static float current_fontSize;
-	void Wrapper::GUI::SetDefaultFontSize(const float pixel_size)
+	void Wrapper::UI::SetDefaultFontSize(const float pixel_size)
 	{
 		static ImGuiIO& io = ImGui::GetIO();
 
@@ -65,7 +140,7 @@ namespace GALAXY {
 		current_fontSize = pixel_size;
 	}
 
-	void Wrapper::GUI::SetTheme()
+	void Wrapper::UI::SetTheme()
 	{
 		// ChatGPT generated theme
 		ImVec4* colors = ImGui::GetStyle().Colors;
@@ -80,7 +155,7 @@ namespace GALAXY {
 
 		colors[ImGuiCol_Text] = ImVec4(0.78f, 0.78f, 0.78f, 1.00f);
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-		colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 0.90f);
+		colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.0f);
 		colors[ImGuiCol_Border] = ImVec4(0.50f, 0.50f, 0.50f, 0.50f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
@@ -122,14 +197,14 @@ namespace GALAXY {
 		colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 0.97f);
 	}
 
-	void Wrapper::GUI::NewFrame()
+	void Wrapper::UI::NewFrame()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void Wrapper::GUI::EndFrame(const std::unique_ptr<Wrapper::Window>& window)
+	void Wrapper::UI::EndFrame(const std::unique_ptr<Wrapper::Window>& window)
 	{
 		ImGui::Render();
 
@@ -142,6 +217,25 @@ namespace GALAXY {
 			ImGui::RenderPlatformWindowsDefault();
 			Wrapper::Window::MakeContextCurrent(backup_current_context);
 		}
+	}
+
+	void Wrapper::UI::TextFont(const std::string& font, const std::string& text)
+	{
+		ImGui::PushFont(FontManager::GetFont(font));
+		ImGui::TextUnformatted(text.c_str());
+		ImGui::PopFont();
+	}
+
+	void Wrapper::UI::PushFont(const std::string& fontName)
+	{
+		ImFont* font = FontManager::GetFont(fontName);
+		ASSERT(font != nullptr);
+		ImGui::PushFont(font);
+	}
+
+	void Wrapper::UI::PopFont()
+	{
+		ImGui::PopFont();
 	}
 
 	struct InputTextCallback_UserData
@@ -165,7 +259,7 @@ namespace GALAXY {
 	}
 
 
-	bool Wrapper::GUI::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
+	bool Wrapper::UI::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
 	{
 		IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 		flags |= ImGuiInputTextFlags_CallbackResize;
@@ -175,27 +269,27 @@ namespace GALAXY {
 		return ImGui::InputText(label, const_cast<char*>(str->c_str()), str->capacity() + 1, flags, InputTextCallback, &cb_user_data);
 	}
 
-	float Wrapper::GUI::DeltaTime()
+	float Wrapper::UI::DeltaTime()
 	{
 		return ImGui::GetIO().DeltaTime;
 	}
 
-	void Wrapper::GUI::SetNextItemOpen(const bool open /*= true*/)
+	void Wrapper::UI::SetNextItemOpen(const bool open /*= true*/)
 	{
 		ImGui::SetNextItemOpen(open);
 	}
 
-	bool Wrapper::GUI::TreeNode(const char* treeName)
+	bool Wrapper::UI::TreeNode(const char* treeName)
 	{
 		return ImGui::TreeNode(treeName);
 	}
 
-	void Wrapper::GUI::TreePop()
+	void Wrapper::UI::TreePop()
 	{
 		ImGui::TreePop();
 	}
 
-	void Wrapper::GUI::TreePush(const void* ptr_id, float indent)
+	void Wrapper::UI::TreePush(const void* ptr_id, float indent)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		ImGui::Indent(indent);
@@ -203,7 +297,7 @@ namespace GALAXY {
 		ImGui::PushID(ptr_id);
 	}
 
-	void Wrapper::GUI::TreePop(float indent)
+	void Wrapper::UI::TreePop(float indent)
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = g.CurrentWindow;
@@ -227,56 +321,116 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	void Wrapper::GUI::PushID(const size_t id)
+	void Wrapper::UI::PushID(const size_t id)
 	{
 		ImGui::PushID(static_cast<int>(id));
 	}
 
-	void Wrapper::GUI::PopID()
+	void Wrapper::UI::PopID()
 	{
 		ImGui::PopID();
 	}
 
-	void Wrapper::GUI::SameLine()
+	void Wrapper::UI::SameLine()
 	{
 		ImGui::SameLine();
 	}
 
-	bool Wrapper::GUI::Button(const char* buttonName, const Vec2f& size)
+	bool Wrapper::UI::Button(const char* buttonName, const Vec2f& size)
 	{
 		return ImGui::Button(buttonName, size);
 	}
 
-	bool Wrapper::GUI::DragFloat(const char* label, float* value, float speed, float min, float max, const char* format,
+	bool Wrapper::UI::DragFloat(const char* label, float* value, float speed, float min, float max, const char* format,
 		int flags)
 	{
 		return ImGui::DragFloat(label, value, speed, min, max, format, flags);
 	}
 
-	bool Wrapper::GUI::DragInt(const char* label, int* value, float speed, int min, int max, const char* format,
+	bool Wrapper::UI::DragInt(const char* label, int* value, float speed, int min, int max, const char* format,
 		int flags)
 	{
 		return ImGui::DragInt(label, value, speed, min, max, format, flags);
 	}
 
-	bool Wrapper::GUI::DragDouble(const char* label, double* value, float speed, double min, double max,
+	bool Wrapper::UI::DragDouble(const char* label, double* value, float speed, double min, double max,
 		const char* format, int flags)
 	{
 		return ImGui::DragScalar(label, ImGuiDataType_Double, value, speed, &min, &max, format, flags);
 	}
 
-	float Wrapper::GUI::GetScaleFactor()
+	float Wrapper::UI::GetScaleFactor()
 	{
 		return Core::Application::GetInstance().GetWindow()->GetScreenScale();
 	}
 
-	void Wrapper::GUI::Test(Component::BaseComponent* component)
+	void Wrapper::UI::Test(Component::BaseComponent* component)
 	{
 		PrintError("eysy");
 		
 	}
 
-	void Wrapper::GUI::Spinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	bool Wrapper::UI::Checkbox(const char* label, bool* checked)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		ImGui::AlignTextToFramePadding();
+
+		float fullWidth = ImGui::GetContentRegionAvail().x;
+
+		float checkboxWidth = ImGui::GetFrameHeight();
+
+		ImGui::TextUnformatted(label);
+
+		ImGui::SameLine(fullWidth - checkboxWidth);
+
+		bool result = ImGui::Checkbox(("##" + std::string(label)).c_str(), checked);
+
+		return result;
+	}
+
+	static const char* Items_SingleStringGetter(void* data, int idx)
+	{
+		const char* items_separated_by_zeros = (const char*)data;
+		int items_count = 0;
+		const char* p = items_separated_by_zeros;
+		while (*p)
+		{
+			if (idx == items_count)
+				break;
+			p += strlen(p) + 1;
+			items_count++;
+		}
+		return *p ? p : nullptr;
+	}
+
+	bool Wrapper::UI::Combo(const char* label, int* current_item, const char* items_separated_by_zeros, int popup_max_height_in_items)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+			return false;
+
+		ImGui::AlignTextToFramePadding();
+		
+		float fullWidth = ImGui::GetContentRegionAvail().x;
+
+		// const char* previewText = Items_SingleStringGetter((void*)items_separated_by_zeros, *current_item);
+		// float comboWidth = ImGui::CalcTextSize(previewText, nullptr, true).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+
+		ImGui::TextUnformatted(label);
+
+		float comboWidth = 180.f;
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(comboWidth);
+		ImGui::SetCursorPosX(fullWidth - comboWidth);
+		bool result = ImGui::Combo(("##" + std::string(label)).c_str(), current_item, items_separated_by_zeros, popup_max_height_in_items);
+
+		return result;
+	}
+	
+	void Wrapper::UI::Spinner(const char* label, float radius, float thickness, uint32_t color, float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -310,7 +464,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
 	}
 
-	void Wrapper::GUI::ArcSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	void Wrapper::UI::ArcSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -331,7 +485,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
 	}
 
-	void Wrapper::GUI::LinesSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	void Wrapper::UI::LinesSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -367,7 +521,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
 	}
 
-	void Wrapper::GUI::PulsatingDotsSpinner(const char* label, float radius, float dot_radius, uint32_t color,
+	void Wrapper::UI::PulsatingDotsSpinner(const char* label, float radius, float dot_radius, uint32_t color,
 		float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -398,7 +552,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
 	}
 
-	void Wrapper::GUI::ConcentricSpinners(const char* label, float outer_radius, float thickness, uint32_t color,
+	void Wrapper::UI::ConcentricSpinners(const char* label, float outer_radius, float thickness, uint32_t color,
 		float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
@@ -429,7 +583,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(outer_radius * 2, outer_radius * 2));
 	}
 
-	void Wrapper::GUI::LineFadeSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
+	void Wrapper::UI::LineFadeSpinner(const char* label, float radius, float thickness, uint32_t color, float speed)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();
 		if (window->SkipItems)
@@ -467,7 +621,7 @@ namespace GALAXY {
 		ImGui::InvisibleButton(label, ImVec2(radius * 2, radius * 2));
 	}
 
-	void Wrapper::GUI::DisableIniFile(bool value)
+	void Wrapper::UI::DisableIniFile(bool value)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		if (value)
@@ -476,7 +630,7 @@ namespace GALAXY {
 			io.IniFilename = "imgui.ini";
 	}
 
-	bool Wrapper::GUI::DrawVec3Control(const std::string& label, float* values, const float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
+	bool Wrapper::UI::DrawVec3Control(const std::string& label, float* values, const float resetValue /*= 0.0f*/, bool lockButton /*= false*/, float columnWidth /*= 100.0f*/)
 	{
 		static bool _lock = false;
 		bool stillEditing = false;
@@ -604,12 +758,12 @@ namespace GALAXY {
 		return stillEditing;
 	}
 
-	ImTextureID Wrapper::GUI::GetTextureID(const Resource::Texture* texture)
+	ImTextureID Wrapper::UI::GetTextureID(const Resource::Texture* texture)
 	{
 		return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID()));
 	}
 
-	std::shared_ptr<Component::BaseComponent> Wrapper::GUI::ComponentPopup()
+	std::shared_ptr<Component::BaseComponent> Wrapper::UI::ComponentPopup()
 	{
 		if (ImGui::BeginPopup("ComponentPopup"))
 		{
@@ -632,14 +786,19 @@ namespace GALAXY {
 		return nullptr;
 	}
 
-	bool Wrapper::GUI::TextureButton(const Resource::Texture* texture, const Vec2f size)
+	bool Wrapper::UI::TextureButton(ImTextureID textureID, const Vec2f& size)
+	{
+		return ImGui::ImageButton(textureID, size * GetScaleFactor());
+	}
+
+	bool Wrapper::UI::TextureButton(const Resource::Texture* texture, const Vec2f& size)
 	{
 		if (!texture || !texture->HasBeenSent())
 			return false;
 		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size * GetScaleFactor());
 	}
 
-	bool Wrapper::GUI::TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 /*= {0, 0}*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
+	bool Wrapper::UI::TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 /*= {0, 0}*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
 	{
 		if (!texture->HasBeenSent())
 			return false;
@@ -665,11 +824,9 @@ namespace GALAXY {
 		return pressed;
 	}
 
-	bool Wrapper::GUI::TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle,
-	                                               const Vec2f& imageSize, const Vec2f& uv0 /*= { 0, 0 }*/,
-	                                               const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/,
-	                                               const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/,
-	                                               const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
+	bool Wrapper::UI::TextureToggleButtonWithText(ImTextureID texture, const char* label, bool* toggle,
+		const Vec2f& imageSize, const Vec2f& uv0, const Vec2f& uv1, int frame_padding, const Vec4f& bg_col,
+		const Vec4f& tint_col)
 	{
 		const Vec2f cursorPos = ImGui::GetCursorPos();
 		const int space = static_cast<int>(ImGui::CalcTextSize(" ").x);
@@ -697,14 +854,91 @@ namespace GALAXY {
 		return result;
 	}
 
-	void Wrapper::GUI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
+	bool Wrapper::UI::TextureToggleButtonWithText(Resource::Texture* texture, const char* label, bool* toggle,
+	                                               const Vec2f& imageSize, const Vec2f& uv0 /*= { 0, 0 }*/,
+	                                               const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/,
+	                                               const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/,
+	                                               const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
+	{
+		return TextureToggleButtonWithText(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), label, toggle, imageSize, uv0, uv1, frame_padding, bg_col, tint_col);
+	}
+
+	void Wrapper::UI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
 	{
 		if (!texture || !texture->HasBeenSent())
 			return;
 		return ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size, (Vec2f)uv0, (Vec2f)uv1);
 	}
 
-	void Wrapper::GUI::ToggleButton(const char* name, bool* toggle, const Vec2f& size /*= Vec2f(0, 0)*/)
+	void Wrapper::UI::TextureImage(ImTextureID texture, Vec2f size, const Vec2i& uv0, const Vec2i& uv1)
+	{
+		if (!texture)
+			return;
+		return ImGui::Image(texture, size, (Vec2f)uv0, (Vec2f)uv1);
+	}
+
+	bool Wrapper::UI::IconButton(const char* label,
+	                ImTextureID icon,
+	                const Vec2f& icon_size,
+	                float spacing,
+	                const Vec2f& button_size)
+	{
+	    ImGui::PushID(label);
+
+	    // Apply custom Unreal-style colors and rounding
+	    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding,    5.f);
+	    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize,  0.2f);
+	    ImGui::PushStyleColor(ImGuiCol_Button,              ImVec4(0.16f, 0.16f, 0.16f, 1.f));
+	    ImGui::PushStyleColor(ImGuiCol_ButtonHovered,       ImVec4(0.20f, 0.20f, 0.20f, 1.f));
+	    ImGui::PushStyleColor(ImGuiCol_ButtonActive,        ImVec4(0.29f, 0.29f, 0.29f, 1.f));
+	    ImGui::PushStyleColor(ImGuiCol_Text,                ImVec4(0.87f, 0.87f, 0.87f, 1.f));
+	    ImGui::PushStyleColor(ImGuiCol_Border,              ImVec4(0.05f, 0.05f, 0.05f, 0.73f));
+	    ImGui::PushStyleColor(ImGuiCol_BorderShadow,        ImVec4(0.05f, 0.05f, 0.05f, 0.73f));
+
+	    // Compute the automatic size if user didn't specify
+	    ImVec2 text_size = ImGui::CalcTextSize(label, nullptr, true);
+	    float default_height = ImMax(icon_size.y, ImGui::GetFrameHeight());
+	    float default_width  = ImGui::GetStyle().FramePadding.x * 2
+	                         + icon_size.x + spacing + text_size.x;
+
+	    // Final button size: use provided or fallback
+	    ImVec2 final_size(
+	        button_size.x > 0.f ? button_size.x : default_width,
+	        button_size.y > 0.f ? button_size.y : default_height
+	    );
+
+	    // Draw the invisible button of the correct size
+	    bool pressed = ImGui::Button("", final_size);
+
+	    // Restore style state
+	    ImGui::PopStyleColor(6);
+	    ImGui::PopStyleVar(2);
+
+	    // Get the actual drawn rect
+	    ImVec2 item_min = ImGui::GetItemRectMin();
+	    ImVec2 item_max = ImGui::GetItemRectMax();
+	    ImVec2 avail    = item_max - item_min;
+
+	    // Compute positions to center icon and text
+	    float icon_x = item_min.x + (avail.x - (icon_size.x + spacing + text_size.x)) * 0.5f;
+	    float icon_y = item_min.y + (avail.y - icon_size.y) * 0.5f;
+	    ImVec2 icon_pos = ImVec2(icon_x, icon_y);
+	    ImVec2 icon_end = ImVec2(icon_x + icon_size.x, icon_y + icon_size.y);
+
+	    float text_x = icon_end.x + spacing;
+	    float text_y = item_min.y + (avail.y - text_size.y) * 0.5f;
+	    ImVec2 text_pos = ImVec2(text_x, text_y);
+
+	    // Draw icon and text
+	    ImDrawList* dl = ImGui::GetWindowDrawList();
+	    dl->AddImage(icon, icon_pos, icon_end);
+	    dl->AddText(text_pos, ImGui::GetColorU32(ImGuiCol_Text), label);
+
+	    ImGui::PopID();
+	    return pressed;
+	}
+
+	void Wrapper::UI::ToggleButton(const char* name, bool* toggle, const Vec2f& size /*= Vec2f(0, 0)*/)
 	{
 		if (*toggle == true)
 		{
@@ -727,7 +961,7 @@ namespace GALAXY {
 		}
 	}
 
-	void Wrapper::GUI::TextSelectable(const std::string& label, const Vec4f& color /*= Vec4f(1)*/)
+	void Wrapper::UI::TextSelectable(const std::string& label, const Vec4f& color /*= Vec4f(1)*/)
 	{
 		ImGui::PushID(label.c_str());
 		ImVec2 text_size = ImGui::CalcTextSize(label.c_str(), label.c_str() + label.size());
@@ -751,7 +985,7 @@ namespace GALAXY {
 		ImGui::PopID();
 	}
 
-	bool Wrapper::GUI::Splitter(const bool split_vertically, const float thickness, float* size1, float* size2, const float min_size1, const float min_size2, const float splitter_long_axis_size /*= -1.0f*/)
+	bool Wrapper::UI::Splitter(const bool split_vertically, const float thickness, float* size1, float* size2, const float min_size1, const float min_size2, const float splitter_long_axis_size /*= -1.0f*/)
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow* window = g.CurrentWindow;
@@ -761,7 +995,4 @@ namespace GALAXY {
 		bb.Max = bb.Min + ImGui::CalcItemSize(split_vertically ? ImVec2(thickness, splitter_long_axis_size) : ImVec2(splitter_long_axis_size, thickness), 0.0f, 0.0f);
 		return ImGui::SplitterBehavior(bb, id, split_vertically ? ImGuiAxis_X : ImGuiAxis_Y, size1, size2, min_size1, min_size2, 0.0f);
 	}
-
-
-
 }

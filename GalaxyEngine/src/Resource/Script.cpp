@@ -43,16 +43,13 @@ public:
 END_FILE()
 	)";
 
-	void Resource::Script::Load()
+	bool Resource::Script::Load()
 	{
-		// do not load .cpp file
-		if (p_loaded)
-			return;
-		p_loaded = true;
-		
 #ifdef WITH_EDITOR
 		m_scriptContent = Utils::FileSystem::ReadFile(GetFileInfo().GetFullPath());
 #endif
+
+		return true;
 	}
 
 	void Resource::Script::Unload()

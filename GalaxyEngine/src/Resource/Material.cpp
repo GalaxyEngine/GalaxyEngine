@@ -16,32 +16,27 @@ namespace GALAXY
     {
     }
 
-    void Resource::Material::Load()
-    {
-        if (p_shouldBeLoaded)
-            return;
-        p_shouldBeLoaded = true;
-        StartLoading();
-        if (p_fileInfo.GetResourceType() == Resource::ResourceType::Materials)
-        {
-        }
-        else
+    bool Resource::Material::Load()
+    {                
+        if (p_fileInfo.GetResourceType() != Resource::ResourceType::Materials)
         {
             if (!LoadMatFile())
-                return;
+                return false;
         }
-
-        p_loaded = true;
 
         if (!std::filesystem::exists(GetDataFilePath()))
             CreateDataFile();
-
-        FinishLoading();
+        
 #ifdef WITH_EDITOR
-        if (Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
-            return;
-        CreateThumbnail();
+        if (!Editor::ThumbnailCreator::IsThumbnailUpToDate(this))
+            CreateThumbnail();
 #endif
+        return true;
+    }
+
+    void Resource::Material::Send()
+    {
+        p_hasBeenSent.store(true);
     }
 
     void Resource::Material::OnAdd()
@@ -330,11 +325,13 @@ namespace GALAXY
         m_data = MaterialData();
 
         if (val.lock()->HasBeenSent())
+        {
             OnShaderLoaded(shared_from_this(), val);
+        }
         else
         {
             Core::ThreadManager::Lock();
-            val.lock()->OnLoad.Bind(std::bind(&Material::OnShaderLoaded, shared_from_this(), val));
+            val.lock()->EOnLoad.Bind(std::bind(&Material::OnShaderLoaded, shared_from_this(), val));
             Core::ThreadManager::Unlock();
         }
     }        

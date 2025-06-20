@@ -4,7 +4,7 @@
 #include <functional>
 #include <unordered_map>
 
-#include "Wrapper/GUI.h"
+#include "Wrapper/UI.h"
 
 #include "Scripting/VariableInfo.h"
 #include "Utils/Event.h"

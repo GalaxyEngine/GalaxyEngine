@@ -10,6 +10,11 @@ namespace GALAXY::Resource
 
 namespace GALAXY
 {
+    namespace Editor
+    {
+        class EditorCamera;
+    }
+
     namespace Resource
     {
         class Texture;
@@ -50,7 +55,7 @@ namespace GALAXY
             virtual ~Camera() = default;
 
 #ifdef WITH_EDITOR
-            static Shared<class EditorCamera> GetEditorCamera();
+            static Shared<Editor::EditorCamera> GetEditorCamera();
 #endif
             static Shared<Component::CameraComponent> GetMainCamera();
 

@@ -22,7 +22,7 @@
 #ifdef WITH_EDITOR
 #include "Editor/ThumbnailCreator.h"
 #include "Editor/UI/FileExplorer.h"
-#include "Editor/UI/EditorUIManager.h"
+#include "Editor/UI/Manager.h"
 #endif
 
 #define AUTO_IMPORT
@@ -308,7 +308,7 @@ namespace GALAXY
 
             if (shouldReload)
             {
-                Editor::UI::EditorUIManager* instance = Editor::UI::EditorUIManager::GetInstance();
+                Editor::UI::Manager* instance = Editor::UI::Manager::GetInstance();
                 if (!instance)
                     return;
                 Editor::UI::FileExplorer* fileExplorer = instance->GetFileExplorer();
@@ -538,13 +538,13 @@ namespace GALAXY
 #ifdef WITH_EDITOR
     void Resource::ResourceManager::ShowFileInInternExplorer(const Path& path)
     {
-        auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+        auto fileExplorer = Editor::UI::Manager::GetInstance()->GetFileExplorer();
         fileExplorer->NavigateToFile(path);
     }
 
     Path Resource::ResourceManager::GetSelectedFileInInternExplorer()
     {
-        auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+        auto fileExplorer = Editor::UI::Manager::GetInstance()->GetFileExplorer();
         auto selectedFiles = fileExplorer->GetSelectedFiles();
         if (selectedFiles.empty())
             return "";
@@ -553,7 +553,7 @@ namespace GALAXY
 
     Weak<Resource::IResource> Resource::ResourceManager::GetExplorerDraggedFile()
     {
-        auto fileExplorer = Editor::UI::EditorUIManager::GetInstance()->GetFileExplorer();
+        auto fileExplorer = Editor::UI::Manager::GetInstance()->GetFileExplorer();
         auto draggedFiles = fileExplorer->GetDraggedFiles();
         if (draggedFiles.empty())
             return {};

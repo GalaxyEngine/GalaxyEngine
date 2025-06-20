@@ -1,6 +1,6 @@
 #pragma once
 #include "Component/ScriptComponent.h"
-#include "Wrapper/GUI.h"
+#include "Wrapper/UI.h"
 namespace GALAXY 
 {
 	/*
@@ -13,23 +13,23 @@ namespace GALAXY
 		}
 		else {
 			if (std::vector<T>* list = GetVariable<std::vector<T>>(variable.first)) {
-				Wrapper::GUI::SetNextItemOpen();
-				if (Wrapper::GUI::TreeNode(variable.first.c_str())) {
+				Wrapper::UI::SetNextItemOpen();
+				if (Wrapper::UI::TreeNode(variable.first.c_str())) {
 					for (size_t i = 0; i < list->size(); i++) {
-						Wrapper::GUI::PushID(static_cast<int>(i));
+						Wrapper::UI::PushID(static_cast<int>(i));
 						T value = (*list)[i];
 						DisplayVariableT(variable, &value);
 						(*list)[i] = value;
-						Wrapper::GUI::PopID();
+						Wrapper::UI::PopID();
 					}
-					if (Wrapper::GUI::Button("+", buttonSize)) {
+					if (Wrapper::UI::Button("+", buttonSize)) {
 						list->push_back({});
 					}
-					Wrapper::GUI::SameLine();
-					if (Wrapper::GUI::Button("-", buttonSize) && !list->empty()) {
+					Wrapper::UI::SameLine();
+					if (Wrapper::UI::Button("-", buttonSize) && !list->empty()) {
 						list->pop_back();
 					}
-					Wrapper::GUI::TreePop();
+					Wrapper::UI::TreePop();
 				}
 			}
 		}

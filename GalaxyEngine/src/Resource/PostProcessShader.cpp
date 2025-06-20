@@ -10,13 +10,8 @@ namespace GALAXY
 	{
 	}
 
-	void Resource::PostProcessShader::Load()
+	bool Resource::PostProcessShader::Load()
 	{
-		if (p_shouldBeLoaded)
-			return;
-		p_shouldBeLoaded = true;
-		StartLoading();
-
 		Weak<PostProcessShader> thisShader = ResourceManager::GetInstance()->GetResource<Resource::PostProcessShader>(p_fileInfo.GetFullPath());
 		auto vertexShader = ResourceManager::GetOrLoad<VertexShader>(VERTEX_PP_PATH);
 		SetVertex(vertexShader.lock(), thisShader, false);
@@ -50,9 +45,9 @@ namespace GALAXY
 					SetFragment(fragmentShader.lock(), this_shader);
 				}
 			}
-			p_loaded = true;
-			SendRequest();
+			return true;
 		}
+		return false;
 	}
 
 }

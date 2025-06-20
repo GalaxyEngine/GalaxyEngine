@@ -4,9 +4,10 @@
 
 namespace GALAXY 
 {
-	namespace Render
+	namespace Render {class Framebuffer;}
+	namespace Editor
 	{
-		class EditorCamera : public Camera
+		class EditorCamera : public Render::Camera
 		{
 		public:
 			EditorCamera();
@@ -25,7 +26,7 @@ namespace GALAXY
 				return m_transform.get();
 			}
 
-			inline class Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
+			inline Render::Framebuffer* GetOutlineFramebuffer() const { return m_outlineFramebuffer; }
 
 			inline bool IsLooking() const { return m_looking; }
 		private:
@@ -33,7 +34,7 @@ namespace GALAXY
 			void StartLooking();
 			void StopLooking();
 
-			class Framebuffer* m_outlineFramebuffer = nullptr;
+			Render::Framebuffer* m_outlineFramebuffer = nullptr;
 
 		private:
 			float m_movementSpeed = 10.f;
