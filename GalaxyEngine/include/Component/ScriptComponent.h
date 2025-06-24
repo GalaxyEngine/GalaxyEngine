@@ -35,6 +35,8 @@ namespace GALAXY
 
 #ifdef WITH_EDITOR
 			EDITOR_ONLY virtual void ShowInInspector() override;
+
+			EDITOR_ONLY virtual void* GetIcon() override;
 #endif
 
 			void OnCreate() override;

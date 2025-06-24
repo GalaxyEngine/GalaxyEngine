@@ -12,6 +12,11 @@
 #include "Utils/Define.h"
 
 
+#ifdef WITH_EDITOR
+#include "Editor/UI/IconManager.h"
+#endif
+
+
 namespace GALAXY 
 {
 
@@ -46,6 +51,11 @@ namespace GALAXY
 		p_dirty |= ImGui::ColorEdit3("Specular", p_specular.value.Data());
 
 		p_shadowMap.ShowInInspector();
+	}
+
+	void* Component::Light::GetIcon()
+	{
+		return Editor::UI::IconManager::LightComponentIcon;
 	}
 #endif
 

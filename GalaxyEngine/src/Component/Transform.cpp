@@ -8,6 +8,7 @@
 
 #ifdef WITH_EDITOR
 #include "Editor/ActionManager.h"
+#include "Editor/UI/IconManager.h"
 #endif
 /*TODO :
  * Implement missing methods
@@ -202,6 +203,11 @@ namespace GALAXY
 		{
 			SetWorldScale(worldScale);
 		}
+	}
+
+	void* Component::Transform::GetIcon()
+	{
+		return Editor::UI::IconManager::TransformComponentIcon;
 	}
 #endif
 

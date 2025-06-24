@@ -32,6 +32,8 @@ namespace GALAXY {
 
 #ifdef WITH_EDITOR
 			EDITOR_ONLY void ShowInInspector() override;
+
+			EDITOR_ONLY void* GetIcon() override;
 #endif
 
 			void Serialize(CppSer::Serializer& serializer) override;

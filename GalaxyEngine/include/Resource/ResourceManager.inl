@@ -16,7 +16,9 @@
 
 #include <Wrapper/UI.h>
 
+#ifdef WITH_EDITOR
 #include "Editor/UI/IconManager.h"
+#endif
 
 namespace GALAXY
 {

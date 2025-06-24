@@ -11,6 +11,7 @@
 #include "Render/Framebuffer.h"
 
 #ifdef WITH_EDITOR
+#include "Editor/UI/IconManager.h"
 #include "Editor/UI/Manager.h"
 #endif
 
@@ -105,6 +106,11 @@ namespace GALAXY
 		}
 		//ImGui::PopStyleVar();
 		ImGui::End();
+	}
+
+	void* Component::CameraComponent::GetIcon()
+	{
+		return Editor::UI::IconManager::CameraComponentIcon;
 	}
 #endif
 

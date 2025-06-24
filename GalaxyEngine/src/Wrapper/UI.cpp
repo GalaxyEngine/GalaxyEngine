@@ -175,9 +175,9 @@ namespace GALAXY {
 		colors[ImGuiCol_Button] = ImVec4(0.20f, 0.20f, 0.20f, 0.90f);
 		colors[ImGuiCol_ButtonHovered] = ImVec4(0.31f, 0.31f, 0.31f, 0.80f);
 		colors[ImGuiCol_ButtonActive] = ImVec4(0.41f, 0.41f, 0.41f, 0.80f);
-		colors[ImGuiCol_Header] = ImVec4(0.31f, 0.31f, 0.31f, 0.80f);
-		colors[ImGuiCol_HeaderHovered] = ImVec4(0.41f, 0.41f, 0.41f, 0.80f);
-		colors[ImGuiCol_HeaderActive] = ImVec4(0.51f, 0.51f, 0.51f, 0.80f);
+		colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 0.80f);
+		colors[ImGuiCol_HeaderHovered] = ImVec4(0.25f, 0.25f, 0.25f, 0.80f);
+		colors[ImGuiCol_HeaderActive] = ImVec4(0.33f, 0.33f, 0.33f, 0.80f);
 		colors[ImGuiCol_Separator] = ImVec4(0.50f, 0.50f, 0.50f, 0.60f);
 		colors[ImGuiCol_SeparatorHovered] = ImVec4(0.70f, 0.70f, 0.70f, 0.60f);
 		colors[ImGuiCol_SeparatorActive] = ImVec4(0.90f, 0.90f, 0.90f, 0.60f);
@@ -926,7 +926,7 @@ namespace GALAXY {
 	    ImVec2 icon_end = ImVec2(icon_x + icon_size.x, icon_y + icon_size.y);
 
 	    float text_x = icon_end.x + spacing;
-	    float text_y = item_min.y + (avail.y - text_size.y) * 0.5f;
+	    float text_y = item_min.y + (avail.y - text_size.y) * 0.5f + 1.f;
 	    ImVec2 text_pos = ImVec2(text_x, text_y);
 
 	    // Draw icon and text

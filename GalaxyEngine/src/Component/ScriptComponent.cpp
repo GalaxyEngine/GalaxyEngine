@@ -2,6 +2,10 @@
 #include "Component/ScriptComponent.h"
 
 #include "Core/SceneHolder.h"
+#ifdef WITH_EDITOR
+#include "Editor/UI/IconManager.h"
+#endif
+
 #include "Resource/Scene.h"
 
 void Component::ScriptComponent::InitializeVariablesInfo()
@@ -32,6 +36,11 @@ void Component::ScriptComponent::ShowInInspector()
 			variable.second->displayValue(variable.first, variableValue);
 		}
 	}
+}
+
+void* Component::ScriptComponent::GetIcon()
+{
+	return Editor::UI::IconManager::ScriptComponentIcon;
 }
 #endif
 

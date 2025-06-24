@@ -18,6 +18,8 @@ namespace GALAXY {
 			EDITOR_ONLY void OnEditorDraw() override;
 			
 			EDITOR_ONLY void ShowInInspector() override;
+			
+			EDITOR_ONLY void* GetIcon() override;
 #endif
 			
 			void OnDraw() override;

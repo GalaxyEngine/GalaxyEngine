@@ -43,6 +43,9 @@ namespace GALAXY {
 
 			// Called on Editor Draw
 			EDITOR_ONLY virtual void OnEditorDraw() {}
+
+			// Return the component icon
+			EDITOR_ONLY virtual void* GetIcon() { return nullptr; } 
 #endif
 
 			// Called on Creation

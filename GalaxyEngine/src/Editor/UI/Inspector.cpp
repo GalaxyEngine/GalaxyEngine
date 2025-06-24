@@ -37,10 +37,55 @@ void Editor::UI::Inspector::Draw()
 	ImGui::End();
 }
 
-bool CollapsingHeader(const char* label, ImTextureID icon, bool* open, bool* checked, bool* destroyed)
+static bool CollapsingHeader(const char* label, ImTextureID icon, bool* checked = nullptr, bool* destroyed = nullptr, bool* hovered = nullptr)
 {
+	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen
+							 | ImGuiTreeNodeFlags_SpanAvailWidth
+							 | ImGuiTreeNodeFlags_AllowItemOverlap
+							 | ImGuiTreeNodeFlags_CollapsingHeader
+							 | ImGuiTreeNodeFlags_NoTreePushOnOpen;
+
+	ImGui::PushID(label);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4, 5));
+	bool is_open = ImGui::CollapsingHeader("##arrow", destroyed, flags);
+	ImGui::PopStyleVar();
+
+	if (hovered)
+	{
+		*hovered = ImGui::IsItemHovered();
+	}
 	
+	ImGui::SameLine();
+
+	Vec2f cursorPos = ImGui::GetCursorScreenPos();
+	cursorPos.x = ImGui::GetWindowPos().x + ImGui::GetStyle().WindowPadding.x + ImGui::GetFrameHeight() + ImGui::GetStyle().FramePadding.x;
+
+	float size = ImGui::GetFrameHeight() * 1.f;
+
+	cursorPos.y += ImGui::GetFrameHeight() * 0.1f;
+
+	ImGui::GetWindowDrawList()->AddImage(icon, cursorPos, cursorPos + Vec2f(size), ImVec2(0, 0), ImVec2(1, 1));
+	// ImGui::GetWindowDrawList()->AddRectFilled(cursorPos, cursorPos + Vec2f(size, size), IM_COL32(255, 0, 0, 255));
+	
+	ImGui::SetCursorScreenPos(cursorPos + Vec2f(size + ImGui::GetStyle().FramePadding.x * 2.f, 0));
+	if (checked)
+	{
+		ImGui::Checkbox("##checked", checked);
+	}
+	else
+	{
+		ImGui::InvisibleButton("##invisible", Vec2f(ImGui::GetFrameHeight()));
+	}
+	
+	ImGui::SameLine();
+	
+	ImGui::TextUnformatted(label);
+
+	ImGui::PopID();
+	return is_open;
 }
+
 
 void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 {
@@ -68,7 +113,7 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	ImGui::BeginDisabled(!object->m_active);
 
 	// Transform
-	if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+	if (CollapsingHeader("Transform", object->m_transform->GetIcon(), nullptr, nullptr))
 	{
 		object->m_transform->ShowInInspector();
 	}
@@ -81,42 +126,24 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 		ImGui::PushID(i);
 
 		bool enable = object->m_components[i]->IsSelfEnable();
-		/*
-		if (ImGui::Checkbox("##", &enable))
-		{
-			object->m_components[i]->SetSelfEnable(enable);
-		}
-		ImGui::SameLine();
-		*/
-		
-
 		bool destroy = true;
-		bool open = true;
-		/*
-		std::string label = "          " + std::string(object->m_components[i]->GetComponentName());
-		const bool open = ImGui::CollapsingHeader(label.c_str(), &destroy, ImGuiTreeNodeFlags_AllowItemOverlap | ImGuiTreeNodeFlags_DefaultOpen);
-		if (ImGui::IsItemHovered())
+		bool hovered = false;
+		const bool open = CollapsingHeader(object->m_components[i]->GetComponentName(), object->m_components[i]->GetIcon(), &enable, &destroy, &hovered);
+		if (hovered)
 		{
 			ImGui::BeginTooltip();
 			ImGui::Text("ID : %d", object->m_components[i]->GetIndex());
 			ImGui::EndTooltip();
 		}
-		if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+		if (hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 		{
 			openPopup = true;
 			m_rightClicked = object->m_components[i];
 		}
-
-		ImGui::SameLine(ImGui::GetFrameHeight() + ImGui::GetStyle().ItemSpacing.x * 2.F);
-		
-		if (ImGui::Checkbox("##", &enable))
+		if (enable != object->m_components[i]->IsSelfEnable())
 		{
 			object->m_components[i]->SetSelfEnable(enable);
 		}
-		*/
-		bool a = true;
-		CollapsingHeader(object->m_components[i]->GetComponentName(), IconManager::InfoIcon, &open, &enable, &destroy);
-		
 
 		if (ImGui::BeginDragDropSource())
 		{
@@ -141,8 +168,6 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 			ImGui::EndDisabled();
 		}
 
-		ImGui::NewLine();
-		ImGui::Separator();
 		if (!destroy) {
 			object->m_components[i]->RemoveFromGameObject();
 			i--;
@@ -158,8 +183,9 @@ void Editor::UI::Inspector::ShowGameObject(Core::GameObject* object)
 	RightClickPopup();
 	// Add Component Button
 	ImGui::NewLine();
+	ImGui::SeparatorEx(ImGuiSeparatorFlags_SpanAllColumns, 2.f);
 	ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - 100);
-	if (ImGui::Button("Add Component", Math::Vec2f(200, 0)))
+	if (Wrapper::UI::IconButton("Add Component", IconManager::AddIcon, Vec2f(16, 16), 4.0f, Vec2f(201.f, ImGui::GetFrameHeight() * 1.2f)))
 	{
 		ImGui::OpenPopup("ComponentPopup");
 	}

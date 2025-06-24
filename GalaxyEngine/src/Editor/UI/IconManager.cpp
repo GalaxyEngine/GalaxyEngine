@@ -7,9 +7,7 @@ namespace GALAXY
 {
     using namespace Editor::UI;
 
-    ImTextureID IconManager::CameraIcon = nullptr;
-    ImTextureID IconManager::LightIcon = nullptr;
-    ImTextureID IconManager::InfoIcon = nullptr;\
+    ImTextureID IconManager::InfoIcon = nullptr;
     ImTextureID IconManager::WarningIcon = nullptr;
     ImTextureID IconManager::ErrorIcon = nullptr;
     ImTextureID IconManager::SettingsIcon = nullptr;
@@ -17,6 +15,11 @@ namespace GALAXY
     ImTextureID IconManager::AddIcon = nullptr;
     ImTextureID IconManager::RemoveIcon = nullptr;
     ImTextureID IconManager::SearchIcon = nullptr;
+    ImTextureID IconManager::CameraComponentIcon = nullptr;
+    ImTextureID IconManager::LightComponentIcon = nullptr;
+    ImTextureID IconManager::TransformComponentIcon = nullptr;
+    ImTextureID IconManager::MeshComponentIcon = nullptr;
+    ImTextureID IconManager::ScriptComponentIcon = nullptr;
     
     void IconManager::Initialize()
     {
@@ -36,8 +39,6 @@ namespace GALAXY
             }
         };
         
-        loadIcon(&CameraIcon, CAMERA_ICON_PATH);
-        loadIcon(&LightIcon, LIGHT_ICON_PATH);
         loadIcon(&InfoIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/info.png");
         loadIcon(&WarningIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/warning.png");
         loadIcon(&ErrorIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/error.png");
@@ -46,5 +47,10 @@ namespace GALAXY
         loadIcon(&AddIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/add.png");
         loadIcon(&RemoveIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/remove.png");
         loadIcon(&SearchIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/search.png");
+        loadIcon(&TransformComponentIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/component/transform.png");
+        loadIcon(&MeshComponentIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/component/mesh.png");
+        loadIcon(&CameraComponentIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/component/camera.png");
+        loadIcon(&LightComponentIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/component/light.png");
+        loadIcon(&ScriptComponentIcon, ENGINE_RESOURCE_FOLDER_NAME "/icons/component/script.png");
     }
 }

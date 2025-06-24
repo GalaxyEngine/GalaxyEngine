@@ -35,6 +35,8 @@ namespace GALAXY
 			EDITOR_ONLY void OnEditorDraw() override;
 
 			EDITOR_ONLY void ShowInInspector() override;
+
+			EDITOR_ONLY void* GetIcon() override;
 #endif
 			void Serialize(CppSer::Serializer& serializer) override;
 			void Deserialize(CppSer::Parser& parser) override;

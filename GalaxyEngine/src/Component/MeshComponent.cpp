@@ -112,6 +112,11 @@ namespace GALAXY {
 				selected = -1;
 		}
 	}
+
+	void* Component::MeshComponent::GetIcon()
+	{
+		return Editor::UI::IconManager::MeshComponentIcon;
+	}
 #endif
 
 	void Component::MeshComponent::OnDraw()
