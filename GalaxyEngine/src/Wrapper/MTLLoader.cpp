@@ -16,16 +16,28 @@ namespace GALAXY
 		}
 
 		auto endMaterial = [&](const std::shared_ptr<Resource::Material>& material)
+		{
+		
+			if (material && material->IsShaderValid() && !material->p_fileInfo.Exist())
 			{
-				if (material && material->IsShaderValid() && !material->p_fileInfo.Exist())
+				material->p_shouldBeLoaded = true;
+				material->p_loaded = true;
+				material->p_hasBeenSent = true;
+				material->EOnLoad.Invoke();
+				material->Save();
+			}
+			else if (material && !material->p_fileInfo.Exist())
+			{
+				material->GetShader()->EOnLoad.Bind([material]()
 				{
+					material->p_shouldBeLoaded = true;
+					material->p_loaded = true;
+					material->p_hasBeenSent = true;
+					material->EOnLoad.Invoke();
 					material->Save();
-				}
-				else if (material && !material->p_fileInfo.Exist())
-				{
-					material->GetShader()->EOnLoad.Bind(std::bind(&Resource::Material::Save, material));
-				}
-			};
+				});
+			}
+		};
 
 		std::string line;
 		std::shared_ptr<Resource::Material> currentMaterial;

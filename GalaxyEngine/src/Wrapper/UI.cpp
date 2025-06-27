@@ -773,6 +773,8 @@ namespace GALAXY {
 			{
 				if (filter.PassFilter(component->GetComponentName()))
 				{
+					ImGui::Image(component->GetIcon(), Vec2f(ImGui::GetFrameHeight()));
+					ImGui::SameLine();
 					const Vec2f buttonSize = Vec2f(ImGui::GetContentRegionAvail().x, 0);
 					if (ImGui::Button(component->GetComponentName(), buttonSize)) {
 						ImGui::CloseCurrentPopup();

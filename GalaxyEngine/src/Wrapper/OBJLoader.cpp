@@ -64,8 +64,8 @@ void Wrapper::OBJLoader::Load(const std::filesystem::path& fullPath, Resource::M
 			outputModel->m_meshes.push_back(meshWeak);
 
 		mesh->m_model = outputModel;
-
 		mesh->SendRequest();
+		
 	}
 	outputModel->ComputeBoundingBox(positionVertices);
 	outputModel->m_meshesAdded = true;

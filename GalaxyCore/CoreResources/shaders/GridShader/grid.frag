@@ -11,7 +11,7 @@ in mat4 fragProj;
 
 out vec4 FragColor;
 
-#define lineSize 5.f
+#define lineSize 3.f
 
 vec4 grid(vec3 fragPos3D, float scale, bool drawAxis) {
     vec2 coord = fragPos3D.xz * scale;

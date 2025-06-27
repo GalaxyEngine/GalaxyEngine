@@ -240,7 +240,7 @@ namespace GALAXY
 				if (!material)
 				{
 					material = Resource::ResourceManager::AddResource<Resource::Material>(materialFullPath).lock();
-					material->SetShader(Resource::ResourceManager::GetInstance()->GetDefaultShader());
+					material->SetShader(Resource::ResourceManager::GetDefaultShader());
 					material->SetAmbient(ToVec4f(fbxMaterial->getAmbientColor()));
 					material->SetDiffuse(ToVec4f(fbxMaterial->getDiffuseColor()));
 					material->SetSpecular(ToVec4f(fbxMaterial->getSpecularColor()));
@@ -254,7 +254,9 @@ namespace GALAXY
 					material->SetNormalMap(normalMap);
 
 					material->Save();
-					material->Load();
+
+					// Load Material
+					Resource::ResourceManager::GetOrLoad<Resource::Material>(materialFullPath);
 				}
 				outputModel->m_materials.push_back(material);
 			}
