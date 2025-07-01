@@ -1,8 +1,13 @@
 #pragma once
-
 #include "GalaxyAPI.h"
+#include "Core/UUID.h"
 #include "Physic/AABB.h"
 #include "Wrapper/PhysicsWrapper.h"
+
+namespace GALAXY::Core
+{
+    class GameObject;
+}
 
 namespace GALAXY::Resource
 {

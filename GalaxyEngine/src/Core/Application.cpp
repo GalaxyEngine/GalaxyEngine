@@ -7,7 +7,9 @@
 #include "Core/Input.h"
 #include "Core/GameObject.h"
 
+#ifdef WITH_EDITOR
 #include "Wrapper/UI.h"
+#endif
 #include "Wrapper/Window.h"
 #include "Wrapper/Renderer.h"
 #include "Wrapper/Audio.h"
@@ -138,9 +140,11 @@ namespace GALAXY {
 		m_audioSystem = Wrapper::Audio::GetInstance();
 		m_audioSystem->Initialize();
 
+#ifdef WITH_EDITOR
 		// Initialize UI Lib
 		Wrapper::UI::Initialize(m_window, "#version 450");
 		Wrapper::UI::DisableIniFile(m_inPackage);
+#endif
 
 		// Initialize Render API
 		Wrapper::Renderer::CreateInstance(Wrapper::RenderAPI::OPENGL);
@@ -263,7 +267,9 @@ namespace GALAXY {
 #endif
 
 			Wrapper::Window::PollEvent();
+#ifdef WITH_EDITOR
 			Wrapper::UI::NewFrame();
+#endif
 
 			if (Input::IsKeyPressed(Key::F11))
 			{
@@ -305,11 +311,9 @@ namespace GALAXY {
 
 #ifdef WITH_EDITOR
 			m_editorSettings.UpdateScreenShot();
-#endif
-
 			// Rendering
 			Wrapper::UI::EndFrame(m_window);
-
+#endif
 			// Update Inputs
 			Input::Update();
 
@@ -481,8 +485,10 @@ namespace GALAXY {
 
 		Component::ComponentHolder::Release();
 
+#ifdef WITH_EDITOR
 		// UI
 		Wrapper::UI::UnInitalize();
+#endif
 
 		// Audio Wrapper
 		if (m_audioSystem)

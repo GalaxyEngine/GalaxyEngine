@@ -2,14 +2,16 @@
 #include "Core/ProjectSettings.h"
 
 #include "Physic/CollisionLayer.h"
-#include "Physic/Frustum.h"
+
 #include "Resource/ResourceManager.h"
 
 #include "Utils/OS.h"
+
 #include "Wrapper/PhysicsWrapper.h"
 
 namespace GALAXY 
 {
+#ifdef WITH_EDITOR
 	void Core::ProjectSettings::Display()
 	{
 		static ProjectSettings copySettings = *this;
@@ -219,6 +221,7 @@ namespace GALAXY
 			m_selectedTab = tab;
 		}
 	}
+#endif
 
 	void Core::ProjectSettings::SaveSettings() const
 	{

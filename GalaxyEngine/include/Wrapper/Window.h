@@ -92,6 +92,7 @@ namespace GALAXY
 			VideoMode GetVideoMode() const;
 			static std::string GetNonPrintableKeyName(int key);
 			static std::string GetKeyName(int key);
+			static double GetTime();
 
 			Vec2i ToWindowSpace(const Vec2i& pos) const;
 			Vec2i ToScreenSpace(const Vec2i& pos) const;

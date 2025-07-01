@@ -2,6 +2,7 @@
 #include "GalaxyAPI.h"
 #include "Resource/Mesh.h"
 #include "Utils/Type.h"
+#include "Utils/Define.h"
 
 namespace GALAXY::Resource
 {

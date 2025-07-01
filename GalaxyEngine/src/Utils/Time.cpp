@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "Utils/Time.h"
+
+#include "Wrapper/Window.h"
+
 namespace GALAXY::Utils
 {
 	float Time::s_deltaTime = 0.0f;
+	double Time::s_lastTime = 0.0f;
 
 	Time::Time(const std::chrono::steady_clock::time_point& tp)
 	{
@@ -55,9 +59,16 @@ namespace GALAXY::Utils
 		return s_deltaTime;
 	}
 
+	double Time::TimeSinceStart()
+	{
+		return Wrapper::Window::GetTime();
+	}
+
 	void Time::UpdateDeltaTime()
 	{
-		s_deltaTime = Wrapper::UI::DeltaTime();
+		double currentTime = TimeSinceStart();
+		s_deltaTime = static_cast<float>(currentTime - s_lastTime);
+		s_lastTime = currentTime;
 	}
 
 	std::string Time::FormatTimeSeconds(float seconds, const std::string& format)

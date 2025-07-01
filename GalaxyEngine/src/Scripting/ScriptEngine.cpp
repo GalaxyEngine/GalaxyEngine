@@ -15,6 +15,7 @@
 #include "Component/ScriptComponent.h"
 
 #include "Utils/OS.h"
+#include "Utils/Time.h"
 
 #ifdef WITH_EDITOR
 #include "Editor/EditorSettings.h"
@@ -109,7 +110,7 @@ namespace GALAXY
 		}
 	}
 
-	void Scripting::ScriptEngine::UnregisterScriptComponents()
+	void Scripting::ScriptEngine::UnregisterScriptComponents() const
 	{
 		for (auto& instance : m_engine->GetAllScriptInstances())
 		{
@@ -119,7 +120,7 @@ namespace GALAXY
 
 	void Scripting::ScriptEngine::UpdateFileWatch()
 	{
-		m_currentTime += Wrapper::UI::DeltaTime();
+		m_currentTime += Utils::Time::DeltaTime();
 		if (m_currentTime > m_updateInterval)
 		{
 			std::filesystem::path dllPathExt = m_dllPath.string() + Utils::OS::GetDLLExtension();

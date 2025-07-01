@@ -125,6 +125,7 @@ target("GalaxyEngine")
 
     if not isEditor then
         remove_files("GalaxyEngine/include/Editor/**.h", "GalaxyEngine/include/Editor/**.inl", "GalaxyEngine/src/Editor/**.cpp")
+        remove_files("GalaxyEngine/include/Wrapper/UI.h", "GalaxyEngine/src/Wrapper/UI.cpp")
     end
 
     set_pcxxheader("GalaxyEngine/include/pch.h")

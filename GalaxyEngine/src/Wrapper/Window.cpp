@@ -386,6 +386,11 @@ namespace GALAXY {
 		return value;
 	}
 
+	double Wrapper::Window::GetTime()
+	{
+		return glfwGetTime();
+	}
+
 	Vec2i Wrapper::Window::ToWindowSpace(const Vec2i& pos) const
 	{
 		const Vec2i windowPos = GetPosition();

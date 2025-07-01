@@ -23,6 +23,7 @@ namespace GALAXY
 			operator uint64_t() const { return m_time; }
 
 			static float DeltaTime();
+			static double TimeSinceStart();
 
 			static void UpdateDeltaTime();
 
@@ -30,6 +31,7 @@ namespace GALAXY
 
 		private:
 			static float s_deltaTime;
+			static double s_lastTime;
 
 			uint64_t m_time = 0;
 		};

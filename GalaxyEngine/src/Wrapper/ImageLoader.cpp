@@ -5,6 +5,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb/stb_image_write.h>
 
+#include "Utils/Define.h"
+
 #include "Resource/Texture.h"
 
 #include "Resource/Cubemap.h"

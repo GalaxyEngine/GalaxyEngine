@@ -83,9 +83,12 @@ namespace GALAXY
 			VariableInfoT(const GS::Property& variable)
 			{
 				Initialize(variable);
+#ifdef WITH_EDITOR
 				ManageValue();
+#endif
 			}
 		private:
+#ifdef WITH_EDITOR
 			inline void ManageValue()
 			{
 				if (isAList)
@@ -130,7 +133,7 @@ namespace GALAXY
 			}
 
 			void DisplayValue(const std::string& name, void* value);
-
+#endif
 			void Serialize(CppSer::Serializer& serializer, const std::string& name, void* value) const override
 			{
 				BeginSerialize(serializer, name);

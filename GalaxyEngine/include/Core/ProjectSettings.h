@@ -32,6 +32,7 @@ namespace GALAXY
 		class ProjectSettings
 		{
 		public:
+#ifdef WITH_EDITOR
 			void Display();
 
 			void DisplayTab();
@@ -39,6 +40,7 @@ namespace GALAXY
 			void DisplayCollisionTab();
 
 			void DrawTabElement(ProjectSettingsTab tab);
+#endif
 
 			void SaveSettings() const;
 			void LoadSettings();

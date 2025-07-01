@@ -14,9 +14,8 @@
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <Wrapper/UI.h>
-
 #ifdef WITH_EDITOR
+#include <Wrapper/UI.h>
 #include "Editor/UI/IconManager.h"
 #endif
 

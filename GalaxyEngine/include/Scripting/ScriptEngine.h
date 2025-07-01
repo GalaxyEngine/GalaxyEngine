@@ -1,14 +1,10 @@
 #pragma once
 #include "GalaxyAPI.h"
 #include <filesystem>
-#include <functional>
 #include <unordered_map>
-
-#include "Wrapper/UI.h"
 
 #include "Scripting/VariableInfo.h"
 #include "Utils/Event.h"
-#include "Utils/FileInfo.h"
 
 namespace GS { class ScriptEngine; struct Property; }
 namespace GALAXY
@@ -25,7 +21,7 @@ namespace GALAXY
 			void Initialize();
 			
 			void RegisterScriptComponents() const;
-			void UnregisterScriptComponents();
+			void UnregisterScriptComponents() const;
 
 			void UpdateFileWatch();
 

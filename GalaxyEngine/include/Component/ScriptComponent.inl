@@ -1,6 +1,8 @@
 #pragma once
 #include "Component/ScriptComponent.h"
+#ifdef WITH_EDITOR
 #include "Wrapper/UI.h"
+#endif
 namespace GALAXY 
 {
 	/*

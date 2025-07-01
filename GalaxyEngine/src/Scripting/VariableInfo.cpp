@@ -134,6 +134,7 @@ namespace GALAXY
 		}
 	}
 
+#ifdef WITH_EDITOR
 #pragma region DisplayValue
 	template<typename T>
 	void Scripting::VariableInfoT<T>::DisplayValue(const std::string& name, void* value)
@@ -285,6 +286,7 @@ namespace GALAXY
 		ImGui::Text("(%s)", typeName.c_str());
 	}
 #pragma endregion
+#endif
 
 #pragma region Serialize
 	template<typename T>
