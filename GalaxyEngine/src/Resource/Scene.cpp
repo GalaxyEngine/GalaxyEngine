@@ -45,6 +45,7 @@ namespace GALAXY
 		p_hasBeenSent = true;
 #ifdef WITH_EDITOR
 		m_gizmo = std::make_shared<Editor::Gizmo>();
+		m_gizmo->Initialize();
 
 		m_grid = std::make_shared<Render::Grid>();
 		m_grid->Initialize();

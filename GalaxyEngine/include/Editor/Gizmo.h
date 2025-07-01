@@ -6,6 +6,11 @@
 
 namespace GALAXY
 {
+	namespace Resource
+	{
+		class Material;
+	}
+
 	namespace Wrapper
 	{
 		class Renderer;
@@ -92,6 +97,8 @@ namespace GALAXY
 			void HandleAction();
 
 		private:
+			Shared<Core::GameObject> m_gizmoObject = nullptr;
+			
 			Wrapper::Renderer* m_renderer = nullptr;
 
 			Weak<Core::GameObject> m_object = {};
@@ -114,6 +121,9 @@ namespace GALAXY
 			Vec3f m_currentPosition;
 
 			bool m_gizmoClicked = false;
+			GizmoAxis m_hoveredAxis = GizmoAxis::None;
+
+			UMap<GizmoAxis, Resource::Material*> m_gizmoMaterials;
 		};
 	}
 }

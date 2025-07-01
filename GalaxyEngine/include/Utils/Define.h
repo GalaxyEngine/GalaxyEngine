@@ -6,6 +6,7 @@
 #define BILLBOARD_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/BillboardShader/billboard.shader"
 #define GRID_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/GridShader/grid.shader"
 #define SKYBOX_SHADER_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/Skybox/skybox.shader"
+#define GIZMO_SHADER_PATH ENGINE_RESOURCE_FOLDER_NAME "/shaders/Gizmo/gizmo.shader"
 
 // -- Icons -- //
 #define FOLDER_ICON_PATH ENGINE_RESOURCE_FOLDER_NAME "/icons/folder.png"
@@ -20,6 +21,9 @@
 #define PLAYMODE_SCENE_PATH CACHE_PATH "playmode_scene.galaxy"
 #define THUMBNAIL_PATH CACHE_PATH "thumbnail/"
 #define PROJECT_THUMBNAIL_PATH CACHE_PATH "thumbnail/project.tmb"
+
+// -- Models -- //
+#define GIZMO_MODEL_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Gizmo.obj"
 
 // -- Meshes -- //
 #define PLANE_PATH ENGINE_RESOURCE_FOLDER_NAME "/models/Plane.obj:Plane"

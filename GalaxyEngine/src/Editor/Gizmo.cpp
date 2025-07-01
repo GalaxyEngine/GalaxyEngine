@@ -3,6 +3,8 @@
 #include "pch.h"
 
 #include "Editor/Gizmo.h"
+
+#include "Component/MeshComponent.h"
 #include "Editor/Action.h"
 #include "Editor/ActionManager.h"
 
@@ -21,6 +23,8 @@
 #include "Editor/UI/SceneWindow.h"
 
 #include "Physic/Plane.h"
+#include "Render/Command.h"
+#include "Resource/Model.h"
 
 #pragma region MathMethods
 static float ClosestDistanceBetweenLines(Physic::Ray& l1, Physic::Ray& l2)
@@ -150,6 +154,36 @@ namespace GALAXY
 
     void Editor::Gizmo::Initialize()
     {
+        Shared model = Resource::ResourceManager::GetOrLoad<Resource::Model>(GIZMO_MODEL_PATH).lock();
+
+        ASSERT(model != nullptr && "Failed to load gizmo model");
+        auto onLoad = [this, model]()
+        {
+            m_gizmoObject = model->ToGameObject();
+
+            auto meshes = m_gizmoObject->GetComponentsInChildren<Component::MeshComponent>();
+            int axis = 0;
+            for (auto& mesh : meshes)
+            {
+                auto materials = mesh.lock()->GetMaterials();
+                for (auto& material : materials)
+                {
+                    auto shader = Resource::ResourceManager::GetOrLoad<Resource::Shader>(GIZMO_SHADER_PATH).lock();
+                    material.lock()->SetShader(shader);
+
+                    m_gizmoMaterials[static_cast<GizmoAxis>(axis)] = material.lock().get();
+                    axis++;
+                }
+            }
+        };
+        if (!model->IsLoaded())
+        {
+            model->EOnLoad.Bind(onLoad);
+        }
+        else
+        {
+            onLoad();
+        }
     }
 
     void Editor::Gizmo::Update()
@@ -179,8 +213,14 @@ namespace GALAXY
         // Update each frame even if mouse is not clicked
         switch (m_type)
         {
-        case Editor::GizmoType::Translation:
+        case GizmoType::Translation:
             {
+                //TODO: Clean this
+                GizmoAxis axis = GizmoAxis::None;
+                float distance = FLT_MAX;
+                Physic::Ray cameraRay = Render::Camera::GetEditorCamera()->
+                    ScreenPointToRay(sceneWindow->GetMousePosition());
+                Vec3f startPosition = cameraRay.origin;
                 for (size_t i = 0; i < 3; i++)
                 {
                     Vec3f axisVector = Vec3f::Zero();
@@ -192,10 +232,35 @@ namespace GALAXY
                         m_translateRays[i].direction = rotation * axisVector;
                     else if (m_mode == Space::World)
                         m_translateRays[i].direction = axisVector;
+                    
+                    float tmpDistance = ClosestDistanceBetweenLines(cameraRay, m_translateRays[i]);
+
+                    if (tmpDistance < distance)
+                    {
+                        axis = static_cast<GizmoAxis>(i);
+                        distance = tmpDistance;
+                        startPosition = m_translateRays[i].origin + m_translateRays[i].direction * m_translateRays[i].scale;
+                    }
                 }
+
+                Vec3f worldPosition = m_object.lock()->GetTransform()->GetWorldPosition();
+                Vec3f pos = worldPosition + m_translateRays[static_cast<int>(axis)].direction * m_gizmoLength * 0.5f;
+                // Renderer::GetInstance()->DrawCube(pos, Vec3f(0.1f, 0.1f, 0.1f));
+                if (m_hoveredAxis != GizmoAxis::None)
+                    m_gizmoMaterials[m_hoveredAxis]->SetBool("hovered", false);
+                if (startPosition.Distance(pos) > m_gizmoLength * 0.5f || distance > 0.25f)
+                {
+                    m_hoveredAxis = GizmoAxis::None;
+                }
+                else
+                {
+                    m_hoveredAxis = axis;
+                    m_gizmoMaterials[m_hoveredAxis]->SetBool("hovered", true);
+                }
+                
             }
             break;
-        case Editor::GizmoType::Rotation:
+        case GizmoType::Rotation:
             {
                 for (size_t i = 0; i < 3; i++)
                 {
@@ -213,7 +278,7 @@ namespace GALAXY
                 }
             }
             break;
-        case Editor::GizmoType::Scale:
+        case GizmoType::Scale:
             {
                 for (size_t i = 0; i < 3; i++)
                 {
@@ -334,6 +399,10 @@ namespace GALAXY
                 break;
             }
         }
+
+        m_gizmoObject->GetTransform()->SetLocalPosition(m_transform->GetWorldPosition());
+        m_gizmoObject->GetTransform()->SetLocalScale(Vec3f(m_gizmoLength));
+        m_gizmoObject->UpdateSelfAndChild();
     }
 
     void Editor::Gizmo::Draw()
@@ -363,6 +432,7 @@ namespace GALAXY
             }
         case GizmoType::Translation:
             {
+                
                 size_t startIndex = m_gizmoClicked ? static_cast<int>(m_axis) : 0;
                 size_t endIndex = m_gizmoClicked ? static_cast<int>(m_axis) + 1 : 3;
                 for (size_t i = startIndex; i < endIndex; i++)
@@ -373,6 +443,9 @@ namespace GALAXY
                                          m_translateRays[i].origin + m_translateRays[i].direction * m_gizmoLength,
                                          color, 3.f);
                 }
+                
+                m_gizmoObject->DrawSelfAndChild(DrawMode::Game);
+		        Render::CommandBuffer::ExecuteCommands();
                 break;
             }
         case GizmoType::Rotation:
@@ -414,7 +487,10 @@ namespace GALAXY
     {
         m_object = std::move(object);
         if (m_object.lock())
+        {
+            m_gizmoObject->SetScene(m_object.lock()->GetScene());
             m_transform = m_object.lock()->GetTransform();
+        }
     }
 
     void Editor::Gizmo::HandleAxis(Physic::Ray& mouseRay)

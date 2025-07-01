@@ -118,6 +118,8 @@ namespace GALAXY
 
     bool Render::DrawPickingCommand::BeforeExecute(RenderCommand* prevCommand)
     {
+        if (data.material->GetShader() == nullptr)
+            return false;
         auto material = data.material;
         auto shader = material->GetShader()->GetPickingVariant().lock();
         if (!shader || !shader->HasBeenSent())

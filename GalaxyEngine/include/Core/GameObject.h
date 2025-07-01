@@ -9,6 +9,7 @@ namespace GALAXY {
 	namespace Editor
 	{
 		class ThumbnailCreator;
+		class Gizmo;
 		namespace UI {
 			class Hierarchy;
 			class Inspector;
@@ -133,6 +134,7 @@ namespace GALAXY {
 			friend Component::Light;
 			friend Editor::UI::Inspector;
 			friend Editor::ThumbnailCreator;
+			friend Editor::Gizmo;
 
 			UUID m_UUID;
 			uint64_t m_sceneGraphID = 0;

@@ -130,6 +130,7 @@ namespace GALAXY {
 	template<typename T>
 	inline List<Weak<T>> Core::GameObject::GetComponents()
 	{
+		static_assert(std::is_base_of_v<Component::BaseComponent, T>); // Incorrect Type for component
 		List<Weak<T>> list;
 		for (auto& comp : m_components) {
 			if (auto castedComp = std::dynamic_pointer_cast<T>(comp)) {
