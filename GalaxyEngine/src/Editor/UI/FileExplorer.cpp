@@ -1064,7 +1064,7 @@ namespace GALAXY {
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 
 		std::shared_ptr<Resource::Texture> texture = file->m_icon.lock();
-		const ImTextureID textureID = texture ? Wrapper::UI::GetTextureID(texture.get()) : reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(0));
+		const uint32_t textureID = texture ? texture.get()->GetID() : 0;
 		const bool shouldDrawImage = texture && texture->IsLoaded() && texture->HasBeenSent();
 		if (!isFolder || file->m_selected || file->m_hovered) {
 			// Draw Shadow behind the thumbnail

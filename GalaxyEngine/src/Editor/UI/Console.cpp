@@ -94,32 +94,32 @@ namespace GALAXY {
 	void Editor::UI::Console::DisplayText(const size_t i)
 	{
 		ImGui::PushID(static_cast<int>(i));
-		ImTextureID tex = nullptr;
+		uint32_t texID = -1;
 		switch (m_texts[i].type)
 		{
 		case Debug::LogType::L_INFO:
 			if (!m_infoCheckbox)
 				return;
-			tex = IconManager::InfoIcon;
+			texID = IconManager::InfoIcon;
 			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 1, 1, 1));
 			break;
 		case Debug::LogType::L_WARNING:
 			if (!m_warningCheckbox)
 				return;
-			tex = IconManager::WarningIcon;
+			texID = IconManager::WarningIcon;
 			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 1, 0, 1));
 			break;
 		case Debug::LogType::L_ERROR:
 			if (!m_errorCheckbox)
 				return;
-			tex = IconManager::ErrorIcon;
+			texID = IconManager::ErrorIcon;
 			ImGui::PushStyleColor(ImGuiCol_Text, Vec4f(1, 0, 0, 1));
 			break;
 		default:
 			break;
 		}
-		if (tex) {
-			Wrapper::UI::TextureImage(tex, Vec2f(32));
+		if (texID) {
+			Wrapper::UI::TextureImage(texID, Vec2f(32));
 			ImGui::SameLine();
 		}
 		if (ImGui::Selectable(m_texts[i].text.c_str(), false, ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap, Vec2f(0, 32)))

@@ -7,34 +7,34 @@ namespace GALAXY
 {
     using namespace Editor::UI;
 
-    ImTextureID IconManager::InfoIcon = nullptr;
-    ImTextureID IconManager::WarningIcon = nullptr;
-    ImTextureID IconManager::ErrorIcon = nullptr;
-    ImTextureID IconManager::SettingsIcon = nullptr;
-    ImTextureID IconManager::MenuIcon = nullptr;
-    ImTextureID IconManager::AddIcon = nullptr;
-    ImTextureID IconManager::RemoveIcon = nullptr;
-    ImTextureID IconManager::SearchIcon = nullptr;
-    ImTextureID IconManager::CameraComponentIcon = nullptr;
-    ImTextureID IconManager::LightComponentIcon = nullptr;
-    ImTextureID IconManager::TransformComponentIcon = nullptr;
-    ImTextureID IconManager::MeshComponentIcon = nullptr;
-    ImTextureID IconManager::ScriptComponentIcon = nullptr;
+    uint32_t IconManager::InfoIcon = -1;
+    uint32_t IconManager::WarningIcon = -1;
+    uint32_t IconManager::ErrorIcon = -1;
+    uint32_t IconManager::SettingsIcon = -1;
+    uint32_t IconManager::MenuIcon = -1;
+    uint32_t IconManager::AddIcon = -1;
+    uint32_t IconManager::RemoveIcon = -1;
+    uint32_t IconManager::SearchIcon = -1;
+    uint32_t IconManager::CameraComponentIcon = -1;
+    uint32_t IconManager::LightComponentIcon = -1;
+    uint32_t IconManager::TransformComponentIcon = -1;
+    uint32_t IconManager::MeshComponentIcon = -1;
+    uint32_t IconManager::ScriptComponentIcon = -1;
     
     void IconManager::Initialize()
     {
-        auto loadIcon = [](ImTextureID* texture, const Path& fullPath) {
+        auto loadIcon = [](uint32_t* texture, const Path& fullPath) {
             std::shared_ptr<Resource::Texture> icon = Resource::ResourceManager::GetOrLoad<Resource::Texture>(fullPath).lock();
             if (!icon)
                 return;
             if (icon->HasBeenSent())
             {
-                *texture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(icon->GetID()));
+                *texture = icon->GetID();
             }
             else
             {
                 icon->EOnLoad.Bind([texture, icon]() {
-                    *texture = reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(icon->GetID()));
+                    *texture = icon->GetID();
                 });
             }
         };

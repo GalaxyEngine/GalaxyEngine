@@ -411,7 +411,7 @@ namespace GALAXY
 					auto thumbnail = GetOrLoad<Texture>(resource->GetThumbnailPath()).lock();
 					if (thumbnail && thumbnail->HasBeenSent())
 					{
-						ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(thumbnail->GetID())), imageSize);
+						ImGui::Image(thumbnail->GetID(), imageSize);
 					}
 					else
 					{
@@ -487,7 +487,7 @@ namespace GALAXY
 		Vec2f borderSize = Vec2f(2, 2);
 		ImDrawList* windowDrawList = ImGui::GetWindowDrawList();
 		windowDrawList->AddRectFilled(ImGui::GetCursorScreenPos() - borderSize, ImGui::GetCursorScreenPos() + imageSize + borderSize, IM_COL32(32, 32, 32, 255));
-		ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(id)), imageSize);
+		ImGui::Image(id, imageSize);
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		ImGui::TextUnformatted((resourceName + " | " + fieldName).c_str());

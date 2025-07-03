@@ -13,6 +13,8 @@
 void Editor::UI::GameWindow::Draw()
 {
 	EditorWindow::Draw();
+	if (!p_open)
+		return;
 	if (Begin("Game"))
 	{
 		DrawImage();

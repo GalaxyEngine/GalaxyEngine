@@ -23,6 +23,7 @@ namespace GALAXY {
 		s_instance = new FontManager();
 
 		ImGuiIO& io = ImGui::GetIO();
+		io.ConfigErrorRecoveryEnableAssert = true;
 		io.Fonts->Clear();
 		
 		CreateFontGUI(FONT_DEFAULT_NAME, FONT_DEFAULT_PATH, 16.0f);
@@ -49,8 +50,6 @@ namespace GALAXY {
 			font.handle = io.Fonts->AddFontFromFileTTF(font.path.generic_string().c_str(), font.size);
 		}
 		s_instance->m_fontsNotSent.clear();
-		
-		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 
 	void Wrapper::FontManager::RecreateFonts(float dpiScale)
@@ -303,7 +302,9 @@ namespace GALAXY {
 		ImGuiWindow* window = g.CurrentWindow;
 		ImGui::Unindent(indent);
 
+		
 		window->DC.TreeDepth--;
+		/*
 		ImU32 tree_depth_mask = (1 << window->DC.TreeDepth);
 
 		// Handle Left arrow to move to parent tree node (when ImGuiTreeNodeFlags_NavLeftJumpsBackHere is enabled)
@@ -316,6 +317,7 @@ namespace GALAXY {
 			g.NavTreeNodeStack.pop_back();
 		}
 		window->DC.TreeJumpToParentOnPopMask &= tree_depth_mask - 1;
+		*/
 
 		IM_ASSERT(window->IDStack.Size > 1); // There should always be 1 element in the IDStack (pushed during window creation). If this triggers you called TreePop/PopID too much.
 		ImGui::PopID();
@@ -648,7 +650,7 @@ namespace GALAXY {
 			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth() * 3 - 15.f);
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-			const float lineHeight = GImGui->Font->FontSize + GImGui->Style.FramePadding.y * 2.0f;
+			const float lineHeight = GImGui->FontSize + GImGui->Style.FramePadding.y * 2.0f;
 			const ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 			// X
@@ -704,7 +706,7 @@ namespace GALAXY {
 			ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2{ 0, 0 });
 
-			const float lineHeight = GImGui->Font->FontSize * GetScaleFactor() + GImGui->Style.FramePadding.y * 2.0f;
+			const float lineHeight = GImGui->FontSize * GetScaleFactor() + GImGui->Style.FramePadding.y * 2.0f;
 			const ImVec2 buttonSize = { lineHeight + 3.0f, lineHeight };
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4{ 0.8f, 0.1f, 0.15f, 1.0f });
@@ -758,11 +760,6 @@ namespace GALAXY {
 		return stillEditing;
 	}
 
-	ImTextureID Wrapper::UI::GetTextureID(const Resource::Texture* texture)
-	{
-		return reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID()));
-	}
-
 	std::shared_ptr<Component::BaseComponent> Wrapper::UI::ComponentPopup()
 	{
 		if (ImGui::BeginPopup("ComponentPopup"))
@@ -788,16 +785,16 @@ namespace GALAXY {
 		return nullptr;
 	}
 
-	bool Wrapper::UI::TextureButton(ImTextureID textureID, const Vec2f& size)
+	bool Wrapper::UI::TextureButton(uint32_t textureID, const Vec2f& size)
 	{
-		return ImGui::ImageButton(textureID, size * GetScaleFactor());
+		return ImGui::ImageButton(("##" + std::to_string(textureID)).c_str(), textureID, size * GetScaleFactor());
 	}
 
 	bool Wrapper::UI::TextureButton(const Resource::Texture* texture, const Vec2f& size)
 	{
 		if (!texture || !texture->HasBeenSent())
 			return false;
-		return ImGui::ImageButton(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size * GetScaleFactor());
+		return ImGui::ImageButton(("##" + std::to_string(texture->GetID())).c_str(), texture->GetID(), size * GetScaleFactor());
 	}
 
 	bool Wrapper::UI::TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize, const Vec2f& uv0 /*= {0, 0}*/, const Vec2f& uv1 /*= { 1, 1 }*/, int frame_padding /*= 0*/, const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/, const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
@@ -826,7 +823,7 @@ namespace GALAXY {
 		return pressed;
 	}
 
-	bool Wrapper::UI::TextureToggleButtonWithText(ImTextureID texture, const char* label, bool* toggle,
+	bool Wrapper::UI::TextureToggleButtonWithText(uint32_t texture, const char* label, bool* toggle,
 		const Vec2f& imageSize, const Vec2f& uv0, const Vec2f& uv1, int frame_padding, const Vec4f& bg_col,
 		const Vec4f& tint_col)
 	{
@@ -862,17 +859,17 @@ namespace GALAXY {
 	                                               const Vec4f& bg_col /*= Vec4f(0, 0, 0, 1)*/,
 	                                               const Vec4f& tint_col /*= Vec4f(1, 1, 1, 1)*/)
 	{
-		return TextureToggleButtonWithText(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), label, toggle, imageSize, uv0, uv1, frame_padding, bg_col, tint_col);
+		return TextureToggleButtonWithText(texture->GetID(), label, toggle, imageSize, uv0, uv1, frame_padding, bg_col, tint_col);
 	}
 
 	void Wrapper::UI::TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 /*= Vec2i(0, 0)*/, const Vec2i& uv1 /*= Vec2i(1, 1)*/)
 	{
 		if (!texture || !texture->HasBeenSent())
 			return;
-		return ImGui::Image(reinterpret_cast<ImTextureID>(static_cast<uintptr_t>(texture->GetID())), size, (Vec2f)uv0, (Vec2f)uv1);
+		return ImGui::Image(texture->GetID(), size, (Vec2f)uv0, (Vec2f)uv1);
 	}
 
-	void Wrapper::UI::TextureImage(ImTextureID texture, Vec2f size, const Vec2i& uv0, const Vec2i& uv1)
+	void Wrapper::UI::TextureImage(uint32_t texture, Vec2f size, const Vec2i& uv0, const Vec2i& uv1)
 	{
 		if (!texture)
 			return;
@@ -880,7 +877,7 @@ namespace GALAXY {
 	}
 
 	bool Wrapper::UI::IconButton(const char* label,
-	                ImTextureID icon,
+	                uint32_t icon,
 	                const Vec2f& icon_size,
 	                float spacing,
 	                const Vec2f& button_size)

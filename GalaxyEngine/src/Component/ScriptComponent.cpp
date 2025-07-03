@@ -38,7 +38,7 @@ void Component::ScriptComponent::ShowInInspector()
 	}
 }
 
-void* Component::ScriptComponent::GetIcon()
+uint32_t Component::ScriptComponent::GetIcon()
 {
 	return Editor::UI::IconManager::ScriptComponentIcon;
 }

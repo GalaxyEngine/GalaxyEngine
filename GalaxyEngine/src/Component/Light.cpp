@@ -53,7 +53,7 @@ namespace GALAXY
 		p_shadowMap.ShowInInspector();
 	}
 
-	void* Component::Light::GetIcon()
+	uint32_t Component::Light::GetIcon()
 	{
 		return Editor::UI::IconManager::LightComponentIcon;
 	}

@@ -108,7 +108,7 @@ namespace GALAXY
 		ImGui::End();
 	}
 
-	void* Component::CameraComponent::GetIcon()
+	uint32_t Component::CameraComponent::GetIcon()
 	{
 		return Editor::UI::IconManager::CameraComponentIcon;
 	}

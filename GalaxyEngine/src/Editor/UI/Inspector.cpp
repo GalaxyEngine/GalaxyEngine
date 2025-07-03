@@ -22,6 +22,8 @@
 void Editor::UI::Inspector::Draw()
 {
 	EditorWindow::Draw();
+	if (!p_open)
+		return;
 	if (Begin("Inspector"))
 	{
 		if (m_mode == InspectorMode::Scene && m_selectedGameObject.size() == 1)
@@ -37,7 +39,7 @@ void Editor::UI::Inspector::Draw()
 	ImGui::End();
 }
 
-static bool CollapsingHeader(const char* label, ImTextureID icon, bool* checked = nullptr, bool* destroyed = nullptr, bool* hovered = nullptr)
+static bool CollapsingHeader(const char* label, uint32_t icon, bool* checked = nullptr, bool* destroyed = nullptr, bool* hovered = nullptr)
 {
 	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen
 							 | ImGuiTreeNodeFlags_SpanAvailWidth

@@ -30,6 +30,8 @@ namespace GALAXY {
 	void Editor::UI::SceneWindow::Draw()
 	{
 		EditorWindow::Draw();
+		if (!p_open)
+			return;
 		if (Begin("Scene"))
 		{
 			const float windowAvailableWidth = ImGui::GetContentRegionAvail().x;

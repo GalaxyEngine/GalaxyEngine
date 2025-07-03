@@ -56,7 +56,7 @@ add_repositories("galaxy-repo https://github.com/GalaxyEngine/xmake-repo")
 -- Required Packages
 add_requires("galaxymath", "cpp_serializer", "galaxyscript v1.2-galaxyengine")
 add_requires("galaxyheadertool 1.0-galaxyengine", { configs = { destdir = "GalaxyCore" } })
-add_requires("imgui v1.90.7-docking", { configs = { opengl3 = true, glfw = true }})
+add_requires("imgui v1.92.0-docking", { configs = { opengl3 = true, glfw = true }})
 add_requires("glad", { configs = { debug = isDebug, extensions = "GL_KHR_debug" }})
 add_requires("stb", "nativefiledialog-extended", "openfbx", "miniaudio")
 
@@ -89,7 +89,6 @@ for _, api in ipairs(apis) do
     end
 end
 
-
 -- Enable features
 add_defines("ENABLE_MULTI_THREAD")
 
@@ -103,7 +102,6 @@ if is_plat("mingw", "linux") then
     add_cxxflags("-Wno-unknown-pragmas")
     add_cxxflags("-Wno-unused-function")
 end
-
 
 -- Engine target
 target("GalaxyEngine")

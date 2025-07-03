@@ -12,20 +12,20 @@ namespace GALAXY
             public:
                 static void Initialize();
                 
-                static ImTextureID InfoIcon;
-                static ImTextureID WarningIcon;
-                static ImTextureID ErrorIcon;
-                static ImTextureID SettingsIcon;
-                static ImTextureID MenuIcon;
-                static ImTextureID AddIcon;
-                static ImTextureID RemoveIcon;
-                static ImTextureID SearchIcon;
+                static uint32_t InfoIcon;
+                static uint32_t WarningIcon;
+                static uint32_t ErrorIcon;
+                static uint32_t SettingsIcon;
+                static uint32_t MenuIcon;
+                static uint32_t AddIcon;
+                static uint32_t RemoveIcon;
+                static uint32_t SearchIcon;
 
-                static ImTextureID CameraComponentIcon;
-                static ImTextureID LightComponentIcon;
-                static ImTextureID TransformComponentIcon;
-                static ImTextureID MeshComponentIcon;
-                static ImTextureID ScriptComponentIcon;
+                static uint32_t CameraComponentIcon;
+                static uint32_t LightComponentIcon;
+                static uint32_t TransformComponentIcon;
+                static uint32_t MeshComponentIcon;
+                static uint32_t ScriptComponentIcon;
                 
             };
         }

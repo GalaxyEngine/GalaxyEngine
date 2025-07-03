@@ -23,7 +23,7 @@
 
 struct ImFont;
 typedef int ImGuiInputTextFlags;
-typedef void* ImTextureID;
+struct ImTextureRef;
 
 namespace GALAXY
 {
@@ -93,10 +93,8 @@ namespace GALAXY
 
             bool GALAXY_API DrawVec3Control(const std::string& label, float* values, float resetValue = 0.0f,
                                             bool lockButton = false, float columnWidth = 100.0f);
-
-            ImTextureID GetTextureID(const Resource::Texture* texture);
             
-            bool GALAXY_API TextureButton(ImTextureID textureID, const Vec2f& size);
+            bool GALAXY_API TextureButton(uint32_t textureID, const Vec2f& size);
             bool GALAXY_API TextureButton(const Resource::Texture* texture, const Vec2f& size);
 
             bool GALAXY_API TextureButtonWithText(Resource::Texture* texture, const char* label, const Vec2f& imageSize,
@@ -104,7 +102,7 @@ namespace GALAXY
                                                   int frame_padding = 0, const Vec4f& bg_col = Vec4f(0, 0, 0, 1),
                                                   const Vec4f& tint_col = Vec4f(1, 1, 1, 1));
             
-            bool GALAXY_API TextureToggleButtonWithText(ImTextureID texture, const char* label, bool* toggle,
+            bool GALAXY_API TextureToggleButtonWithText(uint32_t texture, const char* label, bool* toggle,
                                                         const Vec2f& imageSize, const Vec2f& uv0 = {0, 0},
                                                         const Vec2f& uv1 = {1, 1}, int frame_padding = 0,
                                                         const Vec4f& bg_col = Vec4f(0, 0, 0, 1),
@@ -119,11 +117,11 @@ namespace GALAXY
             void GALAXY_API TextureImage(Resource::Texture* texture, Vec2f size, const Vec2i& uv0 = Vec2i(0, 0),
                 const Vec2i& uv1 = Vec2i(1, 1));
             
-            void GALAXY_API TextureImage(ImTextureID texture, Vec2f size, const Vec2i& uv0 = Vec2i(0, 0),
+            void GALAXY_API TextureImage(uint32_t texture, Vec2f size, const Vec2i& uv0 = Vec2i(0, 0),
                                          const Vec2i& uv1 = Vec2i(1, 1));
 
 
-            bool GALAXY_API IconButton(const char* label, ImTextureID icon, const Vec2f& icon_size, float spacing = 4.0f, const Vec2f& button_size = {});
+            bool GALAXY_API IconButton(const char* label, uint32_t icon, const Vec2f& icon_size, float spacing = 4.0f, const Vec2f& button_size = {});
 
             void SetNearestFiltering();
 

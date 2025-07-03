@@ -205,7 +205,7 @@ namespace GALAXY
 		}
 	}
 
-	void* Component::Transform::GetIcon()
+	uint32_t Component::Transform::GetIcon()
 	{
 		return Editor::UI::IconManager::TransformComponentIcon;
 	}

@@ -113,7 +113,7 @@ namespace GALAXY {
 		}
 	}
 
-	void* Component::MeshComponent::GetIcon()
+	uint32_t Component::MeshComponent::GetIcon()
 	{
 		return Editor::UI::IconManager::MeshComponentIcon;
 	}

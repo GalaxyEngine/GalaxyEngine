@@ -30,6 +30,7 @@ namespace GALAXY
 						ASSERT(resource.lock() && "Resource not found");
 						ImGui::Text("%s", resource.lock()->GetFileInfo().GetRelativePath().string().c_str());
 					}
+					ImGui::TreePop();
 				}
 				Wrapper::UI::Spinner("##Resource Spinner", 5.f, 1.5f, IM_COL32_WHITE, 5.f);
 			}

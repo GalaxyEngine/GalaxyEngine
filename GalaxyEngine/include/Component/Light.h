@@ -62,7 +62,7 @@ namespace GALAXY
 
 			EDITOR_ONLY virtual void ShowInInspector() override;
 
-			EDITOR_ONLY virtual void* GetIcon() override;
+			EDITOR_ONLY virtual uint32_t GetIcon() override;
 #endif
 			
 			virtual void Serialize(CppSer::Serializer& serializer) override;

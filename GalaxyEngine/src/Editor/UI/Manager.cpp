@@ -266,8 +266,6 @@ namespace GALAXY {
 			ImGui::GetStyle().ScaleAllSizes(curDPIScale);
 
 		Wrapper::FontManager::RecreateFonts(curDPIScale);
-		
-		ImGui_ImplOpenGL3_CreateFontsTexture();
 	}
 	void* Editor::UI::Manager::GetContext()
 	{
